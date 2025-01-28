@@ -1,0 +1,21 @@
+[
+    {
+        "id": "login-email",
+        "label": "Email",
+        "type": "email",
+        "placeholder": "Enter a valid email",
+        "error": "Not a valid email",
+        "required": true,
+        "hasError": false
+    },
+    {
+        "id": "login-password",
+        "label": "Password",
+        "type": "password",
+        "placeholder": "Enter password",
+        "required": true,
+        "hasStrengthIndicator": false,
+        "hasDisplayToggle": true,
+        "hasError": false
+    }
+]

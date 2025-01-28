@@ -1,0 +1,27 @@
+{
+    "type": "object",
+    "properties": {
+        "login-email": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 6,
+                    "errorMessage": "Email should be at least 6 characters long"
+                },
+                {
+                    "maxLength": 127,
+                    "errorMessage": "Email is too long"
+                },
+                {
+                    "pattern": "^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
+                    "errorMessage": "This is not a valid email address."
+                }
+            ]
+        },
+        "login-password": {
+            "type": "string"
+        }
+    },
+    "required": ["login-email", "login-password"],
+    "additionalProperties": false
+}

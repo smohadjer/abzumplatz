@@ -1,0 +1,25 @@
+.password-wrapper {
+    text-align: right;
+    margin: 0.25em 0;
+
+    &.flex {
+        justify-content: space-between;
+        align-items: center;
+        display: flex;
+    }
+
+    span {
+        text-transform: capitalize;
+        &::before {
+            content: "";
+            border-radius: 50%;
+            padding: 0.4em;
+            display: inline-block;
+            margin-right: 0.25em;
+        }
+
+        &.low::before { background: red;}
+        &.medium::before { background: darkorange;}
+        &.high::before {background: green;}
+    }
+}

@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router";
 import Home from "./pages/Home";
+import Register from "./pages/Register";
 import About from "./pages/About";
 import Layout from "./pages/Layout";
 import Test from "./pages/Test";
@@ -17,6 +18,7 @@ export default function App() {
                     <Route path=":id" element={<Test />} />
                     <Route path="saeid" element={<Myself />} />
                 </Route>
+                <Route path="/register" element={<Register />} />
                 <Route path="*" element={<NotFound />} />
              </Route>
         </Routes>

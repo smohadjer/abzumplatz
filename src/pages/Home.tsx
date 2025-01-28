@@ -47,9 +47,7 @@ export default function Home() {
         return (
             <ul className="items">
             {
-                data.map((item: Item) => {
-                    return <li key={item.id}>{item.id} {item.name}</li>
-                })
+                data.map((item: Item) => <li key={item._id}>{item._id} {item.name}</li>)
             }
             </ul>
         )

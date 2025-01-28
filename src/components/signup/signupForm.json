@@ -1,0 +1,41 @@
+[
+    {
+        "id": "first_name",
+        "label": "First Name",
+        "type": "text",
+        "pattern": "^[A-Za-z]{2,40}$",
+        "placeholder": "First name",
+        "error": "Only letters, 2 to 40 characters long",
+        "hasError": false
+    },
+    {
+        "id": "last_name",
+        "label": "Last Name",
+        "type": "text",
+        "pattern": "^[A-Za-z]{2,40}$",
+        "placeholder": "Last name",
+        "error": "Only letters, 2 to 40 characters long",
+        "hasError": false
+    },
+    {
+        "id": "email",
+        "label": "Email",
+        "type": "email",
+        "placeholder": "Enter a valid email",
+        "error": "Not a valid email",
+        "required": true,
+        "hasError": false
+    },
+    {
+        "id": "password",
+        "label": "Password",
+        "type": "password",
+        "placeholder": "Use a strong password",
+        "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d])[^\\s]{8,}$",
+        "error": "Minimum 8 characters, one uppercase, one lowercase, one number, and one special character",
+        "required": true,
+        "hasStrengthIndicator": true,
+        "hasDisplayToggle": true,
+        "hasError": false
+    }
+]

@@ -1,0 +1,102 @@
+.form-react {
+    padding: 1em;
+    background: #eee;
+    width: 100%;
+    box-sizing: border-box;
+    background: #eee;
+
+    @media (min-width: 768px) {
+        width: auto;
+        display: inline-block;
+    }
+
+    fieldset {
+        margin-bottom: 1em;
+        border: 0;
+        padding: 0;
+
+        @media (min-width: 768px) {
+            display: grid;
+            gap: 0.5em 1em;
+            grid-template-columns: repeat(2, min-content);
+        }
+
+        > div {
+            margin-bottom: 1em;
+
+            @media (min-width: 768px) {
+                margin-bottom: 0;
+            }
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    input:not(
+        [type="file" i],
+        [type="image" i],
+        [type="checkbox" i],
+        [type="radio" i]) {
+        border: 1px #ccc solid;
+        padding: 0.25em 0.5em;
+        font-size: 16px;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+
+        @media (min-width: 768px) {
+            width: auto;
+            min-width: 40ch;
+        }
+    }
+
+    .error {
+        display: none;
+    }
+
+    input.hasError,
+    input:user-invalid {
+        background-color: #fcd4da;
+        border-color: #c70000;
+
+        + div + .error,
+        + .error {
+            display: block;
+            padding-top: 0.25em;
+            color: #c70000;
+
+            @media (min-width: 768px) {
+                padding-bottom: 0.5em;
+            }
+        }
+    }
+
+    label {
+        padding: 0.25em 0;
+        display: block;
+
+        &.required::after {
+            content: '*';
+            margin-left: 0.25em;
+        }
+    }
+
+    button[type=submit] {
+        padding: 0.5em 1em;
+        font-size: inherit;
+        background: #3264c8;
+        color: white;
+        border: 0;
+        cursor: pointer;
+
+        &:focus {
+            outline-color: black;
+        }
+
+        &:hover {
+            background: #194b96;
+        }
+    }
+}
