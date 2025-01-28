@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import './home.css';
 
 interface Item {
- id: string;
+ _id: string;
  name: string;
 }
 
