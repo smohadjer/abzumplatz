@@ -2,6 +2,7 @@
     "rewrites": [
        { "source": "/about", "destination": "/" },
        { "source": "/about/:path*", "destination": "/" },
-       { "source": "/register", "destination": "/" }
+       { "source": "/register", "destination": "/" },
+       { "source": "/login", "destination": "/" }
    ]
 }

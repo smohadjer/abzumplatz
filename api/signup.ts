@@ -8,13 +8,10 @@ const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/signup.json',
 const client = new MongoClient(database_uri);
 const saltRounds = 10;
 
-console.log(database_uri, database_name, 'hi');
-
 export default async (req, res) => {
     if (req.method === 'POST') {
         const validator = ajv.compile(schema);
         const valid = validator(sanitize(req.body));
-        console.log(valid);
         if (!valid) {
             const errors = validator.errors;
             errors.map(error => {
@@ -29,19 +26,13 @@ export default async (req, res) => {
             });
             return res.json({error: errors});
         } else {
-            console.log('valid')
             const { first_name, last_name, email, password } = req.body;
             //return res.json('Server received valid data');
 
             try {
-                console.log('try...')
                 await client.connect();
-                console.log('asdf')
                 const database = client.db(database_name);
                 const collection = database.collection('users');
-
-                console.log(collection)
-
                 const doc = await collection.findOne({ email });
                 if (doc) {
                     throw new Error(`Email ${email} is already exists.`);

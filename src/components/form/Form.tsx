@@ -3,10 +3,13 @@ import { FormField } from '../formField/FormField';
 import { normalizeErrors } from '../../utils/normalizeErrors';
 import { FormProps, ServerError, FieldError } from '../../types';
 import './Form.css';
+import { useNavigate } from "react-router";
+
 
 export function Form(props: FormProps) {
     const { method, action, fields, label } = props;
     const [errors, setErrors] = useState<FieldError[]>([]);
+    const navigate = useNavigate();
 
     function updateErrors(newErrors: FieldError[]) {
         setErrors(newErrors);
@@ -33,6 +36,22 @@ export function Form(props: FormProps) {
                 updateErrors(normalizeErrors(errors));
             } else {
                 console.log('Server received valid data');
+
+                if (json.data) {
+                    console.log(json.data);
+                }
+
+                if (action === '/api/signup') {
+                    console.log('going to login');
+                    navigate('/login');
+                    return;
+                }
+
+                if (action === '/api/login') {
+                    console.log('going to home');
+                    navigate('/');
+                    return;
+                }
             }
         });
     }

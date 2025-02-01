@@ -1,6 +1,7 @@
-import { Routes, Route } from "react-router";
+import { Routes, Route, Link, Navigate } from 'react-router';
 import Home from "./pages/Home";
 import Register from "./pages/Register";
+import LoginPage from "./pages/Login";
 import About from "./pages/About";
 import Layout from "./pages/Layout";
 import Test from "./pages/Test";
@@ -19,6 +20,7 @@ export default function App() {
                     <Route path="saeid" element={<Myself />} />
                 </Route>
                 <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<LoginPage />} />
                 <Route path="*" element={<NotFound />} />
              </Route>
         </Routes>

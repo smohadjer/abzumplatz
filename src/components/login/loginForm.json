@@ -1,17 +1,19 @@
 [
     {
-        "id": "login-email",
+        "id": "email",
         "label": "Email",
         "type": "email",
+        "autocomplete": "email",
         "placeholder": "Enter a valid email",
         "error": "Not a valid email",
         "required": true,
         "hasError": false
     },
     {
-        "id": "login-password",
+        "id": "password",
         "label": "Password",
         "type": "password",
+        "autocomplete": "password",
         "placeholder": "Enter password",
         "required": true,
         "hasStrengthIndicator": false,

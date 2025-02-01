@@ -21,7 +21,7 @@ export interface InputProps {
     required?: boolean;
     pattern?: string;
     onInput?: React.FormEventHandler;
-    autoComplete?: string;
+    autocomplete?: string;
 
 }
 

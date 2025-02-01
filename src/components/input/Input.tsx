@@ -1,7 +1,7 @@
 import { InputProps } from '../../types';
 
 export function Input({
-        id, type, placeholder, hasError, required, pattern, onInput, autoComplete
+        id, type, placeholder, hasError, required, pattern, onInput, autocomplete
     }: InputProps) {
     return (
         <input
@@ -14,7 +14,7 @@ export function Input({
             required={required}
             pattern={pattern}
             onInput={onInput}
-            autoComplete={autoComplete}
+            autoComplete={autocomplete}
         />
     )
 }
