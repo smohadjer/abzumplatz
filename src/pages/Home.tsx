@@ -1,46 +1,36 @@
 import { useState, useEffect } from "react";
 import { Link } from 'react-router';
-
 import './home.css';
+import { Logout } from "../components/logout/Logout";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../store';
 
 interface Item {
  _id: string;
  name: string;
 }
 
-interface Cache {
-    data?: [];
-    dbData?: [];
-}
-
-const cache: Cache = {};
-
 export default function Home() {
     const [data, setData] = useState([]);
     const [dbData, setDbData] = useState([]);
+    const auth = useSelector((state: RootState) => state.auth.value);
 
     useEffect(() => {
-        if (cache.data) {
-            setData(cache.data);
-        } else {
-            fetch('/api/json-server')
-            .then(res => res.json())
-            .then(json => {
-                setData(json);
-                cache.data = json;
-            });
-        }
 
-        if (cache.dbData) {
-            setDbData(cache.dbData);
-        } else {
-            fetch('/api/index')
-            .then(res => res.json())
-            .then(json => {
-                setDbData(json);
-                cache.dbData = json;
-            });
-        }
+    }, []);
+
+    useEffect(() => {
+        fetch('/api/json-server')
+        .then(res => res.json())
+        .then(json => {
+            setData(json);
+        });
+
+        fetch('/api/index')
+        .then(res => res.json())
+        .then(json => {
+            setDbData(json);
+        });
     }, []);
 
     const getList = (data:Item[]) => {
@@ -55,6 +45,8 @@ export default function Home() {
 
     return (
         <>
+            <p>Login state: {JSON.stringify(auth)}</p>
+            <Logout />
             <h1>Boilerplate for building SPAs with React and Vercel's serverless</h1>
             <p><Link to="/contacts">Link to Contacts</Link></p>
             <div className="flex">

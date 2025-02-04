@@ -40,3 +40,7 @@ export interface ServerError {
         missingProperty: string;
     }
 }
+
+export type State = {
+    isLoggedin: boolean;
+  }

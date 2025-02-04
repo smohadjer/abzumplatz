@@ -37,13 +37,13 @@ export default async (req, res) => {
 
                 const user = await collection.findOne({ email });
                 if (!user) {
-                  throw new Error(`login failed: user with email ${email} not found`);
+                  throw new Error(`User with email ${email} does not exist!`);
                 } else {
                   if (await bcrypt.compare(password, user.password)) {
                     authenticated = true;
                     console.log('user._id:', user._id);
                   } else {
-                    throw new Error('login failed: passwrod wrong');
+                    throw new Error('Passwrod is wrong');
                   }
                 }
 
@@ -78,7 +78,12 @@ export default async (req, res) => {
                 console.error(e.message);
 
                 // login form is submitted via ajax, redirect happens on client
-                res.status(401).json({ error: 'wrong credentials' });
+                res.status(401).json({
+                    error: [{
+                        'instancePath': '/email',
+                        'message': e.message
+                    }]
+                });
 
                 // login form is submitted without ajax, redirect happens on server
                 // res.setHeader('Location', '/login');

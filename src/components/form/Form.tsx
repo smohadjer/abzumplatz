@@ -4,12 +4,16 @@ import { normalizeErrors } from '../../utils/normalizeErrors';
 import { FormProps, ServerError, FieldError } from '../../types';
 import './Form.css';
 import { useNavigate } from "react-router";
-
+import { store } from '../../utils/store';
+import { useSelector, useDispatch } from 'react-redux'
+import { login, logout } from '../../authSlice'
 
 export function Form(props: FormProps) {
     const { method, action, fields, label } = props;
     const [errors, setErrors] = useState<FieldError[]>([]);
     const navigate = useNavigate();
+    const auth = useSelector(state => state.auth.value)
+    const dispatch = useDispatch()
 
     function updateErrors(newErrors: FieldError[]) {
         setErrors(newErrors);
@@ -31,6 +35,8 @@ export function Form(props: FormProps) {
         })
         .then((response) => response.json())
         .then(json => {
+            console.log(json);
+            const state = store.getState();
             if (json.error) {
                 const errors: ServerError[] = [...json.error];
                 updateErrors(normalizeErrors(errors));
@@ -47,10 +53,26 @@ export function Form(props: FormProps) {
                     return;
                 }
 
+                if (action === '/api/logout') {
+                    // store.setState({
+                    //     ...state,
+                    //     isLoggedin: false
+                    // });
+                    dispatch(logout());
+                    //console.log('going to login');
+                    //navigate('/login');
+                    //return;
+                }
+
                 if (action === '/api/login') {
-                    console.log('going to home');
+                    // store.setState({
+                    //     ...state,
+                    //     isLoggedin: true
+                    // });
+                    dispatch(login());
+                    console.log('going to home', store.getState());
                     navigate('/');
-                    return;
+                    //return;
                 }
             }
         });
@@ -58,6 +80,7 @@ export function Form(props: FormProps) {
 
     return (
         <form
+            noValidate={true}
             className="form-react"
             method={method}
             action={action}
