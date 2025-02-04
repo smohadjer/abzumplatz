@@ -10,8 +10,8 @@ export default async (request, response) => {
         const jwtResponse = await jwtVerify(jwt, secret);
         console.log(jwtResponse.payload);
         response.status(200).json({
-            name: jwtResponse.payload.name,
-            id: jwtResponse.payload.id
+            first_name: jwtResponse.payload.first_name,
+            _id: jwtResponse.payload._id
         });
     } catch(err) {
         console.error('No jwt token or invalid jwt token, redirecting to login page');

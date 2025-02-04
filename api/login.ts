@@ -51,8 +51,9 @@ export default async (req, res) => {
                     const secret = new TextEncoder().encode(jwtSecret);
                     const alg = 'HS256';
                     const token = await new SignJWT({
-                        name: user.username,
-                        id: user._id
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        _id: user._id
                       })
                       .setProtectedHeader({ alg })
                       .setExpirationTime('10w')
@@ -62,12 +63,10 @@ export default async (req, res) => {
 
                     // login form is submitted via ajax, redirect happens on client
                     res.json({
-                      data: {
                         id: user._id,
-                        frist_name: user.first_name,
+                        first_name: user.first_name,
                         last_name: user.last_name,
                         email: user.email
-                      }
                     });
 
                     // login form is submitted without ajax, redirect happens on server

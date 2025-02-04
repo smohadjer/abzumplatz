@@ -21,7 +21,7 @@ export default function App() {
     const auth = useSelector((state: RootState) => state.auth.value);
     const dispatch = useDispatch();
 
-    console.log({auth});
+   console.log(JSON.stringify(auth));
 
     useEffect(() => {
         async function getAuth() {
@@ -29,19 +29,23 @@ export default function App() {
             const authenticated = await isAuthenticated();
 
             if (authenticated.error) {
+                console.log('error');
                 // user is not logged-in, fetching all events
-                dispatch(logout());
+                //dispatch(logout());
             } else {
+                console.log('success');
                 // user is logged-in, fetching only his events
-                dispatch(login());
+                dispatch({type: 'auth/login', payload: {
+                    value: true,
+                    first_name: authenticated.first_name
+                }});
             }
 
-            console.log('auth again', auth);
             setInitialized(true);
         }
 
         getAuth();
-    })
+    }, []);
 
     return (
         initialized ?

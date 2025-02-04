@@ -56,7 +56,10 @@ export function Form(props: FormProps) {
                     //     ...state,
                     //     isLoggedin: false
                     // });
-                    dispatch(logout());
+                    dispatch({type: 'auth/logout', payload: {
+                        value: false,
+                        first_name: '',
+                    }});
                     //console.log('going to login');
                     //navigate('/login');
                     //return;
@@ -67,7 +70,10 @@ export function Form(props: FormProps) {
                     //     ...state,
                     //     isLoggedin: true
                     // });
-                    dispatch(login());
+                    dispatch({type: 'auth/login', payload: {
+                        value: true,
+                        first_name: json.first_name,
+                    }});
                     //console.log('going to home', store.getState());
                     //navigate('/');
                     //return;

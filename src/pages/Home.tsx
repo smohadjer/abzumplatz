@@ -13,7 +13,7 @@ interface Item {
 export default function Home() {
     const [data, setData] = useState([]);
     const [dbData, setDbData] = useState([]);
-    const auth = useSelector((state: RootState) => state.auth.value);
+    const firstName = useSelector((state: RootState) => state.auth.first_name);
 
     useEffect(() => {
 
@@ -45,7 +45,7 @@ export default function Home() {
 
     return (
         <>
-            <p>Login state: {JSON.stringify(auth)}</p>
+            <p>Welcome {firstName}</p>
             <Logout />
             <h1>Boilerplate for building SPAs with React and Vercel's serverless</h1>
             <p><Link to="/contacts">Link to Contacts</Link></p>
