@@ -1,4 +1,4 @@
-import { Routes, Route, Link, Navigate } from 'react-router';
+import { Navigate } from 'react-router';
 
 type Props = {
     isLoggedin: boolean;

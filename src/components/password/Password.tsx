@@ -27,7 +27,7 @@ export function Password(props: PasswordProps) {
             <Input {...props}
                 type={type}
                 onInput={(e) => {inputHandler(e)}}
-                autoComplete='new-password'
+                autocomplete='new-password'
             />
             <div className={passwordWrapperClass}>
                 {props.hasStrengthIndicator &&

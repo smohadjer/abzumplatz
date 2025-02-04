@@ -4,15 +4,14 @@ import { normalizeErrors } from '../../utils/normalizeErrors';
 import { FormProps, ServerError, FieldError } from '../../types';
 import './Form.css';
 import { useNavigate } from "react-router";
-import { store } from '../../utils/store';
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { login, logout } from '../../authSlice'
 
 export function Form(props: FormProps) {
     const { method, action, fields, label } = props;
     const [errors, setErrors] = useState<FieldError[]>([]);
     const navigate = useNavigate();
-    const auth = useSelector(state => state.auth.value)
+    //const auth = useSelector(state => state.auth.value)
     const dispatch = useDispatch()
 
     function updateErrors(newErrors: FieldError[]) {
@@ -36,7 +35,6 @@ export function Form(props: FormProps) {
         .then((response) => response.json())
         .then(json => {
             console.log(json);
-            const state = store.getState();
             if (json.error) {
                 const errors: ServerError[] = [...json.error];
                 updateErrors(normalizeErrors(errors));
@@ -70,8 +68,8 @@ export function Form(props: FormProps) {
                     //     isLoggedin: true
                     // });
                     dispatch(login());
-                    console.log('going to home', store.getState());
-                    navigate('/');
+                    //console.log('going to home', store.getState());
+                    //navigate('/');
                     //return;
                 }
             }
