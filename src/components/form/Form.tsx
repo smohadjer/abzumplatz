@@ -5,7 +5,6 @@ import { FormProps, ServerError, FieldError } from '../../types';
 import './Form.css';
 import { useNavigate } from "react-router";
 import { useDispatch } from 'react-redux'
-import { login, logout } from '../../authSlice'
 
 export function Form(props: FormProps) {
     const { method, action, fields, label } = props;

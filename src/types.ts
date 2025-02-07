@@ -4,7 +4,7 @@ export interface FieldError {
 }
 
 export interface FieldProps extends PasswordProps {
-    label: string,
+    label?: string,
     error?: string;
 }
 
@@ -16,8 +16,8 @@ export interface PasswordProps extends InputProps {
 export interface InputProps {
     id: string;
     type: string;
-    placeholder: string;
-    hasError: boolean;
+    placeholder?: string;
+    hasError?: boolean;
     required?: boolean;
     pattern?: string;
     onInput?: React.FormEventHandler;

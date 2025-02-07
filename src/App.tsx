@@ -13,7 +13,6 @@ import { useEffect, useState } from 'react';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
 import { useSelector, useDispatch } from 'react-redux'
-import { login, logout } from './authSlice'
 import { RootState } from './store';
 
 export default function App() {
