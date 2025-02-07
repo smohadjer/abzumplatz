@@ -1,0 +1,12 @@
+GET http://localhost:3000/api/clubs
+
+###
+
+// create a club
+POST http://localhost:3000/api/clubs
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdF9uYW1lIjoiU2FlaWQiLCJsYXN0X25hbWUiOiJNb2hhZGplciIsIl9pZCI6IjY3OWUxYTgzOWE4MmJkOWIxOWZiYjAzNiIsImV4cCI6MTc0NTk1NTI1N30.12BCqG_jBUXHQb_oW6eSFSoB0Yq9ndwS3BIvg2nLndY
+
+{
+    "name": "Waldkirch",
+    "courts_count": 8
+}

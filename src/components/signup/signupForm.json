@@ -1,5 +1,10 @@
 [
     {
+        "type": "hidden",
+        "id": "club_id",
+        "value": "67a501832225683fb61ca069"
+    },
+    {
         "id": "first_name",
         "label": "First Name",
         "type": "text",

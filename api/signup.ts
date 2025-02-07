@@ -1,6 +1,6 @@
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import bcrypt from 'bcrypt';
 
@@ -26,27 +26,48 @@ export default async (req, res) => {
             });
             return res.json({error: errors});
         } else {
-            const { first_name, last_name, email, password } = req.body;
+            const { first_name, last_name, club_id, email, password } = req.body;
             //return res.json('Server received valid data');
 
             try {
                 await client.connect();
                 const database = client.db(database_name);
                 const collection = database.collection('users');
+                const collectionClubs = database.collection('clubs');
+                collection.createIndex(
+                    {
+                       first_name: 1,
+                       last_name: 1,
+                    },
+                    {
+                       collation:
+                          {
+                             locale : 'en',
+                             strength : 1
+                          }
+                    }
+                 )
                 const doc = await collection.findOne({ email });
                 if (doc) {
-                    throw new Error(`Email ${email} is already exists.`);
+                    throw new Error(`Email ${email} already exists`);
+                }
+
+                const clubQuery = { _id: ObjectId.createFromHexString(club_id)};
+                const club = await collectionClubs.findOne(clubQuery);
+                if (!club) {
+                    throw new Error('Club not found');
                 }
 
                 const hashedPassword = await bcrypt.hash(password, saltRounds);
                 const user = {
                     first_name,
                     last_name,
+                    club_id,
                     email,
                     password: hashedPassword
                 };
                 const insertResponse = await collection.insertOne(user);
-                res.status(201).json({message: `User ${first_name} is registered`});
+                res.status(201).json({message: `User ${first_name} ${last_name} is registered`});
             } catch (e) {
                 console.error(e);
                 res.status(500).json({error: e.message});

@@ -22,6 +22,7 @@ export interface InputProps {
     pattern?: string;
     onInput?: React.FormEventHandler;
     autocomplete?: string;
+    value?: string;
 
 }
 

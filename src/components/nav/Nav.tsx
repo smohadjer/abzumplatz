@@ -17,6 +17,8 @@ export default function Nav() {
                         <li><NavLink to="/about/123">about with id</NavLink></li>
                     </ul>
                 </li>
+                <li><NavLink to="/login">Login</NavLink></li>
+                <li><NavLink to="/register">Register</NavLink></li>
             </ul>
         </nav>
     )

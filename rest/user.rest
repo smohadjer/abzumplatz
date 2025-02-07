@@ -1,0 +1,32 @@
+// trying to get users without providing club_id would return an error
+GET http://localhost:3000/api/users
+
+###
+
+// get all users of a club
+GET http://localhost:3000/api/users?club_id=67a501832225683fb61ca069
+
+###
+
+// get user by first_name
+GET http://localhost:3000/api/users?first_name=saeid
+
+###
+
+// get user by id
+GET http://localhost:3000/api/users?id=67a5ab2e9cda22e8dad5dd98
+
+###
+
+// create new user
+// if email exists or club_id is not found in db error is thrown
+POST http://localhost:3000/api/signup
+Content-Type: application/json
+
+{
+    "first_name": "Test",
+    "last_name": "Tyson",
+    "email": "mike@test.com",
+    "club_id": "67a501832225683fb61ca069",
+    "password": "Opengl?1"
+}

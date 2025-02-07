@@ -61,7 +61,11 @@ export default function App() {
                     <Route path=":id" element={<Test />} />
                     <Route path="saeid" element={<Myself />} />
                 </Route>
-                <Route path="/register" element={<Register />} />
+                <Route path="/register" element={
+                    <PublicRoute isLoggedin={auth}>
+                        <Register />
+                    </PublicRoute>
+                } />
                 <Route path="/login" element={
                     <PublicRoute isLoggedin={auth}>
                         <LoginPage />
