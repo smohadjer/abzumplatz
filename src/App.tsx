@@ -17,26 +17,34 @@ import { RootState } from './store';
 
 export default function App() {
     const [initialized, setInitialized] = useState(false);
+    const [clubs, setClubs] = useState([]);
     const auth = useSelector((state: RootState) => state.auth.value);
     const dispatch = useDispatch();
 
-   console.log(JSON.stringify(auth));
+   console.log('auth:', auth);
 
     useEffect(() => {
         async function getAuth() {
             console.log('authenticating')
             const authenticated = await isAuthenticated();
 
+            const clubs = await fetch('api/clubs');
+            const clubsData = await clubs.json();
+            console.log('clubs:', clubsData);
+            setClubs(clubsData);
+
             if (authenticated.error) {
                 console.log('error');
                 // user is not logged-in, fetching all events
                 //dispatch(logout());
             } else {
-                console.log('success');
+                console.log('success', authenticated);
                 // user is logged-in, fetching only his events
                 dispatch({type: 'auth/login', payload: {
                     value: true,
-                    first_name: authenticated.first_name
+                    first_name: authenticated.first_name,
+                    last_name: authenticated.last_name,
+                    club_id: authenticated.club_id,
                 }});
             }
 
@@ -52,7 +60,7 @@ export default function App() {
              <Route element={<Layout />}>
                 <Route path="/" element={
                     <ProtectedRoute isLoggedin={auth}>
-                        <Home />
+                        <Home clubs={clubs} />
                     </ProtectedRoute>
                 }/>
                 <Route path="/about">

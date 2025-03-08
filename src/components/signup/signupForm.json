@@ -1,8 +1,23 @@
 [
     {
-        "type": "hidden",
         "id": "club_id",
-        "value": "67a501832225683fb61ca069"
+        "label": "Select Club",
+        "type": "select",
+        "options": [
+            {
+                "name": "Select",
+                "value": ""
+            },
+            {
+                "name": "TSV",
+                "value": "67a501832225683fb61ca069"
+            },
+            {
+                "name": "Waldkirch",
+                "value": "67a6f9b2d791062c2d656097"
+            }
+        ],
+        "required": true
     },
     {
         "id": "first_name",
@@ -11,6 +26,7 @@
         "pattern": "^[A-Za-z]{2,40}$",
         "placeholder": "First name",
         "error": "Only letters, 2 to 40 characters long",
+        "required": true,
         "hasError": false
     },
     {
@@ -20,6 +36,7 @@
         "pattern": "^[A-Za-z]{2,40}$",
         "placeholder": "Last name",
         "error": "Only letters, 2 to 40 characters long",
+        "required": true,
         "hasError": false
     },
     {

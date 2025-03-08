@@ -11,6 +11,8 @@ export default async (request, response) => {
         console.log(jwtResponse.payload);
         response.status(200).json({
             first_name: jwtResponse.payload.first_name,
+            last_name: jwtResponse.payload.last_name,
+            club_id: jwtResponse.payload.club_id,
             _id: jwtResponse.payload._id
         });
     } catch(err) {

@@ -50,11 +50,14 @@ export default async (req, res) => {
                 if (authenticated) {
                     const secret = new TextEncoder().encode(jwtSecret);
                     const alg = 'HS256';
-                    const token = await new SignJWT({
-                        first_name: user.first_name,
-                        last_name: user.last_name,
-                        _id: user._id
-                      })
+                    const payload = {
+                      _id: user._id,
+                      first_name: user.first_name,
+                      last_name: user.last_name,
+                      club_id: user.club_id,
+                      email: user.email
+                    };
+                    const token = await new SignJWT(payload)
                       .setProtectedHeader({ alg })
                       .setExpirationTime('10w')
                       .sign(secret);
@@ -62,12 +65,7 @@ export default async (req, res) => {
                     setCookieServerless(res, token);
 
                     // login form is submitted via ajax, redirect happens on client
-                    res.json({
-                        id: user._id,
-                        first_name: user.first_name,
-                        last_name: user.last_name,
-                        email: user.email
-                    });
+                    res.json(payload);
 
                     // login form is submitted without ajax, redirect happens on server
                     // res.setHeader('Location', '/admin');

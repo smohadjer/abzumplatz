@@ -56,7 +56,7 @@
         display: none;
     }
 
-    input.hasError,
+    *.hasError,
     input:user-invalid {
         background-color: #fcd4da;
         border-color: #c70000;
@@ -76,6 +76,7 @@
     label {
         padding: 0.25em 0;
         display: block;
+        white-space: nowrap;
 
         &.required::after {
             content: '*';

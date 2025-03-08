@@ -72,6 +72,8 @@ export function Form(props: FormProps) {
                     dispatch({type: 'auth/login', payload: {
                         value: true,
                         first_name: json.first_name,
+                        last_name: json.last_name,
+                        club_id: json.club_id,
                     }});
                     //console.log('going to home', store.getState());
                     //navigate('/');

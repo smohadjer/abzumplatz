@@ -1,0 +1,25 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "allOf": [
+                {
+                    "maxLength": 100,
+                    "errorMessage": "Name is too long"
+                }
+            ]
+        },
+        "courts_count": {
+            "type": "integer",
+            "allOf": [
+                {
+                    "minimum": 0,
+                    "exclusiveMaximum": 100
+                }
+            ]
+        }
+    },
+    "required": ["name", "courts_count"],
+    "additionalProperties": false
+}

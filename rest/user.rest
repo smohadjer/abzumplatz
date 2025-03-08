@@ -8,6 +8,11 @@ GET http://localhost:3000/api/users?club_id=67a501832225683fb61ca069
 
 ###
 
+// get all users of another club
+GET http://localhost:3000/api/users?club_id=67a6f9b2d791062c2d656097
+
+###
+
 // get user by first_name
 GET http://localhost:3000/api/users?first_name=saeid
 
@@ -19,7 +24,7 @@ GET http://localhost:3000/api/users?id=67a5ab2e9cda22e8dad5dd98
 ###
 
 // create new user
-// if email exists or club_id is not found in db error is thrown
+// if email already exists in db or club_id is not found in db error is returned
 POST http://localhost:3000/api/signup
 Content-Type: application/json
 

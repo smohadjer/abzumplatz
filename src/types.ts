@@ -3,17 +3,17 @@ export interface FieldError {
     error: string;
 }
 
-export interface FieldProps extends PasswordProps {
+export type FieldProps = PasswordProps & {
     label?: string,
     error?: string;
 }
 
-export interface PasswordProps extends InputProps {
+export type PasswordProps = InputProps & {
     hasStrengthIndicator?: boolean;
     hasDisplayToggle?: boolean;
 }
 
-export interface InputProps {
+export type InputProps = {
     id: string;
     type: string;
     placeholder?: string;
@@ -23,7 +23,19 @@ export interface InputProps {
     onInput?: React.FormEventHandler;
     autocomplete?: string;
     value?: string;
+}
 
+export type SelectProps = {
+    id: string;
+    type: string;
+    hasError?: boolean;
+    required?: boolean;
+    options: Option[];
+    value?: string;
+}
+
+export type Option = {
+    [name: string]: [value: string]
 }
 
 export interface FormProps {

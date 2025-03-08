@@ -7,25 +7,29 @@ import { RootState } from '../store';
 
 interface Item {
  _id: string;
- name: string;
+ first_name: string;
+ last_name: string;
 }
 
-export default function Home() {
-    const [data, setData] = useState([]);
+type Props = {
+    clubs: club[];
+}
+
+type club = {
+    _id: string;
+    name: string;
+    courts_count: number;
+}
+
+export default function Home(props: Props) {
     const [dbData, setDbData] = useState([]);
     const firstName = useSelector((state: RootState) => state.auth.first_name);
+    const lastName = useSelector((state: RootState) => state.auth.last_name);
+    const clubId = useSelector((state: RootState) => state.auth.club_id);
+
+    const userClub = props.clubs.find(club => club._id === clubId);
 
     useEffect(() => {
-
-    }, []);
-
-    useEffect(() => {
-        fetch('/api/json-server')
-        .then(res => res.json())
-        .then(json => {
-            setData(json);
-        });
-
         fetch('/api/index')
         .then(res => res.json())
         .then(json => {
@@ -37,7 +41,11 @@ export default function Home() {
         return (
             <ul className="items">
             {
-                data.map((item: Item) => <li key={item._id}>{item._id} {item.name}</li>)
+                data.map((item: Item) => <li key={item._id}>
+                    {item.first_name}
+                    {' '}
+                    {item.last_name}
+                </li>)
             }
             </ul>
         )
@@ -45,17 +53,14 @@ export default function Home() {
 
     return (
         <>
-            <p>Welcome {firstName}</p>
+            <p>User: {firstName} {lastName}</p>
+            <p>Club: {userClub ? userClub.name : null}</p>
             <Logout />
             <h1>Boilerplate for building SPAs with React and Vercel's serverless</h1>
             <p><Link to="/contacts">Link to Contacts</Link></p>
             <div className="flex">
                 <div>
-                    <h2>Fruits from static JSON file</h2>
-                    {data.length ? getList(data) : 'Loading...'}
-                </div>
-                <div>
-                    <h2>Fruits from MongoDB database</h2>
+                    <h2>Players</h2>
                     {dbData.length ? getList(dbData) : 'Loading...'}
                 </div>
             </div>

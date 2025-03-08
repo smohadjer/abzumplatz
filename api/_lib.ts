@@ -5,10 +5,12 @@ type Data = {
 }
 
 export function sanitize(data: Data) {
-    console.log(data);
     const temp = {};
     for (const [key, value] of Object.entries(data)) {
-        if (value?.length > 0) {
+        // if a string property has no value don't send it to api
+        if (typeof value === 'string' && value.length === 0) {
+            // do nothing
+        } else {
             temp[key] = value;
         }
     }

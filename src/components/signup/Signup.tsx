@@ -3,6 +3,8 @@ import fields from './signupForm.json';
 import './Signup.css';
 
 export function Signup() {
+    console.log(fields);
+
     return (
         <Form
             method="POST"
