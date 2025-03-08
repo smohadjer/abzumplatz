@@ -36,7 +36,8 @@ export type SelectProps = {
 }
 
 export type Option = {
-    [name: string]: [value: string]
+    name: string;
+    value: string;
 }
 
 export interface FormProps {
