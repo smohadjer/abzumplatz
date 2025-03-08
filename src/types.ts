@@ -23,6 +23,7 @@ export type InputProps = {
     onInput?: React.FormEventHandler;
     autocomplete?: string;
     value?: string;
+    options?: Option[];
 }
 
 export type SelectProps = {

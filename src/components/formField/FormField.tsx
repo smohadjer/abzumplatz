@@ -1,4 +1,4 @@
-import { FieldProps } from '../../types';
+import { FieldProps, SelectProps } from '../../types';
 import { Password } from '../password/Password';
 import { Input } from '../input/Input';
 import { Select } from '../select/Select';
@@ -16,7 +16,7 @@ export function FormField(props: FieldProps) {
                 return  <Input {...field} />
                 break;
             case 'select':
-                return <Select {...field} />
+                return <Select {...field as SelectProps} />
                 break;
         }
     })
