@@ -7,14 +7,6 @@
             {
                 "name": "Select",
                 "value": ""
-            },
-            {
-                "name": "TSV",
-                "value": "67a501832225683fb61ca069"
-            },
-            {
-                "name": "Waldkirch",
-                "value": "67a6f9b2d791062c2d656097"
             }
         ],
         "required": true

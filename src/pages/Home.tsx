@@ -4,6 +4,7 @@ import './home.css';
 import { Logout } from "../components/logout/Logout";
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import { Club } from '../types';
 
 interface Item {
  _id: string;
@@ -12,13 +13,7 @@ interface Item {
 }
 
 type Props = {
-    clubs: club[];
-}
-
-type club = {
-    _id: string;
-    name: string;
-    courts_count: number;
+    clubs: Club[];
 }
 
 export default function Home(props: Props) {

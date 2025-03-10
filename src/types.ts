@@ -59,3 +59,9 @@ export interface ServerError {
 export type State = {
     isLoggedin: boolean;
   }
+
+export type Club = {
+    _id: string;
+    name: string;
+    courts_count: number;
+}

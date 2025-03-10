@@ -70,7 +70,7 @@ export default function App() {
                 </Route>
                 <Route path="/register" element={
                     <PublicRoute isLoggedin={auth}>
-                        <Register />
+                        <Register clubs={clubs} />
                     </PublicRoute>
                 } />
                 <Route path="/login" element={
