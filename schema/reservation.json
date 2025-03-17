@@ -1,0 +1,25 @@
+{
+    "type": "object",
+    "properties": {
+        "club_id": {
+            "type": "string"
+        },
+        "user_id": {
+            "type": "string"
+        },
+        "court_num": {
+            "type": "integer"
+        },
+        "date": {
+            "type": "string"
+        },
+        "start_time": {
+            "type": "integer"
+        },
+        "end_time": {
+            "type": "integer"
+        }
+    },
+    "required": ["club_id", "user_id", "court_num", "date", "start_time", "end_time"],
+    "additionalProperties": false
+}

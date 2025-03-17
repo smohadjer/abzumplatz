@@ -73,6 +73,7 @@ export function Form(props: FormProps) {
                         value: true,
                         first_name: json.first_name,
                         last_name: json.last_name,
+                        _id: json._id,
                         club_id: json.club_id,
                     }});
                     //console.log('going to home', store.getState());

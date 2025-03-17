@@ -6,6 +6,7 @@ export const authSlice = createSlice({
     value: false,
     first_name: '',
     last_name: '',
+    _id: '',
     club_id: '',
   },
   reducers: {
@@ -17,6 +18,7 @@ export const authSlice = createSlice({
       state.value = action.payload.value;
       state.first_name = action.payload.first_name;
       state.last_name = action.payload.last_name;
+      state._id = action.payload._id;
       state.club_id = action.payload.club_id;
     },
     logout: (state, action) => {

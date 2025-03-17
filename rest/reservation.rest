@@ -1,0 +1,34 @@
+// get all the reservations for a club
+GET http://localhost:3000/api/reservations?club_id=67a501832225683fb61ca069
+
+###
+
+// make a reservation in tsv
+POST http://localhost:3000/api/reservations
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2NzllMWE4MzlhODJiZDliMTlmYmIwMzYiLCJmaXJzdF9uYW1lIjoiU2FlaWQiLCJsYXN0X25hbWUiOiJNb2hhZGplciIsImNsdWJfaWQiOiI2N2E1MDE4MzIyMjU2ODNmYjYxY2EwNjkiLCJlbWFpbCI6InNhZWlkQGZhc3RtYWlsLmZtIiwiZXhwIjoxNzQ4Mjc2MDIzfQ.qnUhrvEG_3BfoIbRrl3VofIS1Tx_-0fSUuZHJV8l84E
+
+{
+  "club_id": "67a501832225683fb61ca069",
+  "user_id": "679e1a839a82bd9b19fbb036",
+  "court_num": "3",
+  "date": "2025-03-17",
+  "start_time": "14",
+  "end_time": "15"
+}
+
+###
+
+// make a reservation in waldkirch
+POST http://localhost:3000/api/reservations
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2NzllMWE4MzlhODJiZDliMTlmYmIwMzYiLCJmaXJzdF9uYW1lIjoiU2FlaWQiLCJsYXN0X25hbWUiOiJNb2hhZGplciIsImNsdWJfaWQiOiI2N2E1MDE4MzIyMjU2ODNmYjYxY2EwNjkiLCJlbWFpbCI6InNhZWlkQGZhc3RtYWlsLmZtIiwiZXhwIjoxNzQ4Mjc2MDIzfQ.qnUhrvEG_3BfoIbRrl3VofIS1Tx_-0fSUuZHJV8l84E
+
+{
+  "club_id": "67a6f9b2d791062c2d656097",
+  "user_id": "67a66252c580d74db727bb43",
+  "court_num": "3",
+  "date": "2025-03-17",
+  "start_time": "14",
+  "end_time": "15"
+}

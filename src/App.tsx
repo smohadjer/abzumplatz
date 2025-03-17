@@ -44,6 +44,7 @@ export default function App() {
                     value: true,
                     first_name: authenticated.first_name,
                     last_name: authenticated.last_name,
+                    _id: authenticated._id,
                     club_id: authenticated.club_id,
                 }});
             }

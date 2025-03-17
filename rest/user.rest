@@ -3,12 +3,12 @@ GET http://localhost:3000/api/users
 
 ###
 
-// get all users of a club
+// get all users of a tsv club
 GET http://localhost:3000/api/users?club_id=67a501832225683fb61ca069
 
 ###
 
-// get all users of another club
+// get all users of waldkirch club
 GET http://localhost:3000/api/users?club_id=67a6f9b2d791062c2d656097
 
 ###
