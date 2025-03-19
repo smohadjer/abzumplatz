@@ -1,5 +1,7 @@
 # Boilerplate for creating React apps with serverless support using vite
 
+Project started with `npm create vite@latest` and choosing React and TypeScript.
+
 https://boilerplate-react-serverless-vite.vercel.app/
 
 ## Run on http://localhost:3000 (requires Vercel CLI)

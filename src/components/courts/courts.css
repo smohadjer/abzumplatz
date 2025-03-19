@@ -1,0 +1,31 @@
+.courts__header {
+    display: flex;
+    margin-left: 50px;
+
+    .cell {
+        background: salmon;
+        color: white;
+    }
+}
+
+.courts__row {
+    display: flex;
+
+    span {
+        display: block;
+        width: 50px;
+    }
+
+    .cell {
+        background: #eee;
+    }
+}
+
+.cell {
+    margin: 0.1em;
+    width: 100px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -2,6 +2,9 @@
 GET http://localhost:3000/api/reservations?club_id=67a501832225683fb61ca069
 
 ###
+GET https://abzumplatz.de/api/reservations?club_id=67a501832225683fb61ca069
+
+###
 
 // make a reservation in tsv
 POST http://localhost:3000/api/reservations

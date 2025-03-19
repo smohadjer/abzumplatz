@@ -5,21 +5,27 @@ import * as fs from 'fs';
 
 const client = new MongoClient(database_uri);
 
+const getAllReservations = async (collection, club_id) => {
+    console.time('reservation');
+    const data = await collection.find({club_id}).sort({
+      date: 1,
+      start_time: 1
+  });
+    console.timeEnd('reservation');
+    return data.toArray();
+}
+
 export default async (req, res) => {
   try {
     await client.connect();
     const database = client.db(database_name);
     const collection = database.collection('reservations');
-    const projection = {
-        // name: 1,
-        // courts_count: 1
-    };
 
     if (req.method === 'GET') {
       const club_id = req.query?.club_id;
       if (club_id) {
-        const query = {club_id};
-        const docs = await collection.find(query, {projection}).toArray();
+        const docs = await getAllReservations(collection, club_id);
+
         if (docs.length > 0) {
           res.json(docs);
         } else {
@@ -68,7 +74,13 @@ export default async (req, res) => {
         timestamp: new Date()
       };
       const insertResponse = await collection.insertOne(reservation);
-      res.status(201).json({message: `Court ${court_num} is reservered with reservation id: ${insertResponse.insertedId}`});
+      const docs = await getAllReservations(collection, club_id);
+
+
+      res.status(201).json({
+        message: `Court ${court_num} is reservered with reservation id: ${insertResponse.insertedId}`,
+        data: docs
+      });
     }
   } catch (e) {
     console.error(e);

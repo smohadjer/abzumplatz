@@ -5,6 +5,7 @@ import { Logout } from "../components/logout/Logout";
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { Club } from '../types';
+import { Courts } from '../components/courts/Courts';
 
 type User = {
  _id: string;
@@ -12,21 +13,12 @@ type User = {
  last_name: string;
 }
 
-type ReservationItem = {
-    _id: string;
-    club_id: string;
-    user_id: string;
-    date: string;
-    court_num: number;
-    start_time: number;
-    end_time: number;
-}
-
 type Props = {
     clubs: Club[];
 }
 
 export default function Home(props: Props) {
+    const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
     const [reservations, setReservations] = useState([]);
     const firstName = useSelector((state: RootState) => state.auth.first_name);
@@ -51,42 +43,9 @@ export default function Home(props: Props) {
         });
     }, []);
 
-    // const getList = (data: User[]) => {
-    //     return (
-    //         <ul className="items">
-    //         {
-    //             data.map((item: User) => <li key={item._id}>
-    //                 {item.first_name}
-    //                 {' '}
-    //                 {item.last_name}
-    //             </li>)
-    //         }
-    //         </ul>
-    //     )
-    // };
-
-    const getUserName = (userId: string) => {
-        if (users.length > 0) {
-            const user = users.find((item: User) => item._id === userId);
-            return user ? user.first_name : userId;
-        } else {
-            return userId;
-        }
-    };
-
-    const getReservations = (data: ReservationItem[]) => {
-        return (
-            <ul className="items">
-            {
-                data.map((item: ReservationItem) => <li key={item._id}>
-                    Court {item.court_num} is reserved by {getUserName(item.user_id)} at {item.start_time} on {item.date}.</li>)
-            }
-            </ul>
-        )
-    };
-
     function submitHandler(e: FormEvent) {
         e.preventDefault();
+        setLoading(true);
         const form = e.target as HTMLFormElement;
         const data = new FormData(form);
         const json = JSON.stringify(Object.fromEntries(data));
@@ -109,6 +68,8 @@ export default function Home(props: Props) {
                 console.log('Server received valid data');
                 if (json.data) {
                     console.log(json.data);
+                    setReservations(json.data);
+                    setLoading(false);
                 }
             }
         });
@@ -116,15 +77,15 @@ export default function Home(props: Props) {
 
     return (
         <>
-            <p>User: {firstName} {lastName}</p>
-            <p>Club: {userClub ? userClub.name : null}</p>
+            <p>{firstName} {lastName}, {userClub!.name}</p>
             <Logout />
-            <h1>Boilerplate for building SPAs with React and Vercel's serverless</h1>
             <p><Link to="/contacts">Link to Contacts</Link></p>
             <div className="flex">
                 <div>
                     <h2>Reservations</h2>
-                    {reservations.length ? getReservations(reservations) : 'Loading...'}
+                    {reservations.length ?
+                        <Courts reservations={reservations} users={users} courts_count={userClub!.courts_count} />
+                        : 'Loading...'}
                 </div>
             </div>
             <div>
@@ -139,7 +100,7 @@ export default function Home(props: Props) {
                         <input type="hidden" name="club_id" value={clubId} />
                         <input type="hidden" name="user_id" value={_id} />
                         <select name="court_num">
-                            <option>Select court number</option>
+                            <option>Select court</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -158,7 +119,8 @@ export default function Home(props: Props) {
                             <option value="11">11</option>
                         </select>
                     </fieldset>
-                    <button type="submit">Reserve Court</button>
+                    <button disabled={loading}
+                        type="submit">Reserve Court</button>
                 </form>
             </div>
         </>
