@@ -1,10 +1,10 @@
-import { FormEvent, useState, useEffect } from "react";
+import { /*FormEvent,*/ useState, useEffect } from "react";
 import { Link } from 'react-router';
 import './home.css';
 import { Logout } from "../components/logout/Logout";
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { Club } from '../types';
+import { Club, ReservationItem } from '../types';
 import { Courts } from '../components/courts/Courts';
 
 type User = {
@@ -18,14 +18,16 @@ type Props = {
 }
 
 export default function Home(props: Props) {
-    const [loading, setLoading] = useState(false);
+    //const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
-    const [reservations, setReservations] = useState([]);
+    const [reservations, setReservations] = useState<ReservationItem[]>([]);
     const firstName = useSelector((state: RootState) => state.auth.first_name);
     const lastName = useSelector((state: RootState) => state.auth.last_name);
     const _id = useSelector((state: RootState) => state.auth._id);
     const clubId = useSelector((state: RootState) => state.auth.club_id);
     const userClub = props.clubs.find(club => club._id === clubId);
+    const date = new Date().toISOString().split('T')[0];
+    const filteredReservations = reservations.filter(item => item.date === date)
 
     useEffect(() => {
         fetch(`/api/index?club_id=${clubId}`)
@@ -43,52 +45,59 @@ export default function Home(props: Props) {
         });
     }, []);
 
-    function submitHandler(e: FormEvent) {
-        e.preventDefault();
-        setLoading(true);
-        const form = e.target as HTMLFormElement;
-        const data = new FormData(form);
-        const json = JSON.stringify(Object.fromEntries(data));
+    // function submitHandler(e: FormEvent) {
+    //     e.preventDefault();
+    //     setLoading(true);
+    //     const form = e.target as HTMLFormElement;
+    //     const data = new FormData(form);
+    //     const json = JSON.stringify(Object.fromEntries(data));
 
-        // submit form data as json to server
-        fetch(form.action, {
-            method: form.method,
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: json
-        })
-        .then((response) => response.json())
-        .then(json => {
-            console.log(json);
-            if (json.error) {
-                console.error(json.error)
-            } else {
-                console.log('Server received valid data');
-                if (json.data) {
-                    console.log(json.data);
-                    setReservations(json.data);
-                    setLoading(false);
-                }
-            }
-        });
-    }
+    //     // submit form data as json to server
+    //     fetch(form.action, {
+    //         method: form.method,
+    //         headers: {
+    //           'Accept': 'application/json',
+    //           'Content-Type': 'application/json'
+    //         },
+    //         body: json
+    //     })
+    //     .then((response) => response.json())
+    //     .then(json => {
+    //         console.log(json);
+    //         if (json.error) {
+    //             console.error(json.error)
+    //         } else {
+    //             console.log('Server received valid data');
+    //             if (json.data) {
+    //                 console.log(json.data);
+    //                 setReservations(json.data);
+    //                 setLoading(false);
+    //             }
+    //         }
+    //     });
+    // }
 
     return (
         <>
             <p>{firstName} {lastName}, {userClub!.name}</p>
             <Logout />
             <p><Link to="/contacts">Link to Contacts</Link></p>
-            <div className="flex">
-                <div>
+
+                <div className="grid">
                     <h2>Reservations</h2>
                     {reservations.length ?
-                        <Courts reservations={reservations} users={users} courts_count={userClub!.courts_count} />
+                        <Courts
+                            club_id={clubId}
+                            user_id={_id}
+                            reservations={filteredReservations}
+                            users={users}
+                            courts_count={userClub!.courts_count}
+                            setReservations={setReservations}
+                            date={date}
+                        />
                         : 'Loading...'}
                 </div>
-            </div>
-            <div>
+            {/* <div>
                 <h2>Make reservation</h2>
                 <form
                     noValidate={true}
@@ -122,7 +131,7 @@ export default function Home(props: Props) {
                     <button disabled={loading}
                         type="submit">Reserve Court</button>
                 </form>
-            </div>
+            </div>*/}
         </>
     )
 }

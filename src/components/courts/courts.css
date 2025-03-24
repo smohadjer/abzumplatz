@@ -1,31 +1,80 @@
-.courts__header {
-    display: flex;
-    margin-left: 50px;
+.reservations {
+    width: 500px;
 
-    .cell {
-        background: salmon;
+    .header {
+        background: blue;
+        text-align: center;
         color: white;
-    }
-}
-
-.courts__row {
-    display: flex;
-
-    span {
-        display: block;
-        width: 50px;
+        padding: 10px;
     }
 
-    .cell {
-        background: #eee;
-    }
-}
+    .main {
+        display: flex;
+        overflow: hidden;
 
-.cell {
-    margin: 0.1em;
-    width: 100px;
-    height: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+        .hours {
+            width: 50px;
+            background: green;
+            margin-top: 30px;
+            border-right: solid 1px white;
+
+            .hour {
+                text-align: center;
+                color: white;
+                border-bottom: 1px solid white;
+                padding: 5px;
+                box-sizing: border-box;
+                height: 31px;
+            }
+        }
+
+        .slots {
+            overflow-x: auto;
+
+            .courts__header {
+                white-space: nowrap;
+
+                .cell {
+                    background: #666;
+                    color: white;
+                    padding-top: 5px;
+                }
+            }
+
+            .courts__row {
+                border-bottom: solid 1px white;
+
+                .cell {
+                    background: #ccc;
+
+                    &:hover {
+                        cursor: pointer;
+                        background: #999;
+                    }
+
+                    &.reserved {
+                        cursor: default;
+                        background: #ddd;
+                        color: #999;
+                    }
+                }
+            }
+
+            .courts__rowSlots {
+                white-space: nowrap;
+            }
+
+            .cell {
+                text-align: center;
+                width: 70px;
+                height: 30px;
+                display: inline-block;
+                border-right: solid 1px white;
+                vertical-align: top;
+                box-sizing: border-box;
+
+
+            }
+        }
+    }
 }

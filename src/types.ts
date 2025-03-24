@@ -65,3 +65,20 @@ export type Club = {
     name: string;
     courts_count: number;
 }
+
+export type ReservationItem = {
+    _id: string;
+    club_id: string;
+    user_id: string;
+    date: string;
+    court_num: number;
+    start_time: number;
+    end_time: number;
+}
+
+export type User = {
+    _id: string;
+    first_name: string;
+    last_name: string;
+}
+
