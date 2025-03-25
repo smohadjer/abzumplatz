@@ -1,24 +1,17 @@
-import { /*FormEvent,*/ useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from 'react-router';
 import './home.css';
 import { Logout } from "../components/logout/Logout";
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { Club, ReservationItem } from '../types';
+import { User, Club, ReservationItem, NormalizedReservationItem } from '../types';
 import { Courts } from '../components/courts/Courts';
-
-type User = {
- _id: string;
- first_name: string;
- last_name: string;
-}
 
 type Props = {
     clubs: Club[];
 }
 
 export default function Home(props: Props) {
-    //const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
     const [reservations, setReservations] = useState<ReservationItem[]>([]);
     const firstName = useSelector((state: RootState) => state.auth.first_name);
@@ -27,7 +20,17 @@ export default function Home(props: Props) {
     const clubId = useSelector((state: RootState) => state.auth.club_id);
     const userClub = props.clubs.find(club => club._id === clubId);
     const date = new Date().toISOString().split('T')[0];
-    const filteredReservations = reservations.filter(item => item.date === date)
+    const filteredReservations: NormalizedReservationItem[] = reservations.filter(item => item.date === date);
+    const getUserName = (userId: string) => {
+        if (users.length > 0) {
+            const user = users.find((item: User) => item._id === userId);
+            return user ? user.first_name : userId;
+        } else {
+            return userId;
+        }
+    };
+
+    filteredReservations.map(item => item.user_name = getUserName(item.user_id))
 
     useEffect(() => {
         fetch(`/api/index?club_id=${clubId}`)
@@ -82,56 +85,18 @@ export default function Home(props: Props) {
             <p>{firstName} {lastName}, {userClub!.name}</p>
             <Logout />
             <p><Link to="/contacts">Link to Contacts</Link></p>
-
-                <div className="grid">
-                    <h2>Reservations</h2>
-                    {reservations.length ?
-                        <Courts
-                            club_id={clubId}
-                            user_id={_id}
-                            reservations={filteredReservations}
-                            users={users}
-                            courts_count={userClub!.courts_count}
-                            setReservations={setReservations}
-                            date={date}
-                        />
-                        : 'Loading...'}
-                </div>
-            {/* <div>
-                <h2>Make reservation</h2>
-                <form
-                    noValidate={true}
-                    className="form-react"
-                    method="POST"
-                    action="/api/reservations"
-                    onSubmit={submitHandler}>
-                    <fieldset>
-                        <input type="hidden" name="club_id" value={clubId} />
-                        <input type="hidden" name="user_id" value={_id} />
-                        <select name="court_num">
-                            <option>Select court</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                        </select>
-                        <input type="date" name="date" />
-                        <select name="start_time">
-                            <option>Start time</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                        </select>
-                        <select name="end_time">
-                            <option>End time</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                        </select>
-                    </fieldset>
-                    <button disabled={loading}
-                        type="submit">Reserve Court</button>
-                </form>
-            </div>*/}
+            <div className="grid">
+                {reservations.length ? <Courts
+                    club_id={clubId}
+                    user_id={_id}
+                    reservations={filteredReservations}
+                    users={users}
+                    courts_count={userClub!.courts_count}
+                    setReservations={setReservations}
+                    date={date} />
+                    : 'Loading...'
+                }
+            </div>
         </>
     )
 }

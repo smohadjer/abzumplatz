@@ -1,11 +1,11 @@
 import { MouseEventHandler } from "react";
-import { ReservationItem } from "../../types";
+import { NormalizedReservationItem } from "../../types";
 
 type Props = {
     count: number;
     hour: number;
     onClick: MouseEventHandler;
-    reservations: ReservationItem[];
+    reservations: NormalizedReservationItem[];
 }
 
 export function Rows(props: Props) {
@@ -19,7 +19,7 @@ export function Rows(props: Props) {
                 data-courtnumber={courtNumber}
                 data-hour={props.hour}
                 key={courtNumber}>
-                {reservation ? 'reserved' : ''}
+                {reservation ? reservation.user_name : ''}
             </div>
         );
     }

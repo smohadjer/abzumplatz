@@ -1,3 +1,9 @@
+@keyframes loadingspin {
+    100% {
+        transform: rotate(360deg)
+    }
+}
+
 .reservations {
     width: 500px;
 
@@ -47,6 +53,17 @@
                 .cell {
                     background: #ccc;
 
+                    &.loading::before {
+                        content: ' ';
+                        display: inline-block;
+                        width: 0.9em;
+                        height: 0.9em;
+                        border: 0.1em solid #fff;
+                        border-top-color: transparent;
+                        border-radius: 50%;
+                        animation: loadingspin 1s linear infinite;
+                    }
+
                     &:hover {
                         cursor: pointer;
                         background: #999;
@@ -55,7 +72,7 @@
                     &.reserved {
                         cursor: default;
                         background: #ddd;
-                        color: #999;
+                        color: #666;
                     }
                 }
             }
@@ -68,6 +85,7 @@
                 text-align: center;
                 width: 70px;
                 height: 30px;
+                padding-top: 5px;
                 display: inline-block;
                 border-right: solid 1px white;
                 vertical-align: top;

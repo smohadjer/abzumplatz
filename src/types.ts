@@ -58,7 +58,7 @@ export interface ServerError {
 
 export type State = {
     isLoggedin: boolean;
-  }
+}
 
 export type Club = {
     _id: string;
@@ -76,9 +76,12 @@ export type ReservationItem = {
     end_time: number;
 }
 
+export type NormalizedReservationItem = ReservationItem & {
+    user_name?: string;
+}
+
 export type User = {
     _id: string;
     first_name: string;
     last_name: string;
 }
-
