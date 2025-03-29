@@ -6,20 +6,29 @@ type Props = {
     hour: number;
     onClick: MouseEventHandler;
     reservations: NormalizedReservationItem[];
+    user_id: string;
 }
 
 export function Rows(props: Props) {
     const courts = [];
-    console.log(props.reservations, props.hour)
     for (let courtNumber = 1; courtNumber < props.count+1; courtNumber++) {
         const reservation = props.reservations.find(item => item.start_time == props.hour && item.court_num == courtNumber);
+        const isMyRservation = reservation?.user_id === props.user_id ? true : false;
         courts.push(
             <div className={'cell ' + (reservation ? ' reserved' : '')}
                 onClick={props.onClick}
-                data-courtnumber={courtNumber}
+
+                data-court_number={courtNumber}
                 data-hour={props.hour}
                 key={courtNumber}>
                 {reservation ? reservation.user_name : ''}
+                {isMyRservation ?
+                    <span
+                        className="delete"
+                        data-reservation_id={reservation ? reservation._id : null}
+                    >Del</span> : ''
+                }
+
             </div>
         );
     }

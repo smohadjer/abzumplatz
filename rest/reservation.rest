@@ -35,3 +35,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2NzllMWE4MzlhODJiZDliMTlmY
   "start_time": "14",
   "end_time": "15"
 }
+
+###
+
+// delete a reservation
+DELETE http://localhost:3000/api/reservations?reservation_id=67d852d2ad76ec6b8cb5fe01
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2NzllMWE4MzlhODJiZDliMTlmYmIwMzYiLCJmaXJzdF9uYW1lIjoiU2FlaWQiLCJsYXN0X25hbWUiOiJNb2hhZGplciIsImNsdWJfaWQiOiI2N2E1MDE4MzIyMjU2ODNmYjYxY2EwNjkiLCJlbWFpbCI6InNhZWlkQGZhc3RtYWlsLmZtIiwiZXhwIjoxNzQ5MjkwOTY3fQ.JUbTWTkanfHxNKijfCptsfyqldFEdu3ze2V3FpSWm-s
+

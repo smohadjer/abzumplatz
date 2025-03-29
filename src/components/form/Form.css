@@ -3,7 +3,13 @@
     background: #eee;
     width: 100%;
     box-sizing: border-box;
-    background: #eee;
+
+    &.form-logout {
+        padding: 0;
+        background: none;
+        width: auto;
+        text-align: right;
+    }
 
     @media (min-width: 768px) {
         width: auto;

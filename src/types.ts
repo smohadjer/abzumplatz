@@ -46,6 +46,7 @@ export interface FormProps {
     fields: FieldProps[];
     label: string;
     disableValidation?: boolean;
+    classNames?: string;
 }
 
 export interface ServerError {

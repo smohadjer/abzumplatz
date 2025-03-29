@@ -1,7 +1,8 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
+import { getJwtPayload } from './verifyAuth.js';
 
 const client = new MongoClient(database_uri);
 
@@ -33,6 +34,45 @@ export default async (req, res) => {
         }
       } else {
         res.status(500).end();
+      }
+    }
+
+    if (req.method === 'DELETE') {
+      const reservation_id = req.query?.reservation_id;
+      const club_id = req.query?.club_id;
+
+      console.log(`deleting reserveration with id ${reservation_id}`);
+      const query = {
+        _id: ObjectId.createFromHexString(reservation_id)
+      };
+
+      const reservation = await collection.findOne(query);
+
+      console.log(reservation);
+      const payload = await getJwtPayload(req);
+
+      if (reservation.user_id === payload._id) {
+        console.log('deleting allowed');
+        const result = await collection.deleteOne(query);
+        console.log(result);
+        if (result.deletedCount > 0) {
+          if (club_id) {
+            const docs = await getAllReservations(collection, club_id);
+            res.status(200).json({
+              message: `Reservation with id ${reservation_id} was deleted.`,
+              data: docs
+            });
+          } else {
+            res.status(200).json({
+              message: `Reservation with id ${reservation_id} was deleted.`
+            });
+          }
+        } else {
+          res.json({'Error': 'Delete failed!'});
+        }
+      } else {
+        console.log('deleting not allowed');
+        res.json({'Error': 'deleting not allowed!'});
       }
     }
 
@@ -75,7 +115,6 @@ export default async (req, res) => {
       };
       const insertResponse = await collection.insertOne(reservation);
       const docs = await getAllReservations(collection, club_id);
-
 
       res.status(201).json({
         message: `Court ${court_num} is reservered with reservation id: ${insertResponse.insertedId}`,

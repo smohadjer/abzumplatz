@@ -5,12 +5,10 @@
 }
 
 .reservations {
-    width: 500px;
+    width: 100%;
 
     .header {
-        background: blue;
         text-align: center;
-        color: white;
         padding: 10px;
     }
 
@@ -73,6 +71,13 @@
                         cursor: default;
                         background: #ddd;
                         color: #666;
+                    }
+
+                    .delete {
+                        margin-left: 5px;
+                        cursor: pointer;
+                        color: red;
+                        text-decoration: underline;
                     }
                 }
             }

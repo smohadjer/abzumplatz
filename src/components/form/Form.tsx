@@ -84,26 +84,30 @@ export function Form(props: FormProps) {
         });
     }
 
+    const formClass = `form-react ${props.classNames ?? ''}`;
+
     return (
         <form
             noValidate={true}
-            className="form-react"
+            className={formClass}
             method={method}
             action={action}
             onSubmit={submitHandler}>
-            <fieldset>
-                {fields.map((item: any, index: number) => {
-                    const error = errors.find((error) => error.id === item.id);
+            {fields.length ?
+                <fieldset>
+                    {fields.map((item: any, index: number) => {
+                        const error = errors.find((error) => error.id === item.id);
 
-                    // change default error message to error returned from server
-                    if (error) {
-                        item.error = error.error;
-                        item.hasError = true;
-                    }
+                        // change default error message to error returned from server
+                        if (error) {
+                            item.error = error.error;
+                            item.hasError = true;
+                        }
 
-                    return <FormField key={index} {...item} />
-                })}
-            </fieldset>
+                        return <FormField key={index} {...item} />
+                    })}
+                </fieldset> : null
+            }
             <button type="submit">{label}</button>
         </form>
     )
