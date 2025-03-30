@@ -5,7 +5,7 @@ type Data = {
 }
 
 export function sanitize(data: Data) {
-    const temp = {};
+    const temp: Data = {};
     for (const [key, value] of Object.entries(data)) {
         // if a string property has no value don't send it to api
         if (typeof value === 'string' && value.length === 0) {

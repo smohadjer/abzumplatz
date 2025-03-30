@@ -10,11 +10,11 @@ type Props = {
 }
 
 export function Rows(props: Props) {
-    const courts = [];
+    const row = [];
     for (let courtNumber = 1; courtNumber < props.count+1; courtNumber++) {
         const reservation = props.reservations.find(item => item.start_time == props.hour && item.court_num == courtNumber);
         const isMyRservation = reservation?.user_id === props.user_id ? true : false;
-        courts.push(
+        row.push(
             <div className={'cell ' + (reservation ? ' reserved' : '')}
                 onClick={props.onClick}
 
@@ -36,7 +36,7 @@ export function Rows(props: Props) {
     return (
         <div className="courts__row">
             <div className="courts__rowSlots">
-                {courts}
+                {row}
             </div>
         </div>
     );

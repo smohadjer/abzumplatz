@@ -70,7 +70,10 @@ export default function Home(props: Props) {
 
     return (
         <>
-            <p>{firstName} {lastName}, {userClub!.name}</p>
+            <div className="subheader">
+                <p>{firstName} {lastName}</p>
+                <p>{userClub!.name}</p>
+            </div>
             {/* <p><Link to="/contacts">Link to Contacts</Link></p> */}
             <div className="grid">
                 {reservations.length ? <Courts

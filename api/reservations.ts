@@ -5,16 +5,23 @@ import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 
 const client = new MongoClient(database_uri);
-
 const getAllReservations = async (collection, club_id) => {
-    console.time('reservation');
-    const data = await collection.find({club_id}).sort({
-      date: 1,
-      start_time: 1
+  const docs = await collection.find({club_id}).sort({
+    date: 1,
+    start_time: 1
   });
-    console.timeEnd('reservation');
-    return data.toArray();
-}
+  return docs.toArray();
+};
+const getUserReservations = async (collection, user_id) => {
+  const docs = await collection.find({
+    user_id,
+    date: { $gte: new Date().toISOString().split('T')[0] }
+  }).sort({
+    date: 1,
+    start_time: 1
+  });
+  return docs.toArray();
+};
 
 export default async (req, res) => {
   try {
@@ -77,13 +84,10 @@ export default async (req, res) => {
     }
 
     if (req.method === 'POST') {
-      // validate data
-      console.log('validating...')
-      const { club_id, user_id, court_num, date, start_time, end_time } = req.body;
+      const body = sanitize(req.body);
+      const { club_id, user_id, court_num, date, start_time, end_time } = body;
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/reservation.json', 'utf8'));
       const validator = ajv.compile(schema);
-      const body = sanitize(req.body);
-      console.log(body);
       const valid = validator(body);
       if (!valid) {
           const errors = validator.errors;
@@ -106,6 +110,15 @@ export default async (req, res) => {
       });
       if (doc) {
         throw new Error(`Court ${court_num} is not availble at ${start_time}.`);
+      }
+
+      // throw error if user has already reached maximum allowed number of reservations
+      const payload = await getJwtPayload(req);
+      const reservationsLimit = 3;
+      const userReservations = await getUserReservations(collection, payload._id);
+      console.log({userReservations});
+      if (userReservations.length >= reservationsLimit) {
+        throw new Error(`You have already reached the maximum allowed reservations (${reservationsLimit}).`);
       }
 
       // insert reservation

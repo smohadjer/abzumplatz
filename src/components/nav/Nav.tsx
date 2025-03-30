@@ -1,8 +1,11 @@
 import { NavLink } from "react-router";
-
+import { useSelector } from 'react-redux'
+import { RootState } from './../../store';
 import './style.css';
 
 export default function Nav() {
+    const auth = useSelector((state: RootState) => state.auth.value);
+
     return (
         <nav>
             <ul>
@@ -17,8 +20,8 @@ export default function Nav() {
                         <li><NavLink to="/about/123">about with id</NavLink></li>
                     </ul>
                 </li> */}
-                <li><NavLink to="/login">Login</NavLink></li>
-                <li><NavLink to="/register">Register</NavLink></li>
+                {!auth && <li><NavLink to="/login">Login</NavLink></li>}
+                {!auth && <li><NavLink to="/register">Register</NavLink></li>}
             </ul>
         </nav>
     )
