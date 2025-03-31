@@ -25,7 +25,7 @@ export function Courts(props: Props) {
     const getUserName = (userId: string) => {
         if (props.users.length > 0) {
             const user = props.users.find((item: User) => item._id === userId);
-            return user ? user.first_name : userId;
+            return user ? user.first_name.charAt(0) + '. ' + user.last_name : userId;
         } else {
             return userId;
         }
@@ -39,6 +39,7 @@ export function Courts(props: Props) {
         }
 
         const reservationId = slot.dataset.reservation_id;
+        setDisabled(true);
 
         fetch(`/api/reservations?reservation_id=${reservationId}&club_id=${club_id}`, {
             method: 'DELETE'
@@ -64,7 +65,6 @@ export function Courts(props: Props) {
             return;
         }
 
-        setDisabled(true);
         if (event.target instanceof HTMLElement) {
             const slot = event.target;
 
@@ -88,7 +88,10 @@ export function Courts(props: Props) {
                 start_time: start,
                 end_time: end,
                 date: date
-            }
+            };
+
+            setDisabled(true);
+
             fetch('/api/reservations', {
                 method: 'POST',
                 headers: {

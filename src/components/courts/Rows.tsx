@@ -17,7 +17,6 @@ export function Rows(props: Props) {
         row.push(
             <div className={'cell ' + (reservation ? ' reserved' : '')}
                 onClick={props.onClick}
-
                 data-court_number={courtNumber}
                 data-hour={props.hour}
                 key={courtNumber}>
@@ -26,7 +25,7 @@ export function Rows(props: Props) {
                     <span
                         className="delete"
                         data-reservation_id={reservation ? reservation._id : null}
-                    >Del</span> : ''
+                    >X</span> : ''
                 }
 
             </div>

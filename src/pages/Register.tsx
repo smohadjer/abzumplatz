@@ -9,8 +9,10 @@ type Props = {
 export default function Register(props: Props) {
     return (
         <>
-            <h1>Register</h1>
-            <p><Link to="/login">Login</Link></p>
+            <p>
+                <strong>Register</strong> | {' '}
+                <Link to="/login">Login</Link>
+            </p>
             <Signup clubs={props.clubs} />
         </>
     )

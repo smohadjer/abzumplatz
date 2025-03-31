@@ -4,8 +4,10 @@ import { Link } from 'react-router';
 export default function LoginPage() {
     return (
         <>
-            <h1>Login</h1>
-            <p><Link to="/register">Register</Link></p>
+            <p>
+                <strong>Login</strong> | {' '}
+                <Link to="/register">Register</Link>
+            </p>
             <Login />
         </>
     )

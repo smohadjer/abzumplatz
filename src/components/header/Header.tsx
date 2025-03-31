@@ -1,4 +1,4 @@
-import Nav from '../nav/Nav';
+// import Nav from '../nav/Nav';
 import { Logout } from "../logout/Logout";
 import { useSelector } from 'react-redux'
 import { RootState } from './../../store';
@@ -12,7 +12,7 @@ export default function Header() {
                 <h1>Ab zum Platz</h1>
                 {auth && <Logout />}
             </div>
-            <Nav />
+            {/* <Nav /> */}
         </header>
     )
   }

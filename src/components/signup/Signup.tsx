@@ -28,7 +28,7 @@ export function Signup(props: Props) {
             method="POST"
             action="/api/signup"
             fields={normalizedFields}
-            label="Sign Up"
+            label="Register"
         />
     )
 }
