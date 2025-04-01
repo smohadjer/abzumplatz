@@ -23,6 +23,7 @@ export function Courts(props: Props) {
     const [reservationDate, setReservationDate] = useState(new Date());
     const isoDate = reservationDate.toISOString().split('T')[0];
     const filteredReservations: NormalizedReservationItem[] = props.reservations.filter(item => item.date === isoDate);
+    const myReservations: NormalizedReservationItem[] = props.reservations.filter(item => item.date >= new Date().toISOString().split('T')[0]);
     const getUserName = (userId: string) => {
         if (props.users.length > 0) {
             const user = props.users.find((item: User) => item._id === userId);
@@ -130,36 +131,49 @@ export function Courts(props: Props) {
 
     return (
         <div className="reservations">
-        <div className="header">
-            <button
-                onClick={prevDay}
-                className="prev">&lt;</button>
-            <input className="date-picker" type="date"
-                value={isoDate}
-                onChange={e => setReservationDate(new Date(e.target.value))}
-            />
-            <button
-                onClick={nextDay}
-                className="next">&gt;</button>
-        </div>
-        <div className="main">
-            <div className="hours">
-                {hours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
+            <div className="header">
+                <button
+                    onClick={prevDay}
+                    className="prev">&lt;</button>
+                <input className="date-picker" type="date"
+                    value={isoDate}
+                    onChange={e => setReservationDate(new Date(e.target.value))}
+                />
+                <button
+                    onClick={nextDay}
+                    className="next">&gt;</button>
             </div>
-            <div className="slots">
-                <Header count={props.courts_count} />
-                {hours.map(hour =>
-                    <Rows
-                        reservations={filteredReservations}
-                        onClick={clickHandler}
-                        key={hour}
-                        hour={hour}
-                        count={props.courts_count}
-                        user_id={user_id}
-                    />
+            <div className="main">
+                <div className="hours">
+                    {hours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
+                </div>
+                <div className="slots">
+                    <Header count={props.courts_count} />
+                    {hours.map(hour =>
+                        <Rows
+                            reservations={filteredReservations}
+                            onClick={clickHandler}
+                            key={hour}
+                            hour={hour}
+                            count={props.courts_count}
+                            user_id={user_id}
+                        />
+                    )}
+                </div>
+            </div>
+            <h2>Meine Reservierungen</h2>
+            <ul className="my-reservations">
+                {myReservations.map(item => {
+                    const day = new Date(item.date);
+                    return (
+                        <li>
+                            Platz {item.court_num} am {day.toLocaleDateString('de-DE', {weekday: 'short'})}. {day.toLocaleDateString('de-DE')} um {item.start_time}:00 Uhr
+                        </li>
+                    )}
                 )}
-            </div>
-        </div>
+            </ul>
+
+
         </div>
     )
 }

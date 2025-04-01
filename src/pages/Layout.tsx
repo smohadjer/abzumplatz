@@ -10,6 +10,7 @@ export default function Layout() {
       <main>
         <Outlet />
       </main>
+      <footer>&copy; 2025 Saeid Mohadjer</footer>
     </>
   )
 }

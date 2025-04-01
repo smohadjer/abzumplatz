@@ -19,3 +19,6 @@ if (environment === 'prod') {
 }
 
 export { database_uri, database_name };
+
+export const reservationsLimit = 5;
+

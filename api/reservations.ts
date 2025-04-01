@@ -3,6 +3,7 @@ import { database_uri, database_name } from './_config.js';
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
+import { reservationsLimit } from './_config.js'
 
 const client = new MongoClient(database_uri);
 const getAllReservations = async (collection, club_id) => {
@@ -114,7 +115,6 @@ export default async (req, res) => {
 
       // throw error if user has already reached maximum allowed number of reservations
       const payload = await getJwtPayload(req);
-      const reservationsLimit = 3;
       const userReservations = await getUserReservations(collection, payload._id);
       console.log({userReservations});
       if (userReservations.length >= reservationsLimit) {
