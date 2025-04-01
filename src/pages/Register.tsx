@@ -10,8 +10,8 @@ export default function Register(props: Props) {
     return (
         <>
             <p>
-                <strong>Register</strong> | {' '}
-                <Link to="/login">Login</Link>
+                <Link to="/login">Login</Link> | {' '}
+                <span>Register</span>
             </p>
             <Signup clubs={props.clubs} />
         </>
