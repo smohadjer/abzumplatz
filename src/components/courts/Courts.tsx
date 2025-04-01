@@ -20,9 +20,9 @@ export function Courts(props: Props) {
     const [disabled, setDisabled] = useState(false);
     const user_id = useSelector((state: RootState) => state.auth._id);
     const { club_id } = props;
-    const today = new Date().toISOString().split('T')[0];
-    const [date, setDate] = useState(today);
-    const filteredReservations: NormalizedReservationItem[] = props.reservations.filter(item => item.date === date);
+    const [reservationDate, setReservationDate] = useState(new Date());
+    const isoDate = reservationDate.toISOString().split('T')[0];
+    const filteredReservations: NormalizedReservationItem[] = props.reservations.filter(item => item.date === isoDate);
     const getUserName = (userId: string) => {
         if (props.users.length > 0) {
             const user = props.users.find((item: User) => item._id === userId);
@@ -88,7 +88,7 @@ export function Courts(props: Props) {
                 court_num: slot.dataset.court_number,
                 start_time: start,
                 end_time: end,
-                date: date
+                date: isoDate
             };
 
             setDisabled(true);
@@ -118,13 +118,29 @@ export function Courts(props: Props) {
         }
     }
 
+    const nextDay = () => {
+        const next = reservationDate.setDate(reservationDate.getDate() + 1);
+        setReservationDate(new Date(next));
+    }
+
+    const prevDay = () => {
+        const next = reservationDate.setDate(reservationDate.getDate() - 1);
+        setReservationDate(new Date(next));
+    }
+
     return (
         <div className="reservations">
         <div className="header">
-            <input type="date"
-                value={date}
-                onChange={e => setDate(e.target.value)}
+            <button
+                onClick={prevDay}
+                className="prev">&lt;</button>
+            <input className="date-picker" type="date"
+                value={isoDate}
+                onChange={e => setReservationDate(new Date(e.target.value))}
             />
+            <button
+                onClick={nextDay}
+                className="next">&gt;</button>
         </div>
         <div className="main">
             <div className="hours">

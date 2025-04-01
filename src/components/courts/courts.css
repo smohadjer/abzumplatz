@@ -12,6 +12,10 @@
         padding: 10px;
     }
 
+    .date-picker {
+        margin: 0 0.5em;
+    }
+
     .main {
         display: flex;
         overflow: hidden;
