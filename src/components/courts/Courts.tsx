@@ -23,7 +23,7 @@ export function Courts(props: Props) {
     const [reservationDate, setReservationDate] = useState(new Date());
     const isoDate = reservationDate.toISOString().split('T')[0];
     const filteredReservations: NormalizedReservationItem[] = props.reservations.filter(item => item.date === isoDate);
-    const myReservations: NormalizedReservationItem[] = props.reservations.filter(item => item.date >= new Date().toISOString().split('T')[0]);
+    const myReservations: NormalizedReservationItem[] = props.reservations.filter(item => item.user_id === user_id && item.date >= new Date().toISOString().split('T')[0]);
     const getUserName = (userId: string) => {
         if (props.users.length > 0) {
             const user = props.users.find((item: User) => item._id === userId);
