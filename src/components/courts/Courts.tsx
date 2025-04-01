@@ -20,7 +20,8 @@ export function Courts(props: Props) {
     const [disabled, setDisabled] = useState(false);
     const user_id = useSelector((state: RootState) => state.auth._id);
     const { club_id } = props;
-    const date = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
+    const [date, setDate] = useState(today);
     const filteredReservations: NormalizedReservationItem[] = props.reservations.filter(item => item.date === date);
     const getUserName = (userId: string) => {
         if (props.users.length > 0) {
@@ -119,7 +120,12 @@ export function Courts(props: Props) {
 
     return (
         <div className="reservations">
-        <div className="header">{date}</div>
+        <div className="header">
+            <input type="date"
+                value={date}
+                onChange={e => setDate(e.target.value)}
+            />
+        </div>
         <div className="main">
             <div className="hours">
                 {hours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
