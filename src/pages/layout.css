@@ -11,4 +11,6 @@ footer {
     border-top: solid 1px #ccc;
     padding: 1em 0 0;
     text-align: right;
+    font-size: smaller;
+    color: #999;
 }

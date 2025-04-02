@@ -34,12 +34,7 @@ export default async (req, res) => {
       const club_id = req.query?.club_id;
       if (club_id) {
         const docs = await getAllReservations(collection, club_id);
-
-        if (docs.length > 0) {
-          res.json(docs);
-        } else {
-          res.status(500).end();
-        }
+        res.json(docs);
       } else {
         res.status(500).end();
       }
