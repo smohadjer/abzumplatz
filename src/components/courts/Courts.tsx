@@ -170,7 +170,7 @@ export function Courts(props: Props) {
             </div>
             <h2>Meine Reservierungen</h2>
             {reservations.length
-                ? <MyReservations reservations={reservations} />
+                ? <MyReservations reservations={reservations} user_id={user_id} />
                 : <p>Keine Reservierung gefunden!</p>
             }
         </div>
@@ -178,9 +178,10 @@ export function Courts(props: Props) {
 }
 
 function MyReservations(props: {
-    reservations:  NormalizedReservationItem[]
+    reservations:  NormalizedReservationItem[];
+    user_id: string;
 }) {
-    const myReservations = props.reservations.filter(item => item.date >= new Date().toISOString().split('T')[0]);
+    const myReservations = props.reservations.filter(item => item.user_id === props.user_id && item.date >= new Date().toISOString().split('T')[0]);
 
     return (
         <ul className="my-reservations">
