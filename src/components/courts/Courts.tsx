@@ -5,6 +5,8 @@ import { Header } from './Header';
 import { ReservationItem, NormalizedReservationItem, User } from '../../types';
 import { useSelector } from 'react-redux';
 import { RootState } from './../../store';
+import { Popup } from './Popup';
+import { MyReservations } from './MyReservations';
 
 type Props = {
     users: User[];
@@ -12,23 +14,24 @@ type Props = {
     club_id: string;
 }
 
-const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
 export function Courts(props: Props) {
     const [disabled, setDisabled] = useState(false);
+    const [popupContent, setPopupContent] = useState<HTMLElement | null>(null);
     const [reservations, setReservations] = useState<ReservationItem[]>([]);
     const user_id = useSelector((state: RootState) => state.auth._id);
     const { club_id } = props;
     const [reservationDate, setReservationDate] = useState(new Date());
     const isoDate = reservationDate.toISOString().split('T')[0];
     const filteredReservations: NormalizedReservationItem[] = reservations.filter(item => item.date === isoDate);
-    const getUserName = (userId: string) => {
-        if (props.users.length > 0) {
-            const user = props.users.find((item: User) => item._id === userId);
-            return user ? user.first_name.charAt(0) + '. ' + user.last_name : userId;
-        } else {
-            return userId;
-        }
+    const nextDay = () => {
+        const next = reservationDate.setDate(reservationDate.getDate() + 1);
+        setReservationDate(new Date(next));
+    };
+    const prevDay = () => {
+        const next = reservationDate.setDate(reservationDate.getDate() - 1);
+        setReservationDate(new Date(next));
     };
 
     // get all reservations
@@ -42,12 +45,30 @@ export function Courts(props: Props) {
 
     filteredReservations.map(item => item.user_name = getUserName(item.user_id));
 
-    function deleteReservation(slot: HTMLElement) {
-        if (disabled) {
+    function getUserName(userId: string) {
+        if (props.users.length > 0) {
+            const user = props.users.find((item: User) => item._id === userId);
+            return user ? user.first_name.charAt(0) + '. ' + user.last_name : userId;
+        } else {
+            return userId;
+        }
+    }
+
+    function closePopup() {
+        setPopupContent(null);
+    }
+
+    function showPopup(slot: HTMLElement) {
+        console.log('show popup')
+        setPopupContent(slot);
+    }
+
+    function deleteReservation() {
+        if (disabled || !popupContent) {
             return;
         }
 
-        const reservationId = slot.dataset.reservation_id;
+        const reservationId = popupContent.dataset.reservation_id;
         setDisabled(true);
 
         fetch(`/api/reservations?reservation_id=${reservationId}&club_id=${club_id}`, {
@@ -65,6 +86,7 @@ export function Courts(props: Props) {
         })
         .finally(() => {
             setDisabled(false);
+            closePopup();
         });
 
     }
@@ -82,7 +104,8 @@ export function Courts(props: Props) {
             }
 
             if (slot.classList.contains('delete')) {
-                deleteReservation(slot);
+                showPopup(slot);
+                //deleteReservation(slot);
                 return;
             }
 
@@ -126,16 +149,6 @@ export function Courts(props: Props) {
         }
     }
 
-    const nextDay = () => {
-        const next = reservationDate.setDate(reservationDate.getDate() + 1);
-        setReservationDate(new Date(next));
-    }
-
-    const prevDay = () => {
-        const next = reservationDate.setDate(reservationDate.getDate() - 1);
-        setReservationDate(new Date(next));
-    }
-
     return (
         <div className="reservations">
             <div className="header">
@@ -169,30 +182,17 @@ export function Courts(props: Props) {
                 </div>
             </div>
             <h2>Meine Reservierungen</h2>
-            {reservations.length
+            { reservations.length
                 ? <MyReservations reservations={reservations} user_id={user_id} />
                 : <p>Keine Reservierung gefunden!</p>
             }
+            { popupContent ? <Popup
+                disabled={disabled}
+                closePopup={closePopup}
+                deleteReservation={deleteReservation}
+                content={popupContent} />
+                : null
+            }
         </div>
     )
-}
-
-function MyReservations(props: {
-    reservations:  NormalizedReservationItem[];
-    user_id: string;
-}) {
-    const myReservations = props.reservations.filter(item => item.user_id === props.user_id && item.date >= new Date().toISOString().split('T')[0]);
-
-    return (
-        <ul className="my-reservations">
-        {myReservations.map(item => {
-            const day = new Date(item.date);
-            return (
-                <li key={item._id}>
-                    Platz {item.court_num} am {day.toLocaleDateString('de-DE', {weekday: 'short'})}. {day.toLocaleDateString('de-DE')} um {item.start_time}:00 Uhr
-                </li>
-            )}
-        )}
-    </ul>
-    );
 }

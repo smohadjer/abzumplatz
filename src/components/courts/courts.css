@@ -4,6 +4,30 @@
     }
 }
 
+.popup {
+    position: absolute;
+    z-index: 100;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 90%;
+    background: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 5px 0px #666;
+
+    p {
+        margin-right: 20px;
+        margin-top: 20px;
+    }
+
+    .close {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+}
+
 .reservations {
     width: 100%;
 
