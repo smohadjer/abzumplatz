@@ -4,43 +4,10 @@
     }
 }
 
-.lightbox {
-    position: absolute;
-    width: 100%;
-    box-sizing: border-box;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background: rgba(255, 255, 255, 0.75);
-}
-
-.popup {
-    position: absolute;
-    z-index: 100;
-    padding: 20px;
-    box-sizing: border-box;
-    width: 90%;
-    background: white;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 5px 0px #666;
-
-    p {
-        margin-right: 20px;
-        margin-top: 20px;
-    }
-
-    .close {
-        position: absolute;
-        right: 10px;
-        top: 10px;
-    }
-}
-
 .reservations {
     width: 100%;
     text-align: left;
+    position: relative;
 
     .header {
         text-align: center;
