@@ -10,7 +10,8 @@
     box-sizing: border-box;
     height: 100%;
     top: 0;
-    background: rgba(255, 255, 255, 0.5);
+    left: 0;
+    background: rgba(255, 255, 255, 0.75);
 }
 
 .popup {
