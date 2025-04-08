@@ -26,6 +26,7 @@ export default function Home(props: Props) {
     }, []);
 
     return (
+        userClub &&
         <>
             <div className="subheader">
                 <p>{firstName} {lastName}</p>
@@ -33,7 +34,7 @@ export default function Home(props: Props) {
             </div>
             <div className="grid">
                 {users.length ? <Courts
-                    club_id={clubId}
+                    club={userClub}
                     users={users}
                     courts_count={userClub!.courts_count} />
                     : 'Fetching data...'

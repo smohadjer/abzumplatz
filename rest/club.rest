@@ -3,6 +3,11 @@ GET http://localhost:3000/api/clubs
 
 ###
 
+// get all the clubs
+GET https://abzumplatz.de/api/clubs
+
+###
+
 // register a club, a date field in ISO format is added during insertion by api
 POST http://localhost:3000/api/clubs
 Content-Type: application/json

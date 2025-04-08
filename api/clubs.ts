@@ -10,9 +10,9 @@ export default async (req, res) => {
     await client.connect();
     const database = client.db(database_name);
     const collection = database.collection('clubs');
+    // get all fields except timestamp
     const projection = {
-        name: 1,
-        courts_count: 1
+        timestamp: 0
     };
 
     if (req.method === 'GET') {

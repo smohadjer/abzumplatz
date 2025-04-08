@@ -2,7 +2,7 @@ import './courts.css';
 import { useState, useEffect } from "react";
 import { Rows } from './Rows';
 import { Header } from './Header';
-import { ReservationItem, NormalizedReservationItem, User } from '../../types';
+import { ReservationItem, NormalizedReservationItem, User, Club } from '../../types';
 import { useSelector } from 'react-redux';
 import { RootState } from './../../store';
 import { Popup } from './Popup';
@@ -11,17 +11,18 @@ import { MyReservations } from './MyReservations';
 type Props = {
     users: User[];
     courts_count: number;
-    club_id: string;
+    club: Club;
 }
-
-const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
 export function Courts(props: Props) {
     const [disabled, setDisabled] = useState(false);
     const [popupContent, setPopupContent] = useState<HTMLElement | null>(null);
     const [reservations, setReservations] = useState<ReservationItem[]>([]);
     const user_id = useSelector((state: RootState) => state.auth._id);
-    const { club_id } = props;
+    const club_id = props.club._id;
+    const clubHours = Array.from({
+        length: props.club.end_hour - props.club.start_hour
+    }, (_, i) => i + props.club.start_hour);
     const [reservationDate, setReservationDate] = useState(new Date());
     const isoDate = reservationDate.toISOString().split('T')[0];
     const filteredReservations: NormalizedReservationItem[] = reservations.filter(item => item.date === isoDate);
@@ -45,11 +46,14 @@ export function Courts(props: Props) {
 
     filteredReservations.map(item => item.user_name = getUserName(item.user_id));
 
+    const myReservations = reservations.filter(item => item.user_id === user_id && item.date >= new Date().toISOString().split('T')[0]);
+
     function getUserName(userId: string) {
         if (props.users.length > 0) {
             const user = props.users.find((item: User) => item._id === userId);
             return user ? user.first_name.charAt(0) + '. ' + user.last_name : userId;
         } else {
+            console.warn('no users found', props.users)
             return userId;
         }
     }
@@ -105,7 +109,23 @@ export function Courts(props: Props) {
 
             if (slot.classList.contains('delete')) {
                 showPopup(slot);
-                //deleteReservation(slot);
+                return;
+            }
+
+            // if user has reached max allowed reservations alert and return
+            const limit = props.club.reservations_limit;
+            if (myReservations.length >= limit) {
+                alert(`You have reached maximum allowed reservations (${limit})!`);
+                return;
+            }
+
+            // if user is trying to make a reservation in the past alert and return
+            const reservationTime = new Date(reservationDate);
+            reservationTime.setHours(Number(slot.dataset.hour));
+            reservationTime.setMinutes(0);
+            reservationTime.setSeconds(0);
+            if (reservationTime < new Date()) {
+                alert('You can\'t make a reservation in the past!');
                 return;
             }
 
@@ -165,11 +185,11 @@ export function Courts(props: Props) {
             </div>
             <div className="main">
                 <div className="hours">
-                    {hours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
+                    {clubHours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
                 </div>
                 <div className="slots">
                     <Header count={props.courts_count} />
-                    {hours.map(hour =>
+                    {clubHours.map(hour =>
                         <Rows
                             reservations={filteredReservations}
                             onClick={clickHandler}

@@ -3,18 +3,17 @@ import { database_uri, database_name } from './_config.js';
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
-import { reservationsLimit } from './_config.js'
 
 const client = new MongoClient(database_uri);
-const getAllReservations = async (collection, club_id) => {
-  const docs = await collection.find({club_id}).sort({
+const getAllReservations = async (reservations, club_id) => {
+  const docs = await reservations.find({club_id}).sort({
     date: 1,
     start_time: 1
   });
   return docs.toArray();
 };
-const getUserReservations = async (collection, user_id) => {
-  const docs = await collection.find({
+const getUserReservations = async (reservations, user_id) => {
+  const docs = await reservations.find({
     user_id,
     date: { $gte: new Date().toISOString().split('T')[0] }
   }).sort({
@@ -28,12 +27,13 @@ export default async (req, res) => {
   try {
     await client.connect();
     const database = client.db(database_name);
-    const collection = database.collection('reservations');
+    const reservations = database.collection('reservations');
+    const clubs = database.collection('clubs');
 
     if (req.method === 'GET') {
       const club_id = req.query?.club_id;
       if (club_id) {
-        const docs = await getAllReservations(collection, club_id);
+        const docs = await getAllReservations(reservations, club_id);
         res.json(docs);
       } else {
         res.status(500).end();
@@ -49,18 +49,18 @@ export default async (req, res) => {
         _id: ObjectId.createFromHexString(reservation_id)
       };
 
-      const reservation = await collection.findOne(query);
+      const reservation = await reservations.findOne(query);
 
       console.log(reservation);
       const payload = await getJwtPayload(req);
 
       if (reservation.user_id === payload._id) {
         console.log('deleting allowed');
-        const result = await collection.deleteOne(query);
+        const result = await reservations.deleteOne(query);
         console.log(result);
         if (result.deletedCount > 0) {
           if (club_id) {
-            const docs = await getAllReservations(collection, club_id);
+            const docs = await getAllReservations(reservations, club_id);
             res.status(200).json({
               message: `Reservation with id ${reservation_id} was deleted.`,
               data: docs
@@ -101,7 +101,7 @@ export default async (req, res) => {
       }
 
       // throw error if a reservation for same court in the same time already exists
-      const doc = await collection.findOne({ club_id, court_num, date, start_time },{
+      const doc = await reservations.findOne({ club_id, court_num, date, start_time },{
         collation: { locale: "en", strength: 2 }
       });
       if (doc) {
@@ -110,10 +110,13 @@ export default async (req, res) => {
 
       // throw error if user has already reached maximum allowed number of reservations
       const payload = await getJwtPayload(req);
-      const userReservations = await getUserReservations(collection, payload._id);
-      console.log({userReservations});
-      if (userReservations.length >= reservationsLimit) {
-        throw new Error(`You have already reached the maximum allowed reservations (${reservationsLimit}).`);
+      const userReservations = await getUserReservations(reservations, payload._id);
+      const userClub = await clubs.findOne(
+        {_id: ObjectId.createFromHexString(club_id)}
+      )
+      const limit =  userClub.reservations_limit;
+      if (userReservations.length >= limit) {
+        throw new Error(`You have reached maximum allowed reservations (${limit}).`);
       }
 
       // insert reservation
@@ -121,8 +124,8 @@ export default async (req, res) => {
         club_id, user_id, court_num, date, start_time, end_time,
         timestamp: new Date()
       };
-      const insertResponse = await collection.insertOne(reservation);
-      const docs = await getAllReservations(collection, club_id);
+      const insertResponse = await reservations.insertOne(reservation);
+      const docs = await getAllReservations(reservations, club_id);
 
       res.status(201).json({
         message: `Court ${court_num} is reservered with reservation id: ${insertResponse.insertedId}`,
