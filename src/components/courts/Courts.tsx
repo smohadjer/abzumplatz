@@ -175,6 +175,7 @@ export function Courts(props: Props) {
                 <button
                     onClick={prevDay}
                     className="prev">&lt;</button>
+                <span className="shortday">{new Date(isoDate).toLocaleDateString('de-DE', {weekday: 'short'})}</span>
                 <input className="date-picker" type="date"
                     value={isoDate}
                     onChange={e => setReservationDate(new Date(e.target.value))}
@@ -203,7 +204,7 @@ export function Courts(props: Props) {
             </div>
             <h2>Meine Reservierungen</h2>
             { reservations.length
-                ? <MyReservations reservations={reservations} user_id={user_id} />
+                ? <MyReservations reservations={myReservations} />
                 : <p>Keine Reservierung gefunden!</p>
             }
             { popupContent ? <Popup

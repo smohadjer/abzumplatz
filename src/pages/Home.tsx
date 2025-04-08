@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { User, Club } from '../types';
 import { Courts } from '../components/courts/Courts';
+import { Loader } from '../components/loader/Loader';
 
 type Props = {
     clubs: Club[];
@@ -37,7 +38,9 @@ export default function Home(props: Props) {
                     club={userClub}
                     users={users}
                     courts_count={userClub!.courts_count} />
-                    : 'Fetching data...'
+                    : <div>
+                        <Loader /> Fetching data...
+                    </div>
                 }
             </div>
         </>

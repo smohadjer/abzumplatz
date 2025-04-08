@@ -14,6 +14,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './store';
+import { Loader } from './components/loader/Loader';
 
 export default function App() {
     const [initialized, setInitialized] = useState(false);
@@ -81,7 +82,7 @@ export default function App() {
                 } />
                 <Route path="*" element={<NotFound />} />
              </Route>
-        </Routes> : <>Loading</>
+        </Routes> : <Loader />
     );
 }
 

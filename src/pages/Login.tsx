@@ -5,7 +5,7 @@ export default function LoginPage() {
     return (
         <>
             <p>
-                <span>Login</span> | {' '}
+                <strong>Login</strong> | {' '}
                 <Link to="/register">Register</Link>
             </p>
             <Login />
