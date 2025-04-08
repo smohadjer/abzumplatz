@@ -43,7 +43,7 @@ export default async (req, res) => {
                     authenticated = true;
                     console.log('user._id:', user._id);
                   } else {
-                    throw new Error('Passwrod is wrong');
+                    throw new Error('Login failed');
                   }
                 }
 

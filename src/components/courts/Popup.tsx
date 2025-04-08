@@ -8,13 +8,15 @@ export function Popup(props: {
     deleteReservation: MouseEventHandler;
 }) {
     return (
-        <div className="popup">
-             {/* {props.content.dataset.reservation_id} */}
-            <button  disabled={props.disabled}  className="close" onClick={props.closePopup}>X</button>
-            <p>Möchtest du deine Reservierung stornien?</p>
-            <button disabled={props.disabled} className="delete" onClick={props.deleteReservation}>Ja</button> {' '}
-            <button disabled={props.disabled} onClick={props.closePopup}>Nein</button>
-            {props.disabled ? <Loader /> : null}
+        <div className="lightbox">
+            <div className="popup">
+                {/* {props.content.dataset.reservation_id} */}
+                <button disabled={props.disabled} className="close" onClick={props.closePopup}>X</button>
+                <p>Möchtest du deine Reservierung am {props.content.dataset.reservation_date} stornien?</p>
+                <button disabled={props.disabled} className="delete" onClick={props.deleteReservation}>Ja</button> {' '}
+                <button disabled={props.disabled} onClick={props.closePopup}>Nein</button>
+                {props.disabled ? <Loader /> : null}
+            </div>
         </div>
     )
 }

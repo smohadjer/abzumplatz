@@ -21,6 +21,7 @@ export function Rows(props: Props) {
                 isMyRservation ?
                     <span className="delete"
                         data-reservation_id={reservation._id}
+                        data-reservation_date={reservation.date}
                     >{reservation.user_name}</span> : reservation.user_name
             )
         }

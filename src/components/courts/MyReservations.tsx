@@ -12,7 +12,7 @@ export function MyReservations(props: {
             const day = new Date(item.date);
             return (
                 <li key={item._id}>
-                    {day.toLocaleDateString('de-DE', {weekday: 'long'})} {day.toLocaleDateString('de-DE')}, {item.start_time}-{item.end_time} Uhr, Platz {item.court_num}
+                    {day.toLocaleDateString('de-DE', {weekday: 'short'})} {day.toLocaleDateString('de-DE')}, {item.start_time}-{item.end_time} Uhr, Platz {item.court_num}
                 </li>
             )}
         )}
