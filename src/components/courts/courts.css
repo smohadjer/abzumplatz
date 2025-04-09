@@ -102,7 +102,7 @@
                 border-bottom: solid 1px white;
 
                 .cell {
-                    background: #ccc;
+                    background: #b8f8b3;
 
                     &.loading::before {
                         content: ' ';
@@ -115,21 +115,19 @@
                         animation: loadingspin 1s linear infinite;
                     }
 
-                    &:hover {
-                        cursor: pointer;
-                        background: #bbb;
+                    &.past {
+                        background: #ccc;
                     }
 
                     &.reserved {
                         cursor: default;
-                        background: #ccc;
-                        color: #666;
+                        background: #f9a8a8;
+                        color: #333;
                     }
 
                     .delete {
                         margin-left: 5px;
                         cursor: pointer;
-                        color: #3264c8;
                         text-decoration: underline;
                     }
                 }

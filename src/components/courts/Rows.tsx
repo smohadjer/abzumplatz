@@ -1,5 +1,6 @@
 import { MouseEventHandler } from "react";
 import { NormalizedReservationItem } from "../../types";
+import { isInPast } from '../../utils/utils';
 
 type Props = {
     count: number;
@@ -7,6 +8,7 @@ type Props = {
     onClick: MouseEventHandler;
     reservations: NormalizedReservationItem[];
     user_id: string;
+    isPast: boolean;
 }
 
 export function Rows(props: Props) {
@@ -27,7 +29,7 @@ export function Rows(props: Props) {
         }
 
         row.push(
-            <div className={'cell ' + (reservation ? ' reserved' : '')}
+            <div className={'cell' + (reservation ? ' reserved' : '') + (props.isPast ? ' past' : '')}
                 onClick={props.onClick}
                 data-court_number={courtNumber}
                 data-hour={props.hour}

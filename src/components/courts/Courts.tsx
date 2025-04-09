@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from './../../store';
 import { Popup } from './Popup';
 import { MyReservations } from './MyReservations';
+import { isInPast } from '../../utils/utils';
 
 type Props = {
     users: User[];
@@ -115,17 +116,13 @@ export function Courts(props: Props) {
             // if user has reached max allowed reservations alert and return
             const limit = props.club.reservations_limit;
             if (myReservations.length >= limit) {
-                alert(`You have reached maximum allowed reservations (${limit})!`);
+                alert(`Sie haben die maximal zulässige Anzahl an Reservierungen (${limit}) erreicht!`);
                 return;
             }
 
             // if user is trying to make a reservation in the past alert and return
-            const reservationTime = new Date(reservationDate);
-            reservationTime.setHours(Number(slot.dataset.hour));
-            reservationTime.setMinutes(0);
-            reservationTime.setSeconds(0);
-            if (reservationTime < new Date()) {
-                alert('You can\'t make a reservation in the past!');
+            if (isInPast(reservationDate, Number(slot.dataset.hour))) {
+                alert('Eine Reservierung in der Vergangenheit ist nicht möglich!');
                 return;
             }
 
@@ -198,6 +195,7 @@ export function Courts(props: Props) {
                             hour={hour}
                             count={props.courts_count}
                             user_id={user_id}
+                            isPast={isInPast(reservationDate, hour)}
                         />
                     )}
                 </div>

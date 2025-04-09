@@ -12,3 +12,15 @@ export const isAuthenticated = async () => {
     const isAuthenticated = await response.json();
     return isAuthenticated;
 }
+
+export const isInPast = (reservationDate: Date, hour: number) => {
+    const reservationTime = new Date(reservationDate);
+    reservationTime.setHours(hour);
+    reservationTime.setMinutes(0);
+    reservationTime.setSeconds(0);
+    if (reservationTime < new Date()) {
+        return true;
+    } else {
+        return false;
+    }
+};
