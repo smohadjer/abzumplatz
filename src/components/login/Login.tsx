@@ -8,7 +8,7 @@ export function Login() {
             method="POST"
             action="/api/login"
             fields={fields}
-            label="Login"
+            label="Anmelden"
         />
     )
 }

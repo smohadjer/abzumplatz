@@ -1,10 +1,19 @@
 import { FormEvent, useState } from 'react';
 import { FormField } from '../formField/FormField';
 import { normalizeErrors } from '../../utils/normalizeErrors';
-import { FormProps, ServerError, FieldError } from '../../types';
+import { ServerError, FieldError, FieldProps } from '../../types';
 import './Form.css';
 import { useNavigate } from "react-router";
 import { useDispatch } from 'react-redux'
+
+type FormProps = {
+    method: string;
+    action: string;
+    fields: FieldProps[];
+    label: string;
+    disableValidation?: boolean;
+    classNames?: string;
+}
 
 export function Form(props: FormProps) {
     const { method, action, fields, label } = props;

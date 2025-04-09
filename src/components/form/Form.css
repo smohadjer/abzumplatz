@@ -17,7 +17,6 @@
     }
 
     fieldset {
-        margin-bottom: 1em;
         border: 0;
         padding: 0;
 
@@ -110,5 +109,14 @@
         &:hover {
             background: #194b96;
         }
+    }
+
+    select {
+        border: 1px #ccc solid;
+        padding: 0.25em 0.5em;
+        font-size: 16px;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
     }
 }

@@ -1,11 +1,11 @@
 [
     {
         "id": "club_id",
-        "label": "Select Club",
+        "label": "Verein",
         "type": "select",
         "options": [
             {
-                "name": "Select",
+                "name": "Auswählen",
                 "value": ""
             }
         ],
@@ -13,20 +13,18 @@
     },
     {
         "id": "first_name",
-        "label": "First Name",
+        "label": "Vorname",
         "type": "text",
         "pattern": "^[A-Za-z]{2,40}$",
-        "placeholder": "First name",
         "error": "Only letters, 2 to 40 characters long",
         "required": true,
         "hasError": false
     },
     {
         "id": "last_name",
-        "label": "Last Name",
+        "label": "Nachname",
         "type": "text",
         "pattern": "^[A-Za-z]{2,40}$",
-        "placeholder": "Last name",
         "error": "Only letters, 2 to 40 characters long",
         "required": true,
         "hasError": false
@@ -36,17 +34,15 @@
         "label": "Email",
         "type": "email",
         "autocomplete": "email",
-        "placeholder": "Enter a valid email",
         "error": "Not a valid email",
         "required": true,
         "hasError": false
     },
     {
         "id": "password",
-        "label": "Password",
+        "label": "Passwort",
         "type": "password",
         "autocomplete": "password",
-        "placeholder": "Use a strong password",
         "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d])[^\\s]{8,}$",
         "error": "Minimum 8 characters, one uppercase, one lowercase, one number, and one special character",
         "required": true,

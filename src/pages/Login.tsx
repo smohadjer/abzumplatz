@@ -4,11 +4,10 @@ import { Link } from 'react-router';
 export default function LoginPage() {
     return (
         <>
-            <p>
-                <strong>Login</strong> | {' '}
-                <Link to="/register">Register</Link>
-            </p>
+            <h2>Anmelden</h2>
+            <p>Wenn Sie noch kein Konto in unserer App erstellt haben, sollten Sie sich zunächst <Link to="/register">hier registrieren</Link>.</p>
             <Login />
         </>
+
     )
 }

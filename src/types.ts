@@ -40,15 +40,6 @@ export type Option = {
     value: string;
 }
 
-export interface FormProps {
-    method: string;
-    action: string;
-    fields: FieldProps[];
-    label: string;
-    disableValidation?: boolean;
-    classNames?: string;
-}
-
 export interface ServerError {
     instancePath: string;
     message: string;

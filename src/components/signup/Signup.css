@@ -2,3 +2,7 @@
 label input[type=checkbox] {
     vertical-align: top;
 }
+
+.signup fieldset {
+    margin-bottom: 1em;
+}

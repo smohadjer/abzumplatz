@@ -4,17 +4,15 @@
         "label": "Email",
         "type": "email",
         "autocomplete": "email",
-        "placeholder": "Enter a valid email",
         "error": "Not a valid email",
         "required": true,
         "hasError": false
     },
     {
         "id": "password",
-        "label": "Password",
+        "label": "Passwort",
         "type": "password",
         "autocomplete": "password",
-        "placeholder": "Enter password",
         "required": true,
         "hasStrengthIndicator": false,
         "hasDisplayToggle": true,
