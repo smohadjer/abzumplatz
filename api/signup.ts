@@ -49,13 +49,25 @@ export default async (req, res) => {
                  )
                 const doc = await collection.findOne({ email });
                 if (doc) {
-                    throw new Error(`Email ${email} already exists`);
+                    //throw new Error(`Email ${email} already exists`);
+                    return res.status(500).json({error: [
+                        {
+                            instancePath: '/email',
+                            message: `Email ${email} already exists`
+                        }
+                    ]});
                 }
 
                 const clubQuery = { _id: ObjectId.createFromHexString(club_id)};
                 const club = await collectionClubs.findOne(clubQuery);
                 if (!club) {
-                    throw new Error('Club not found');
+                    //throw new Error('Club not found');
+                    return res.status(500).json({error: [
+                        {
+                            instancePath: '/club_id',
+                            message: 'Club not found'
+                        }
+                    ]});
                 }
 
                 const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -70,7 +82,10 @@ export default async (req, res) => {
                 res.status(201).json({message: `User ${first_name} ${last_name} is registered`});
             } catch (e) {
                 console.error(e);
-                res.status(500).json({error: e.message});
+                res.status(500).json({error: [{
+                    instancePath: '/undefined',
+                    message: e.message
+                }]});
             }
         }
     }
