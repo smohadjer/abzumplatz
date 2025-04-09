@@ -1,6 +1,5 @@
 import { MouseEventHandler } from "react";
 import { NormalizedReservationItem } from "../../types";
-import { isInPast } from '../../utils/utils';
 
 type Props = {
     count: number;
