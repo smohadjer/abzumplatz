@@ -3,6 +3,7 @@ import { database_uri, database_name } from './_config.js';
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
+import { isInPast } from '../src/utils/utils.js';
 
 const client = new MongoClient(database_uri);
 const getAllReservations = async (reservations, club_id) => {
@@ -50,8 +51,12 @@ export default async (req, res) => {
       };
 
       const reservation = await reservations.findOne(query);
-
       console.log(reservation);
+
+      if (isInPast(new Date(reservation.date), reservation.start_time)) {
+        throw new Error('Reservations in the past can not be deleted!');
+      }
+
       const payload = await getJwtPayload(req);
 
       if (reservation.user_id === payload._id) {

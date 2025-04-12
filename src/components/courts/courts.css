@@ -56,14 +56,7 @@
         font-family: monospace;
         letter-spacing: -0.05em;
         font-size: 15px;
-
-        .delete-btn {
-            margin-left: 0.5em;
-            vertical-align: text-bottom;
-        }
     }
-
-
 
     .main {
         display: flex;
@@ -103,13 +96,18 @@
 
                 .cell {
                     background: #b8f8b3;
+                    cursor: pointer;
+
+                    &:hover {
+                        background: #a4e7a0;
+                    }
 
                     &.loading::before {
                         content: ' ';
                         display: inline-block;
                         width: 0.9em;
                         height: 0.9em;
-                        border: 0.1em solid #fff;
+                        border: 0.15em solid #333;
                         border-top-color: transparent;
                         border-radius: 50%;
                         animation: loadingspin 1s linear infinite;
@@ -117,6 +115,7 @@
 
                     &.past {
                         background: #ccc;
+                        cursor: default;
                     }
 
                     &.reserved {
@@ -125,10 +124,13 @@
                         color: #333;
                     }
 
-                    .delete {
-                        margin-left: 5px;
+                    &.my-reservation {
+                        background: orange;
                         cursor: pointer;
-                        text-decoration: underline;
+
+                        &:hover {
+                            background: rgb(252, 194, 87)
+                        }
                     }
                 }
             }

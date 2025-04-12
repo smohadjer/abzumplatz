@@ -104,11 +104,14 @@ export function Courts(props: Props) {
         if (event.target instanceof HTMLElement) {
             const slot = event.target;
 
-            if (slot.classList.contains('reserved')) {
+            // slots in the past or reserved by others should not be clickable
+            if (slot.classList.contains('past') ||
+              (slot.classList.contains('reserved') && !slot.classList.contains('my-reservation'))
+            ) {
                 return;
             }
 
-            if (slot.classList.contains('delete')) {
+            if (slot.classList.contains('my-reservation')) {
                 showPopup(slot);
                 return;
             }

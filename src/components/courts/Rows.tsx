@@ -14,26 +14,20 @@ export function Rows(props: Props) {
     const row = [];
     for (let courtNumber = 1; courtNumber < props.count+1; courtNumber++) {
         const reservation = props.reservations.find(item => item.start_time == props.hour && item.court_num == courtNumber);
-
-        const setContent = (reservation: NormalizedReservationItem) => {
-            const isMyRservation = reservation?.user_id === props.user_id ? true : false;
-
-            return (
-                isMyRservation ?
-                    <span className="delete"
-                        data-reservation_id={reservation._id}
-                        data-reservation_date={reservation.date}
-                    >{reservation.user_name}</span> : reservation.user_name
-            )
-        }
+        const isMyReservation = reservation?.user_id === props.user_id ? true : false;
 
         row.push(
-            <div className={'cell' + (reservation ? ' reserved' : '') + (props.isPast ? ' past' : '')}
+            <div className={'cell' +
+                (reservation ? ' reserved' : '') +
+                (props.isPast ? ' past' : '') +
+                (isMyReservation ? ' my-reservation' : '')}
                 onClick={props.onClick}
                 data-court_number={courtNumber}
                 data-hour={props.hour}
-                key={courtNumber}>
-                {reservation ? setContent(reservation) : ''}
+                key={courtNumber}
+                data-reservation_id={(reservation && isMyReservation) ? reservation._id : undefined}
+                data-reservation_date={(reservation && isMyReservation) ? reservation.date : undefined}>
+                {reservation ? reservation.user_name : ''}
             </div>
         );
     }
