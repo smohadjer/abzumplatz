@@ -26,10 +26,12 @@
         margin: 0 0.5em;
         font-size: 1.3em;
         line-height: 2;
-        padding: 0 0.5em;
+        padding: 0.05em 0.65em;
         font-family: monospace;
-        border: solid 1px #ccc;
-        border-radius: 0.25em;
+        border: none;
+        border-radius: 0;
+        background: var(--blue);
+        color: white;
     }
 
     .prev, .next {
@@ -41,12 +43,14 @@
         background: #3264c8;
         color: white;
         border: none;
-        border-radius: 0.25em;
+        border-radius: 0;
     }
 
     .shortday {
         margin-left: 0.5em;
         font-size: 1.2em;
+        color: var(--blue);
+        font-weight: bold;
 
     }
 
@@ -64,7 +68,8 @@
 
         .hours {
             width: 50px;
-            background: green;
+            background: var(--brown);
+            background: #666;
             margin-top: 35px;
             border-right: solid 1px white;
 
@@ -86,6 +91,7 @@
 
                 .cell {
                     background: #666;
+
                     color: white;
                     padding-top: 8px;
                 }
@@ -95,10 +101,10 @@
                 border-bottom: solid 1px white;
 
                 .cell {
-                    background: #b8f8b3;
+                    background: #c4f6c1;
                     cursor: pointer;
 
-                    &:hover {
+                    &:hover:not(.past) {
                         background: #a4e7a0;
                     }
 
@@ -113,25 +119,24 @@
                         animation: loadingspin 1s linear infinite;
                     }
 
-                    &.past {
-                        background: #ccc;
-                        cursor: default;
-                    }
-
                     &.reserved {
                         cursor: default;
-                        background: #f9a8a8;
+                        background: #faaeae;
                         color: #333;
                     }
 
-                    &.my-reservation {
-                        background: orange;
+                    &.my-reservation:not(.past) {
+                        background: #faaeae;
+                        text-decoration: underline;
                         cursor: pointer;
-
-                        &:hover {
-                            background: rgb(252, 194, 87)
-                        }
                     }
+
+                    &.past {
+                        background: #ccc;
+                        color: #666;
+                        cursor: default;
+                    }
+
                 }
             }
 

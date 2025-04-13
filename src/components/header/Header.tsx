@@ -8,9 +8,9 @@ export default function Header() {
     const auth = useSelector((state: RootState) => state.auth.value);
 
     return (
-        <header className="header">
+        <header>
             <div className="flex">
-                <h1>Ab<span>Zum</span>Platz</h1>
+                <h1>abzumplatz</h1>
                 {auth && <Logout />}
             </div>
             {/* <Nav /> */}

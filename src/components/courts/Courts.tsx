@@ -175,7 +175,7 @@ export function Courts(props: Props) {
                 <button
                     onClick={prevDay}
                     className="prev">&lt;</button>
-                <span className="shortday">{new Date(isoDate).toLocaleDateString('de-DE', {weekday: 'short'})}</span>
+                <span className="shortday">{new Date(isoDate).toLocaleDateString('de-DE', {weekday: 'short'})}.</span>
                 <input className="date-picker" type="date"
                     value={isoDate}
                     onChange={e => setReservationDate(new Date(e.target.value))}

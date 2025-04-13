@@ -3,7 +3,7 @@ label input[type=checkbox] {
     vertical-align: top;
 }
 
-.header {
+header {
     form.form-react button[type=submit] {
         background: none;
         color: var(--blue);

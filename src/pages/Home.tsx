@@ -27,22 +27,23 @@ export default function Home(props: Props) {
     }, []);
 
     return (
-        userClub &&
+        (users.length && userClub) ?
         <>
             <div className="subheader">
                 <p>{firstName} {lastName}</p>
                 <p>{userClub!.name}</p>
             </div>
             <div className="grid">
-                {users.length ? <Courts
+                <Courts
                     club={userClub}
                     users={users}
-                    courts_count={userClub!.courts_count} />
-                    : <div>
-                        <Loader /> Fetching data...
-                    </div>
-                }
+                    courts_count={userClub!.courts_count}
+                />
             </div>
-        </>
+        </> : (
+            <div className="splash">
+                <Loader size="big" />
+            </div>
+        )
     )
 }

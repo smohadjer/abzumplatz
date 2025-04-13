@@ -1,15 +1,44 @@
 :root {
   --blue: #3264c8;
+  --brown: #d64d08;
+  --darkbrown: #a93b05;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    scroll-behavior: none;
 }
 
 body {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 1em;
-    text-align: center;
+}
+
+#root {
+    height: 100%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    padding: 0.5em;
 }
 
 main {
-    text-align: left;
+    flex-grow: 1;
+    padding: 0 0.5em 1em;
+    scroll-behavior: contain;
+}
+
+footer {
+    margin: 0;
+    border-top: solid 1px #ccc;
+    padding: 1em 0.5em;
+    text-align: right;
+    font-size: smaller;
+    color: #666;
 }
 
 h1 {
@@ -27,4 +56,19 @@ h3 {
 h2 + p {
 
     margin-top: 0.5em;
+}
+
+.splash {
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.active {
+    color: salmon;
+}
+
+h1 {
+    margin: 0;
 }

@@ -1,3 +1,5 @@
-header {
-
+header h1 {
+  color: var(--brown);
+  color: #333;
+  letter-spacing: -0.02em;
 }

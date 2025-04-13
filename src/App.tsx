@@ -15,6 +15,7 @@ import { PublicRoute } from './PublicRoute';
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './store';
 import { Loader } from './components/loader/Loader';
+import Header from './components/header/Header';
 
 export default function App() {
     const [initialized, setInitialized] = useState(false);
@@ -82,7 +83,17 @@ export default function App() {
                 } />
                 <Route path="*" element={<NotFound />} />
              </Route>
-        </Routes> : <Loader />
+        </Routes> : (
+            <>
+                <Header />
+                <main>
+                    <div className="splash">
+                        <Loader size="big" />
+                    </div>
+                </main>
+                <footer>&copy; 2025 Saeid Mohadjer</footer>
+            </>
+        )
     );
 }
 
