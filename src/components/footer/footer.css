@@ -1,0 +1,13 @@
+footer {
+    margin: 0;
+    border-top: solid 1px #ccc;
+    padding: 1em 0.5em;
+    text-align: right;
+    font-size: smaller;
+    color: #666;
+
+    a {
+        color: var(--blue);
+        text-decoration: none;
+    }
+}

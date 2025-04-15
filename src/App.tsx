@@ -16,6 +16,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './store';
 import { Loader } from './components/loader/Loader';
 import Header from './components/header/Header';
+import Footer from './components/footer/Footer';
 
 export default function App() {
     const [initialized, setInitialized] = useState(false);
@@ -36,8 +37,7 @@ export default function App() {
             setClubs(clubsData);
 
             if (authenticated.error) {
-                console.log('error');
-                // user is not logged-in, fetching all events
+                console.log('user is not logged-in, fetching all events...');
                 //dispatch(logout());
             } else {
                 console.log('success', authenticated);
@@ -91,7 +91,7 @@ export default function App() {
                         <Loader size="big" />
                     </div>
                 </main>
-                <footer>&copy; 2025 Saeid Mohadjer</footer>
+                <Footer />
             </>
         )
     );

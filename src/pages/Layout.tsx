@@ -1,5 +1,6 @@
 import { Outlet } from "react-router";
 import Header from '../components/header/Header';
+import Footer from '../components/footer/Footer';
 
 export default function Layout() {
   return (
@@ -8,7 +9,7 @@ export default function Layout() {
       <main>
         <Outlet />
       </main>
-      <footer>&copy; 2025 Saeid Mohadjer</footer>
+      <Footer />
     </>
   )
 }
