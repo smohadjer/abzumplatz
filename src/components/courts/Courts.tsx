@@ -8,6 +8,7 @@ import { RootState } from './../../store';
 import { Popup } from './Popup';
 import { MyReservations } from './MyReservations';
 import { isInPast } from '../../utils/utils';
+import { Loader } from '../loader/Loader';
 
 type Props = {
     users: User[];
@@ -16,6 +17,7 @@ type Props = {
 }
 
 export function Courts(props: Props) {
+    const [loading, setLoading] = useState(true);
     const [disabled, setDisabled] = useState(false);
     const [popupContent, setPopupContent] = useState<HTMLElement | null>(null);
     const [reservations, setReservations] = useState<ReservationItem[]>([]);
@@ -42,6 +44,7 @@ export function Courts(props: Props) {
         .then(res => res.json())
         .then(json => {
             setReservations(json);
+            setLoading(false);
         });
     }, []);
 
@@ -204,10 +207,11 @@ export function Courts(props: Props) {
                 </div>
             </div>
             <h2>Meine Reservierungen</h2>
-            { reservations.length
-                ? <MyReservations reservations={myReservations} />
-                : <p>Keine Reservierung gefunden!</p>
-            }
+            {loading ? <Loader /> : (
+                myReservations.length
+                ? <MyReservations showPopup={showPopup} reservations={myReservations} />
+                : <p>Sie haben keine aktiven Reservierungen.</p>
+            )}
             { popupContent ? <Popup
                 disabled={disabled}
                 closePopup={closePopup}

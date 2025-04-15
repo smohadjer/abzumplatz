@@ -1,0 +1,63 @@
+.icon {
+    color: #666;
+    text-decoration: none;
+    background-repeat: no-repeat;
+    font-weight: bold;
+}
+
+.icon--inline {
+    padding-left: 30px;
+    background-position: left center;
+}
+
+.icon--block {
+    background-position: center top;
+    background-size: 32px;
+    padding-top: 32px;
+    min-width: 32px;
+    display: inline-block;
+    text-align: center;
+}
+
+a.icon:hover {
+    filter: invert(9%) sepia(97%) saturate(7423%) hue-rotate(85deg) brightness(89%) contrast(87%);
+}
+
+.icon--delete {
+    background-image: url(./images/delete.svg);
+    background-size: 20px;
+}
+
+.icon--logout {
+    background-image: url(../images/logout.svg);
+}
+
+.icon--home {
+    background-image: url(../images/home.svg);
+}
+
+.icon--admin {
+    background-image: url(../images/admin.svg);
+}
+
+.icon--login {
+    background-image: url(../images/login.svg);
+}
+
+.icon--account {
+    background-image: url(../images/account.svg);
+}
+
+.icon--back {
+    background-image: url(../images/back.svg);
+}
+
+.icon--show {
+    background-image: url(../images/show.svg);
+    margin-left: 0.5em;
+}
+
+.icon--hide {
+    background-image: url(../images/hide.svg);
+    margin-left: 0.5em;
+}

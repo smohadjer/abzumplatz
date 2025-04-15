@@ -20,7 +20,7 @@ export function Popup(props: {
             <div className="popup">
                 {/* {props.content.dataset.reservation_id} */}
                 {/* <button disabled={props.disabled} className="close" onClick={props.closePopup}>X</button> */}
-                <p>Möchtest du deine Reservierung am {getReservationDate(props.content.dataset.reservation_date)} stornien?</p>
+                <p>Möchten Sie Ihre Reservierung am {getReservationDate(props.content.dataset.reservation_date)} um {props.content.dataset.hour} Uhr stornien?</p>
                 <button disabled={props.disabled} className="delete" onClick={props.deleteReservation}>Ja</button> {' '}
                 <button disabled={props.disabled} onClick={props.closePopup}>Nein</button>
                 {props.disabled ? <Loader /> : null}
