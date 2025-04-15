@@ -1,5 +1,13 @@
 .loader {
     vertical-align: middle;
+    color: #666;
+
+    &.has-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5em;
+    }
 
     &::before {
         vertical-align: top;

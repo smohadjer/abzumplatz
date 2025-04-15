@@ -88,7 +88,7 @@ export default function App() {
                 <Header />
                 <main>
                     <div className="splash">
-                        <Loader size="big" />
+                        <Loader size="big" text="Vereinsdaten werden geladen" />
                     </div>
                 </main>
                 <Footer />

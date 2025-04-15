@@ -1,5 +1,5 @@
 import './courts.css';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Rows } from './Rows';
 import { Header } from './Header';
 import { ReservationItem, NormalizedReservationItem, User, Club } from '../../types';
@@ -8,19 +8,18 @@ import { RootState } from './../../store';
 import { Popup } from './Popup';
 import { MyReservations } from './MyReservations';
 import { isInPast } from '../../utils/utils';
-import { Loader } from '../loader/Loader';
 
 type Props = {
     users: User[];
     courts_count: number;
     club: Club;
+    reservations: ReservationItem[]
 }
 
 export function Courts(props: Props) {
-    const [loading, setLoading] = useState(true);
     const [disabled, setDisabled] = useState(false);
     const [popupContent, setPopupContent] = useState<HTMLElement | null>(null);
-    const [reservations, setReservations] = useState<ReservationItem[]>([]);
+    const [reservations, setReservations] = useState<ReservationItem[]>(props.reservations);
     const user_id = useSelector((state: RootState) => state.auth._id);
     const club_id = props.club._id;
     const clubHours = Array.from({
@@ -37,16 +36,6 @@ export function Courts(props: Props) {
         const next = reservationDate.setDate(reservationDate.getDate() - 1);
         setReservationDate(new Date(next));
     };
-
-    // get all reservations
-    useEffect(() => {
-        fetch(`/api/reservations?club_id=${club_id}`)
-        .then(res => res.json())
-        .then(json => {
-            setReservations(json);
-            setLoading(false);
-        });
-    }, []);
 
     filteredReservations.map(item => item.user_name = getUserName(item.user_id));
 
@@ -206,12 +195,9 @@ export function Courts(props: Props) {
                     )}
                 </div>
             </div>
-            <h2>Meine Reservierungen</h2>
-            {loading ? <Loader /> : (
-                myReservations.length
-                ? <MyReservations showPopup={showPopup} reservations={myReservations} />
-                : <p>Sie haben keine aktiven Reservierungen.</p>
-            )}
+            <MyReservations
+                showPopup={showPopup}
+                reservations={myReservations} />
             { popupContent ? <Popup
                 disabled={disabled}
                 closePopup={closePopup}
