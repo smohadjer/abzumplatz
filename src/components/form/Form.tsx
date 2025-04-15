@@ -19,6 +19,7 @@ export function Form(props: FormProps) {
     const { method, action, fields, label } = props;
     const [errors, setErrors] = useState<FieldError[]>([]);
     const navigate = useNavigate();
+    const noValidate = props.disableValidation ?? false;
     //const auth = useSelector(state => state.auth.value)
     const dispatch = useDispatch()
 
@@ -97,7 +98,7 @@ export function Form(props: FormProps) {
 
     return (
         <form
-            noValidate={true}
+            noValidate={noValidate}
             className={formClass}
             method={method}
             action={action}
