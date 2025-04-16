@@ -3,6 +3,11 @@
        { "source": "/about", "destination": "/" },
        { "source": "/about/:path*", "destination": "/" },
        { "source": "/register", "destination": "/" },
-       { "source": "/login", "destination": "/" }
+       { "source": "/login", "destination": "/" },
+       { "source": "/forgot-password", "destination": "/" },
+       {
+        "source": "/reset-password:path*",
+        "destination": "/:path*"
+       }
    ]
 }
