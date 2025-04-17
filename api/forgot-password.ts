@@ -38,7 +38,7 @@ export default async (req, res) => {
                 const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
                 sendEmail({
                     email: req.body.email,
-                    subject: 'Passwort für Account auf abzumplatz.de zurücksetzen',
+                    subject: 'Passwort zurücksetzen',
                     html: `<p>Besuchen Sie die <a href="${resetLink}">folgende Seite</a>, um Ihr Kontopasswort zurückzusetzen. Nach der Passwortänderung müssen Sie sich mit dem neuen Passwort anmelden.</p>`,
                     callback: () => {
                       myCallback(res);

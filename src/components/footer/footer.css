@@ -5,6 +5,8 @@ footer {
     text-align: right;
     font-size: smaller;
     color: #666;
+    display: flex;
+    justify-content: space-between;
 
     a {
         color: var(--blue);

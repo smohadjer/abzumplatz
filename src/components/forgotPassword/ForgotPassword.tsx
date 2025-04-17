@@ -8,6 +8,6 @@ export function ForgotPassword() {
             method="POST"
             action="/api/forgot-password"
             fields={fields}
-            label="Reset Passwort"/>
+            label="Passwort zurücksetzen"/>
     )
 }
