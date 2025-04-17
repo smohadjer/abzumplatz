@@ -14,14 +14,7 @@ export default function Home(props: Props) {
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<User[]>([]);
     const [reservations, setReservations] = useState<ReservationItem[]>([]);
-    const firstName = useSelector((state: RootState) => state.auth.first_name);
-    const lastName = useSelector((state: RootState) => state.auth.last_name);
-    const clubId = useSelector((state: RootState) => state.auth.club_id);
-    const userClub = props.clubs.find(club => club._id === clubId);
-
-    if (!userClub) {
-        return;
-    }
+    const clubId = useSelector((state: RootState) => state.auth.club._id);
 
     // get users and reservations
     useEffect(() => {
@@ -46,20 +39,9 @@ export default function Home(props: Props) {
                 <Loader size="big" text="Reservierungen werden geladen" />
             </div>
         ) : (
-            <>
-                <div className="subheader">
-                    <p>{firstName} {lastName}</p>
-                    <p>{userClub!.name}</p>
-                </div>
-                <div className="grid">
-                    <Courts
-                        reservations={reservations}
-                        club={userClub}
-                        users={users}
-                        courts_count={userClub!.courts_count}
-                    />
-                </div>
-            </>
+            <div className="grid">
+                <Courts reservations={reservations} users={users} />
+            </div>
         )
     )
 }

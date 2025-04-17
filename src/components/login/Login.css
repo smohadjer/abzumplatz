@@ -2,3 +2,7 @@
 label input[type=checkbox] {
     vertical-align: top;
 }
+
+.form-login fieldset + button {
+    margin-top: 0;
+}

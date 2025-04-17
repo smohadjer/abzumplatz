@@ -9,8 +9,7 @@ type Props = {
 export default function Register(props: Props) {
     return (
         <>
-            <h2><Link to="/login">Anmelden</Link> | Registrieren</h2>
-            <p>Falls Sie noch kein Konto haben, registrieren Sie sich bitte über das folgende Formular.</p>
+            <p>Wenn Sie bereits ein Konto erstellt haben, sollten Sie sich <Link to="/login">anmelden</Link>.</p>
             <Signup clubs={props.clubs} />
         </>
     )

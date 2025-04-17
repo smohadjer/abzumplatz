@@ -2,7 +2,7 @@ import './courts.css';
 import { useState } from "react";
 import { Rows } from './Rows';
 import { Header } from './Header';
-import { ReservationItem, NormalizedReservationItem, User, Club } from '../../types';
+import { ReservationItem, NormalizedReservationItem, User } from '../../types';
 import { useSelector } from 'react-redux';
 import { RootState } from './../../store';
 import { Popup } from './Popup';
@@ -11,8 +11,6 @@ import { isInPast } from '../../utils/utils';
 
 type Props = {
     users: User[];
-    courts_count: number;
-    club: Club;
     reservations: ReservationItem[]
 }
 
@@ -20,11 +18,12 @@ export function Courts(props: Props) {
     const [disabled, setDisabled] = useState(false);
     const [popupContent, setPopupContent] = useState<HTMLElement | null>(null);
     const [reservations, setReservations] = useState<ReservationItem[]>(props.reservations);
-    const user_id = useSelector((state: RootState) => state.auth._id);
-    const club_id = props.club._id;
+    const auth = useSelector((state: RootState) => state.auth);
+    const user_id = auth._id;
+    const club_id = auth.club._id;
     const clubHours = Array.from({
-        length: props.club.end_hour - props.club.start_hour
-    }, (_, i) => i + props.club.start_hour);
+        length: auth.club.end_hour - auth.club.start_hour
+    }, (_, i) => i + auth.club.start_hour);
     const [reservationDate, setReservationDate] = useState(new Date());
     const isoDate = reservationDate.toISOString().split('T')[0];
     const filteredReservations: NormalizedReservationItem[] = reservations.filter(item => item.date === isoDate);
@@ -109,7 +108,7 @@ export function Courts(props: Props) {
             }
 
             // if user has reached max allowed reservations alert and return
-            const limit = props.club.reservations_limit;
+            const limit = auth.club.reservations_limit;
             if (myReservations.length >= limit) {
                 alert(`Sie haben die maximal zulässige Anzahl an Reservierungen (${limit}) erreicht!`);
                 return;
@@ -181,14 +180,14 @@ export function Courts(props: Props) {
                     {clubHours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
                 </div>
                 <div className="slots">
-                    <Header count={props.courts_count} />
+                    <Header count={auth.club.courts_count} />
                     {clubHours.map(hour =>
                         <Rows
                             reservations={filteredReservations}
                             onClick={clickHandler}
                             key={hour}
                             hour={hour}
-                            count={props.courts_count}
+                            count={auth.club.courts_count}
                             user_id={user_id}
                             isPast={isInPast(reservationDate, hour)}
                         />

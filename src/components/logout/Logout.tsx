@@ -9,7 +9,7 @@ export function Logout() {
             method="POST"
             action="/api/logout"
             fields={fields}
-            label="Logout"
+            label="Abmelden"
         />
     )
 }

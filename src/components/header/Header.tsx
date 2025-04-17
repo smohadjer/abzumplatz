@@ -1,19 +1,16 @@
-// import Nav from '../nav/Nav';
-import { Logout } from "../logout/Logout";
 import { useSelector } from 'react-redux'
 import { RootState } from './../../store';
 import './header.css';
 
 export default function Header() {
-    const auth = useSelector((state: RootState) => state.auth.value);
+    const auth = useSelector((state: RootState) => state.auth);
 
     return (
         <header>
-            <div className="flex">
-                <h1>abzumplatz</h1>
-                {auth && <Logout />}
-            </div>
-            {/* <Nav /> */}
+            <h1>abzumplatz</h1>
+            {(auth.value && auth.club) &&
+                <p>{auth.first_name + ' ' + auth.last_name + ', ' + auth.club.name}</p>
+            }
         </header>
     )
   }

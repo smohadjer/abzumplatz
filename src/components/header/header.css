@@ -1,5 +1,15 @@
-header h1 {
-  color: var(--brown);
-  color: #333;
-  letter-spacing: -0.02em;
+header {
+  margin-bottom: 0.25em;
+
+  h1 {
+    color: var(--brown);
+    color: #333;
+    font-size: 1.3em;
+  }
+
+  p {
+    margin: 0.5em 0 0;
+    text-align: center;
+    font-size: small;
+  }
 }
