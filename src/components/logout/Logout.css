@@ -5,6 +5,7 @@ label input[type=checkbox] {
 
 form.form-logout {
     display: inline-block;
+    margin: 0;
 
     button[type=submit] {
         background: none;

@@ -10,7 +10,7 @@ export default function Home() {
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<User[]>([]);
     const [reservations, setReservations] = useState<ReservationItem[]>([]);
-    const clubId = useSelector((state: RootState) => state.auth.club._id);
+    const clubId = useSelector((state: RootState) => state.auth.club_id);
 
     // get users and reservations
     useEffect(() => {

@@ -19,11 +19,18 @@ export function Courts(props: Props) {
     const [popupContent, setPopupContent] = useState<HTMLElement | null>(null);
     const [reservations, setReservations] = useState<ReservationItem[]>(props.reservations);
     const auth = useSelector((state: RootState) => state.auth);
+    const clubs = useSelector((state: RootState) => state.clubs);
     const user_id = auth._id;
-    const club_id = auth.club._id;
+    const club_id = auth.club_id;
+    const club = clubs.value.find(club => club._id === club_id);
+
+    if (club === undefined) {
+        return null;
+    }
+
     const clubHours = Array.from({
-        length: auth.club.end_hour - auth.club.start_hour
-    }, (_, i) => i + auth.club.start_hour);
+        length: club.end_hour - club.start_hour
+    }, (_, i) => i + club.start_hour);
     const [reservationDate, setReservationDate] = useState(new Date());
     const isoDate = reservationDate.toISOString().split('T')[0];
     const filteredReservations: NormalizedReservationItem[] = reservations.filter(item => item.date === isoDate);
@@ -108,7 +115,7 @@ export function Courts(props: Props) {
             }
 
             // if user has reached max allowed reservations alert and return
-            const limit = auth.club.reservations_limit;
+            const limit = club?.reservations_limit ?? 0;
             if (myReservations.length >= limit) {
                 alert(`Sie haben die maximal zulässige Anzahl an Reservierungen (${limit}) erreicht!`);
                 return;
@@ -180,14 +187,14 @@ export function Courts(props: Props) {
                     {clubHours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
                 </div>
                 <div className="slots">
-                    <Header count={auth.club.courts_count} />
+                    <Header count={club.courts_count} />
                     {clubHours.map(hour =>
                         <Rows
                             reservations={filteredReservations}
                             onClick={clickHandler}
                             key={hour}
                             hour={hour}
-                            count={auth.club.courts_count}
+                            count={club.courts_count}
                             user_id={user_id}
                             isPast={isInPast(reservationDate, hour)}
                         />
