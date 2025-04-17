@@ -21,10 +21,8 @@ import './app.css';
 export default function App() {
     const [initialized, setInitialized] = useState(false);
     const [clubs, setClubs] = useState<Club[]>([]);
-    const auth = useSelector((state: RootState) => state.auth.value);
+    const auth = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
-
-   console.log('auth:', auth);
 
     useEffect(() => {
         async function getAuth() {
@@ -57,27 +55,27 @@ export default function App() {
         <Routes>
              <Route element={<Layout />}>
                 <Route path="/" element={
-                    <ProtectedRoute isLoggedin={auth}>
-                        <Home clubs={clubs} />
+                    <ProtectedRoute isLoggedin={auth.value}>
+                        <Home />
                     </ProtectedRoute>
                 }/>
                 <Route path="/register" element={
-                    <PublicRoute isLoggedin={auth}>
+                    <PublicRoute isLoggedin={auth.value}>
                         <Register clubs={clubs} />
                     </PublicRoute>
                 } />
                 <Route path="/login" element={
-                    <PublicRoute isLoggedin={auth}>
+                    <PublicRoute isLoggedin={auth.value}>
                         <LoginPage />
                     </PublicRoute>
                 } />
                 <Route path="/forgot-password" element={
-                    <PublicRoute isLoggedin={auth}>
+                    <PublicRoute isLoggedin={auth.value}>
                         <ForgotPasswordPage />
                     </PublicRoute>
                 } />
                 <Route path="/reset-password" element={
-                    <PublicRoute isLoggedin={auth}>
+                    <PublicRoute isLoggedin={auth.value}>
                         <ResetPasswordPage />
                     </PublicRoute>
                 } />

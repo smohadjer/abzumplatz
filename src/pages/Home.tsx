@@ -1,16 +1,12 @@
 import { useState, useEffect } from "react";
-import './home.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { User, Club, ReservationItem } from '../types';
+import { User, ReservationItem } from '../types';
 import { Courts } from '../components/courts/Courts';
 import { Loader } from '../components/loader/Loader';
+import './home.css';
 
-type Props = {
-    clubs: Club[];
-}
-
-export default function Home(props: Props) {
+export default function Home() {
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<User[]>([]);
     const [reservations, setReservations] = useState<ReservationItem[]>([]);
