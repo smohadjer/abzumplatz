@@ -7,7 +7,7 @@ type ProtectedRouteProps = {
 
 export const ProtectedRoute = ({ isLoggedin, children }: ProtectedRouteProps) => {
     if (!isLoggedin) {
-      return <Navigate to="/register" replace />;
+      return <Navigate to="/login" replace />;
     }
 
     return children;

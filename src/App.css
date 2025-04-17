@@ -65,3 +65,18 @@ h2 + p {
 h1 {
     margin: 0;
 }
+
+a {
+    color: var(--blue);
+}
+
+fieldset + button {
+    margin-top: 1em;
+}
+
+p.error {
+    background-color: #fcd4da;
+    border-color: #c70000;
+    color: #c70000;
+    padding: 0.5em;
+}

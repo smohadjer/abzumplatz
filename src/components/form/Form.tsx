@@ -43,19 +43,14 @@ export function Form(props: FormProps) {
         })
         .then((response) => response.json())
         .then(json => {
-            console.log(json);
+            console.log(action, json);
             if (json.error) {
                 const errors: ServerError[] = [...json.error];
                 updateErrors(normalizeErrors(errors));
             } else {
                 console.log('Server received valid data');
 
-                if (json.data) {
-                    console.log(json.data);
-                }
-
-                if (action === '/api/signup') {
-                    console.log('going to login');
+                if (action === '/api/signup' || action === '/api/reset-password') {
                     navigate('/login');
                     return;
                 }

@@ -1,12 +1,14 @@
 import { Routes, Route } from 'react-router';
-import Home from "./pages/Home";
-import Register from "./pages/Register";
-import LoginPage from "./pages/Login";
-import About from "./pages/About";
-import Layout from "./pages/Layout";
-import Test from "./pages/Test";
-import Myself from "./pages/Myself";
-import NotFound from "./pages/NotFound";
+import Home from './pages/Home';
+import Register from './pages/Register';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import LoginPage from './pages/Login';
+import About from './pages/About';
+import Layout from './pages/Layout';
+import Test from './pages/Test';
+import Myself from './pages/Myself';
+import NotFound from './pages/NotFound';
 import {isAuthenticated} from './utils/utils';
 import './App.css';
 import { useEffect, useState } from 'react';
@@ -79,6 +81,16 @@ export default function App() {
                 <Route path="/login" element={
                     <PublicRoute isLoggedin={auth}>
                         <LoginPage />
+                    </PublicRoute>
+                } />
+                <Route path="/forgot-password" element={
+                    <PublicRoute isLoggedin={auth}>
+                        <ForgotPasswordPage />
+                    </PublicRoute>
+                } />
+                <Route path="/reset-password" element={
+                    <PublicRoute isLoggedin={auth}>
+                        <ResetPasswordPage />
                     </PublicRoute>
                 } />
                 <Route path="*" element={<NotFound />} />

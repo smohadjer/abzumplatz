@@ -4,10 +4,14 @@ label input[type=checkbox] {
 }
 
 header {
-    form.form-react button[type=submit] {
+    form.form-logout button[type=submit] {
         background: none;
         color: var(--blue);
         padding: 0;
+
+        &:hover {
+            background: none;
+        }
     }
 }
 

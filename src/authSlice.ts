@@ -23,7 +23,7 @@ export const authSlice = createSlice({
     },
     logout: (state, action) => {
       state.value = action.payload.value;
-      state.first_name = action.payload.first_name
+      state.first_name = action.payload.first_name;
     },
   }
 })
