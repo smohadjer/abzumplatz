@@ -26,7 +26,8 @@ export default async (req, res) => {
             });
             return res.json({error: errors});
         } else {
-            const { first_name, last_name, club_id, email, password } = req.body;
+            const { first_name, last_name, club_id, password } = req.body;
+            const email = req.body.email.toLowerCase();
             //return res.json('Server received valid data');
 
             try {
