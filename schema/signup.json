@@ -22,8 +22,8 @@
             "type": "string",
             "allOf": [
                 {
-                    "pattern": "^[A-Za-z]+$",
-                    "errorMessage": "Only alphabet characters are allowed"
+                    "pattern": "^[A-Za-z-]+$",
+                    "errorMessage": "Only alphabet characters and hyphen are allowed"
                 },
                 {
                     "minLength": 2,

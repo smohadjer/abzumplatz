@@ -24,8 +24,8 @@
         "id": "last_name",
         "label": "Nachname",
         "type": "text",
-        "pattern": "^[A-Za-z]{2,40}$",
-        "error": "Only letters, 2 to 40 characters long",
+        "pattern": "^[A-Za-z-]{2,40}$",
+        "error": "Only letters and hyphen, 2 to 40 characters long",
         "required": true,
         "hasError": false
     },
