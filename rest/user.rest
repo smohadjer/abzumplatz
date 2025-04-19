@@ -3,13 +3,8 @@ GET http://localhost:3000/api/users
 
 ###
 
-// get all users of a tsv club
+// get all users of a club
 GET http://localhost:3000/api/users?club_id=67a501832225683fb61ca069
-
-###
-
-// get all users of waldkirch club
-GET http://localhost:3000/api/users?club_id=67a6f9b2d791062c2d656097
 
 ###
 
@@ -31,7 +26,8 @@ Content-Type: application/json
 {
     "first_name": "Test",
     "last_name": "Tyson",
-    "email": "mike@test.com",
+    "email": "tester23@test.com",
     "club_id": "67a501832225683fb61ca069",
-    "password": "Opengl?1"
+    "password": "CloseTest?12",
+    "privacy": "agree"
 }

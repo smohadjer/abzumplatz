@@ -9,7 +9,8 @@
                 "value": ""
             }
         ],
-        "required": true
+        "required": true,
+        "error": "This is a required field"
     },
     {
         "id": "first_name",
@@ -49,5 +50,19 @@
         "hasStrengthIndicator": true,
         "hasDisplayToggle": true,
         "hasError": false
+    },
+    {
+        "id": "privacy",
+        "label": "",
+        "type": "checkbox",
+        "options": [
+            {
+                "name": "Durch die Registrierung und Verwendung dieser App erklären Sie sich damit einverstanden, dass die von Ihnen bereitgestellten Informationen vom App-Entwickler und dem Personal Ihres Clubs abgerufen und verwendet werden können, um die App zu verbessern, Support bereitzustellen und die ordnungsgemäße Verwendung der Clubressourcen sicherzustellen.",
+                "value": "agree"
+            }
+        ],
+        "required": true,
+        "hasError": false,
+        "error": "This is a required field"
     }
 ]

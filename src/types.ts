@@ -26,7 +26,7 @@ export type InputProps = {
     options?: Option[];
 }
 
-export type SelectProps = {
+export type Select_CheckboxProps = {
     id: string;
     type: string;
     hasError?: boolean;

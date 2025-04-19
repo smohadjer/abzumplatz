@@ -1,11 +1,10 @@
-import { FieldProps, SelectProps } from '../../types';
+import { FieldProps, Select_CheckboxProps } from '../../types';
 import { Password } from '../password/Password';
 import { Input } from '../input/Input';
 import { Select } from '../select/Select';
+import { Checkbox } from '../checkbox/Checkbox';
 
 export function FormField(props: FieldProps) {
-    console.log(props);
-
     const getField = ((field: FieldProps) => {
         switch (field.type) {
             case 'password':
@@ -16,7 +15,10 @@ export function FormField(props: FieldProps) {
                 return  <Input {...field} />
                 break;
             case 'select':
-                return <Select {...field as SelectProps} />
+                return <Select {...field as Select_CheckboxProps} />
+                break;
+            case 'checkbox':
+                return <Checkbox {...field as Select_CheckboxProps} />
                 break;
         }
     })

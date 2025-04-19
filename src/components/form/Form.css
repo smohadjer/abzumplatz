@@ -63,6 +63,7 @@
     }
 
     *.hasError,
+    select:user-invalid,
     input:user-invalid {
         background-color: #fcd4da;
         border-color: #c70000;
@@ -79,10 +80,19 @@
         }
     }
 
+    input[type=checkbox]:user-invalid + label + .error {
+        display: block;
+        padding-top: 0.25em;
+        color: #c70000;
+
+        @media (min-width: 768px) {
+            padding-bottom: 0.5em;
+        }
+    }
+
     label {
         padding: 0.25em 0;
         display: block;
-        white-space: nowrap;
 
         &.required::after {
             content: '*';

@@ -79,8 +79,15 @@
                     "errorMessage": "Password should have at least one special character"
                 }
             ]
+        },
+        "privacy": {
+            "enum": ["agree"],
+            "errorMessage": {
+              "enum": "You should agree to privacy policy.",
+              "required": "This is a required field!"
+            }
         }
     },
-    "required": ["first_name", "last_name", "club_id", "email", "password"],
+    "required": ["first_name", "last_name", "club_id", "email", "password", "privacy"],
     "additionalProperties": false
 }

@@ -1,7 +1,6 @@
-import { SelectProps, Option } from '../../types';
+import { Select_CheckboxProps, Option } from '../../types';
 
-export function Select({id, required, options, hasError}: SelectProps) {
-    console.log('options:', options);
+export function Select({id, required, options, hasError}: Select_CheckboxProps) {
     const optionsMarkup = options.map((item: Option, index) => {
         return <option key={index} value={item.value}>{item.name}</option>
     });
