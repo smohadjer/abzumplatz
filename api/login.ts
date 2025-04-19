@@ -34,14 +34,12 @@ export default async (req, res) => {
                 await client.connect();
                 const database = client.db(database_name);
                 const collection = database.collection('users');
-
-                const user = await collection.findOne({ email });
+                const user = await collection.findOne({ email: email.toLowerCase() });
                 if (!user) {
                   throw new Error(`User with email ${email} does not exist!`);
                 } else {
                   if (await bcrypt.compare(password, user.password)) {
                     authenticated = true;
-                    console.log('user._id:', user._id);
                   } else {
                     throw new Error('Login failed');
                   }
