@@ -18,6 +18,9 @@
         },
         "end_time": {
             "type": "integer"
+        },
+        "label": {
+            "type": "string"
         }
     },
     "required": ["club_id", "user_id", "court_num", "date", "start_time", "end_time"],

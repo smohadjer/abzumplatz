@@ -32,14 +32,11 @@ export default function App() {
     const clubs = useSelector((state: RootState) => state.clubs.value);
     const dispatch = useDispatch();
 
-    console.log(clubs);
-
     useEffect(() => {
         async function getData() {
             // fetch clubs and save it to store
             const clubs = await fetch('api/clubs');
             const clubsData: Club[] = await clubs.json();
-            console.log(clubsData);
             dispatch({
                 type: 'clubs/fetch',
                 payload: {
@@ -50,7 +47,7 @@ export default function App() {
             // fetch auth user and save it to store
             const authenticated: Payload = await isAuthenticated();
             if (authenticated.error) {
-                console.log('user is not logged-in, fetching all events...');
+                console.warn('Not logged-in!');
             } else {
                 // user is logged-in
                 dispatch({type: 'auth/login', payload: {

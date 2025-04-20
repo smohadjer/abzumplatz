@@ -1,3 +1,6 @@
+import { useSelector } from 'react-redux';
+import { RootState } from './../store';
+
 // Deep cloning arrays and objects with support for older browsers
 export const deepClone = (item: {} | []) => {
     if (typeof structuredClone === 'function') {
@@ -5,13 +8,13 @@ export const deepClone = (item: {} | []) => {
     } else {
         return JSON.parse(JSON.stringify(item));
     }
-}
+};
 
 export const isAuthenticated = async () => {
     const response = await fetch('/api/verifyAuth');
     const isAuthenticated = await response.json();
     return isAuthenticated;
-}
+};
 
 export const isInPast = (reservationDate: Date, hour: number) => {
     const reservationTime = new Date(reservationDate);
@@ -23,4 +26,12 @@ export const isInPast = (reservationDate: Date, hour: number) => {
     } else {
         return false;
     }
+};
+
+export const getClub = () => {
+    const auth = useSelector((state: RootState) => state.auth);
+    const clubs = useSelector((state: RootState) => state.clubs);
+    const club_id = auth.club_id;
+    const club = clubs.value.find(club => club._id === club_id);
+    return club;
 };

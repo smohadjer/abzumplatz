@@ -6,7 +6,8 @@ export function Popup(props: {
     disabled: boolean;
     content: HTMLElement;
     closePopup: MouseEventHandler;
-    deleteReservation: MouseEventHandler;
+    clickHandler: MouseEventHandler;
+    type: string;
 }) {
     const getReservationDate = (date: string | undefined) => {
         if (date) {
@@ -18,10 +19,17 @@ export function Popup(props: {
     return (
         <div className="lightbox">
             <div className="popup">
-                {/* {props.content.dataset.reservation_id} */}
-                {/* <button disabled={props.disabled} className="close" onClick={props.closePopup}>X</button> */}
-                <p>Möchten Sie Ihre Reservierung am {getReservationDate(props.content.dataset.reservation_date)} um {props.content.dataset.hour} Uhr stornien?</p>
-                <button disabled={props.disabled} className="delete" onClick={props.deleteReservation}>Ja</button> {' '}
+                {props.type === 'delete' ? (
+                <>
+                    <p>Möchten Sie Ihre Reservierung am {getReservationDate(props.content.dataset.date)} um {props.content.dataset.hour} Uhr stornien?</p>
+                    <button disabled={props.disabled} onClick={props.clickHandler}>Ja</button>
+                </>) : (
+                <>
+                    <p>Möchten Sie den Platz {props.content.dataset.court_number} am {getReservationDate(props.content.dataset.date)} um {props.content.dataset.hour} Uhr buchen?</p>
+                    <button disabled={props.disabled} onClick={props.clickHandler}>Ja</button>
+                </>)}
+
+                {' '}
                 <button disabled={props.disabled} onClick={props.closePopup}>Nein</button>
                 {props.disabled ? <Loader /> : null}
             </div>

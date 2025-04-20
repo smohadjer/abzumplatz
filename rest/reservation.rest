@@ -14,10 +14,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2NzllMWE4MzlhODJiZDliMTlmY
 {
   "club_id": "67a501832225683fb61ca069",
   "user_id": "679e1a839a82bd9b19fbb036",
-  "court_num": "3",
-  "date": "2025-03-17",
+  "court_num": "2",
+  "date": "2025-04-27",
   "start_time": "14",
-  "end_time": "15"
+  "end_time": "15",
+  "label": "Admin"
 }
 
 ###

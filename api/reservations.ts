@@ -86,7 +86,7 @@ export default async (req, res) => {
 
     if (req.method === 'POST') {
       const body = sanitize(req.body);
-      const { club_id, user_id, court_num, date, start_time, end_time } = body;
+      const { club_id, user_id, court_num, date, start_time, end_time, label } = body;
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/reservation.json', 'utf8'));
       const validator = ajv.compile(schema);
       const valid = validator(body);
@@ -126,7 +126,7 @@ export default async (req, res) => {
 
       // insert reservation
       const reservation = {
-        club_id, user_id, court_num, date, start_time, end_time,
+        club_id, user_id, court_num, date, start_time, end_time, label,
         timestamp: new Date()
       };
       const insertResponse = await reservations.insertOne(reservation);

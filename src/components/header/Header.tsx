@@ -1,12 +1,11 @@
 import { useSelector } from 'react-redux'
 import { RootState } from './../../store';
-import { Club } from './../../types';
+import { getClub } from './../../utils/utils';
 import './header.css';
 
 export default function Header() {
     const auth = useSelector((state: RootState) => state.auth);
-    const clubs: Club[] = useSelector((state: RootState) => state.clubs.value);
-    const club = clubs.find((club: Club) => club._id === auth.club_id);
+    const club = getClub();
 
     return (
         <header>

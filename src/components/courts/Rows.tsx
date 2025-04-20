@@ -4,6 +4,7 @@ import { NormalizedReservationItem } from "../../types";
 type Props = {
     count: number;
     hour: number;
+    date: string;
     onClick: MouseEventHandler;
     reservations: NormalizedReservationItem[];
     user_id: string;
@@ -16,6 +17,11 @@ export function Rows(props: Props) {
         const reservation = props.reservations.find(item => item.start_time == props.hour && item.court_num == courtNumber);
         const isMyReservation = reservation?.user_id === props.user_id ? true : false;
 
+        const getLabel = (reservation: NormalizedReservationItem) => {
+            const label = reservation.label ? reservation.label : reservation.user_name;
+            return label;
+        }
+
         row.push(
             <div className={'cell' +
                 (reservation ? ' reserved' : '') +
@@ -24,10 +30,12 @@ export function Rows(props: Props) {
                 onClick={props.onClick}
                 data-court_number={courtNumber}
                 data-hour={props.hour}
+                data-date={props.date}
                 key={courtNumber}
-                data-reservation_id={(reservation && isMyReservation) ? reservation._id : undefined}
-                data-reservation_date={(reservation && isMyReservation) ? reservation.date : undefined}>
-                {reservation ? reservation.user_name : ''}
+                data-reservation_id={
+                    (reservation && isMyReservation) ? reservation._id : undefined
+                }
+            >{reservation ? getLabel(reservation) : ''}
             </div>
         );
     }

@@ -69,10 +69,11 @@ export type ReservationItem = {
     court_num: number;
     start_time: number;
     end_time: number;
+    label?: string;
 }
 
 export type NormalizedReservationItem = ReservationItem & {
-    user_name?: string;
+    user_name: string;
 }
 
 export type User = {
