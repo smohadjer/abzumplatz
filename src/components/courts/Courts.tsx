@@ -33,8 +33,12 @@ export function Courts(props: Props) {
     }, (_, i) => i + club.start_hour);
     const [reservationDate, setReservationDate] = useState(new Date());
     const isoDate = reservationDate.toISOString().split('T')[0];
-    const filteredReservations: ReservationItem[] = reservations.filter(item => item.date === isoDate);
-
+    const reservationFilter = (item: ReservationItem) => {
+        const reservationWeekday = new Date(item.date).toLocaleDateString('de-DE', {weekday: 'short'});
+        const today = new Date(isoDate).toLocaleDateString('de-DE', {weekday: 'short'});
+        return item.date === isoDate || (item.recurring && reservationWeekday === today )
+    };
+    const filteredReservations: ReservationItem[] = reservations.filter(reservationFilter);
     const normalizedReservations: NormalizedReservationItem[] = filteredReservations.map(item => ({...item, user_name: getUserName(item.user_id)}));
 
     const myReservations = reservations.filter(item => item.user_id === user_id && item.date >= new Date().toISOString().split('T')[0]);

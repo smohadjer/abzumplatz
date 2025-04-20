@@ -70,6 +70,7 @@ export type ReservationItem = {
     start_time: number;
     end_time: number;
     label?: string;
+    recurring?: boolean;
 }
 
 export type NormalizedReservationItem = ReservationItem & {
