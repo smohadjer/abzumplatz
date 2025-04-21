@@ -99,7 +99,7 @@
                     white-space: nowrap;
                     text-overflow: ellipsis;
 
-                    &:hover:not(.past) {
+                    &:hover:not(.past):not(.reserved) {
                         background: #a4e7a0;
                     }
 
