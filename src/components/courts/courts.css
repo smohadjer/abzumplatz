@@ -95,6 +95,9 @@
                 .cell {
                     background: #c4f6c1;
                     cursor: pointer;
+                    font-size: small;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
 
                     &:hover:not(.past) {
                         background: #a4e7a0;
