@@ -22,6 +22,7 @@ type Payload = {
     first_name: string;
     last_name: string;
     club_id: string;
+    role: string;
     _id: string;
     error?: string;
 };
@@ -55,7 +56,8 @@ export default function App() {
                     first_name: authenticated.first_name,
                     last_name: authenticated.last_name,
                     _id: authenticated._id,
-                    club_id: authenticated.club_id
+                    club_id: authenticated.club_id,
+                    role: authenticated.role
                 }});
             }
 

@@ -44,11 +44,13 @@ export function Form(props: FormProps) {
         .then((response) => response.json())
         .then(json => {
             console.log(action, json);
+
             if (json.error) {
                 const errors: ServerError[] = [...json.error];
                 updateErrors(normalizeErrors(errors));
             } else {
                 console.log('Server received valid data');
+                setErrors([]);
 
                 if (action === '/api/signup' || action === '/api/reset-password') {
                     navigate('/login');
@@ -80,6 +82,7 @@ export function Form(props: FormProps) {
                         last_name: json.last_name,
                         _id: json._id,
                         club_id: json.club_id,
+                        role: json.role,
                     }});
                     //console.log('going to home', store.getState());
                     //navigate('/');

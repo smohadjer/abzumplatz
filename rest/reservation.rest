@@ -1,8 +1,5 @@
-// get all the reservations for a club
+// get all reservations
 GET http://localhost:3000/api/reservations?club_id=67a501832225683fb61ca069
-
-###
-GET http://localhost:3000/api/reservations?club_id=67a6f9b2d791062c2d656097
 
 ###
 

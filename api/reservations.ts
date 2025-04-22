@@ -4,6 +4,7 @@ import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { isInPast } from '../src/utils/utils.js';
+import { Payload } from './_types';
 
 const client = new MongoClient(database_uri);
 const getAllReservations = async (reservations, club_id) => {
@@ -113,14 +114,14 @@ export default async (req, res) => {
         throw new Error(`Court ${court_num} is not availble at ${start_time}.`);
       }
 
-      // throw error if user has already reached maximum allowed number of reservations
-      const payload = await getJwtPayload(req);
+      // throw error if user has already reached maximum allowed number of reservations unless user is admin
+      const payload: Payload = await getJwtPayload(req);
       const userReservations = await getUserReservations(reservations, payload._id);
       const userClub = await clubs.findOne(
         {_id: ObjectId.createFromHexString(club_id)}
       )
       const limit =  userClub.reservations_limit;
-      if (userReservations.length >= limit) {
+      if (payload.role !== 'admin' && userReservations.length >= limit) {
         throw new Error(`You have reached maximum allowed reservations (${limit}).`);
       }
 

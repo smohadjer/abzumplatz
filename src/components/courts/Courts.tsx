@@ -159,9 +159,9 @@ export function Courts(props: Props) {
                 return;
             }
 
-            // if user has reached max allowed reservations alert and return
+            // if user is not admin and has reached max allowed reservations alert and return
             const limit = club?.reservations_limit ?? 0;
-            if (myReservations.length >= limit) {
+            if (auth.role !== 'admin' && myReservations.length >= limit) {
                 alert(`Sie haben die maximal zulässige Anzahl an Reservierungen (${limit}) erreicht!`);
                 return;
             }

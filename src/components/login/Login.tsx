@@ -4,6 +4,8 @@ import fields from './loginForm.json';
 import './Login.css';
 
 export function Login() {
+    // deep clone fields array to avoid mutation during validation in form
+    const loginFields = structuredClone(fields);
     return (
         <>
             <h2>Anmelden</h2>
@@ -11,7 +13,7 @@ export function Login() {
                 classNames="form-login"
                 method="POST"
                 action="/api/login"
-                fields={fields}
+                fields={loginFields}
                 label="Anmelden"
             />
             <p><Link to="/forgot-password">Passwort vergeßen?</Link></p>

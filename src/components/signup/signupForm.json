@@ -53,7 +53,7 @@
     },
     {
         "id": "privacy",
-        "label": "Privacy",
+        "label": "Datenschutz",
         "type": "checkbox",
         "options": [
             {
