@@ -17,7 +17,7 @@ export function Rows(props: Props) {
         const reservation = props.reservations.find(item => (
             item.start_time == props.hour ||
             (item.start_time < props.hour && item.end_time > props.hour)
-        ) && item.court_num == courtNumber);
+        ) && item.court_num === courtNumber.toString());
         const isMyReservation = reservation?.user_id === props.user_id ? true : false;
 
         const getLabel = (reservation: NormalizedReservationItem) => {
