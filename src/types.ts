@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongodb';
+
 export interface FieldError {
     id: string;
     error: string;
@@ -66,11 +68,17 @@ export type ReservationItem = {
     club_id: string;
     user_id: string;
     date: string;
-    court_num: number;
+    court_num: string;
     start_time: number;
     end_time: number;
     label?: string;
     recurring?: boolean;
+}
+
+/* we make _id optional so we can insert reservation items into db without an id */
+export type ReservationItemDB = Omit<ReservationItem, '_id'> & {
+    _id?: ObjectId;
+    timestamp: Date;
 }
 
 export type NormalizedReservationItem = ReservationItem & {
@@ -81,5 +89,14 @@ export type User = {
     _id: string;
     first_name: string;
     last_name: string;
+    role?: string;
+}
+
+export type JwtPayload = {
+    _id: string;
+    first_name: string;
+    last_name: string;
+    club_id: string;
+    email: string;
     role?: string;
 }

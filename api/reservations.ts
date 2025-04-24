@@ -3,8 +3,8 @@ import { database_uri, database_name } from './_config.js';
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
-import { isInPast } from '../src/utils/utils.js';
-import { Payload } from './_types';
+import { isInPast, ARecurringReservationFallsOnThisDay } from '../src/utils/utils.js';
+import { JwtPayload, ReservationItem, ReservationItemDB } from '../src/types.js';
 
 const client = new MongoClient(database_uri);
 const getAllReservations = async (reservations, club_id) => {
@@ -29,7 +29,7 @@ export default async (req, res) => {
   try {
     await client.connect();
     const database = client.db(database_name);
-    const reservations = database.collection('reservations');
+    const reservations = database.collection<ReservationItemDB>('reservations');
     const clubs = database.collection('clubs');
 
     if (req.method === 'GET') {
@@ -43,7 +43,7 @@ export default async (req, res) => {
     }
 
     if (req.method === 'DELETE') {
-      const reservation_id = req.query?.reservation_id;
+      const reservation_id: string = req.query?.reservation_id;
       const club_id = req.query?.club_id;
 
       console.log(`deleting reserveration with id ${reservation_id}`);
@@ -52,8 +52,6 @@ export default async (req, res) => {
       };
 
       const reservation = await reservations.findOne(query);
-      console.log(reservation);
-
       if (isInPast(new Date(reservation.date), reservation.start_time)) {
         throw new Error('Reservations in the past can not be deleted!');
       }
@@ -63,7 +61,6 @@ export default async (req, res) => {
       if (reservation.user_id === payload._id) {
         console.log('deleting allowed');
         const result = await reservations.deleteOne(query);
-        console.log(result);
         if (result.deletedCount > 0) {
           if (club_id) {
             const docs = await getAllReservations(reservations, club_id);
@@ -87,7 +84,9 @@ export default async (req, res) => {
 
     if (req.method === 'POST') {
       const body = sanitize(req.body);
-      const { club_id, user_id, court_num, date, start_time, end_time, label } = body;
+      const { club_id, user_id, court_num, date, label } = body;
+      const start_time = Number(body.start_time);
+      const end_time = Number(body.end_time);
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/reservation.json', 'utf8'));
       const validator = ajv.compile(schema);
       const valid = validator(body);
@@ -106,16 +105,31 @@ export default async (req, res) => {
           return res.json({error: errors});
       }
 
-      // throw error if a reservation for same court in the same time already exists
-      const doc = await reservations.findOne({ club_id, court_num, date, start_time },{
-        collation: { locale: "en", strength: 2 }
+      // throw error if a reservation for same court in the same time exists
+      const reservationsForSameCourt = await reservations.find({ club_id, court_num }).toArray();
+      const reservationsOnSameDay = reservationsForSameCourt.filter((item) => {
+        const normalizedItem: ReservationItem = {
+          _id: item._id.toString(),
+          club_id: item.club_id,
+          user_id: item.user_id,
+          date: item.date,
+          court_num: item.court_num,
+          start_time: item.start_time,
+          end_time: item.end_time,
+          recurring: item.recurring
+        }
+        return item.date === date || ARecurringReservationFallsOnThisDay(normalizedItem, date);
       });
-      if (doc) {
-        throw new Error(`Court ${court_num} is not availble at ${start_time}.`);
+      const reservationsWithOverlappingTime = reservationsOnSameDay.filter(item => {
+        return (start_time <= item.start_time && end_time > item.start_time) ||
+         (start_time >= item.start_time && start_time < item.end_time)
+      });
+      if (reservationsWithOverlappingTime.length) {
+        throw new Error(`Court ${court_num} is not availble at the specified time.`);
       }
 
       // throw error if user has already reached maximum allowed number of reservations unless user is admin
-      const payload: Payload = await getJwtPayload(req);
+      const payload: JwtPayload = await getJwtPayload(req);
       const userReservations = await getUserReservations(reservations, payload._id);
       const userClub = await clubs.findOne(
         {_id: ObjectId.createFromHexString(club_id)}

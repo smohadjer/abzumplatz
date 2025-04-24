@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb';
 import { jwtSecret, environment, database_uri, database_name } from './_config.js';
 import bcrypt from 'bcrypt';
 import { SignJWT } from 'jose';
-import { Payload } from './_types';
+import { JwtPayload } from '../src/types.js';
 
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/login.json', 'utf8'));
 const client = new MongoClient(database_uri);
@@ -49,7 +49,7 @@ export default async (req, res) => {
                 if (authenticated) {
                     const secret = new TextEncoder().encode(jwtSecret);
                     const alg = 'HS256';
-                    const payload: Payload = {
+                    const payload: JwtPayload = {
                       _id: user._id.toString(),
                       first_name: user.first_name,
                       last_name: user.last_name,

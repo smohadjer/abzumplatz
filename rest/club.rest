@@ -11,7 +11,7 @@ GET https://abzumplatz.de/api/clubs
 // register a club, a date field in ISO format is added during insertion by api
 POST http://localhost:3000/api/clubs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJmaXJzdF9uYW1lIjoiU2FlaWQiLCJsYXN0X25hbWUiOiJNb2hhZGplciIsIl9pZCI6IjY3OWUxYTgzOWE4MmJkOWIxOWZiYjAzNiIsImV4cCI6MTc0NTk1NTI1N30.12BCqG_jBUXHQb_oW6eSFSoB0Yq9ndwS3BIvg2nLndY
+Authorization: Bearer [add token here...]
 
 {
     "name": "Blah",

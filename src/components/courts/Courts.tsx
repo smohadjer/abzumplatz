@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSelector } from 'react-redux';
 import { RootState } from './../../store';
-import { isInPast, getClub } from '../../utils/utils';
+import { isInPast, getClub, ARecurringReservationFallsOnThisDay } from '../../utils/utils';
 import { ReservationItem, NormalizedReservationItem, User } from '../../types';
 import { Rows } from './Rows';
 import { Header } from './Header';
@@ -34,9 +34,7 @@ export function Courts(props: Props) {
     const [reservationDate, setReservationDate] = useState(new Date());
     const isoDate = reservationDate.toISOString().split('T')[0];
     const reservationFilter = (item: ReservationItem) => {
-        const reservationWeekday = new Date(item.date).toLocaleDateString('de-DE', {weekday: 'short'});
-        const today = new Date(isoDate).toLocaleDateString('de-DE', {weekday: 'short'});
-        return item.date === isoDate || (item.recurring && reservationWeekday === today )
+        return item.date === isoDate || ARecurringReservationFallsOnThisDay(item, isoDate);
     };
     const filteredReservations: ReservationItem[] = reservations.filter(reservationFilter);
     const normalizedReservations: NormalizedReservationItem[] = filteredReservations.map(item => ({...item, user_name: getUserName(item.user_id)}));

@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 import { RootState } from './../store';
+import { ReservationItem } from './../types';
 
 // Deep cloning arrays and objects with support for older browsers
 export const deepClone = (item: {} | []) => {
@@ -34,4 +35,12 @@ export const getClub = () => {
     const club_id = auth.club_id;
     const club = clubs.value.find(club => club._id === club_id);
     return club;
+};
+
+const getDayName = (date: string) => {
+    return new Date(date).toLocaleDateString('de-DE', {weekday: 'short'});
+}
+
+export const ARecurringReservationFallsOnThisDay = (item: ReservationItem, isoDate: string) => {
+    return item.recurring && (getDayName(item.date) === getDayName(isoDate)) && (new Date(item.date) < new Date(isoDate));
 };
