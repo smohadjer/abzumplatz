@@ -20,8 +20,7 @@ export function Courts(props: Props) {
     const [popupContent, setPopupContent] = useState<HTMLElement | null>(null);
     const [popupType, setPopupType] = useState('');
     const [reservations, setReservations] = useState<ReservationItem[]>(props.reservations);
-    const auth = useSelector((state: RootState) => state.auth);
-    const user_id = auth._id;
+    const user = useSelector((state: RootState) => state.auth);
     const club = getClub();
 
     if (club === undefined) {
@@ -39,7 +38,7 @@ export function Courts(props: Props) {
     const filteredReservations: ReservationItem[] = reservations.filter(reservationFilter);
     const normalizedReservations: NormalizedReservationItem[] = filteredReservations.map(item => ({...item, user_name: getUserName(item.user_id)}));
 
-    const myReservations = reservations.filter(item => item.user_id === user_id && item.date >= new Date().toISOString().split('T')[0]);
+    const userReservations = reservations.filter(item => item.user_id === user._id && item.date >= new Date().toISOString().split('T')[0]);
 
     function getUserName(userId: string) {
         if (props.users.length > 0) {
@@ -75,8 +74,8 @@ export function Courts(props: Props) {
         const start = Number(popupContent.dataset.hour);
         const end = start + 1;
         const data = {
-            club_id: auth.club_id,
-            user_id,
+            club_id: user.club_id,
+            user_id: user._id,
             court_num: popupContent.dataset.court_number,
             start_time: start,
             end_time: end,
@@ -117,7 +116,7 @@ export function Courts(props: Props) {
         const reservationId = popupContent.dataset.reservation_id;
         setDisabled(true);
 
-        fetch(`/api/reservations?reservation_id=${reservationId}&club_id=${auth.club_id}`, {
+        fetch(`/api/reservations?reservation_id=${reservationId}&club_id=${user.club_id}`, {
             method: 'DELETE'
         })
         .then((response) => response.json())
@@ -159,7 +158,7 @@ export function Courts(props: Props) {
 
             // if user is not admin and has reached max allowed reservations alert and return
             const limit = club?.reservations_limit ?? 0;
-            if (auth.role !== 'admin' && myReservations.length >= limit) {
+            if (user.role !== 'admin' && user.role !== 'trainer' && userReservations.length >= limit) {
                 alert(`Sie haben die maximal zulässige Anzahl an Reservierungen (${limit}) erreicht!`);
                 return;
             }
@@ -191,7 +190,7 @@ export function Courts(props: Props) {
                             hour={hour}
                             date={isoDate}
                             count={club.courts_count}
-                            user_id={user_id}
+                            user_id={user._id}
                             isPast={isInPast(reservationDate, hour)}
                         />
                     )}
@@ -199,7 +198,7 @@ export function Courts(props: Props) {
             </div>
             <MyReservations
                 showPopup={showPopup}
-                reservations={myReservations} />
+                reservations={userReservations} />
             { popupContent ? <Popup
                 type={popupType}
                 disabled={disabled}

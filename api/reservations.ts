@@ -56,9 +56,9 @@ export default async (req, res) => {
         throw new Error('Reservations in the past can not be deleted!');
       }
 
-      const payload = await getJwtPayload(req);
+      const user = await getJwtPayload(req);
 
-      if (reservation.user_id === payload._id) {
+      if (reservation.user_id === user._id) {
         console.log('deleting allowed');
         const result = await reservations.deleteOne(query);
         if (result.deletedCount > 0) {
@@ -129,13 +129,13 @@ export default async (req, res) => {
       }
 
       // throw error if user has already reached maximum allowed number of reservations unless user is admin
-      const payload: JwtPayload = await getJwtPayload(req);
-      const userReservations = await getUserReservations(reservations, payload._id);
+      const user: JwtPayload = await getJwtPayload(req);
+      const userReservations = await getUserReservations(reservations, user._id);
       const userClub = await clubs.findOne(
         {_id: ObjectId.createFromHexString(club_id)}
       )
       const limit =  userClub.reservations_limit;
-      if (payload.role !== 'admin' && userReservations.length >= limit) {
+      if (user.role !== 'admin' && user.role !== 'trainer' && userReservations.length >= limit) {
         throw new Error(`You have reached maximum allowed reservations (${limit}).`);
       }
 
