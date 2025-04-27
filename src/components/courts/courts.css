@@ -18,9 +18,9 @@
         font-family: monospace;
     }
 
-    input, button {
+    /* input, button {
         -webkit-appearance: none;
-    }
+    } */
 
     .date-picker {
         margin: 0 0.5em;

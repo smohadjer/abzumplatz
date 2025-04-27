@@ -1,9 +1,9 @@
 import {jwtVerify} from 'jose';
 import { jwtSecret } from './_config.js';
-import { Payload } from './_types';
+import { JwtPayload } from '../src/types.js';
 
 export default async (request, response) => {
-    const payload: Payload = await getJwtPayload(request);
+    const payload: JwtPayload = await getJwtPayload(request);
 
     if (payload) {
         response.status(200).json({
@@ -19,7 +19,7 @@ export default async (request, response) => {
     }
 }
 
-export const getJwtPayload = async (req) : Promise<Payload> => {
+export const getJwtPayload = async (req) : Promise<JwtPayload> => {
     const jwt = req.cookies?.jwt;
     const authHeader = req.headers.authorization;
     const hasBearerAuthHeader = authHeader && authHeader.startsWith('Bearer ');
@@ -27,7 +27,7 @@ export const getJwtPayload = async (req) : Promise<Payload> => {
     const secret = new TextEncoder().encode(jwtSecret);
 
     try {
-        const jwtResponse = await jwtVerify<Payload>(token, secret);
+        const jwtResponse = await jwtVerify<JwtPayload>(token, secret);
         return jwtResponse.payload;
     } catch(error) {
         console.error(error);

@@ -13,13 +13,12 @@ type Props = {
 
 export function Rows(props: Props) {
     const row = [];
-    for (let courtNumber = 1; courtNumber < props.count+1; courtNumber++) {
-        const reservation = props.reservations.find(item => (
-            item.start_time == props.hour ||
-            (item.start_time < props.hour && item.end_time > props.hour)
-        ) && item.court_num === courtNumber.toString());
-        const isMyReservation = reservation?.user_id === props.user_id ? true : false;
+    const reservationsFiltered = props.reservations.filter(item => (item.start_time === props.hour ||
+        (item.start_time < props.hour && item.end_time > props.hour)));
 
+    for (let courtNumber = 1; courtNumber < props.count+1; courtNumber++) {
+        const reservation =reservationsFiltered.find(item => item.court_num === courtNumber.toString());
+        const isMyReservation = reservation?.user_id === props.user_id ? true : false;
         const getLabel = (reservation: NormalizedReservationItem) => {
             const label = reservation.label ? reservation.label : reservation.user_name;
             return label;
@@ -34,6 +33,9 @@ export function Rows(props: Props) {
                 data-court_number={courtNumber}
                 data-hour={props.hour}
                 data-date={props.date}
+                data-recurring={
+                    (reservation && reservation.recurring) ? reservation.recurring : false
+                }
                 key={courtNumber}
                 data-reservation_id={
                     (reservation && isMyReservation) ? reservation._id : undefined

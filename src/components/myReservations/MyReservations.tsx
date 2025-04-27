@@ -23,9 +23,12 @@ export function MyReservations(props: {
 
                     return (
                         <li key={item._id}>
-                            {weekday} {isoDate}, {item.start_time}-{item.end_time} Uhr, Platz {item.court_num}
+                            {weekday} {isoDate}, {''}
+                            {item.start_time}-{item.end_time} Uhr,
+                            Platz {item.court_num}
+                            {item.recurring ? ' (wiederkehrend)' : ''}
                             <span
-                                onClick={event => {props.showPopup(event.target, 'deleteReservation')}}
+                                onClick={event => {props.showPopup(event.target)}}
                                 data-court_number={item.court_num}
                                 data-hour={item.start_time}
                                 data-date={item.date}

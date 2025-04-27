@@ -3,7 +3,7 @@ import { database_uri, database_name } from './_config.js';
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
-import { isInPast, ARecurringReservationFallsOnThisDay } from '../src/utils/utils.js';
+import { isInPast, recurringReservationIsOnSameDay, getDayName, getLocalDate } from '../src/utils/utils.js';
 import { JwtPayload, ReservationItem, ReservationItemDB } from '../src/types.js';
 
 const client = new MongoClient(database_uri);
@@ -87,11 +87,13 @@ export default async (req, res) => {
       const { club_id, user_id, court_num, date, label } = body;
       const start_time = Number(body.start_time);
       const end_time = Number(body.end_time);
+      const recurring: boolean = body.recurring === 'true';
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/reservation.json', 'utf8'));
       const validator = ajv.compile(schema);
       const valid = validator(body);
       if (!valid) {
           const errors = validator.errors;
+          console.log(errors);
           errors.map(error => {
               // for custom error messages
               if (error.parentSchema) {
@@ -105,55 +107,73 @@ export default async (req, res) => {
           return res.json({error: errors});
       }
 
+      const overlappingHoursFilter = (item: ReservationItemDB) => {
+        return (start_time <= item.start_time && end_time > item.start_time) ||
+         (start_time >= item.start_time && start_time < item.end_time);
+      }
+
       // throw error if a reservation for same court in the same time exists
       const reservationsForSameCourt = await reservations.find({ club_id, court_num }).toArray();
       const reservationsOnSameDay = reservationsForSameCourt.filter((item) => {
-        const normalizedItem: ReservationItem = {
-          _id: item._id.toString(),
-          club_id: item.club_id,
-          user_id: item.user_id,
+        const normalizedItem = {
           date: item.date,
-          court_num: item.court_num,
-          start_time: item.start_time,
-          end_time: item.end_time,
           recurring: item.recurring
         }
-        return item.date === date || ARecurringReservationFallsOnThisDay(normalizedItem, date);
+        return item.date === date || recurringReservationIsOnSameDay(normalizedItem, date);
       });
-      const reservationsWithOverlappingTime = reservationsOnSameDay.filter(item => {
-        return (start_time <= item.start_time && end_time > item.start_time) ||
-         (start_time >= item.start_time && start_time < item.end_time)
-      });
+      const reservationsWithOverlappingTime = reservationsOnSameDay.filter(overlappingHoursFilter);
       if (reservationsWithOverlappingTime.length) {
-        throw new Error(`Court ${court_num} is not availble at the specified time.`);
+        throw new Error(`Platz ${court_num} ist zur angegebenen Zeit nicht verfügbar.`);
+      }
+
+      const user: JwtPayload = await getJwtPayload(req);
+
+      // throw error if reservation is recurring or more than one hour and user is not admin or trainer
+      if (recurring || (end_time - start_time) > 1) {
+        if (user.role !== 'admin' && user.role !== 'trainer') {
+          throw new Error('Nur Administratoren und Trainer können wiederkehrende Reservierungen oder Reservierungen mit einer Dauer von mehr als einer Stunde vornehmen.');
+        }
+      }
+
+      // throw error if reservation is recurring and another reservation on the same day in future has overlapping hours
+      if (recurring) {
+        const reservationsOnSameDayInFuture = reservationsForSameCourt.filter(item => {
+          return getDayName(item.date) === getDayName(date) && (
+            new Date(item.date) > new Date(date)
+          )
+        })
+        const reservationsWithOverlappingTime = reservationsOnSameDayInFuture.filter(overlappingHoursFilter);
+        if (reservationsWithOverlappingTime.length) {
+          const localDate = getLocalDate(reservationsWithOverlappingTime[0].date);
+          throw new Error(`Platz ${court_num} ist am ${localDate} zu einem Zeitpunkt gebucht, der sich mit Ihrer Buchung überschneidet.`);
+        }
       }
 
       // throw error if user has already reached maximum allowed number of reservations unless user is admin
-      const user: JwtPayload = await getJwtPayload(req);
       const userReservations = await getUserReservations(reservations, user._id);
       const userClub = await clubs.findOne(
         {_id: ObjectId.createFromHexString(club_id)}
       )
       const limit =  userClub.reservations_limit;
       if (user.role !== 'admin' && user.role !== 'trainer' && userReservations.length >= limit) {
-        throw new Error(`You have reached maximum allowed reservations (${limit}).`);
+        throw new Error(`Sie haben die maximal zulässige Anzahl an Reservierungen (${limit}) erreicht.`);
       }
 
       // insert reservation
       const reservation = {
-        club_id, user_id, court_num, date, start_time, end_time, label,
+        club_id, user_id, court_num, date, start_time, end_time, label, recurring,
         timestamp: new Date()
       };
       const insertResponse = await reservations.insertOne(reservation);
       const docs = await getAllReservations(reservations, club_id);
 
       res.status(201).json({
-        message: `Court ${court_num} is reservered with reservation id: ${insertResponse.insertedId}`,
+        message: `Platz ${court_num} ist reserviert mit Reservierungsnummer: ${insertResponse.insertedId}`,
         data: docs
       });
     }
   } catch (e) {
-    console.error(e);
+    console.error(e.message);
     res.status(500).json({error: e.message});
   } finally {
     await client.close();

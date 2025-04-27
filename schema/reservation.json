@@ -21,6 +21,9 @@
         },
         "label": {
             "type": "string"
+        },
+        "recurring": {
+            "type": "boolean"
         }
     },
     "required": ["club_id", "user_id", "court_num", "date", "start_time", "end_time"],

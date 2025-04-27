@@ -70,10 +70,6 @@ a {
     color: var(--blue);
 }
 
-fieldset + button {
-    margin-top: 1em;
-}
-
 p.error {
     background-color: #fcd4da;
     border-color: #c70000;

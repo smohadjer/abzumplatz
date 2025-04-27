@@ -37,10 +37,22 @@ export const getClub = () => {
     return club;
 };
 
-const getDayName = (date: string) => {
+export const getDayName = (date: string) => {
     return new Date(date).toLocaleDateString('de-DE', {weekday: 'short'});
 }
 
-export const ARecurringReservationFallsOnThisDay = (item: ReservationItem, isoDate: string) => {
+// get a recurring reservation item and returns true if it's older and
+// on the same day of the week as provided date
+export const recurringReservationIsOnSameDay = (item: {
+    date: string;
+    recurring: boolean;
+}, isoDate: string) => {
     return item.recurring && (getDayName(item.date) === getDayName(isoDate)) && (new Date(item.date) < new Date(isoDate));
+};
+
+export const getLocalDate = (date: string | undefined) => {
+    if (date) {
+        const day = new Date(date);
+        return day.toLocaleDateString('de-DE');
+    }
 };
