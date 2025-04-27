@@ -1,6 +1,5 @@
 import { useSelector } from 'react-redux';
 import { RootState } from './../store';
-import { ReservationItem } from './../types';
 
 // Deep cloning arrays and objects with support for older browsers
 export const deepClone = (item: {} | []) => {
