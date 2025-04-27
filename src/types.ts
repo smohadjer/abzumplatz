@@ -40,6 +40,8 @@ export type Select_CheckboxProps = {
 export type Option = {
     name: string;
     value: string;
+    id?: string;
+    checked?: boolean;
 }
 
 export interface ServerError {

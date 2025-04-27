@@ -80,6 +80,9 @@
                 }
             ]
         },
+        "role": {
+            "enum": ["player", "trainer"]
+        },
         "privacy": {
             "enum": ["agree"],
             "errorMessage": {

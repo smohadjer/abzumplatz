@@ -26,7 +26,7 @@ export default async (req, res) => {
             });
             return res.json({error: errors});
         } else {
-            const { first_name, last_name, club_id, password } = req.body;
+            const { first_name, last_name, club_id, password, role } = req.body;
             const email = req.body.email.toLowerCase();
             //return res.json('Server received valid data');
 
@@ -77,7 +77,8 @@ export default async (req, res) => {
                     last_name,
                     club_id,
                     email,
-                    password: hashedPassword
+                    password: hashedPassword,
+                    role
                 };
                 const insertResponse = await collection.insertOne(user);
                 res.status(201).json({message: `User ${first_name} ${last_name} is registered`});

@@ -1,6 +1,16 @@
 /* for better alignment of label and input field in Safari */
-label input[type=checkbox] {
-    vertical-align: top;
+form.signup {
+    fieldset {
+        margin-bottom: 1em;
+    }
+
+    label input[type=checkbox] {
+        vertical-align: top;
+    }
+
+    input[type=radio] + label {
+        margin-right: 1em;
+    }
 }
 
 

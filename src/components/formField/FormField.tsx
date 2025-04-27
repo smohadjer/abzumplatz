@@ -3,6 +3,7 @@ import { Password } from '../password/Password';
 import { Input } from '../input/Input';
 import { Select } from '../select/Select';
 import { Checkbox } from '../checkbox/Checkbox';
+import { Radio } from '../radio/Radio';
 
 export function FormField(props: FieldProps) {
     const getField = ((field: FieldProps) => {
@@ -19,6 +20,9 @@ export function FormField(props: FieldProps) {
                 break;
             case 'checkbox':
                 return <Checkbox {...field as Select_CheckboxProps} />
+                break;
+            case 'radio':
+                return <Radio {...field as Select_CheckboxProps} />
                 break;
         }
     })
