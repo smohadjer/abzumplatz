@@ -28,6 +28,10 @@ a.icon:hover {
     background-size: 20px;
 }
 
+.icon--reload {
+    background-image: url(./images/refresh.svg);
+}
+
 .icon--logout {
     background-image: url(../images/logout.svg);
 }
@@ -50,6 +54,10 @@ a.icon:hover {
 
 .icon--back {
     background-image: url(../images/back.svg);
+}
+
+.icon--forward {
+    background-image: url(../images/forward.svg);
 }
 
 .icon--show {

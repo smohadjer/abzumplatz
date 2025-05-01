@@ -28,6 +28,13 @@ export const isInPast = (reservationDate: Date, hour: number) => {
     }
 };
 
+export const isToday = (someDate: Date) => {
+    const today = new Date();
+    return someDate.getDate() === today.getDate() &&
+        someDate.getMonth() === today.getMonth() &&
+        someDate.getFullYear() === today.getFullYear();
+};
+
 export const getClub = () => {
     const auth = useSelector((state: RootState) => state.auth);
     const clubs = useSelector((state: RootState) => state.clubs);

@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { useSelector } from 'react-redux';
 import { RootState } from './../../store';
 import { isInPast, getClub, recurringReservationIsOnSameDay, getLocalDate } from '../../utils/utils';
@@ -8,13 +8,9 @@ import { Header } from './Header';
 import { Popup } from './Popup';
 import { MyReservations } from '../myReservations/MyReservations';
 import { Calendar } from './Calendar';
+import { ReservationForm } from "./ReservationForm";
 import { Loader } from './../loader/Loader';
 import './courts.css';
-
-type Props = {
-    users: User[];
-    reservations: ReservationItem[]
-}
 
 type Slot = {
     date: string;
@@ -24,11 +20,16 @@ type Slot = {
     recurring?: boolean;
 }
 
-export function Courts(props: Props) {
+export function Courts() {
+    const [loading, setLoading] = useState(true);
+    const [users, setUsers] = useState<User[]>([]);
+    const [reservations, setReservations] = useState<ReservationItem[]>([]);
+    const clubId = useSelector((state: RootState) => state.auth.club_id);
+
     const [disabled, setDisabled] = useState(false);
     const [popupType, setPopupType] = useState('');
     const [slot, setSlot] = useState<Slot | null>(null);
-    const [reservations, setReservations] = useState<ReservationItem[]>(props.reservations);
+    //const [reservations, setReservations] = useState<ReservationItem[]>(props.reservations);
     const user = useSelector((state: RootState) => state.auth);
     const club = getClub();
 
@@ -45,11 +46,11 @@ export function Courts(props: Props) {
         return item.date === isoDate || recurringReservationIsOnSameDay({date: item.date, recurring: item.recurring ?? false }, isoDate);
     };
     const getUserName = (userId: string) => {
-        if (props.users.length > 0) {
-            const user = props.users.find((item: User) => item._id === userId);
+        if (users.length > 0) {
+            const user = users.find((item: User) => item._id === userId);
             return user ? user.first_name.charAt(0) + '. ' + user.last_name : userId;
         } else {
-            console.warn('no user found', props.users)
+            console.warn('no user found', users)
             return userId;
         }
     };
@@ -143,7 +144,6 @@ export function Courts(props: Props) {
             });
         }
     };
-
     const clickHandler = (event: React.MouseEvent) => {
         if (disabled) {
             return;
@@ -192,7 +192,6 @@ export function Courts(props: Props) {
             });
         }
     };
-
     const getPopupContent = (slot: Slot, popupType: string) => {
         if (popupType === 'deleteReservation') {
             return (
@@ -212,88 +211,86 @@ export function Courts(props: Props) {
             return (
                 <>
                     <p>Möchten Sie den Platz {slot.court_number} am {getLocalDate(slot.date)} um {slot.hour}:00 Uhr reservieren?</p>
-                    <form
-                        method="POST"
-                        action="/api/reservations"
-                        onSubmit={makeReservation}>
-                        {(user.role === 'admin' || user.role === 'trainer') && <fieldset>
-                            <div>
-                                {/* <input defaultChecked type="radio" id="one-hour" name="duration" value="1" />
-                                <label htmlFor="one-hour">Für 1 Stunde</label>
-                                <input type="radio" id="two-hours" name="duration" value="2" />
-                                <label htmlFor="two-hours">Für 2 Stunde</label> */}
-                                <label>Dauer (Stunden):</label>
-                                <select name="duration">
-                                    <option defaultChecked value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7</option>
-                                    <option value="8">8</option>
-                                    <option value="9">9</option>
-                                    <option value="10">10</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Reservierungslabel:</label>
-                                <input name="label" />
-                            </div>
-                            <div>
-                                <input type="checkbox" id="recurring" name="recurring" value="true" />
-                                <label htmlFor="recurring">Wird jede Woche zur gleichen Zeit wiederholt</label>
-                            </div>
-                        </fieldset>}
-                        <button type="submit" disabled={disabled}>Reservieren</button>
-                        {disabled ? <Loader /> : null}
-                    </form>
+                    <ReservationForm
+                        submitHandler={makeReservation}
+                        disabled={disabled}
+                    />
                 </>
             );
         }
     };
 
+    const fetchData = () => {
+        setLoading(true);
+        const usersRequest = fetch(`/api/index?club_id=${clubId}`)
+            .then(res => res.json());
+        const reservationsRequest = fetch(`/api/reservations?club_id=${clubId}`)
+            .then(res => res.json());
+
+        Promise.all([usersRequest, reservationsRequest])
+        .then(([usersJson, reservationsJson]) => {
+            setUsers(usersJson);
+            setReservations(reservationsJson);
+            setLoading(false);
+        }).catch(error => {
+            console.error(error);
+        });
+    };
+
+    // get users and reservations
+    useEffect(() => {
+        fetchData();
+    }, []);
+
     return (
-        <div className="reservations">
-            <Calendar reservationDate={reservationDate} setReservationDate={setReservationDate} />
-            <div className="main">
-                <div className="hours">
-                    {clubHours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
-                </div>
-                <div className="slots">
-                    <Header count={club.courts_count} />
-                    {clubHours.map(hour =>
-                        <Rows
-                            reservations={normalizedReservations}
-                            onClick={clickHandler}
-                            key={hour}
-                            hour={hour}
-                            date={isoDate}
-                            count={club.courts_count}
-                            user_id={user._id}
-                            isPast={isInPast(reservationDate, hour)}
-                        />
-                    )}
+        loading ? (
+            <div className="splash">
+                <Loader size="big" text="Reservierungen werden geladen" />
+            </div>
+        ) : (
+            <div className="grid">
+                <div className="reservations">
+                    <Calendar fetchData={fetchData} reservationDate={reservationDate} setReservationDate={setReservationDate} />
+                    <div className="main">
+                        <div className="hours">
+                            {clubHours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
+                        </div>
+                        <div className="slots">
+                            <Header count={club.courts_count} />
+                            {clubHours.map(hour =>
+                                <Rows
+                                    reservations={normalizedReservations}
+                                    onClick={clickHandler}
+                                    key={hour}
+                                    hour={hour}
+                                    date={isoDate}
+                                    count={club.courts_count}
+                                    user_id={user._id}
+                                    isPast={isInPast(reservationDate, hour)}
+                                />
+                            )}
+                        </div>
+                    </div>
+                    <MyReservations
+                        showPopup={(slot: HTMLElement) => {
+                            setPopupType('deleteReservation');
+                            setSlot({
+                                court_number: slot.dataset.court_number!,
+                                date: slot.dataset.date!,
+                                hour: Number(slot.dataset.hour),
+                                reservation_id: slot.dataset.reservation_id,
+                                recurring: slot.dataset.recurring === 'true'
+                            });
+                        }}
+                        reservations={validUserReservations}
+                    />
+                    {slot && <Popup
+                        disabled={disabled}
+                        closePopup={closePopup}>
+                        {getPopupContent(slot, popupType)}
+                    </Popup>}
                 </div>
             </div>
-            <MyReservations
-                showPopup={(slot: HTMLElement) => {
-                    setPopupType('deleteReservation');
-                    setSlot({
-                        court_number: slot.dataset.court_number!,
-                        date: slot.dataset.date!,
-                        hour: Number(slot.dataset.hour),
-                        reservation_id: slot.dataset.reservation_id,
-                        recurring: slot.dataset.recurring === 'true'
-                    });
-                }}
-                reservations={validUserReservations}
-            />
-            {slot && <Popup
-                disabled={disabled}
-                closePopup={closePopup}>
-                {getPopupContent(slot, popupType)}
-            </Popup>}
-        </div>
+        )
     )
 }

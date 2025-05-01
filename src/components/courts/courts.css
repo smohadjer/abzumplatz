@@ -22,35 +22,91 @@
         -webkit-appearance: none;
     } */
 
+    .header {
+        font-family: monospace;
+
+        .icon--reload {
+            background-size: 28px;
+            height: 28px;
+            padding-left: 28px;
+            margin-right: 1em;
+        }
+    }
+
     .date-picker {
         margin: 0 0.5em;
         font-size: 1.3em;
         line-height: 2;
-        padding: 0.05em 0.65em;
-        font-family: monospace;
-        border: none;
-        border-radius: 0;
+        padding: 0 0.5em ;
         background: var(--blue);
         color: white;
+        height: 40px;
+        box-sizing: border-box;
+        font-family: monospace;
+
+        .shortday {
+            /* color: var(--blue); */
+            vertical-align: middle;
+            line-height: 27px;
+            font-size: inherit;
+            font-family: inherit;
+        }
+
+        input {
+            font-family: inherit;
+            background: none;
+            border: none;
+            border-radius: 0;
+            color: inherit;
+            font-size: inherit;
+            vertical-align: middle;
+            line-height: normal;
+            margin-left: 0.5em;
+            padding-bottom: 0;
+            padding: 0;
+            border-bottom: solid 1px white;
+
+            &::-webkit-calendar-picker-indicator {
+                display: none;
+            }
+        }
+    }
+
+    .today {
+        font-size: 1.2em;
+        font-family: monospace;
+        font-weight: 700;
+        line-height: normal;
+        color: var(--blue);
+        background: none;
+        padding: 0;
+        margin-left: 1em;
+        border: 0;
+        text-decoration: underline;
+        vertical-align: middle;
+
+        &[disabled] {
+            color: #ccc;
+            text-decoration: none;
+        }
     }
 
     .prev, .next {
-        font-size: 1.2em;
+        font-size: 1.5em;
         font-weight: bold;
         line-height: 1;
-        padding: 0.4em 0.8em;
+        padding: 0 0.5em 5px;
         vertical-align: middle;
         background: #3264c8;
         color: white;
         border: none;
         border-radius: 0;
+        height: 40px;
+        box-sizing: border-box;
     }
 
-    .shortday {
-        margin-left: 0.5em;
-        font-size: 1.2em;
-        color: var(--blue);
-        font-weight: bold;
+    .next {
+        background-size: 28px;
 
     }
 
