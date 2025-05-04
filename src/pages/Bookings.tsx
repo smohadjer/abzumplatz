@@ -1,8 +1,5 @@
-// import { useSelector } from 'react-redux'
-// import { RootState } from './../store';
 import { useState } from "react";
-import { getClub, getUserReservations } from './../utils/utils';
-// import { Link } from 'react-router';
+import { getUserReservations } from './../utils/utils';
 import { MyReservations } from './../components/myReservations/MyReservations';
 import { Popup } from '../components/courts/Popup';
 
@@ -15,9 +12,6 @@ type Slot = {
 }
 
 export default function Bookings() {
-    // const auth = useSelector((state: RootState) => state.auth);
-    // const club = getClub();
-    // const role = auth.role ? auth.role : 'Player';
     const userReservations = getUserReservations();
     const [slot, setSlot] = useState<Slot | null>(null);
     const [disabled, setDisabled] = useState(false);
