@@ -12,5 +12,11 @@ footer {
         color: var(--blue);
         text-decoration: none;
         margin-left: 0.75em;
+
+        span {
+            display: inline-block;
+            height: 30px;
+            width: 30px;
+        }
     }
 }

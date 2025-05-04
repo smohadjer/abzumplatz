@@ -4,6 +4,7 @@ import './myReservations.css';
 
 export function MyReservations(props: {
     reservations:  ReservationItem[];
+    hasPopup: boolean;
     showPopup: Function;
 }) {
     const { reservations } = props;
@@ -27,13 +28,13 @@ export function MyReservations(props: {
                             {item.start_time}-{item.end_time} Uhr,
                             Platz {item.court_num}
                             {item.recurring ? ' (wiederkehrend)' : ''}
-                            <span
+                            {props.hasPopup && <span
                                 onClick={event => {props.showPopup(event.target)}}
                                 data-court_number={item.court_num}
                                 data-hour={item.start_time}
                                 data-date={item.date}
                                 data-reservation_id={item._id}
-                                className="icon icon--inline icon--delete"></span>
+                                className="icon icon--inline icon--delete"></span>}
                         </li>
                     )}
                 )}

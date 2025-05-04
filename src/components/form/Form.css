@@ -27,6 +27,10 @@
             grid-template-columns: repeat(2, min-content);
         }
 
+        + button {
+            margin-top: 1em;
+        }
+
         > div {
             margin-bottom: 1em;
 

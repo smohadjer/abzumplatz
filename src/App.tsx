@@ -4,6 +4,8 @@ import { Routes, Route } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './store';
 import Home from './pages/Home';
+import Profile from './pages/Profile';
+import Bookings from './pages/Bookings';
 import Register from './pages/Register';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -74,6 +76,16 @@ export default function App() {
                 <Route path="/" element={
                     <ProtectedRoute isLoggedin={auth.value}>
                         <Home />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/profile" element={
+                    <ProtectedRoute isLoggedin={auth.value}>
+                        <Profile />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/bookings" element={
+                    <ProtectedRoute isLoggedin={auth.value}>
+                        <Bookings />
                     </ProtectedRoute>
                 }/>
                 <Route path="/register" element={

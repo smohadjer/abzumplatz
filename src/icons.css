@@ -33,39 +33,44 @@ a.icon:hover {
 }
 
 .icon--logout {
-    background-image: url(../images/logout.svg);
+    background-image: url(./images/logout.svg);
 }
 
 .icon--home {
-    background-image: url(../images/home.svg);
+    background-image: url(./images/home.svg);
 }
 
+.icon--list {
+    background-image: url(./images/list.svg);
+}
+
+
 .icon--admin {
-    background-image: url(../images/admin.svg);
+    background-image: url(./images/admin.svg);
 }
 
 .icon--login {
-    background-image: url(../images/login.svg);
+    background-image: url(./images/login.svg);
 }
 
 .icon--account {
-    background-image: url(../images/account.svg);
+    background-image: url(./images/account.svg);
 }
 
 .icon--back {
-    background-image: url(../images/back.svg);
+    background-image: url(./images/back.svg);
 }
 
 .icon--forward {
-    background-image: url(../images/forward.svg);
+    background-image: url(./images/forward.svg);
 }
 
 .icon--show {
-    background-image: url(../images/show.svg);
+    background-image: url(./images/show.svg);
     margin-left: 0.5em;
 }
 
 .icon--hide {
-    background-image: url(../images/hide.svg);
+    background-image: url(./images/hide.svg);
     margin-left: 0.5em;
 }

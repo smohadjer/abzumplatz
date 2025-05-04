@@ -16,7 +16,7 @@ export default async (req, res) => {
     const projection = {
         first_name: 1,
         last_name: 1,
-        club_id: 1
+        _id: 1,
     };
     if (req.method === 'GET') {
       const id = req.query?.id;
