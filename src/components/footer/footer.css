@@ -1,7 +1,7 @@
 footer {
     margin: 0;
     border-top: solid 1px #ccc;
-    padding: 1em 0.5em 1.5em;
+    padding: 1em;
     text-align: right;
     font-size: smaller;
     color: #666;
@@ -11,12 +11,17 @@ footer {
     a {
         color: var(--blue);
         text-decoration: none;
-        margin-left: 0.75em;
 
         span {
             display: inline-block;
             height: 30px;
             width: 30px;
+            background-position: center;
+            background-size: 30px;
+
+            &:hover {
+                filter: invert(35%) sepia(91%) saturate(3615%) hue-rotate(213deg) brightness(86%) contrast(79%);
+            }
         }
     }
 }
