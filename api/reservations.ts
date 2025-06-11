@@ -52,8 +52,11 @@ export default async (req, res) => {
       };
 
       const reservation = await reservations.findOne(query);
-      if (isInPast(new Date(reservation.date), reservation.start_time)) {
-        throw new Error('Reservations in the past can not be deleted!');
+      // reservations in the past that do not recurr can not be deleted
+      const reservationIsInPast = isInPast(new Date(reservation.date), reservation.start_time);
+      const reservationIsRecurring = reservation.recurring;
+      if (reservationIsInPast && !reservationIsRecurring) {
+        throw new Error('Vergangene Reservierungen können nicht gelöscht werden');
       }
 
       const user = await getJwtPayload(req);
