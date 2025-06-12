@@ -40,13 +40,12 @@ export default async (req, res) => {
 
     if (req.method === 'POST') {
       // validate data
-      console.log('validating...')
-      const { name, courts_count } = req.body;
+      const { name, courts_count, start_hour, end_hour, reservations_limit } = req.body;
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/club.json', 'utf8'));
       const validator = ajv.compile(schema);
       const body = sanitize(req.body);
-      console.log(body);
       const valid = validator(body);
+
       if (!valid) {
           const errors = validator.errors;
           errors.map(error => {
@@ -74,10 +73,16 @@ export default async (req, res) => {
       const club = {
         name,
         courts_count,
-        date: new Date()
+        start_hour,
+        end_hour,
+        reservations_limit,
+        timestamp: new Date()
       };
       const insertResponse = await collection.insertOne(club);
       res.status(201).json({message: `Club with id ${insertResponse.insertedId} was registered`});
+
+      // now add admin to users table
+
 
     }
   } catch (e) {
