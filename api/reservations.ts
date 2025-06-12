@@ -4,7 +4,7 @@ import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { isInPast, recurringReservationIsOnSameDay, getDayName, getLocalDate } from '../src/utils/utils.js';
-import { JwtPayload, ReservationItem, ReservationItemDB } from '../src/types.js';
+import { JwtPayload, ReservationItem } from '../src/types.js';
 
 const client = new MongoClient(database_uri);
 const getAllReservations = async (reservations, club_id) => {
@@ -29,7 +29,7 @@ export default async (req, res) => {
   try {
     await client.connect();
     const database = client.db(database_name);
-    const reservations = database.collection<ReservationItemDB>('reservations');
+    const reservations = database.collection<ReservationItem>('reservations');
     const clubs = database.collection('clubs');
 
     if (req.method === 'GET') {
@@ -111,19 +111,15 @@ export default async (req, res) => {
           return res.json({error: errors});
       }
 
-      const overlappingHoursFilter = (item: ReservationItemDB) => {
+      const overlappingHoursFilter = (item: ReservationItem) => {
         return (start_time <= item.start_time && end_time > item.start_time) ||
          (start_time >= item.start_time && start_time < item.end_time);
       }
 
       // throw error if a reservation for same court in the same time exists
-      const reservationsForSameCourt = await reservations.find({ club_id, court_num }).toArray();
+      const reservationsForSameCourt: ReservationItem[] = await reservations.find({ club_id, court_num }).toArray();
       const reservationsOnSameDay = reservationsForSameCourt.filter((item) => {
-        const normalizedItem = {
-          date: item.date,
-          recurring: item.recurring
-        }
-        return item.date === date || recurringReservationIsOnSameDay(normalizedItem, date);
+        return item.date === date || recurringReservationIsOnSameDay(item, date);
       });
       const reservationsWithOverlappingTime = reservationsOnSameDay.filter(overlappingHoursFilter);
       if (reservationsWithOverlappingTime.length) {

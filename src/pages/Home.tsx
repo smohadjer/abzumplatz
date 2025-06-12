@@ -47,8 +47,9 @@ export default function Home() {
     }, (_, i) => i + club.start_hour);
     const [reservationDate, setReservationDate] = useState(new Date());
     const isoDate = reservationDate.toISOString().split('T')[0];
-    const reservationFilter = (item: ReservationItem) => {
-        return item.date === isoDate || recurringReservationIsOnSameDay({date: item.date, recurring: item.recurring ?? false }, isoDate);
+    const reservationFilter = (reservationItem: ReservationItem) => {
+        return reservationItem.date === isoDate ||
+        recurringReservationIsOnSameDay(reservationItem, isoDate);
     };
     const getUserName = (userId: string) => {
         if (users.length > 0) {
