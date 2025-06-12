@@ -61,7 +61,8 @@ export default async (req, res) => {
 
       const user = await getJwtPayload(req);
 
-      if (reservation.user_id === user._id) {
+      // only owner of reservation and admin can delete it
+      if (reservation.user_id === user._id || user.role === 'admin') {
         console.log('deleting allowed');
         const result = await reservations.deleteOne(query);
         if (result.deletedCount > 0) {

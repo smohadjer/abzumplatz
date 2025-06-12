@@ -3,19 +3,18 @@ GET http://localhost:3000/api/reservations?club_id=67a501832225683fb61ca069
 
 ###
 
-// make a reservation in tsv
+// make a reservation in tsv by user silvia@test.de
 POST http://localhost:3000/api/reservations
 Content-Type: application/json
-Authorization: Bearer [add token here...]
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2N2UyZmY0NDNmZWU5NTgyMzA0NWZhNTUiLCJmaXJzdF9uYW1lIjoiU2lsdmlhIiwibGFzdF9uYW1lIjoiTW9oYWRqZXIiLCJjbHViX2lkIjoiNjdhNTAxODMyMjI1NjgzZmI2MWNhMDY5IiwiZW1haWwiOiJzaWx2aWFAdGVzdC5kZSIsImV4cCI6MTc1NTc4MDA5MX0.B0PuNd-l67TgEmspQmTSN-AY3OqnzvNZdaYloTdPD_c
 
 {
   "club_id": "67a501832225683fb61ca069",
-  "user_id": "679e1a839a82bd9b19fbb036",
-  "court_num": "2",
-  "date": "2025-05-09",
-  "start_time": "15",
-  "end_time": "18",
-  "label": "api"
+  "user_id": "67e2ff443fee95823045fa55",
+  "court_num": "1",
+  "date": "2025-06-12",
+  "start_time": "18",
+  "end_time": "19"
 }
 
 ###

@@ -17,7 +17,7 @@ export function Rows(props: Props) {
         (item.start_time < props.hour && item.end_time > props.hour)));
 
     for (let courtNumber = 1; courtNumber < props.count+1; courtNumber++) {
-        const reservation =reservationsFiltered.find(item => item.court_num === courtNumber.toString());
+        const reservation = reservationsFiltered.find(item => item.court_num === courtNumber.toString());
         const isMyReservation = reservation?.user_id === props.user_id ? true : false;
         const getLabel = (reservation: NormalizedReservationItem) => {
             const label = reservation.label ? reservation.label : reservation.user_name;
@@ -37,9 +37,7 @@ export function Rows(props: Props) {
                     (reservation && reservation.recurring) ? reservation.recurring : false
                 }
                 key={courtNumber}
-                data-reservation_id={
-                    (reservation && isMyReservation) ? reservation._id : undefined
-                }
+                data-reservation_id={reservation ? reservation._id : undefined}
             >{reservation ? getLabel(reservation) : ''}
             </div>
         );

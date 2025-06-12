@@ -73,15 +73,17 @@ export default function Home() {
 
         if (event.target instanceof HTMLElement) {
             const slot = event.target;
+            const reservedByOthers = slot.classList.contains('reserved') && !slot.classList.contains('my-reservation');
 
-            // slots in the past or reserved by others should not be clickable
-            if (slot.classList.contains('past') ||
-              (slot.classList.contains('reserved') && !slot.classList.contains('my-reservation'))
-            ) {
+            // slots in the past or reserved by others should not be clickable unless user is admin
+            if (user.role !== 'admin' && (slot.classList.contains('past') || reservedByOthers)) {
                 return;
             }
 
-            if (slot.classList.contains('my-reservation')) {
+            // users can delete their own reservations
+            // admin can delete any reservation
+            if (slot.classList.contains('my-reservation') ||
+                (reservedByOthers && user.role === 'admin')) {
                 setPopupType('deleteReservation');
                 setSlot({
                     court_number: slot.dataset.court_number!,

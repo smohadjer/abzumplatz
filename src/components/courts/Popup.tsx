@@ -48,7 +48,7 @@ export function Popup(props: {
         if (popupType === 'deleteReservation') {
             return (
                 <>
-                    <p>Möchten Sie Ihre Reservierung am {getLocalDate(slot.date)} um {slot.hour} Uhr stornien?</p>
+                    <p>Möchten Sie Die Reservierung am {getLocalDate(slot.date)} um {slot.hour} Uhr stornien?</p>
                     {slot.recurring && <p>Diese Reservierung wird jede Woche zur gleichen Zeit wiederholt.</p>}
                     <form
                         method="POST"
