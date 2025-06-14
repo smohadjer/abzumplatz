@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import { RootState } from './../store';
 import { FormEvent } from "react";
-
+import { ReservationItem } from '../types';
 
 // Deep cloning arrays and objects with support for older browsers
 export const deepClone = (item: {} | []) => {
@@ -59,13 +59,12 @@ export const getDayName = (date: string) => {
     return new Date(date).toLocaleDateString('de-DE', {weekday: 'short'});
 }
 
-// get a recurring reservation item and returns true if it's older and
-// on the same day of the week as provided date
-export const recurringReservationIsOnSameDay = (item: {
-    date: string;
-    recurring: boolean;
-}, isoDate: string) => {
-    return item.recurring && (getDayName(item.date) === getDayName(isoDate)) && (new Date(item.date) < new Date(isoDate));
+// checks if a recurring reservation falls on provided date
+export const recurringReservationIsOnSameDay = (reservationItem: ReservationItem, isoDate: string) => {
+    if (!reservationItem.recurring) return false;
+    if (getDayName(reservationItem.date) !== getDayName(isoDate)) return false;
+    if (reservationItem.deleted_dates && reservationItem.deleted_dates.find(item => item === isoDate)) return false;
+    return (new Date(reservationItem.date) < new Date(isoDate));
 };
 
 export const getLocalDate = (date: string | undefined) => {
