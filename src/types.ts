@@ -77,6 +77,7 @@ export type ReservationItem = {
     label?: string;
     recurring?: boolean;
     deleted_dates?: string[];
+    end_date?: string;
 }
 
 /* we make _id optional so we can insert reservation items into db without an id */

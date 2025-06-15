@@ -48,15 +48,28 @@ export function Popup(props: {
         if (popupType === 'deleteReservation') {
             return (
                 <>
-                    <p>Möchten Sie Die Reservierung am {getLocalDate(slot.date)} um {slot.hour} Uhr stornien?</p>
-                    {slot.recurring && <p>Diese Reservierung wird jede Woche zur gleichen Zeit wiederholt.</p>}
+                    <p>Reservierungsdatum: {getLocalDate(slot.date)}<br />
+                    Reservierungszeit: {slot.hour} Uhr</p>
+
+                    {slot.recurring && <p>Dies ist eine wiederkehrende Reservierung. Bitte wählen Sie aus, wie Sie sie löschen möchten:</p>}
+
                     <form
                         method="POST"
-                        action={`/api/reservations?reservation_id=${slot.reservation_id}&club_id=${user.club_id}`}
+                        action={`/api/reservations?reservation_id=${slot.reservation_id}`}
                         onSubmit={(event) => {
                             props.setDisabled(true);
                             deleteReservation(event, props.closePopup, successCallback);
                         }}>
+                        <input type="hidden" name="form_method" value="delete" />
+                        <input type="hidden" name="date" value={slot.date} />
+                        {slot.recurring ?
+                            <div className="delete_fields">
+                                <label><input defaultChecked type="radio" name="delete_type" value="once" /> Nur diesen Termin</label>
+                                <label><input type="radio" name="delete_type" value="once_and_future" /> Diesen Termin und alle folgenden</label>
+                                <label><input type="radio" name="delete_type" value="all" /> Alle Termine</label>
+                            </div>
+                            : <input type="hidden" name="delete_type" value="all" />
+                        }
                         <button type="submit" disabled={props.disabled}>Reservierung löschen</button>
                         {props.disabled ? <Loader /> : null}
                     </form>
