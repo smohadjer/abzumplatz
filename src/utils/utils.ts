@@ -1,7 +1,8 @@
 import { useSelector } from 'react-redux';
 import { RootState } from './../store';
 import { FormEvent } from "react";
-
+import { ReservationItem } from '../types';
+import * as mongoDB from "mongodb";
 
 // Deep cloning arrays and objects with support for older browsers
 export const deepClone = (item: {} | []) => {
@@ -59,13 +60,13 @@ export const getDayName = (date: string) => {
     return new Date(date).toLocaleDateString('de-DE', {weekday: 'short'});
 }
 
-// get a recurring reservation item and returns true if it's older and
-// on the same day of the week as provided date
-export const recurringReservationIsOnSameDay = (item: {
-    date: string;
-    recurring: boolean;
-}, isoDate: string) => {
-    return item.recurring && (getDayName(item.date) === getDayName(isoDate)) && (new Date(item.date) < new Date(isoDate));
+// checks if a recurring reservation in the past falls on provided date
+export const recurringReservationIsOnSameDay = (reservationItem: ReservationItem, isoDate: string) => {
+    if (!reservationItem.recurring) return false;
+    if (getDayName(reservationItem.date) !== getDayName(isoDate)) return false;
+    if (reservationItem.deleted_dates && reservationItem.deleted_dates.find(item => item === isoDate)) return false;
+    if (reservationItem.end_date && (new Date(reservationItem.end_date) <= new Date(isoDate))) return false;
+    return (new Date(reservationItem.date) < new Date(isoDate));
 };
 
 export const getLocalDate = (date: string | undefined) => {
@@ -75,13 +76,23 @@ export const getLocalDate = (date: string | undefined) => {
     }
 };
 
-export const deleteReservation = (event: FormEvent, closePopup: Function, successCallback: Function) => {
+export const deleteReservation = (
+    event: FormEvent,
+    closePopup: Function,
+    successCallback: Function) => {
     event.preventDefault();
 
     if (event.target instanceof HTMLFormElement) {
         const form: HTMLFormElement = event.target!;
+        const formData = new FormData(form);
+
         fetch(form.action, {
-            method: 'DELETE'
+            method: form.method,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(Object.fromEntries(formData))
         })
         .then((response) => response.json())
         .then(json => {
@@ -145,3 +156,14 @@ export const makeReservation = (event: FormEvent, closePopup: Function, successC
         });
     }
 };
+
+export const getAllReservations = async (
+    reservations: mongoDB.Collection<ReservationItem>,
+    club_id: string
+) => {
+    const docs = await reservations.find({club_id}).sort({
+      date: 1,
+      start_time: 1
+    });
+    return docs.toArray();
+  };

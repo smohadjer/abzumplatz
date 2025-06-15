@@ -21,9 +21,10 @@ export function MyReservations(props: {
                     const day = new Date(item.date);
                     const isoDate = day.toLocaleDateString('de-DE');
                     const weekday = day.toLocaleDateString('de-DE', {weekday: 'short'});
+                    const key = item._id!.toString();
 
                     return (
-                        <li key={item._id}>
+                        <li key={key}>
                             {weekday} {isoDate}, {''}
                             {item.start_time}-{item.end_time} Uhr,
                             Platz {item.court_num}

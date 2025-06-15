@@ -66,7 +66,8 @@ export type Club = {
 }
 
 export type ReservationItem = {
-    _id: string;
+    //_id: string;
+    _id?: ObjectId;
     club_id: string;
     user_id: string;
     date: string;
@@ -75,13 +76,15 @@ export type ReservationItem = {
     end_time: number;
     label?: string;
     recurring?: boolean;
+    deleted_dates?: string[];
+    end_date?: string;
 }
 
 /* we make _id optional so we can insert reservation items into db without an id */
-export type ReservationItemDB = Omit<ReservationItem, '_id'> & {
-    _id?: ObjectId;
-    timestamp: Date;
-}
+// export type ReservationItemDB = Omit<ReservationItem, '_id'> & {
+//     _id?: ObjectId;
+//     timestamp: Date;
+// }
 
 export type NormalizedReservationItem = ReservationItem & {
     user_name: string;

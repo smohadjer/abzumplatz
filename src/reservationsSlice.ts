@@ -5,7 +5,6 @@ export const reservationsSlice = createSlice({
   initialState: {
     value: [
       {
-        _id: '',
         club_id: '',
         user_id: '',
         date: '',
