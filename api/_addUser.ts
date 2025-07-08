@@ -9,23 +9,23 @@ const saltRounds = 10;
 export async function addUser(user: DBUser) {
     await client.connect();
     const database = client.db(database_name);
-    const collection = database.collection('users');
+    const collectionUsers = database.collection('users');
     const collectionClubs = database.collection('clubs');
-    collection.createIndex(
+
+    collectionUsers.createIndex(
         {
-           first_name: 1,
-           last_name: 1,
+           email: 1
         },
         {
-           collation:
-              {
-                 locale : 'en',
-                 strength : 1
-              }
+            unique: true,
+            collation: {
+                locale : 'en',
+                strength : 1
+            }
         }
     );
 
-    const doc = await collection.findOne({ email: user.email });
+    const doc = await collectionUsers.findOne({ email: user.email });
     if (doc) {
         throw new Error(`Email ${user.email} already exists`, { cause: 'invalid_email' });
     }
@@ -38,5 +38,5 @@ export async function addUser(user: DBUser) {
 
     const hashedPassword = await bcrypt.hash(user.password, saltRounds);
     user.password = hashedPassword;
-    const insertResponse = await collection.insertOne(user);
+    const insertResponse = await collectionUsers.insertOne(user);
 }

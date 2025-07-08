@@ -34,7 +34,7 @@ export default async (req, res) => {
                 role
             };
             try {
-                addUser(user);
+                await addUser(user);
                 res.status(201).json({message: `User ${first_name} ${last_name} is registered`});
             } catch (e) {
                 console.error(e);
