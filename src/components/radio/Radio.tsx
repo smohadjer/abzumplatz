@@ -1,7 +1,7 @@
-import { Option, Select_CheckboxProps } from '../../types';
+import { Option, CheckboxProps } from '../../types';
 import './radio.css';
 
-export function Radio({id, required, options, hasError}: Select_CheckboxProps) {
+export function Radio({id, required, options, hasError}: CheckboxProps) {
   return (
       options.map((option: Option) => {
         return (

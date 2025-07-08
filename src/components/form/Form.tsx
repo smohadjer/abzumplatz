@@ -57,6 +57,19 @@ export function Form(props: FormProps) {
                     return;
                 }
 
+                if (action === '/api/clubs' && method === 'POST') {
+                    console.log(json.message);
+                    // update clubs in state
+                    dispatch({
+                        type: 'clubs/fetch',
+                        payload: {
+                            value: json.data
+                        }
+                    });
+                    navigate('/login');
+                    return;
+                }
+
                 if (action === '/api/logout') {
                     // store.setState({
                     //     ...state,

@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import Register from './pages/Register';
+import RegisterClub from './pages/RegisterClub';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import LoginPage from './pages/Login';
@@ -38,7 +39,7 @@ export default function App() {
     useEffect(() => {
         async function getData() {
             // fetch clubs and save it to store
-            const clubs = await fetch('api/clubs');
+            const clubs = await fetch('/api/clubs');
             const clubsData: Club[] = await clubs.json();
             dispatch({
                 type: 'clubs/fetch',
@@ -91,6 +92,11 @@ export default function App() {
                 <Route path="/register" element={
                     <PublicRoute isLoggedin={auth.value}>
                         <Register clubs={clubs} />
+                    </PublicRoute>
+                } />
+                <Route path="/register/club" element={
+                    <PublicRoute isLoggedin={auth.value}>
+                        <RegisterClub />
                     </PublicRoute>
                 } />
                 <Route path="/login" element={
