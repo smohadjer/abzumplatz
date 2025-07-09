@@ -7,7 +7,7 @@ type Props = {
 
 export const PublicRoute = ({ isLoggedin, children }: Props) => {
     if (isLoggedin) {
-      return <Navigate to="/" replace />;
+      return <Navigate to="/reservations" replace />;
     }
 
     return children;

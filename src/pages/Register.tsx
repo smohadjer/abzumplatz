@@ -9,11 +9,8 @@ type Props = {
 export default function Register(props: Props) {
     return (
         <>
-            <div className="navbar">
-                <Link to="/login">Spieler Anmelden</Link> | {' '}
-                <span>Spieler Registrieren</span> | {' '}
-                <Link to="/register/club">Verein Registrieren</Link>
-            </div>
+            <Link to="/">Back</Link>
+            <h2>Register</h2>
             <Signup clubs={props.clubs} />
         </>
     )

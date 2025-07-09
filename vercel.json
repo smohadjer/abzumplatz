@@ -6,6 +6,7 @@
        { "source": "/register", "destination": "/" },
        { "source": "/login", "destination": "/" },
        { "source": "/profile", "destination": "/"},
+       { "source": "/reservations", "destination": "/"},
        { "source": "/bookings", "destination": "/"},
        { "source": "/forgot-password", "destination": "/" },
        {

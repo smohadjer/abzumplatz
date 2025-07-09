@@ -97,9 +97,9 @@ export function Form(props: FormProps) {
                         club_id: json.club_id,
                         role: json.role,
                     }});
-                    //console.log('going to home', store.getState());
-                    //navigate('/');
-                    //return;
+                    console.log('going to reservations page');
+                    navigate('/reservations');
+                    return;
                 }
             }
         });

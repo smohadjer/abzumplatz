@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './store';
 import Home from './pages/Home';
+import Reservations from './pages/Reservations';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import Register from './pages/Register';
@@ -74,9 +75,9 @@ export default function App() {
         initialized ?
         <Routes>
              <Route element={<Layout />}>
-                <Route path="/" element={
+                <Route path="/reservations" element={
                     <ProtectedRoute isLoggedin={auth.value}>
-                        <Home />
+                        <Reservations />
                     </ProtectedRoute>
                 }/>
                 <Route path="/profile" element={
@@ -89,6 +90,11 @@ export default function App() {
                         <Bookings />
                     </ProtectedRoute>
                 }/>
+                <Route path="/" element={
+                    <PublicRoute isLoggedin={auth.value}>
+                        <Home />
+                    </PublicRoute>
+                } />
                 <Route path="/register" element={
                     <PublicRoute isLoggedin={auth.value}>
                         <Register clubs={clubs} />
