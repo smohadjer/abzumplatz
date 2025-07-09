@@ -76,3 +76,11 @@ p.error {
     color: #c70000;
     padding: 0.5em;
 }
+
+.navbar {
+    margin: 1em 0;
+
+    span {
+        font-weight: bold;
+    }
+}

@@ -4,7 +4,11 @@ import { Link } from 'react-router';
 export default function RegisterClub() {
     return (
         <>
-            <p>Wenn Sie sich als Spieler registrieren möchten, sollten Sie ein <Link to="/register">Benutzerkonto erstellen</Link>.</p>
+            <div className="navbar">
+                <Link to="/login">Spieler Anmelden</Link> | {' '}
+                <Link to="/register">Spieler Registrieren</Link> | {' '}
+                <span>Verein Registrieren</span>
+            </div>
             <SignupClub />
         </>
     )
