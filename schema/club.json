@@ -14,8 +14,8 @@
             "type": "integer",
             "allOf": [
                 {
-                    "minimum": 0,
-                    "exclusiveMaximum": 100
+                    "minimum": 1,
+                    "exclusiveMaximum": 20
                 }
             ]
         },
@@ -23,7 +23,7 @@
             "type": "integer",
             "allOf": [
                 {
-                    "minimum": 0,
+                    "minimum": 1,
                     "exclusiveMaximum": 24
                 }
             ]
@@ -32,7 +32,7 @@
             "type": "integer",
             "allOf": [
                 {
-                    "minimum": 0,
+                    "minimum": 1,
                     "exclusiveMaximum": 24
                 }
             ]

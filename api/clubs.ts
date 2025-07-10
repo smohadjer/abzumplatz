@@ -48,16 +48,6 @@ export default async (req, res) => {
     if (req.method === 'POST') {
       console.log('Post received for club')
       // validate data
-      const {
-        name,
-        courts_count,
-        start_hour,
-        end_hour,
-        reservations_limit,
-        first_name,
-        last_name,
-        password
-      } = req.body;
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/club.json', 'utf8'));
       const validator = ajv.compile(schema);
       const body = sanitize(req.body);
@@ -77,6 +67,19 @@ export default async (req, res) => {
           });
           return res.json({error: errors});
       }
+
+      const {
+        name,
+        first_name,
+        last_name,
+        password
+      } = body;
+
+      const courts_count = Number(body.courts_count);
+      const start_hour = Number(body.start_hour);
+      const end_hour = Number(body.end_hour);
+      const reservations_limit = Number(body.reservations_limit);
+      const email = body.email.toLowerCase();
 
       // throw error if club with same name already exists
       const doc = await collection.findOne({ name },{
@@ -103,7 +106,7 @@ export default async (req, res) => {
           first_name,
           last_name,
           club_id,
-          email: req.body.email.toLowerCase(),
+          email,
           password,
           role: 'admin'
       };
