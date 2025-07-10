@@ -7,7 +7,7 @@ import './profile.css';
 export default function Profile() {
     const auth = useSelector((state: RootState) => state.auth);
     const club = getClub();
-    const role = auth.role ? auth.role : 'Player';
+    const role = auth.role ? `(${auth.role})` : '';
 
     return (
         <>
@@ -15,8 +15,7 @@ export default function Profile() {
                 <h2>Profil</h2>
                 <Logout />
             </header>
-            <p>Name: {auth.first_name} {auth.last_name}</p>
-            <p>Rolle: {role}</p>
+            <p>{auth.first_name} {auth.last_name} {role}</p>
             {club && <p>Verein: {club.name}</p>}
             <p>Support: <a href="mailto:abzumplatz@gmail.com?subject=Feedback von der App">abzumplatz@gmail.com</a>
             </p>
