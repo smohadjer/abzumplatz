@@ -6,6 +6,7 @@ export const authSlice = createSlice({
     value: false,
     first_name: '',
     last_name: '',
+    email: '',
     _id: '',
     club_id: '',
     role: '',
@@ -19,6 +20,7 @@ export const authSlice = createSlice({
       state.value = action.payload.value;
       state.first_name = action.payload.first_name;
       state.last_name = action.payload.last_name;
+      state.email = action.payload.email;
       state._id = action.payload._id;
       state.club_id = action.payload.club_id;
       state.role = action.payload.role;

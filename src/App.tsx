@@ -25,6 +25,7 @@ import './app.css';
 type Payload = {
     first_name: string;
     last_name: string;
+    email: string;
     club_id: string;
     role: string;
     _id: string;
@@ -42,6 +43,7 @@ export default function App() {
             // fetch clubs and save it to store
             const clubs = await fetch('/api/clubs');
             const clubsData: Club[] = await clubs.json();
+            console.log(clubsData);
             dispatch({
                 type: 'clubs/fetch',
                 payload: {
@@ -54,11 +56,13 @@ export default function App() {
             if (authenticated.error) {
                 console.warn('Not logged-in!');
             } else {
+                console.log('User is logged-in', authenticated)
                 // user is logged-in
                 dispatch({type: 'auth/login', payload: {
                     value: true,
                     first_name: authenticated.first_name,
                     last_name: authenticated.last_name,
+                    email: authenticated.email,
                     _id: authenticated._id,
                     club_id: authenticated.club_id,
                     role: authenticated.role

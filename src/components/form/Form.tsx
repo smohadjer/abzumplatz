@@ -93,6 +93,7 @@ export function Form(props: FormProps) {
                         value: true,
                         first_name: json.first_name,
                         last_name: json.last_name,
+                        email: json.email,
                         _id: json._id,
                         club_id: json.club_id,
                         role: json.role,
