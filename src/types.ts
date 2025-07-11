@@ -28,13 +28,22 @@ export type InputProps = {
     options?: Option[];
 }
 
-export type Select_CheckboxProps = {
+export type CheckboxProps = {
     id: string;
     type: string;
     hasError?: boolean;
     required?: boolean;
     options: Option[];
     value?: string;
+}
+
+export type SelectProps = {
+    id: string;
+    type: string;
+    hasError?: boolean;
+    required?: boolean;
+    options: Option[];
+    defaultValue?: string;
 }
 
 export type Option = {
@@ -95,6 +104,15 @@ export type User = {
     first_name: string;
     last_name: string;
     role?: string;
+}
+
+export type DBUser = {
+    first_name: string;
+    last_name: string;
+    club_id: string;
+    email: string;
+    password: string;
+    role: string;
 }
 
 export type JwtPayload = {

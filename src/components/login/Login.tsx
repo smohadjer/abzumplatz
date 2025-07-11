@@ -8,7 +8,6 @@ export function Login() {
     const loginFields = structuredClone(fields);
     return (
         <>
-            <h2>Anmelden</h2>
             <Form
                 classNames="form-login"
                 method="POST"

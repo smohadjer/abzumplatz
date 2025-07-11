@@ -4,9 +4,11 @@ import { Routes, Route } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './store';
 import Home from './pages/Home';
+import Reservations from './pages/Reservations';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import Register from './pages/Register';
+import RegisterClub from './pages/RegisterClub';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import LoginPage from './pages/Login';
@@ -23,6 +25,7 @@ import './app.css';
 type Payload = {
     first_name: string;
     last_name: string;
+    email: string;
     club_id: string;
     role: string;
     _id: string;
@@ -38,8 +41,9 @@ export default function App() {
     useEffect(() => {
         async function getData() {
             // fetch clubs and save it to store
-            const clubs = await fetch('api/clubs');
+            const clubs = await fetch('/api/clubs');
             const clubsData: Club[] = await clubs.json();
+            console.log(clubsData);
             dispatch({
                 type: 'clubs/fetch',
                 payload: {
@@ -52,11 +56,13 @@ export default function App() {
             if (authenticated.error) {
                 console.warn('Not logged-in!');
             } else {
+                console.log('User is logged-in', authenticated)
                 // user is logged-in
                 dispatch({type: 'auth/login', payload: {
                     value: true,
                     first_name: authenticated.first_name,
                     last_name: authenticated.last_name,
+                    email: authenticated.email,
                     _id: authenticated._id,
                     club_id: authenticated.club_id,
                     role: authenticated.role
@@ -73,9 +79,9 @@ export default function App() {
         initialized ?
         <Routes>
              <Route element={<Layout />}>
-                <Route path="/" element={
+                <Route path="/reservations" element={
                     <ProtectedRoute isLoggedin={auth.value}>
-                        <Home />
+                        <Reservations />
                     </ProtectedRoute>
                 }/>
                 <Route path="/profile" element={
@@ -88,9 +94,19 @@ export default function App() {
                         <Bookings />
                     </ProtectedRoute>
                 }/>
+                <Route path="/" element={
+                    <PublicRoute isLoggedin={auth.value}>
+                        <Home />
+                    </PublicRoute>
+                } />
                 <Route path="/register" element={
                     <PublicRoute isLoggedin={auth.value}>
                         <Register clubs={clubs} />
+                    </PublicRoute>
+                } />
+                <Route path="/register/club" element={
+                    <PublicRoute isLoggedin={auth.value}>
+                        <RegisterClub />
                     </PublicRoute>
                 } />
                 <Route path="/login" element={
@@ -115,7 +131,7 @@ export default function App() {
                 <Header />
                 <main>
                     <div className="splash">
-                        <Loader size="big" text="Vereinsdaten werden geladen" />
+                        <Loader size="big" text="Daten werden geladen..." />
                     </div>
                 </main>
                 <Footer />

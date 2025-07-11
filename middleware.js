@@ -6,7 +6,6 @@ import { RequestCookies } from '@edge-runtime/cookies'
 // middleware only runs for these paths
 export const config = {
   matcher: [
-    '/api/clubs',
     '/api/reservations'
   ]
 };

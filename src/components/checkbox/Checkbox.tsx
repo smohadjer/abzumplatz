@@ -1,7 +1,7 @@
-import { Option, Select_CheckboxProps } from '../../types';
+import { Option, CheckboxProps } from '../../types';
 import './checkbox.css';
 
-export function Checkbox({id, required, options, hasError}: Select_CheckboxProps) {
+export function Checkbox({id, required, options, hasError}: CheckboxProps) {
   const option: Option = options[0];
 
   return (

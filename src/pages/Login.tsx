@@ -4,7 +4,8 @@ import { Link } from 'react-router';
 export default function LoginPage() {
     return (
         <>
-            <p>Wenn Sie noch keinen Account bei abzumplatz.de besitzen, müssen Sie sich zunächst <Link to="/register">registrieren</Link>.</p>
+            <Link to="/">Back</Link>
+            <h2>Anmelden</h2>
             <Login />
         </>
 

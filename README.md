@@ -13,7 +13,7 @@ vercel dev
 
 If you need database support you can create a `.env` file in root of the project with the following variable to access a remote MongoDB instance (replace username and password with yours):
 ````
-DB_URI = "mongodb+srv://<username>:<password>@cluster0.3d1jx4z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+db_uri = "mongodb+srv://<username>:<password>@cluster0.3d1jx4z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 ````
 
 If in .env file development is set to "local", you need to install and start a MongoDB instance on your localhost. For information on setting up MongoDB on localhost see MONGODB.md file. To start your MongoDB instance, use command:

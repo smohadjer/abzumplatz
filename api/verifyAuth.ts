@@ -9,6 +9,7 @@ export default async (request, response) => {
         response.status(200).json({
             first_name: payload.first_name,
             last_name: payload.last_name,
+            email: payload.email,
             club_id: payload.club_id,
             _id: payload._id,
             role: payload.role

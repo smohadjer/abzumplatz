@@ -52,7 +52,33 @@ export function Form(props: FormProps) {
                 console.log('Server received valid data');
                 setErrors([]);
 
-                if (action === '/api/signup' || action === '/api/reset-password') {
+                if (action === '/api/reset-password') {
+                    navigate('/login');
+                    return;
+                }
+
+                if (action === '/api/signup') {
+                    console.log(json.message);
+                    // update users in state
+                    dispatch({
+                        type: 'users/fetch',
+                        payload: {
+                            value: json.data
+                        }
+                    });
+                    navigate('/login');
+                    return;
+                }
+
+                if (action === '/api/clubs' && method === 'POST') {
+                    console.log(json.message);
+                    // update clubs in state
+                    dispatch({
+                        type: 'clubs/fetch',
+                        payload: {
+                            value: json.data
+                        }
+                    });
                     navigate('/login');
                     return;
                 }
@@ -80,13 +106,14 @@ export function Form(props: FormProps) {
                         value: true,
                         first_name: json.first_name,
                         last_name: json.last_name,
+                        email: json.email,
                         _id: json._id,
                         club_id: json.club_id,
                         role: json.role,
                     }});
-                    //console.log('going to home', store.getState());
-                    //navigate('/');
-                    //return;
+                    console.log('going to reservations page');
+                    navigate('/reservations');
+                    return;
                 }
             }
         });

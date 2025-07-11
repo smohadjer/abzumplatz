@@ -14,12 +14,33 @@
             "type": "integer",
             "allOf": [
                 {
-                    "minimum": 0,
-                    "exclusiveMaximum": 100
+                    "minimum": 1,
+                    "exclusiveMaximum": 20
                 }
             ]
+        },
+        "start_hour": {
+            "type": "integer",
+            "allOf": [
+                {
+                    "minimum": 1,
+                    "exclusiveMaximum": 24
+                }
+            ]
+        },
+        "end_hour": {
+            "type": "integer",
+            "allOf": [
+                {
+                    "minimum": 1,
+                    "exclusiveMaximum": 24
+                }
+            ]
+        },
+        "reservations_limit": {
+            "type": "integer"
         }
     },
     "required": ["name", "courts_count"],
-    "additionalProperties": false
+    "additionalProperties": true
 }

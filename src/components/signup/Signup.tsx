@@ -24,15 +24,12 @@ export function Signup(props: Props) {
     });
 
     return (
-        <>
-            <h2>Registrieren</h2>
-            <Form
-                classNames="signup"
-                method="POST"
-                action="/api/signup"
-                fields={normalizedFields}
-                label="Registrieren"
-            />
-        </>
+        <Form
+            classNames="signup"
+            method="POST"
+            action="/api/signup"
+            fields={normalizedFields}
+            label="Spieler Registrieren"
+        />
     )
 }
