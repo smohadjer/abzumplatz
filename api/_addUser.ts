@@ -1,17 +1,12 @@
 import bcrypt from 'bcrypt';
-import { MongoClient, ObjectId } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
+import { ObjectId } from 'mongodb';
 import { DBUser } from '../src/types.js';
 
-const client = new MongoClient(database_uri);
 const saltRounds = 10;
 
-export async function addUser(user: DBUser) {
-    await client.connect();
-    const database = client.db(database_name);
+export async function addUser(database, user: DBUser) {
     const collectionUsers = database.collection('users');
     const collectionClubs = database.collection('clubs');
-
     collectionUsers.createIndex(
         {
            email: 1
@@ -24,7 +19,6 @@ export async function addUser(user: DBUser) {
             }
         }
     );
-
     const doc = await collectionUsers.findOne({ email: user.email });
     if (doc) {
         throw new Error(`Email ${user.email} already exists`, { cause: 'invalid_email' });
@@ -39,4 +33,5 @@ export async function addUser(user: DBUser) {
     const hashedPassword = await bcrypt.hash(user.password, saltRounds);
     user.password = hashedPassword;
     const insertResponse = await collectionUsers.insertOne(user);
+    return insertResponse;
 }

@@ -52,7 +52,20 @@ export function Form(props: FormProps) {
                 console.log('Server received valid data');
                 setErrors([]);
 
-                if (action === '/api/signup' || action === '/api/reset-password') {
+                if (action === '/api/reset-password') {
+                    navigate('/login');
+                    return;
+                }
+
+                if (action === '/api/signup') {
+                    console.log(json.message);
+                    // update users in state
+                    dispatch({
+                        type: 'users/fetch',
+                        payload: {
+                            value: json.data
+                        }
+                    });
                     navigate('/login');
                     return;
                 }

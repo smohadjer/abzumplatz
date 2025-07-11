@@ -2,7 +2,11 @@ import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { addUser } from './_addUser.js';
 import { DBUser } from '../src/types.js';
+import { fetchUsers } from './_fetchUsers.js';
+import { MongoClient } from 'mongodb';
+import { database_uri, database_name } from './_config.js';
 
+const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/signup.json', 'utf8'));
 
 export default async (req, res) => {
@@ -34,8 +38,14 @@ export default async (req, res) => {
                 role
             };
             try {
-                await addUser(user);
-                res.status(201).json({message: `User ${first_name} ${last_name} is registered`});
+                await client.connect();
+                const database = client.db(database_name);
+                const insertResponse = await addUser(database, user);
+                const docs = await fetchUsers(database, undefined, club_id);
+                res.status(201).json({
+                  message: `User ${first_name} ${last_name} is registered`,
+                  data: docs
+                });
             } catch (e) {
                 console.error(e);
                 const instancePath = (e.cause === 'invalid_email') ? '/email' :
@@ -46,6 +56,8 @@ export default async (req, res) => {
                         message: e.message
                     }
             ]});
+            }  finally {
+                await client.close();
             }
         }
     }

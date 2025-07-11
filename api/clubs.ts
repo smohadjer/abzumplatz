@@ -111,7 +111,7 @@ export default async (req, res) => {
           role: 'admin'
       };
       console.log(user);
-      await addUser(user);
+      const insertResponseUser = await addUser(database, user);
 
       const docs = await getAllClubs();
       res.status(201).json({

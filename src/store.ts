@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './authSlice';
-import clubsReducer from './clubsSlice';
-import usersReducer from './usersSlice';
-import reservationsReducer from './reservationsSlice';
+import authReducer from './reducers/authSlice';
+import clubsReducer from './reducers/clubsSlice';
+import usersReducer from './reducers/usersSlice';
+import reservationsReducer from './reducers/reservationsSlice';
 import type { Action, ThunkAction } from '@reduxjs/toolkit';
 
 export const store = configureStore({
