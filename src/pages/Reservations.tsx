@@ -13,6 +13,8 @@ import { Header } from '../components/courts/Header';
 import { Popup } from '../components/courts/Popup';
 import { Calendar } from '../components/courts/Calendar';
 import { Loader } from '../components/loader/Loader';
+import { Logout } from "./../components/logout/Logout";
+
 import './reservations.css';
 
 type Slot = {
@@ -39,7 +41,12 @@ export default function Reservations() {
     const reservations = reservationsData.value;
 
     if (club === undefined) {
-        return null;
+        return (
+            <>
+                <p>Verein nicht gefunden!</p>
+                <Logout />
+            </>
+        )
     }
 
     const clubHours = Array.from({
