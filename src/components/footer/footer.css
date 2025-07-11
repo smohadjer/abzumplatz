@@ -6,7 +6,7 @@ footer {
     font-size: smaller;
     color: #666;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
 
     a {
         color: var(--blue);

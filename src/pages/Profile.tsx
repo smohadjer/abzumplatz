@@ -17,7 +17,7 @@ export default function Profile() {
             <p>Email: {auth.email}</p>
             {club && <p>Verein: {club.name}</p>}
             <Logout />
-            <footer>
+            <footer className="profile">
                 <p>Support: <a href="mailto:abzumplatz@gmail.com?subject=Feedback von der App">abzumplatz@gmail.com</a>
                 </p>
                 <p>&copy; 2025 Saeid Mohadjer</p>

@@ -5,12 +5,13 @@ header {
   h1 {
     color: #333;
     font-size: 1.3em;
+    line-height: 1.5;
   }
 
   h2 {
     font-size: 1em;
     color: #333;
-    margin-top: 0.25em;
+    margin-top: 0;
     font-weight: 500;
   }
 
