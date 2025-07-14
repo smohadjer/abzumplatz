@@ -105,7 +105,7 @@ export default function Reservations() {
 
             // if user is not admin and has reached max allowed reservations alert and return
             const limit = club?.reservations_limit ?? 0;
-            if (user.role !== 'admin' && user.role !== 'trainer' && userReservations.length >= limit) {
+            if (user.role !== 'admin' && userReservations.length >= limit) {
                 alert(`Sie haben die maximal zulässige Anzahl an Reservierungen (${limit}) erreicht!`);
                 return;
             }

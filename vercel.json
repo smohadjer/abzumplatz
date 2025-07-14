@@ -9,6 +9,7 @@
        { "source": "/reservations", "destination": "/"},
        { "source": "/bookings", "destination": "/"},
        { "source": "/forgot-password", "destination": "/" },
+       { "source": "/impressum", "destination": "/" },
        {
         "source": "/reset-password:path*",
         "destination": "/:path*"
