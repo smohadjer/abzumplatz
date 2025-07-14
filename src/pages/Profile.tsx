@@ -7,7 +7,7 @@ import './profile.css';
 export default function Profile() {
     const auth = useSelector((state: RootState) => state.auth);
     const club = getClub();
-    const role = auth.role ? `(${auth.role})` : '';
+    const role = auth?.role === 'admin' ? '(Admin)' : '';
 
     console.log(auth);
 

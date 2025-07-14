@@ -13,6 +13,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import LoginPage from './pages/Login';
 import Layout from './pages/Layout';
+import LayoutPrivate from './pages/LayoutPrivate';
 import NotFound from './pages/NotFound';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
@@ -78,7 +79,7 @@ export default function App() {
     return (
         initialized ?
         <Routes>
-             <Route element={<Layout />}>
+            <Route element={<LayoutPrivate />}>
                 <Route path="/reservations" element={
                     <ProtectedRoute isLoggedin={auth.value}>
                         <Reservations />
@@ -94,6 +95,8 @@ export default function App() {
                         <Bookings />
                     </ProtectedRoute>
                 }/>
+            </Route>
+            <Route element={<Layout />}>
                 <Route path="/" element={
                     <PublicRoute isLoggedin={auth.value}>
                         <Home />
@@ -125,7 +128,7 @@ export default function App() {
                     </PublicRoute>
                 } />
                 <Route path="*" element={<NotFound />} />
-             </Route>
+            </Route>
         </Routes> : (
             <>
                 <Header />

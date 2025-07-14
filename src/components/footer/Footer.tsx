@@ -15,7 +15,7 @@ export default function Footer() {
     return (
         (auth.value && club) &&
         <footer>
-            <Link to="/"><span className="icon icon--home"></span></Link>
+            <Link to="/reservations"><span className="icon icon--home"></span></Link>
             <Link to="/bookings"><span className="icon icon--list"></span></Link>
             <Link to="/profile"><span className="icon icon--account"></span></Link>
         </footer>
