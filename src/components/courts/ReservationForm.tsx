@@ -16,7 +16,7 @@ export function ReservationForm(props: Props) {
             method="POST"
             action="/api/reservations"
             onSubmit={props.submitHandler}>
-            {(user.role === 'admin' || user.role === 'trainer') && <fieldset>
+            {(user.role === 'admin') && <fieldset>
                 <div>
                     {/* <input defaultChecked type="radio" id="one-hour" name="duration" value="1" />
                     <label htmlFor="one-hour">Für 1 Stunde</label>

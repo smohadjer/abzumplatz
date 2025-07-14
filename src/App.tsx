@@ -21,6 +21,7 @@ import { Loader } from './components/loader/Loader';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 import { Club } from './types';
+import { Imprint } from './pages/Imprint';
 import './app.css';
 
 type Payload = {
@@ -127,6 +128,12 @@ export default function App() {
                         <ResetPasswordPage />
                     </PublicRoute>
                 } />
+                <Route path="/impressum" element={
+                    <PublicRoute isLoggedin={false}>
+                        <Imprint />
+                    </PublicRoute>
+                }>
+                </Route>
                 <Route path="*" element={<NotFound />} />
             </Route>
         </Routes> : (
