@@ -131,7 +131,7 @@ export default function App() {
             </Route>
         </Routes> : (
             <>
-                <Header />
+                <Header route="public" />
                 <main>
                     <div className="splash">
                         <Loader size="big" text="Daten werden geladen..." />
