@@ -52,26 +52,6 @@
         "hasError": false
     },
     {
-        "id": "role",
-        "label": "Rolle",
-        "type": "radio",
-        "options": [
-            {
-                "name": "Spieler/-in",
-                "value": "player",
-                "id": "player",
-                "checked": true
-            },
-            {
-                "name": "Trainer/-in",
-                "value": "trainer",
-                "id": "trainer"
-            }
-        ],
-        "required": true,
-        "error": "This is a required field"
-    },
-    {
         "id": "privacy",
         "label": "Datenschutz",
         "type": "checkbox",

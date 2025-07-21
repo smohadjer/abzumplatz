@@ -65,10 +65,10 @@ export const setReservation = async (req, res, reservations, clubs) => {
 
     const user: JwtPayload = await getJwtPayload(req);
 
-    // throw error if reservation is recurring or more than one hour and user is not admin or trainer
+    // throw error if reservation is recurring or more than one hour and user is not admin
     if (recurring || (end_time - start_time) > 1) {
-      if (user.role !== 'admin' && user.role !== 'trainer') {
-        throw new Error('Nur Administratoren und Trainer können wiederkehrende Reservierungen oder Reservierungen mit einer Dauer von mehr als einer Stunde vornehmen.');
+      if (user.role !== 'admin') {
+        throw new Error('Nur Administratoren können wiederkehrende Reservierungen oder Reservierungen mit einer Dauer von mehr als einer Stunde vornehmen.');
       }
     }
 
@@ -92,7 +92,7 @@ export const setReservation = async (req, res, reservations, clubs) => {
       {_id: ObjectId.createFromHexString(club_id)}
     )
     const limit =  userClub.reservations_limit;
-    if (user.role !== 'admin' && user.role !== 'trainer' && userReservations.length >= limit) {
+    if (user.role !== 'admin' && userReservations.length >= limit) {
       throw new Error(`Sie haben die maximal zulässige Anzahl an Reservierungen (${limit}) erreicht.`);
     }
 
