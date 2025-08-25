@@ -65,7 +65,7 @@ export default async (req, res) => {
                     setCookieServerless(res, token);
 
                     // login form is submitted via ajax, redirect happens on client
-                    res.json(payload);
+                    return res.json(payload);
 
                     // login form is submitted without ajax, redirect happens on server
                     // res.setHeader('Location', '/admin');

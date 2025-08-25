@@ -1,12 +1,6 @@
 {
     "type": "object",
     "properties": {
-        "club_id": {
-            "type": "string"
-        },
-        "user_id": {
-            "type": "string"
-        },
         "court_num": {
             "type": "integer"
         },
@@ -26,6 +20,6 @@
             "type": "boolean"
         }
     },
-    "required": ["club_id", "user_id", "court_num", "date", "start_time", "end_time"],
+    "required": ["court_num", "date", "start_time", "end_time"],
     "additionalProperties": false
 }

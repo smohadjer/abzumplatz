@@ -1,5 +1,5 @@
 
-import { ObjectId } from 'mongodb';
+import { ObjectId, Collection } from 'mongodb';
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
@@ -47,12 +47,14 @@ const getUserReservations = async (reservations, user_id): Promise<ReservationIt
   return docs.toArray();
 };
 
-export const setReservation = async (req, res, reservations, clubs) => {
+export const setReservation = async (req, res, reservations, clubs,
+    users: Collection) => {
     const body = sanitize(req.body);
-    const { club_id, user_id, court_num, date, label } = body;
+    const { court_num, date, label } = body;
     const start_time = Number(body.start_time);
     const end_time = Number(body.end_time);
     const recurring: boolean = body.recurring === 'true';
+
     const schema = JSON.parse(fs.readFileSync(process.cwd() +
       '/schema/reservation.json', 'utf8'));
     const validator = ajv.compile(schema);
@@ -69,8 +71,15 @@ export const setReservation = async (req, res, reservations, clubs) => {
           }
           return error;
       });
+      console.error(errors);
       return res.json({error: errors});
     }
+
+    const payload: JwtPayload = await getJwtPayload(req);
+    const user = await users.findOne({
+      _id: ObjectId.createFromHexString(payload._id)
+    });
+    const userId: string = user._id.toString();
 
     const overlappingHoursFilter = (item: ReservationItem) => {
       return (start_time <= item.start_time && end_time > item.start_time) ||
@@ -78,7 +87,10 @@ export const setReservation = async (req, res, reservations, clubs) => {
     }
 
     // throw error if a reservation for same court in the same time exists
-    const reservationsForSameCourt: ReservationItem[] = await reservations.find({ club_id, court_num }).toArray();
+    const reservationsForSameCourt: ReservationItem[] = await reservations.find({
+        club_id: user.club_id,
+        court_num
+      }).toArray();
     const reservationsOnSameDay = reservationsForSameCourt.filter((item) => {
       return item.date === date || recurringReservationIsOnSameDay(item, date);
     });
@@ -102,14 +114,13 @@ export const setReservation = async (req, res, reservations, clubs) => {
       }
     }
 
-    const user: JwtPayload = await getJwtPayload(req);
-    const userReservations = await getUserReservations(reservations, user._id);
+    const userReservations = await getUserReservations(reservations, userId);
     const userClub = await clubs.findOne(
-      {_id: ObjectId.createFromHexString(club_id)}
+      {_id: ObjectId.createFromHexString(user.club_id)}
     );
 
     // validation for none-admin users
-    if (user?.role !== 'admin') {
+    if (!user.role || user.role !== 'admin') {
       // throw error if reservation is recurring
       if (recurring) {
         throw new Error(getError('recurring'));
@@ -140,11 +151,18 @@ export const setReservation = async (req, res, reservations, clubs) => {
 
     // insert reservation
     const reservation = {
-      club_id, user_id, court_num, date, start_time, end_time, label, recurring,
+      club_id: user.club_id,
+      user_id: userId,
+      court_num,
+      date,
+      start_time,
+      end_time,
+      label,
+      recurring,
       timestamp: new Date()
     };
     const insertResponse = await reservations.insertOne(reservation);
-    const docs = await getAllReservations(reservations, club_id);
+    const docs = await getAllReservations(reservations, user.club_id);
 
     res.status(201).json({
       message: `Platz ${court_num} ist reserviert mit Reservierungsnummer: ${insertResponse.insertedId}`,

@@ -4,8 +4,7 @@ import {
     deleteReservation,
     makeReservation
 } from './../../utils/utils';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from './../../store';
+import { useDispatch } from 'react-redux';
 import { Loader } from '../loader/Loader';
 import { ReservationForm } from "../courts/ReservationForm";
 
@@ -26,11 +25,8 @@ export function Popup(props: {
         setDisabled: Function;
         closePopup: MouseEventHandler;
     }) {
-    const user = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
     const reservationData = {
-        club_id: user.club_id,
-        user_id: user._id,
         court_number: props.slot.court_number,
         hour: props.slot.hour,
         date: props.slot.date,

@@ -61,13 +61,13 @@ export default async (req, res) => {
                 console.log(
                     `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
                 );
-                res.status(201).json({message: `Password is updated now`});
+                return res.status(201).json({message: `Password is updated now`});
                 // res.setHeader('Location', '/login');
                 // res.status(302).end();
                 //return res.redirect(307, '/login');
             } catch (e) {
                 console.error(e);
-                res.status(500).json({error: [{
+                return res.status(500).json({error: [{
                     instancePath: '/undefined',
                     message: e.message
                 }]});
