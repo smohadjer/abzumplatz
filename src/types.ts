@@ -99,7 +99,7 @@ export type NormalizedReservationItem = ReservationItem & {
     user_name: string;
 }
 
-export type User = {
+export type StateUser = {
     _id: string;
     first_name: string;
     last_name: string;

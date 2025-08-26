@@ -7,7 +7,7 @@ import {
     recurringReservationIsOnSameDay,
     getUserReservations
 } from '../utils/utils';
-import { ReservationItem, NormalizedReservationItem, User } from '../types';
+import { ReservationItem, NormalizedReservationItem, StateUser } from '../types';
 import { Rows } from '../components/courts/Rows';
 import { Header } from '../components/courts/Header';
 import { Popup } from '../components/courts/Popup';
@@ -60,7 +60,7 @@ export default function Reservations() {
     };
     const getUserName = (userId: string) => {
         if (users.length > 0) {
-            const user = users.find((item: User) => item._id === userId);
+            const user = users.find((item: StateUser) => item._id === userId);
             return user ? user.first_name.charAt(0) + '. ' + user.last_name : userId;
         } else {
             console.warn('no user found', users)
@@ -127,7 +127,7 @@ export default function Reservations() {
 
     const fetchData = () => {
         setLoading(true);
-        const usersRequest: Promise<User[]> = fetch(`/api/users?club_id=${clubId}`)
+        const usersRequest: Promise<StateUser[]> = fetch(`/api/users?club_id=${clubId}`)
             .then(res => res.json());
         const reservationsRequest: Promise<ReservationItem[]> = fetch(`/api/reservations?club_id=${clubId}`)
             .then(res => res.json());
