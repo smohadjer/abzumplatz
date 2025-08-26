@@ -99,11 +99,10 @@ export type NormalizedReservationItem = ReservationItem & {
     user_name: string;
 }
 
-export type User = {
+export type StateUser = {
     _id: string;
     first_name: string;
     last_name: string;
-    role?: string;
 }
 
 export type DBUser = {
@@ -115,10 +114,7 @@ export type DBUser = {
     role: string;
 }
 
-export type JwtPayload = {
-    _id: string;
-    first_name: string;
-    last_name: string;
+export type JwtPayload = StateUser & {
     club_id: string;
     email: string;
     role?: string;

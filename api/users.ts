@@ -13,9 +13,9 @@ export default async (req, res) => {
       if (user_id) {
         const doc = await fetchUsers(database, user_id, undefined);
         if (doc) {
-          res.json(doc);
+          return res.json(doc);
         } else {
-          res.status(404).end();
+          return res.status(404).end();
         }
       } else {
         const club_id = req.query?.club_id;
@@ -23,12 +23,12 @@ export default async (req, res) => {
             throw new Error('You did not provide club id');
         }
         const docs = await fetchUsers(database, undefined, club_id);
-        res.json(docs);
+        return res.json(docs);
       }
     }
   } catch (e) {
     console.error(e);
-    res.status(500).json({error: e.message});
+    return res.status(500).json({error: e.message});
   } finally {
     await client.close();
   }

@@ -13,6 +13,7 @@ export default async (req, res) => {
     const database = client.db(database_name);
     const reservations = database.collection<ReservationItem>('reservations');
     const clubs = database.collection('clubs');
+    const users = database.collection('users');
 
     if (req.method === 'GET') {
       const club_id = req.query?.club_id;
@@ -26,9 +27,9 @@ export default async (req, res) => {
 
     if (req.method === 'POST') {
       if (req.body.form_method === 'delete') {
-        await deleteReservation(req, res, reservations);
+        await deleteReservation(req, res, reservations, users);
       } else {
-        await setReservation(req, res, reservations, clubs);
+        await setReservation(req, res, reservations, clubs, users);
       }
     }
   } catch (e) {

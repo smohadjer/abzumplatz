@@ -35,13 +35,13 @@ export default async (req, res) => {
         const query = {_id: ObjectId.createFromHexString(id)};
         const doc = await collection.findOne(query, {projection})
         if (doc) {
-          res.json(doc);
+          return res.json(doc);
         } else {
-          res.status(404).end();
+          return res.status(404).end();
         }
       } else {
         const docs = await getAllClubs();
-        res.json(docs);
+        return res.json(docs);
       }
     }
 

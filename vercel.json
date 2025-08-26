@@ -1,18 +1,13 @@
 {
     "rewrites": [
-       { "source": "/about", "destination": "/" },
-       { "source": "/about/:path*", "destination": "/" },
-       { "source": "/register/club", "destination": "/" },
-       { "source": "/register", "destination": "/" },
-       { "source": "/login", "destination": "/" },
-       { "source": "/profile", "destination": "/"},
-       { "source": "/reservations", "destination": "/"},
-       { "source": "/bookings", "destination": "/"},
-       { "source": "/forgot-password", "destination": "/" },
-       { "source": "/impressum", "destination": "/" },
-       {
-        "source": "/reset-password:path*",
-        "destination": "/:path*"
-       }
-   ]
+       {"source": "/register/club", "destination": "/"},
+       {"source": "/register", "destination": "/"},
+       {"source": "/login", "destination": "/"},
+       {"source": "/profile", "destination": "/"},
+       {"source": "/reservations", "destination": "/"},
+       {"source": "/bookings", "destination": "/"},
+       {"source": "/impressum", "destination": "/"},
+       {"source": "/forgot-password", "destination": "/"},
+       {"source": "/reset-password", "destination": "/"}
+    ]
 }

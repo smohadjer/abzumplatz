@@ -9,8 +9,6 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2N2UyZmY0NDNmZWU5NTgyMzA0NWZhNTUiLCJmaXJzdF9uYW1lIjoiU2lsdmlhIiwibGFzdF9uYW1lIjoiTW9oYWRqZXIiLCJjbHViX2lkIjoiNjdhNTAxODMyMjI1NjgzZmI2MWNhMDY5IiwiZW1haWwiOiJzaWx2aWFAdGVzdC5kZSIsImV4cCI6MTc1NTc4MDA5MX0.B0PuNd-l67TgEmspQmTSN-AY3OqnzvNZdaYloTdPD_c
 
 {
-  "club_id": "67a501832225683fb61ca069",
-  "user_id": "67e2ff443fee95823045fa55",
   "court_num": "1",
   "date": "2025-06-12",
   "start_time": "18",
@@ -25,8 +23,6 @@ Content-Type: application/json
 Authorization: Bearer [add token here...]
 
 {
-  "club_id": "67a6f9b2d791062c2d656097",
-  "user_id": "67a66252c580d74db727bb43",
   "court_num": "3",
   "date": "2025-03-17",
   "start_time": "14",
