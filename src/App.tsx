@@ -20,7 +20,7 @@ import { PublicRoute } from './PublicRoute';
 import { Loader } from './components/loader/Loader';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
-import { Club } from './types';
+import { Club, ReservationItem, StateUser } from './types';
 import { Imprint } from './pages/Imprint';
 import './app.css';
 
@@ -39,6 +39,33 @@ export default function App() {
     const auth = useSelector((state: RootState) => state.auth);
     const clubs = useSelector((state: RootState) => state.clubs.value);
     const dispatch = useDispatch();
+
+    const fetchAppData = async (clubId: string) => {
+        const usersRequest: Promise<StateUser[]> = fetch(`/api/users?club_id=${clubId}`)
+            .then(res => res.json());
+        const reservationsRequest: Promise<ReservationItem[]> = fetch(`/api/reservations?club_id=${clubId}`)
+            .then(res => res.json());
+
+        await Promise.all([usersRequest, reservationsRequest])
+        .then(([usersJson, reservationsJson]) => {
+            dispatch({
+                type: 'users/fetch',
+                payload: {
+                    value: usersJson,
+                    loaded: true
+                }
+            });
+            dispatch({
+                type: 'reservations/fetch',
+                payload: {
+                    value: reservationsJson,
+                    loaded: true
+                }
+            });
+        }).catch(error => {
+            console.error(error);
+        });
+    };
 
     useEffect(() => {
         async function getData() {
@@ -83,7 +110,7 @@ export default function App() {
             <Route element={<LayoutPrivate />}>
                 <Route path="/reservations" element={
                     <ProtectedRoute isLoggedin={auth.value}>
-                        <Reservations />
+                        <Reservations fetchAppData={fetchAppData} />
                     </ProtectedRoute>
                 }/>
                 <Route path="/profile" element={
@@ -93,7 +120,7 @@ export default function App() {
                 }/>
                 <Route path="/bookings" element={
                     <ProtectedRoute isLoggedin={auth.value}>
-                        <Bookings />
+                        <Bookings fetchAppData={fetchAppData} />
                     </ProtectedRoute>
                 }/>
             </Route>

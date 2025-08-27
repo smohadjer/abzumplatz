@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import {
     isInPast,
@@ -25,12 +25,15 @@ type Slot = {
     recurring?: boolean;
 }
 
-export default function Reservations() {
-    const dispatch = useDispatch();
+type Props = {
+    fetchAppData: Function;
+}
+
+export default function Reservations(props: Props) {
+    const { fetchAppData } = props;
     const [loading, setLoading] = useState(false);
     const usersData = useSelector((state: RootState) => state.users);
     const reservationsData = useSelector((state: RootState) => state.reservations);
-    const clubId = useSelector((state: RootState) => state.auth.club_id);
     const [disabled, setDisabled] = useState(false);
     const [popupType, setPopupType] = useState('');
     const [slot, setSlot] = useState<Slot | null>(null);
@@ -125,39 +128,14 @@ export default function Reservations() {
         }
     };
 
-    const fetchData = () => {
-        setLoading(true);
-        const usersRequest: Promise<StateUser[]> = fetch(`/api/users?club_id=${clubId}`)
-            .then(res => res.json());
-        const reservationsRequest: Promise<ReservationItem[]> = fetch(`/api/reservations?club_id=${clubId}`)
-            .then(res => res.json());
-
-        Promise.all([usersRequest, reservationsRequest])
-        .then(([usersJson, reservationsJson]) => {
-            dispatch({
-                type: 'users/fetch',
-                payload: {
-                    value: usersJson,
-                    loaded: true
-                }
-            });
-            dispatch({
-                type: 'reservations/fetch',
-                payload: {
-                    value: reservationsJson,
-                    loaded: true
-                }
-            });
-            setLoading(false);
-        }).catch(error => {
-            console.error(error);
-        });
-    };
-
     // get users and reservations
     useEffect(() => {
         if (!usersData.loaded || !reservationsData.loaded) {
-            fetchData();
+            (async () => {
+                setLoading(true);
+                await fetchAppData(user.club_id);
+                setLoading(false);
+            })();
         }
     }, []);
 
@@ -169,7 +147,7 @@ export default function Reservations() {
         ) : (
             <div className="grid">
                 <div className="reservations">
-                    <Calendar fetchData={fetchData} reservationDate={reservationDate} setReservationDate={setReservationDate} />
+                    <Calendar fetchData={fetchAppData} reservationDate={reservationDate} setReservationDate={setReservationDate} />
                     <div className="main">
                         <div className="hours">
                             {clubHours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
