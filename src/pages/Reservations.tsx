@@ -147,7 +147,12 @@ export default function Reservations(props: Props) {
         ) : (
             <div className="grid">
                 <div className="reservations">
-                    <Calendar fetchData={fetchAppData} reservationDate={reservationDate} setReservationDate={setReservationDate} />
+                    <Calendar
+                        fetchAppData={fetchAppData}
+                        reservationDate={reservationDate}
+                        setReservationDate={setReservationDate}
+                        user={user}
+                    />
                     <div className="main">
                         <div className="hours">
                             {clubHours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}

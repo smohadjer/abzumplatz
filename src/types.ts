@@ -114,6 +114,16 @@ export type DBUser = {
     role: string;
 }
 
+export type AuthenticatedUser = {
+    value: boolean;
+    first_name: string;
+    last_name: string;
+    email: string;
+    _id: string;
+    club_id: string;
+    role: string;
+}
+
 export type JwtPayload = StateUser & {
     club_id: string;
     email: string;

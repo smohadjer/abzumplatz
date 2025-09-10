@@ -1,13 +1,15 @@
 import { isToday } from '../../utils/utils';
+import { AuthenticatedUser } from '../../types.js';
 
 type Props = {
     reservationDate: Date;
     setReservationDate: Function;
-    fetchData: Function;
+    fetchAppData: Function;
+    user: AuthenticatedUser
 }
 
 export function Calendar(props: Props) {
-    const { reservationDate, setReservationDate, fetchData } = props;
+    const { reservationDate, setReservationDate, fetchAppData, user } = props;
     const isoDate = reservationDate.toISOString().split('T')[0];
 
     const nextDay = () => {
@@ -23,7 +25,7 @@ export function Calendar(props: Props) {
     };
 
     const reload = () => {
-        fetchData();
+        fetchAppData(user.club_id);
     };
 
     const disabled = isToday(reservationDate);

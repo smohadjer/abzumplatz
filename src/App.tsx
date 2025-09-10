@@ -41,6 +41,7 @@ export default function App() {
     const dispatch = useDispatch();
 
     const fetchAppData = async (clubId: string) => {
+        console.log('----- fetching app data...')
         const usersRequest: Promise<StateUser[]> = fetch(`/api/users?club_id=${clubId}`)
             .then(res => res.json());
         const reservationsRequest: Promise<ReservationItem[]> = fetch(`/api/reservations?club_id=${clubId}`)
