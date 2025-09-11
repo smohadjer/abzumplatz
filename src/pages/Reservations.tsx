@@ -152,6 +152,7 @@ export default function Reservations(props: Props) {
                         reservationDate={reservationDate}
                         setReservationDate={setReservationDate}
                         user={user}
+                        setLoading={setLoading}
                     />
                     <div className="main">
                         <div className="hours">

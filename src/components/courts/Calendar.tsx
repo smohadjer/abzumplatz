@@ -5,7 +5,8 @@ type Props = {
     reservationDate: Date;
     setReservationDate: Function;
     fetchAppData: Function;
-    user: AuthenticatedUser
+    user: AuthenticatedUser;
+    setLoading: Function;
 }
 
 export function Calendar(props: Props) {
@@ -24,8 +25,10 @@ export function Calendar(props: Props) {
         setReservationDate(new Date());
     };
 
-    const reload = () => {
-        fetchAppData(user.club_id);
+    const reload = async () => {
+        props.setLoading(true);
+        await fetchAppData(user.club_id);
+        props.setLoading(false);
     };
 
     const disabled = isToday(reservationDate);
