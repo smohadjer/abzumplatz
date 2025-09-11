@@ -1,8 +1,12 @@
-import {isAuthenticated} from './utils/utils';
 import { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './store';
+import { isAuthenticated } from './utils/utils';
+import { ProtectedRoute } from './ProtectedRoute';
+import { PublicRoute } from './PublicRoute';
+
+// pages
 import Home from './pages/Home';
 import Reservations from './pages/Reservations';
 import Profile from './pages/Profile';
@@ -15,24 +19,14 @@ import LoginPage from './pages/Login';
 import Layout from './pages/Layout';
 import LayoutPrivate from './pages/LayoutPrivate';
 import NotFound from './pages/NotFound';
-import { ProtectedRoute } from './ProtectedRoute';
-import { PublicRoute } from './PublicRoute';
+import Imprint from './pages/Imprint';
+
 import { Loader } from './components/loader/Loader';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
-import { Club, ReservationItem, StateUser } from './types';
-import { Imprint } from './pages/Imprint';
-import './app.css';
 
-type Payload = {
-    first_name: string;
-    last_name: string;
-    email: string;
-    club_id: string;
-    role: string;
-    _id: string;
-    error?: string;
-};
+import { Club, JwtPayload } from './types';
+import './app.css';
 
 export default function App() {
     const [initialized, setInitialized] = useState(false);
@@ -40,40 +34,11 @@ export default function App() {
     const clubs = useSelector((state: RootState) => state.clubs.value);
     const dispatch = useDispatch();
 
-    const fetchAppData = async (clubId: string) => {
-        console.log('----- fetching app data...')
-        const usersRequest: Promise<StateUser[]> = fetch(`/api/users?club_id=${clubId}`)
-            .then(res => res.json());
-        const reservationsRequest: Promise<ReservationItem[]> = fetch(`/api/reservations?club_id=${clubId}`)
-            .then(res => res.json());
-
-        await Promise.all([usersRequest, reservationsRequest])
-        .then(([usersJson, reservationsJson]) => {
-            dispatch({
-                type: 'users/fetch',
-                payload: {
-                    value: usersJson,
-                    loaded: true
-                }
-            });
-            dispatch({
-                type: 'reservations/fetch',
-                payload: {
-                    value: reservationsJson,
-                    loaded: true
-                }
-            });
-        }).catch(error => {
-            console.error(error);
-        });
-    };
-
     useEffect(() => {
         async function getData() {
             // fetch clubs and save it to store
             const clubs = await fetch('/api/clubs');
             const clubsData: Club[] = await clubs.json();
-            console.log(clubsData);
             dispatch({
                 type: 'clubs/fetch',
                 payload: {
@@ -81,21 +46,15 @@ export default function App() {
                 }
             });
 
-            // fetch auth user and save it to store
-            const authenticated: Payload = await isAuthenticated();
+            // fetch logged-in user and save it to store
+            const authenticated: JwtPayload = await isAuthenticated();
             if (authenticated.error) {
                 console.warn('Not logged-in!');
             } else {
                 console.log('User is logged-in', authenticated)
-                // user is logged-in
                 dispatch({type: 'auth/login', payload: {
                     value: true,
-                    first_name: authenticated.first_name,
-                    last_name: authenticated.last_name,
-                    email: authenticated.email,
-                    _id: authenticated._id,
-                    club_id: authenticated.club_id,
-                    role: authenticated.role
+                    ...authenticated
                 }});
             }
 
@@ -111,7 +70,7 @@ export default function App() {
             <Route element={<LayoutPrivate />}>
                 <Route path="/reservations" element={
                     <ProtectedRoute isLoggedin={auth.value}>
-                        <Reservations fetchAppData={fetchAppData} />
+                        <Reservations />
                     </ProtectedRoute>
                 }/>
                 <Route path="/profile" element={
@@ -121,7 +80,7 @@ export default function App() {
                 }/>
                 <Route path="/bookings" element={
                     <ProtectedRoute isLoggedin={auth.value}>
-                        <Bookings fetchAppData={fetchAppData} />
+                        <Bookings />
                     </ProtectedRoute>
                 }/>
             </Route>

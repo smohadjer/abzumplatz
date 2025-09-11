@@ -1,8 +1,8 @@
 import { useSelector } from 'react-redux';
-import { RootState } from './../store';
+import { RootState, AppDispatch } from './../store';
 import { FormEvent } from "react";
-import { ReservationItem } from '../types';
 import * as mongoDB from "mongodb";
+import { ReservationItem, StateUser } from './../types';
 
 // Deep cloning arrays and objects with support for older browsers
 export const deepClone = (item: {} | []) => {
@@ -167,3 +167,32 @@ export const getAllReservations = async (
     });
     return docs.toArray();
   };
+
+export const fetchAppData = async (clubId: string, dispatch: AppDispatch) => {
+    console.log('Fetching app data...')
+    const usersEndpoint = `/api/users?club_id=${clubId}`;
+    const reservationsEndpoint = `/api/reservations?club_id=${clubId}`;
+    const usersRequest: Promise<StateUser[]> = fetch(usersEndpoint)
+        .then(res => res.json());
+    const reservationsRequest: Promise<ReservationItem[]> = fetch(reservationsEndpoint)
+        .then(res => res.json());
+    await Promise.all([usersRequest, reservationsRequest])
+    .then(([usersJson, reservationsJson]) => {
+        dispatch({
+            type: 'users/fetch',
+            payload: {
+                value: usersJson,
+                loaded: true
+            }
+        });
+        dispatch({
+            type: 'reservations/fetch',
+            payload: {
+                value: reservationsJson,
+                loaded: true
+            }
+        });
+    }).catch(error => {
+        console.error(error);
+    });
+};

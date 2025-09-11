@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { getUserReservations } from './../utils/utils';
+import { getUserReservations, fetchAppData } from './../utils/utils';
 import { MyReservations } from './../components/myReservations/MyReservations';
 import { Popup } from '../components/courts/Popup';
-import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { Loader } from '../components/loader/Loader';
+import { useSelector, useDispatch } from 'react-redux'
 
 type Slot = {
     date: string;
@@ -14,12 +14,8 @@ type Slot = {
     recurring?: boolean;
 }
 
-type Props = {
-    fetchAppData: Function;
-}
-
-export default function Bookings(props: Props) {
-    const { fetchAppData } = props;
+export default function Bookings() {
+    const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
     const reservationsData = useSelector((state: RootState) => state.reservations);
     const [slot, setSlot] = useState<Slot | null>(null);
@@ -37,7 +33,7 @@ export default function Bookings(props: Props) {
         if (!reservationsData.loaded) {
             (async () => {
                 setLoading(true);
-                await fetchAppData(user.club_id);
+                await fetchAppData(user.club_id, dispatch);
                 setLoading(false);
             })();
         }

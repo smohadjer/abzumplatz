@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from './../store';
 import { Link } from 'react-router';
 
-export function Imprint() {
+export default function Imprint() {
     const auth = useSelector((state: RootState) => state.auth);
     const subject = `abzumplatz: Feedback von ${auth.first_name} ${auth.last_name}`;
 

@@ -128,4 +128,5 @@ export type JwtPayload = StateUser & {
     club_id: string;
     email: string;
     role?: string;
+    error?: string;
 }

@@ -1,16 +1,17 @@
-import { isToday } from '../../utils/utils';
+import { useDispatch } from 'react-redux'
+import { isToday, fetchAppData } from '../../utils/utils';
 import { AuthenticatedUser } from '../../types.js';
 
 type Props = {
     reservationDate: Date;
     setReservationDate: Function;
-    fetchAppData: Function;
     user: AuthenticatedUser;
     setLoading: Function;
 }
 
 export function Calendar(props: Props) {
-    const { reservationDate, setReservationDate, fetchAppData, user } = props;
+    const dispatch = useDispatch();
+    const { reservationDate, setReservationDate, user } = props;
     const isoDate = reservationDate.toISOString().split('T')[0];
 
     const nextDay = () => {
@@ -27,7 +28,7 @@ export function Calendar(props: Props) {
 
     const reload = async () => {
         props.setLoading(true);
-        await fetchAppData(user.club_id);
+        await fetchAppData(user.club_id, dispatch);
         props.setLoading(false);
     };
 

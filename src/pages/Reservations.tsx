@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../store';
 import {
     isInPast,
     getClub,
     recurringReservationIsOnSameDay,
-    getUserReservations
+    getUserReservations,
+    fetchAppData
 } from '../utils/utils';
 import { ReservationItem, NormalizedReservationItem, StateUser } from '../types';
 import { Rows } from '../components/courts/Rows';
@@ -25,12 +26,8 @@ type Slot = {
     recurring?: boolean;
 }
 
-type Props = {
-    fetchAppData: Function;
-}
-
-export default function Reservations(props: Props) {
-    const { fetchAppData } = props;
+export default function Reservations() {
+    const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
     const usersData = useSelector((state: RootState) => state.users);
     const reservationsData = useSelector((state: RootState) => state.reservations);
@@ -133,7 +130,7 @@ export default function Reservations(props: Props) {
         if (!usersData.loaded || !reservationsData.loaded) {
             (async () => {
                 setLoading(true);
-                await fetchAppData(user.club_id);
+                await fetchAppData(user.club_id, dispatch);
                 setLoading(false);
             })();
         }
@@ -148,7 +145,6 @@ export default function Reservations(props: Props) {
             <div className="grid">
                 <div className="reservations">
                     <Calendar
-                        fetchAppData={fetchAppData}
                         reservationDate={reservationDate}
                         setReservationDate={setReservationDate}
                         user={user}
