@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import bcrypt from 'bcrypt';
 
-const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/resetPassword.json', 'utf8'));
+const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/resetPassword.json', 'utf8'));
 const client = new MongoClient(database_uri);
 const saltRounds = 10;
 

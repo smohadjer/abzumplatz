@@ -48,7 +48,7 @@ export default async (req, res) => {
     if (req.method === 'POST') {
       console.log('Post received for club')
       // validate data
-      const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/club.json', 'utf8'));
+      const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/club.json', 'utf8'));
       const validator = ajv.compile(schema);
       const body = sanitize(req.body);
       const valid = validator(body);
