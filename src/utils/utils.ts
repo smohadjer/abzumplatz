@@ -4,6 +4,13 @@ import { FormEvent } from "react";
 import * as mongoDB from "mongodb";
 import { ReservationItem, StateUser } from './../types';
 
+export async function fetchJson(path: string) {
+  console.log('path:', path);
+  const response = await fetch(path);
+  const responseJson = await response.json();
+  return responseJson;
+}
+
 // Deep cloning arrays and objects with support for older browsers
 export const deepClone = (item: {} | []) => {
     if (typeof structuredClone === 'function') {

@@ -39,8 +39,90 @@
         },
         "reservations_limit": {
             "type": "integer"
+        },
+        "first_name": {
+            "type": "string",
+            "allOf": [
+                {
+                    "pattern": "^[A-Za-z]+$",
+                    "errorMessage": "Only alphabet characters are allowed"
+                },
+                {
+                    "minLength": 2,
+                    "errorMessage": "Name is too short"
+                },
+                {
+                    "maxLength": 40,
+                    "errorMessage": "Name is too long"
+                }
+            ]
+        },
+        "last_name": {
+            "type": "string",
+            "allOf": [
+                {
+                    "pattern": "^[A-Za-z-]+$",
+                    "errorMessage": "Only alphabet characters and hyphen are allowed"
+                },
+                {
+                    "minLength": 2,
+                    "errorMessage": "Name is too short"
+                },
+                {
+                    "maxLength": 40,
+                    "errorMessage": "Name is too long"
+                }
+            ]
+        },
+        "email": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 6,
+                    "errorMessage": "Email should be at least 6 characters long"
+                },
+                {
+                    "maxLength": 127,
+                    "errorMessage": "Email is too long"
+                },
+                {
+                    "pattern": "^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
+                    "errorMessage": "This is not a valid email address."
+                }
+            ]
+        },
+        "password": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 8,
+                    "errorMessage": "Password should be at least 8 characters long"
+                },
+                {
+                    "pattern": "(?=.*[a-z])[^\\s]",
+                    "errorMessage": "Password should have at least one lowercase letter"
+                },
+                {
+                    "pattern": "(?=.*[A-Z])[^\\s]",
+                    "errorMessage": "Password should have at least one uppercae letter"
+                },
+                {
+                    "pattern": "(?=.*\\d)",
+                    "errorMessage": "Password should have at least one number"
+                },
+                {
+                    "pattern": "(?=.*[^a-zA-Z\\d])[^\\s]",
+                    "errorMessage": "Password should have at least one special character"
+                }
+            ]
+        },
+        "privacy": {
+            "enum": ["agree"],
+            "errorMessage": {
+              "enum": "You should agree to privacy policy."
+            }
         }
     },
-    "required": ["name", "courts_count"],
+    "required": ["name", "courts_count", "first_name", "last_name", "email", "password", "privacy"],
     "additionalProperties": true
 }

@@ -1,5 +1,5 @@
-import { Signup } from '../components/signup/Signup';
 import { Link } from 'react-router';
+import { Signup } from '../components/signup/Signup';
 import { Club } from '../types';
 
 type Props = {

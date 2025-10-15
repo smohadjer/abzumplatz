@@ -25,7 +25,7 @@ export default async (req, res) => {
                 }
                 return error;
             });
-            return res.json({error: errors});
+            return res.status(500).json({error: errors});
         } else {
             const { first_name, last_name, club_id, password, role } = req.body;
             const email = req.body.email.toLowerCase();
@@ -35,7 +35,7 @@ export default async (req, res) => {
                 club_id,
                 email,
                 password,
-                role
+                role: role ?? 'player'
             };
             try {
                 await client.connect();

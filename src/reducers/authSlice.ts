@@ -25,9 +25,9 @@ export const authSlice = createSlice({
       state.club_id = action.payload.club_id;
       state.role = action.payload.role;
     },
-    logout: (state, action) => {
-      state.value = action.payload.value;
-      state.first_name = action.payload.first_name;
+    logout: (state) => {
+      state.value = false;
+      state.first_name = '';
     },
   }
 })

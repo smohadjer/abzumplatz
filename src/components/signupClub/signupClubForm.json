@@ -1,410 +1,404 @@
-[
-    {
-        "id": "name",
-        "label": "Name des Vereins",
-        "type": "text",
-        "required": true,
-        "error": "This is a required field",
-        "hasError": false
+{
+    "form": {
+        "method": "POST",
+        "action": "/api/clubs",
+        "disableBrowserValidation": true,
+        "disableClientSideValidation": false
     },
-    {
-        "id": "courts_count",
-        "label": "Anzahl der Plätze",
-        "type": "select",
-        "options": [
-            {
-                "name": "1",
-                "value": 1
-            },
-            {
-                "name": "2",
-                "value": 2
-            },
-            {
-                "name": "3",
-                "value": 3
-            },
-            {
-                "name": "4",
-                "value": 4
-            },
-            {
-                "name": "5",
-                "value": 5
-            },
-            {
-                "name": "6",
-                "value": 6
-            },
-            {
-                "name": "7",
-                "value": 7
-            },
-            {
-                "name": "8",
-                "value": 8
-            },
-            {
-                "name": "9",
-                "value": 9
-            },
-            {
-                "name": "10",
-                "value": 10
-            },
-            {
-                "name": "11",
-                "value": 11
-            },
-            {
-                "name": "12",
-                "value": 12
-            },
-            {
-                "name": "13",
-                "value": 13
-            },
-            {
-                "name": "14",
-                "value": 14
-            },
-            {
-                "name": "15",
-                "value": 15
-            },
-            {
-                "name": "16",
-                "value": 16
-            },
-            {
-                "name": "17",
-                "value": 17
-            },
-            {
-                "name": "18",
-                "value": 18
-            },
-            {
-                "name": "19",
-                "value": 19
-            },
-            {
-                "name": "20",
-                "value": 20
-            }
-        ],
-        "required": true,
-        "error": "This is a required field",
-        "hasError": false
-    },
-    {
-        "id": "start_hour",
-        "label": "Reservierungsstartzeit",
-        "type": "select",
-        "defaultValue": 8,
-        "options": [
-            {
-                "name": "1",
-                "value": 1
-            },
-            {
-                "name": "2",
-                "value": 2
-            },
-            {
-                "name": "3",
-                "value": 3
-            },
-            {
-                "name": "4",
-                "value": 4
-            },
-            {
-                "name": "5",
-                "value": 5
-            },
-            {
-                "name": "6",
-                "value": 6
-            },
-            {
-                "name": "7",
-                "value": 7
-            },
-            {
-                "name": "8",
-                "value": 8
-            },
-            {
-                "name": "9",
-                "value": 9
-            },
-            {
-                "name": "10",
-                "value": 10
-            },
-            {
-                "name": "11",
-                "value": 11
-            },
-            {
-                "name": "12",
-                "value": 12
-            },
-            {
-                "name": "13",
-                "value": 13
-            },
-            {
-                "name": "14",
-                "value": 14
-            },
-            {
-                "name": "15",
-                "value": 15
-            },
-            {
-                "name": "16",
-                "value": 16
-            },
-            {
-                "name": "17",
-                "value": 17
-            },
-            {
-                "name": "18",
-                "value": 18
-            },
-            {
-                "name": "19",
-                "value": 19
-            },
-            {
-                "name": "20",
-                "value": 20
-            },
-            {
-                "name": "21",
-                "value": 21
-            },
-            {
-                "name": "22",
-                "value": 22
-            },
-            {
-                "name": "23",
-                "value": 23
-            }
-        ],
-        "required": true,
-        "error": "This is a required field",
-        "hasError": false
-    },
-    {
-        "id": "end_hour",
-        "label": "Reservierungsendzeit",
-        "type": "select",
-        "defaultValue": 20,
-        "options": [
-            {
-                "name": "1",
-                "value": 1
-            },
-            {
-                "name": "2",
-                "value": 2
-            },
-            {
-                "name": "3",
-                "value": 3
-            },
-            {
-                "name": "4",
-                "value": 4
-            },
-            {
-                "name": "5",
-                "value": 5
-            },
-            {
-                "name": "6",
-                "value": 6
-            },
-            {
-                "name": "7",
-                "value": 7
-            },
-            {
-                "name": "8",
-                "value": 8
-            },
-            {
-                "name": "9",
-                "value": 9
-            },
-            {
-                "name": "10",
-                "value": 10
-            },
-            {
-                "name": "11",
-                "value": 11
-            },
-            {
-                "name": "12",
-                "value": 12
-            },
-            {
-                "name": "13",
-                "value": 13
-            },
-            {
-                "name": "14",
-                "value": 14
-            },
-            {
-                "name": "15",
-                "value": 15
-            },
-            {
-                "name": "16",
-                "value": 16
-            },
-            {
-                "name": "17",
-                "value": 17
-            },
-            {
-                "name": "18",
-                "value": 18
-            },
-            {
-                "name": "19",
-                "value": 19
-            },
-            {
-                "name": "20",
-                "value": 20
-            },
-            {
-                "name": "21",
-                "value": 21
-            },
-            {
-                "name": "22",
-                "value": 22
-            },
-            {
-                "name": "23",
-                "value": 23
-            }
-        ],
-        "required": true,
-        "error": "This is a required field",
-        "hasError": false
-    },
-    {
-        "id": "reservations_limit",
-        "label": "Maximum erlaubte Reservierungen",
-        "type": "select",
-        "defaultValue": 3,
-        "options": [
-            {
-                "name": "1",
-                "value": 1
-            },
-            {
-                "name": "2",
-                "value": 2
-            },
-            {
-                "name": "3",
-                "value": 3
-            },
-            {
-                "name": "4",
-                "value": 4
-            },
-            {
-                "name": "5",
-                "value": 5
-            },
-            {
-                "name": "6",
-                "value": 6
-            },
-            {
-                "name": "7",
-                "value": 7
-            },
-            {
-                "name": "8",
-                "value": 8
-            },
-            {
-                "name": "9",
-                "value": 9
-            },
-            {
-                "name": "10",
-                "value": 10
-            }
-        ],
-        "required": true,
-        "error": "This is a required field",
-        "hasError": false
-    },
-    {
-        "id": "first_name",
-        "label": "Vorname des Admins",
-        "type": "text",
-        "pattern": "^[A-Za-z]{2,40}$",
-        "error": "Only letters, 2 to 40 characters long",
-        "required": true,
-        "hasError": false
-    },
-    {
-        "id": "last_name",
-        "label": "Nachname des Admins",
-        "type": "text",
-        "pattern": "^[A-Za-z-]{2,40}$",
-        "error": "Only letters and hyphen, 2 to 40 characters long",
-        "required": true,
-        "hasError": false
-    },
-    {
-        "id": "email",
-        "label": "Email",
-        "type": "email",
-        "autocomplete": "email",
-        "error": "Not a valid email",
-        "required": true,
-        "hasError": false
-    },
-    {
-        "id": "password",
-        "label": "Passwort",
-        "type": "password",
-        "autocomplete": "password",
-        "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d])[^\\s]{8,}$",
-        "error": "Minimum 8 characters, one uppercase, one lowercase, one number, and one special character",
-        "required": true,
-        "hasStrengthIndicator": true,
-        "hasDisplayToggle": true,
-        "hasError": false
-    },
-    {
-        "id": "privacy",
-        "label": "Datenschutz",
-        "type": "checkbox",
-        "options": [
-            {
-                "name": "Durch die Registrierung und Verwendung dieser App erklären Sie sich damit einverstanden, dass die von Ihnen bereitgestellten Informationen vom App-Entwickler und dem Personal Ihres Clubs abgerufen und verwendet werden können, um die App zu verbessern, Support bereitzustellen und die ordnungsgemäße Verwendung der Clubressourcen sicherzustellen.",
-                "value": "agree"
-            }
-        ],
-        "required": true,
-        "hasError": false,
-        "error": "This is a required field"
-    }
-]
+    "fields": [
+        {
+            "name": "name",
+            "label": "Name des Vereins",
+            "type": "text",
+            "required": true,
+            "value": ""
+        },
+        {
+            "name": "courts_count",
+            "label": "Anzahl der Plätze",
+            "type": "select",
+            "options": [
+                {
+                    "label": "1",
+                    "value": 1
+                },
+                {
+                    "label": "2",
+                    "value": 2
+                },
+                {
+                    "label": "3",
+                    "value": 3
+                },
+                {
+                    "label": "4",
+                    "value": 4
+                },
+                {
+                    "label": "5",
+                    "value": 5
+                },
+                {
+                    "label": "6",
+                    "value": 6
+                },
+                {
+                    "label": "7",
+                    "value": 7
+                },
+                {
+                    "label": "8",
+                    "value": 8
+                },
+                {
+                    "label": "9",
+                    "value": 9
+                },
+                {
+                    "label": "10",
+                    "value": 10
+                },
+                {
+                    "label": "11",
+                    "value": 11
+                },
+                {
+                    "label": "12",
+                    "value": 12
+                },
+                {
+                    "label": "13",
+                    "value": 13
+                },
+                {
+                    "label": "14",
+                    "value": 14
+                },
+                {
+                    "label": "15",
+                    "value": 15
+                },
+                {
+                    "label": "16",
+                    "value": 16
+                },
+                {
+                    "label": "17",
+                    "value": 17
+                },
+                {
+                    "label": "18",
+                    "value": 18
+                },
+                {
+                    "label": "19",
+                    "value": 19
+                },
+                {
+                    "label": "20",
+                    "value": 20
+                }
+            ],
+            "required": true,
+            "value": 1
+        },
+        {
+            "name": "start_hour",
+            "label": "Reservierungsstartzeit",
+            "type": "select",
+            "options": [
+                {
+                    "label": "1",
+                    "value": 1
+                },
+                {
+                    "label": "2",
+                    "value": 2
+                },
+                {
+                    "label": "3",
+                    "value": 3
+                },
+                {
+                    "label": "4",
+                    "value": 4
+                },
+                {
+                    "label": "5",
+                    "value": 5
+                },
+                {
+                    "label": "6",
+                    "value": 6
+                },
+                {
+                    "label": "7",
+                    "value": 7
+                },
+                {
+                    "label": "8",
+                    "value": 8
+                },
+                {
+                    "label": "9",
+                    "value": 9
+                },
+                {
+                    "label": "10",
+                    "value": 10
+                },
+                {
+                    "label": "11",
+                    "value": 11
+                },
+                {
+                    "label": "12",
+                    "value": 12
+                },
+                {
+                    "label": "13",
+                    "value": 13
+                },
+                {
+                    "label": "14",
+                    "value": 14
+                },
+                {
+                    "label": "15",
+                    "value": 15
+                },
+                {
+                    "label": "16",
+                    "value": 16
+                },
+                {
+                    "label": "17",
+                    "value": 17
+                },
+                {
+                    "label": "18",
+                    "value": 18
+                },
+                {
+                    "label": "19",
+                    "value": 19
+                },
+                {
+                    "label": "20",
+                    "value": 20
+                },
+                {
+                    "label": "21",
+                    "value": 21
+                },
+                {
+                    "label": "22",
+                    "value": 22
+                },
+                {
+                    "label": "23",
+                    "value": 23
+                }
+            ],
+            "required": true,
+            "value": 8
+        },
+        {
+            "name": "end_hour",
+            "label": "Reservierungsendzeit",
+            "type": "select",
+            "options": [
+                {
+                    "label": "1",
+                    "value": 1
+                },
+                {
+                    "label": "2",
+                    "value": 2
+                },
+                {
+                    "label": "3",
+                    "value": 3
+                },
+                {
+                    "label": "4",
+                    "value": 4
+                },
+                {
+                    "label": "5",
+                    "value": 5
+                },
+                {
+                    "label": "6",
+                    "value": 6
+                },
+                {
+                    "label": "7",
+                    "value": 7
+                },
+                {
+                    "label": "8",
+                    "value": 8
+                },
+                {
+                    "label": "9",
+                    "value": 9
+                },
+                {
+                    "label": "10",
+                    "value": 10
+                },
+                {
+                    "label": "11",
+                    "value": 11
+                },
+                {
+                    "label": "12",
+                    "value": 12
+                },
+                {
+                    "label": "13",
+                    "value": 13
+                },
+                {
+                    "label": "14",
+                    "value": 14
+                },
+                {
+                    "label": "15",
+                    "value": 15
+                },
+                {
+                    "label": "16",
+                    "value": 16
+                },
+                {
+                    "label": "17",
+                    "value": 17
+                },
+                {
+                    "label": "18",
+                    "value": 18
+                },
+                {
+                    "label": "19",
+                    "value": 19
+                },
+                {
+                    "label": "20",
+                    "value": 20
+                },
+                {
+                    "label": "21",
+                    "value": 21
+                },
+                {
+                    "label": "22",
+                    "value": 22
+                },
+                {
+                    "label": "23",
+                    "value": 23
+                }
+            ],
+            "required": true,
+            "value": 20
+        },
+        {
+            "name": "reservations_limit",
+            "label": "Maximum erlaubte Reservierungen",
+            "type": "select",
+            "options": [
+                {
+                    "label": "1",
+                    "value": 1
+                },
+                {
+                    "label": "2",
+                    "value": 2
+                },
+                {
+                    "label": "3",
+                    "value": 3
+                },
+                {
+                    "label": "4",
+                    "value": 4
+                },
+                {
+                    "label": "5",
+                    "value": 5
+                },
+                {
+                    "label": "6",
+                    "value": 6
+                },
+                {
+                    "label": "7",
+                    "value": 7
+                },
+                {
+                    "label": "8",
+                    "value": 8
+                },
+                {
+                    "label": "9",
+                    "value": 9
+                },
+                {
+                    "label": "10",
+                    "value": 10
+                }
+            ],
+            "required": true,
+            "value": 3
+        },
+        {
+            "name": "first_name",
+            "label": "Vorname des Admins",
+            "type": "text",
+            "pattern": "^[A-Za-z]{2,40}$",
+            "required": true,
+            "value": ""
+        },
+        {
+            "name": "last_name",
+            "label": "Nachname des Admins",
+            "type": "text",
+            "pattern": "^[A-Za-z-]{2,40}$",
+            "required": true,
+            "value": ""
+        },
+        {
+            "name": "email",
+            "label": "Email",
+            "type": "email",
+            "autocomplete": "email",
+            "required": true,
+            "value": ""
+        },
+        {
+            "name": "password",
+            "label": "Passwort",
+            "type": "password",
+            "autocomplete": "password",
+            "required": true,
+            "hasStrengthIndicator": true,
+            "hasDisplayToggle": true,
+            "value": ""
+        },
+        {
+            "name": "privacy",
+            "label": "Datenschutz",
+            "type": "checkbox",
+            "options": [
+                {
+                    "label": "Durch die Registrierung und Verwendung dieser App erklären Sie sich damit einverstanden, dass die von Ihnen bereitgestellten Informationen vom App-Entwickler und dem Personal Ihres Clubs abgerufen und verwendet werden können, um die App zu verbessern, Support bereitzustellen und die ordnungsgemäße Verwendung der Clubressourcen sicherzustellen.",
+                    "value": "agree"
+                }
+            ],
+            "required": true,
+            "value": ""
+        }
+    ]
+}

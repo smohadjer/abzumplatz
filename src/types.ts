@@ -1,64 +1,41 @@
 import { ObjectId } from 'mongodb';
 
-export interface FieldError {
-    id: string;
-    error: string;
+export type Field = {
+  type: string;
+  name: string;
+  value:  string | number | string[];
+  error?: string;
+  hasError?: boolean;
+  hidden?: boolean;
+  label: string;
+  required?: boolean;
+  placeholder?: string;
+  hint?: string;
+  options?: any[];
+  autocomplete?: string;
+  hasStrengthIndicator?: boolean;
+  hasDisplayToggle?: boolean;
 }
 
-export type FieldProps = PasswordProps & {
-    label?: string,
-    error?: string;
+export type FormDataInterface = {
+  form: FormAttributes;
+  fields: Field[]
 }
 
-export type PasswordProps = InputProps & {
-    hasStrengthIndicator?: boolean;
-    hasDisplayToggle?: boolean;
+export type FormAttributes = {
+  method: string;
+  action: string;
+  disableBrowserValidation: boolean;
+  disableClientSideValidation: boolean;
 }
 
-export type InputProps = {
-    id: string;
-    type: string;
-    placeholder?: string;
-    hasError?: boolean;
-    required?: boolean;
-    pattern?: string;
-    onInput?: React.FormEventHandler;
-    autocomplete?: string;
-    value?: string;
-    options?: Option[];
-}
-
-export type CheckboxProps = {
-    id: string;
-    type: string;
-    hasError?: boolean;
-    required?: boolean;
-    options: Option[];
-    value?: string;
-}
-
-export type SelectProps = {
-    id: string;
-    type: string;
-    hasError?: boolean;
-    required?: boolean;
-    options: Option[];
-    defaultValue?: string;
-}
-
-export type Option = {
-    name: string;
-    value: string;
-    id?: string;
-    checked?: boolean;
-}
-
-export interface ServerError {
-    instancePath: string;
-    message: string;
-    params: {
-        missingProperty: string;
-    }
+export type ErrorType = {
+  instancePath: string,
+  message: string
+  keyword: string;
+  params: {
+    missingProperty: string;
+  }
 }
 
 export type State = {

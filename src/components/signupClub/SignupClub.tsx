@@ -1,18 +1,14 @@
 import { Form } from '../form/Form';
-import fields from './signupClubForm.json';
-import './signupClub.css';
-import { FieldProps } from '../../types';
+import formJson from './signupClubForm.json';
 
 export function SignupClub() {
-    const normalizedFields: FieldProps[] = JSON.parse(JSON.stringify(fields));
-
     return (
         <Form
             classNames="signup"
-            method="POST"
-            action="/api/clubs"
-            fields={normalizedFields}
+            initialData={formJson.fields}
+            formAttributes={formJson.form}
             label="Verein Registrieren"
+            pathSchema="/schema/club.json"
         />
     )
 }
