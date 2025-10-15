@@ -1,6 +1,3 @@
-// import { Logout } from "../logout/Logout";
-// import { useSelector } from 'react-redux'
-// import { RootState } from './../../store';
 import { useSelector } from 'react-redux'
 import { RootState } from './../../store';
 import { getClub } from './../../utils/utils';

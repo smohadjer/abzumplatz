@@ -1,17 +1,33 @@
 import { useSelector } from 'react-redux'
 import { RootState } from './../store';
-import { Logout } from "./../components/logout/Logout";
 import { Link } from 'react-router';
+import { useDispatch } from 'react-redux'
 
 export default function Profile() {
+    const dispatch = useDispatch();
     const auth = useSelector((state: RootState) => state.auth);
     const role = auth?.role === 'admin' ? '(Admin)' : '';
+    const onLogout = () => {
+        console.log('logging out...');
+        fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then((response) => response.json())
+        .then(json => {
+            console.log(json.message);
+            dispatch({type: 'auth/logout', payload: {}});
+        });
+    }
 
     return (
         <>
             <p>{auth.first_name} {auth.last_name} {role}</p>
             <p>{auth.email}</p>
-            <Logout />
+            <button onClick={onLogout}>Abmelden</button>
             <p><Link to="/impressum">Impressum</Link></p>
         </>
     )

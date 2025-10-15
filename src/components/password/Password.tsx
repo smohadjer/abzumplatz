@@ -1,16 +1,24 @@
-import { PasswordProps } from '../../types';
 import { useState } from "react";
-import { Input } from '../input/Input';
+import Input from '../Input';
 import { StrengthChecker } from '../strengthChecker/StrengthChecker';
 import { PasswordToggle } from "../passwordToggle/PasswordToggle";
+import { Field } from '../../types';
+import { ChangeEventHandler, ChangeEvent } from 'react';
 
-export function Password(props: PasswordProps) {
+type Props = {
+    handleChange: ChangeEventHandler;
+    item: Field;
+}
+
+export default function Password(props: Props) {
     const [type, setType] = useState('password');
     const [password, setPassword] = useState('');
 
-    function inputHandler(e: React.FormEvent) {
+    function changeHandler(e: ChangeEvent) {
         const input = e.target as HTMLInputElement;
+        console.log(input.value);
         setPassword(input.value);
+        props.handleChange(e)
     }
 
     function clickHandler() {
@@ -18,21 +26,23 @@ export function Password(props: PasswordProps) {
         setType(newType);
     }
 
-    const flexClass = (props.hasStrengthIndicator &&
-        props.hasDisplayToggle) ? 'flex' : '';
+    const passwordItem = structuredClone(props.item);
+    passwordItem.type = type;
+
+    const flexClass = (props.item.hasStrengthIndicator &&
+        props.item.hasDisplayToggle) ? 'flex' : '';
     const passwordWrapperClass = `password-wrapper ${flexClass}`;
 
     return (
         <>
-            <Input {...props}
-                type={type}
-                onInput={(e) => {inputHandler(e)}}
-                autocomplete='new-password'
+            <Input
+                item={passwordItem}
+                handleChange={changeHandler}
             />
             <div className={passwordWrapperClass}>
-                {props.hasStrengthIndicator &&
+                {props.item.hasStrengthIndicator &&
                     <StrengthChecker password={password} />}
-                {props.hasDisplayToggle &&
+                {props.item.hasDisplayToggle &&
                     <PasswordToggle type={type} onClick={clickHandler} />}
             </div>
         </>

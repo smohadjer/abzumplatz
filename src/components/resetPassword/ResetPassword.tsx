@@ -1,6 +1,6 @@
 import { Form } from '../form/Form';
-import fields from './resetPasswordForm.json';
-import { InputProps, PasswordProps } from '../../types';
+import formJson from './resetPasswordForm.json';
+import { Field } from '../../types';
 import { Link, useSearchParams } from 'react-router';
 
 export function ResetPassword() {
@@ -13,21 +13,22 @@ export function ResetPassword() {
         )
     }
 
-    const resetTokenField: InputProps = {
-        id: 'resetToken',
+    const resetTokenField = {
+        label: 'resetToken',
+        name: 'resetToken',
         type: 'hidden',
         value: resetToken
     }
 
-    const normalizedFields: PasswordProps[] = JSON.parse(JSON.stringify(fields));
+    const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
     normalizedFields.push(resetTokenField);
 
     return (
         <Form
+            pathSchema="/schema/resetPassword.json"
             classNames="reset-password"
-            method="POST"
-            action="/api/reset-password"
-            fields={normalizedFields}
+            formAttributes={formJson.form}
+            initialData={normalizedFields}
             label="Passwort zurücksetzen"
         />
     )

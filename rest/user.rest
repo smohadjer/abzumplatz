@@ -26,8 +26,7 @@ Content-Type: application/json
 {
     "first_name": "Test",
     "last_name": "Tyson",
-    "role": "player",
-    "email": "tester23@test.com",
+    "email": "tester2377@test.com",
     "club_id": "67a501832225683fb61ca069",
     "password": "CloseTest?12",
     "privacy": "agree"

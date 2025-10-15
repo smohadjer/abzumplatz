@@ -1,7 +1,6 @@
 import { Form } from '../form/Form';
-import fields from './signupForm.json';
-import './Signup.css';
-import { Club, FieldProps } from '../../types';
+import formJson from './signupForm.json';
+import { Field, Club } from '../../types';
 
 type Props = {
     clubs: Club[];
@@ -10,14 +9,15 @@ type Props = {
 export function Signup(props: Props) {
     const clubs = props.clubs.map(club => {
         return {
-            name: club.name,
+            label: club.name,
             value: club._id,
         }
     });
 
-    const normalizedFields: FieldProps[] = JSON.parse(JSON.stringify(fields));
+    // normalize json by adding clubs data to clubs dropdown
+    const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
     normalizedFields.map(field => {
-        if (field.id === 'club_id' && field.options) {
+        if (field.name === 'club_id' && field.options) {
             field.options.push(...clubs);
         }
         return field;
@@ -26,10 +26,10 @@ export function Signup(props: Props) {
     return (
         <Form
             classNames="signup"
-            method="POST"
-            action="/api/signup"
-            fields={normalizedFields}
-            label="Spieler Registrieren"
+            initialData={normalizedFields}
+            formAttributes={formJson.form}
+            label="Registrieren"
+            pathSchema="/schema/signup.json"
         />
     )
 }

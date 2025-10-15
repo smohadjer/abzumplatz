@@ -5,16 +5,13 @@
     width: 100%;
     box-sizing: border-box;
 
-    &.form-logout {
-        padding: 0;
-        background: none;
-        width: auto;
-        text-align: right;
-    }
-
     @media (min-width: 768px) {
         width: auto;
         display: inline-block;
+    }
+
+    .row + .row {
+        margin-top: 1em;
     }
 
     fieldset {
@@ -66,6 +63,14 @@
         display: none;
     }
 
+    .row-error {
+        .error {
+            display: block;
+            color: #c70000;
+            margin-top: 0.25em;
+        }
+    }
+
     *.hasError,
     select:user-invalid,
     input:user-invalid {
@@ -75,12 +80,8 @@
         + div + .error,
         + .error {
             display: block;
-            padding-top: 0.25em;
             color: #c70000;
-
-            @media (min-width: 768px) {
-                padding-bottom: 0.5em;
-            }
+            margin-top: 0.25em;
         }
     }
 
@@ -135,4 +136,30 @@
         box-sizing: border-box;
         background: white;
     }
+
+    input[type=radio] {
+        margin: 0;
+
+        + label {
+            display: inline;
+            vertical-align: text-bottom;
+            padding-left: 0.2em;
+        }
+    }
+
+    input[type=checkbox] {
+        margin: 0;
+
+        + label {
+            display: inline;
+            vertical-align: text-bottom;
+            padding-left: 0.2em;
+        }
+    }
+}
+
+/* for better alignment of label and input field in Safari */
+form.signup label input[type=checkbox] {
+    vertical-align: baseline;
+    margin-right: 0.25em;
 }

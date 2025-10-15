@@ -14,7 +14,6 @@ import { Header } from '../components/courts/Header';
 import { Popup } from '../components/courts/Popup';
 import { Calendar } from '../components/courts/Calendar';
 import { Loader } from '../components/loader/Loader';
-import { Logout } from "./../components/logout/Logout";
 
 import './reservations.css';
 
@@ -44,7 +43,6 @@ export default function Reservations() {
         return (
             <>
                 <p>Verein nicht gefunden!</p>
-                <Logout />
             </>
         )
     }

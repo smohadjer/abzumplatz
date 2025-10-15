@@ -49,7 +49,7 @@ export default function App() {
             // fetch logged-in user and save it to store
             const authenticated: JwtPayload = await isAuthenticated();
             if (authenticated.error) {
-                console.warn('Not logged-in!');
+                console.log('Not logged-in!');
             } else {
                 console.log('User is logged-in', authenticated)
                 dispatch({type: 'auth/login', payload: {

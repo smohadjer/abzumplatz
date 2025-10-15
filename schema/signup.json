@@ -83,8 +83,7 @@
         "privacy": {
             "enum": ["agree"],
             "errorMessage": {
-              "enum": "You should agree to privacy policy.",
-              "required": "This is a required field!"
+              "enum": "This is not a valid value."
             }
         }
     },
