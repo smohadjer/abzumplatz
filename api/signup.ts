@@ -7,7 +7,7 @@ import { MongoClient } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 
 const client = new MongoClient(database_uri);
-const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/signup.json', 'utf8'));
+const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup.json', 'utf8'));
 
 export default async (req, res) => {
     if (req.method === 'POST') {

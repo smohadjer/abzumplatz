@@ -56,7 +56,7 @@ export const setReservation = async (req, res, reservations, clubs,
     const recurring: boolean = body.recurring === 'true';
 
     const schema = JSON.parse(fs.readFileSync(process.cwd() +
-      '/schema/reservation.json', 'utf8'));
+      '/public/schema/reservation.json', 'utf8'));
     const validator = ajv.compile(schema);
     const valid = validator(body);
     if (!valid) {

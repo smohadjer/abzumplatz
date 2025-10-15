@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 import { SignJWT } from 'jose';
 import { JwtPayload } from '../src/types.js';
 
-const schema = JSON.parse(fs.readFileSync(process.cwd() + '/schema/login.json', 'utf8'));
+const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/login.json', 'utf8'));
 const client = new MongoClient(database_uri);
 
 export default async (req, res) => {
