@@ -9,6 +9,7 @@ import { PublicRoute } from './PublicRoute';
 // pages
 import Home from './pages/Home';
 import Reservations from './pages/Reservations';
+import Admin from './pages/Admin';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import Register from './pages/Register';
@@ -69,18 +70,23 @@ export default function App() {
         <Routes>
             <Route element={<LayoutPrivate />}>
                 <Route path="/reservations" element={
-                    <ProtectedRoute isLoggedin={auth.value}>
+                    <ProtectedRoute role={auth.role} isLoggedin={auth.value}>
                         <Reservations />
                     </ProtectedRoute>
                 }/>
                 <Route path="/profile" element={
-                    <ProtectedRoute isLoggedin={auth.value}>
+                    <ProtectedRoute role={auth.role} isLoggedin={auth.value}>
                         <Profile />
                     </ProtectedRoute>
                 }/>
                 <Route path="/bookings" element={
-                    <ProtectedRoute isLoggedin={auth.value}>
+                    <ProtectedRoute role={auth.role} isLoggedin={auth.value}>
                         <Bookings />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin" element={
+                    <ProtectedRoute role={auth.role} isLoggedin={auth.value}>
+                        <Admin />
                     </ProtectedRoute>
                 }/>
             </Route>
