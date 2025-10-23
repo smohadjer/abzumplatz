@@ -19,6 +19,7 @@ footer {
             background-position: center;
             background-size: 30px;
 
+            &.selected,
             &:hover {
                 filter: invert(35%) sepia(91%) saturate(3615%) hue-rotate(213deg) brightness(86%) contrast(79%);
             }
