@@ -32,6 +32,7 @@ main {
     flex-grow: 1;
     padding: 0 0.5em 1em;
     scroll-behavior: contain;
+    overflow-y: auto;
 }
 
 h1 {
