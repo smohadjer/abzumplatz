@@ -203,3 +203,31 @@ export const fetchAppData = async (clubId: string, dispatch: AppDispatch) => {
         console.error(error);
     });
 };
+
+export const fetchUsers = async (clubId: string, dispatch: AppDispatch) => {
+    console.log('Fetching users...')
+    const usersEndpoint = `/api/users?club_id=${clubId}`;
+    const usersData = await fetch(usersEndpoint);
+    const users: StateUser[] = await usersData.json();
+    dispatch({
+        type: 'users/fetch',
+        payload: {
+            value: users,
+            loaded: true
+        }
+    });
+};
+
+export const fetchReservations = async (clubId: string, dispatch: AppDispatch) => {
+    console.log('Fetching reservations...')
+    const reservationsEndpoint = `/api/reservations?club_id=${clubId}`;
+    const reservationsData = await fetch(reservationsEndpoint);
+    const reservations: ReservationItem[] = await reservationsData.json();
+    dispatch({
+        type: 'reservations/fetch',
+        payload: {
+            value: reservations,
+            loaded: true
+        }
+    });
+};

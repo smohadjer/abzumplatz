@@ -6,7 +6,9 @@ import {
     getClub,
     recurringReservationIsOnSameDay,
     getUserReservations,
-    fetchAppData
+    fetchAppData,
+    fetchUsers,
+    fetchReservations,
 } from '../utils/utils';
 import { ReservationItem, NormalizedReservationItem, StateUser } from '../types';
 import { Rows } from '../components/courts/Rows';
@@ -125,10 +127,22 @@ export default function Reservations() {
 
     // get users and reservations
     useEffect(() => {
-        if (!usersData.loaded || !reservationsData.loaded) {
+        if (!usersData.loaded && !reservationsData.loaded) {
             (async () => {
                 setLoading(true);
                 await fetchAppData(user.club_id, dispatch);
+                setLoading(false);
+            })();
+        } else if (!usersData.loaded) {
+            (async () => {
+                setLoading(true);
+                await fetchUsers(user.club_id, dispatch);
+                setLoading(false);
+            })();
+        } else if (!reservationsData.loaded) {
+            (async () => {
+                setLoading(true);
+                await fetchReservations(user.club_id, dispatch);
                 setLoading(false);
             })();
         }
