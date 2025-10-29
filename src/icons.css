@@ -53,12 +53,25 @@ a.icon:hover {
     background-image: url(./images/login.svg);
 }
 
+.icon--register {
+    background-image: url(./images/register.svg);
+}
+
 .icon--account {
     background-image: url(./images/account.svg);
 }
 
 .icon--back {
     background-image: url(./images/back.svg);
+    padding-left: 15px;
+    background-position: left center;
+    background-size: 18px;
+    color: var(--blue);
+    font-weight: 500;
+
+    &:hover {
+        filter: none !important;
+    }
 }
 
 .icon--forward {
@@ -73,4 +86,8 @@ a.icon:hover {
 .icon--hide {
     background-image: url(./images/hide.svg);
     margin-left: 0.5em;
+}
+
+.icon--imprint {
+    background-image: url(./images/imprint.svg);
 }

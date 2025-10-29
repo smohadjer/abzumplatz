@@ -1,11 +1,15 @@
 import { Form } from '../form/Form';
 import formJson from './resetPasswordForm.json';
 import { Field } from '../../types';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useSearchParams, useNavigate } from 'react-router';
 
 export function ResetPassword() {
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const resetToken = searchParams.get('token');
+    const callback = async () => {
+        navigate('/login');
+    }
 
     if (!resetToken) {
         return (
@@ -30,6 +34,7 @@ export function ResetPassword() {
             formAttributes={formJson.form}
             initialData={normalizedFields}
             label="Passwort zurücksetzen"
+            callback={callback}
         />
     )
 }

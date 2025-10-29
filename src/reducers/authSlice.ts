@@ -29,10 +29,13 @@ export const authSlice = createSlice({
       state.value = false;
       state.first_name = '';
     },
+    setClubId: (state, action) => {
+      state.club_id = action.payload.club_id
+    }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { login, logout } = authSlice.actions
+export const { login, logout, setClubId } = authSlice.actions
 
 export default authSlice.reducer

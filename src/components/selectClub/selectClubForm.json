@@ -1,0 +1,23 @@
+{
+    "form": {
+        "method": "POST",
+        "action": "/api/select-club",
+        "disableBrowserValidation": true,
+        "disableClientSideValidation": true
+    },
+    "fields": [
+        {
+            "name": "club_id",
+            "label": "Verein",
+            "type": "select",
+            "options": [
+                {
+                    "label": "Verein auswählen",
+                    "value": ""
+                }
+            ],
+            "required": true,
+            "value": ""
+        }
+    ]
+}

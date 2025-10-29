@@ -7,19 +7,6 @@
     },
     "fields": [
         {
-            "name": "club_id",
-            "label": "Verein",
-            "type": "select",
-            "options": [
-                {
-                    "label": "Auswählen",
-                    "value": ""
-                }
-            ],
-            "required": true,
-            "value": ""
-        },
-        {
             "name": "first_name",
             "label": "Vorname",
             "type": "text",
@@ -31,6 +18,17 @@
             "label": "Nachname",
             "type": "text",
             "required": true,
+            "value": ""
+        },
+        {
+            "name": "role",
+            "label": "Rolle",
+            "type": "radio",
+            "required": true,
+            "options": [
+                {"label": "Spieler", "value": "player"},
+                {"label": "Vereinsadmin", "value": "admin"}
+            ],
             "value": ""
         },
         {

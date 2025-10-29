@@ -2,7 +2,6 @@ import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { addUser } from './_addUser.js';
 import { DBUser } from '../src/types.js';
-import { fetchUsers } from './_fetchUsers.js';
 import { MongoClient } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 
@@ -27,29 +26,26 @@ export default async (req, res) => {
             });
             return res.status(500).json({error: errors});
         } else {
-            const { first_name, last_name, club_id, password, role } = req.body;
+            const { first_name, last_name, password, role } = req.body;
             const email = req.body.email.toLowerCase();
             const user: DBUser = {
                 first_name,
                 last_name,
-                club_id,
                 email,
                 password,
-                role: role ?? 'player'
+                role,
             };
+
             try {
                 await client.connect();
                 const database = client.db(database_name);
                 const insertResponse = await addUser(database, user);
-                const docs = await fetchUsers(database, undefined, club_id);
                 res.status(201).json({
                   message: `User ${first_name} ${last_name} is registered`,
-                  data: docs
                 });
             } catch (e) {
                 console.error(e);
-                const instancePath = (e.cause === 'invalid_email') ? '/email' :
-                (e.cause === 'invalid_club') ? '/club_id' : '/undefined';
+                const instancePath = (e.cause === 'invalid_email') ? '/email' : '/undefined';
                 res.status(500).json({error: [
                     {
                         instancePath: instancePath,

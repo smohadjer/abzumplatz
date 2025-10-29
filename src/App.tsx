@@ -8,6 +8,7 @@ import { PublicRoute } from './PublicRoute';
 
 // pages
 import Home from './pages/Home';
+import SelectClubPage from './pages/SelectClubPage';
 import Reservations from './pages/Reservations';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
@@ -31,7 +32,7 @@ import './app.css';
 
 export default function App() {
     const [initialized, setInitialized] = useState(false);
-    const auth = useSelector((state: RootState) => state.auth);
+    // const auth = useSelector((state: RootState) => state.auth);
     const clubs = useSelector((state: RootState) => state.clubs.value);
     const dispatch = useDispatch();
 
@@ -70,63 +71,67 @@ export default function App() {
         <Routes>
             <Route element={<LayoutPrivate />}>
                 <Route path="/reservations" element={
-                    <ProtectedRoute role={auth.role} isLoggedin={auth.value}>
+                    <ProtectedRoute>
                         <Reservations />
                     </ProtectedRoute>
                 }/>
                 <Route path="/profile" element={
-                    <ProtectedRoute role={auth.role} isLoggedin={auth.value}>
+                    <ProtectedRoute>
                         <Profile />
                     </ProtectedRoute>
                 }/>
                 <Route path="/bookings" element={
-                    <ProtectedRoute role={auth.role} isLoggedin={auth.value}>
+                    <ProtectedRoute>
                         <Bookings />
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin" element={
-                    <ProtectedRoute role={auth.role} isLoggedin={auth.value}>
+                    <ProtectedRoute>
                         <Admin />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/register/club" element={
+                    <ProtectedRoute>
+                        <RegisterClub />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/select-club" element={
+                    <ProtectedRoute>
+                        <SelectClubPage clubs={clubs} />
                     </ProtectedRoute>
                 }/>
             </Route>
             <Route element={<Layout />}>
                 <Route path="/" element={
-                    <PublicRoute isLoggedin={auth.value}>
+                    <PublicRoute>
                         <Home />
                     </PublicRoute>
                 } />
                 <Route path="/register" element={
-                    <PublicRoute isLoggedin={auth.value}>
-                        <Register clubs={clubs} />
-                    </PublicRoute>
-                } />
-                <Route path="/register/club" element={
-                    <PublicRoute isLoggedin={auth.value}>
-                        <RegisterClub />
+                    <PublicRoute>
+                        <Register />
                     </PublicRoute>
                 } />
                 <Route path="/login" element={
-                    <PublicRoute isLoggedin={auth.value}>
+                    <PublicRoute>
                         <LoginPage />
                     </PublicRoute>
                 } />
                 <Route path="/forgot-password" element={
-                    <PublicRoute isLoggedin={auth.value}>
+                    <PublicRoute>
                         <ForgotPasswordPage />
                     </PublicRoute>
                 } />
                 <Route path="/reset-password" element={
-                    <PublicRoute isLoggedin={auth.value}>
+                    <PublicRoute>
                         <ResetPasswordPage />
                     </PublicRoute>
                 } />
                 <Route path="/impressum" element={
-                    <PublicRoute isLoggedin={false}>
+                    <PublicRoute>
                         <Imprint />
                     </PublicRoute>
-                }>
-                </Route>
+                } />
                 <Route path="*" element={<NotFound />} />
             </Route>
         </Routes> : (
@@ -134,7 +139,7 @@ export default function App() {
                 <Header route="public" />
                 <main>
                     <div className="splash">
-                        <Loader size="big" text="Daten werden geladen..." />
+                        <Loader size="big" text="Loading..." />
                     </div>
                 </main>
                 <Footer />

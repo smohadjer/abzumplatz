@@ -30,7 +30,7 @@ header {
 
 main {
     flex-grow: 1;
-    padding: 0 0.5em 1em;
+    padding: 0 0.75em 1em;
     scroll-behavior: contain;
     overflow-y: auto;
 }
@@ -43,12 +43,12 @@ h2 {
     font-size: 1.2em;
 }
 
-h3 {
+h3, p {
     font-size: 1em;
+    line-height: 1.25;
 }
 
 h2 + p {
-
     margin-top: 0.5em;
 }
 

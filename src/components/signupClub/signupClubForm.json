@@ -352,53 +352,6 @@
             ],
             "required": true,
             "value": 3
-        },
-        {
-            "name": "first_name",
-            "label": "Vorname des Admins",
-            "type": "text",
-            "pattern": "^[A-Za-z]{2,40}$",
-            "required": true,
-            "value": ""
-        },
-        {
-            "name": "last_name",
-            "label": "Nachname des Admins",
-            "type": "text",
-            "pattern": "^[A-Za-z-]{2,40}$",
-            "required": true,
-            "value": ""
-        },
-        {
-            "name": "email",
-            "label": "Email",
-            "type": "email",
-            "autocomplete": "email",
-            "required": true,
-            "value": ""
-        },
-        {
-            "name": "password",
-            "label": "Passwort",
-            "type": "password",
-            "autocomplete": "password",
-            "required": true,
-            "hasStrengthIndicator": true,
-            "hasDisplayToggle": true,
-            "value": ""
-        },
-        {
-            "name": "privacy",
-            "label": "Datenschutz",
-            "type": "checkbox",
-            "options": [
-                {
-                    "label": "Durch die Registrierung und Verwendung dieser App erklären Sie sich damit einverstanden, dass die von Ihnen bereitgestellten Informationen vom App-Entwickler und dem Personal Ihres Clubs abgerufen und verwendet werden können, um die App zu verbessern, Support bereitzustellen und die ordnungsgemäße Verwendung der Clubressourcen sicherzustellen.",
-                    "value": "agree"
-                }
-            ],
-            "required": true,
-            "value": ""
         }
     ]
 }
