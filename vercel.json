@@ -4,6 +4,7 @@
         {"source": "/register/club", "destination": "/"},
         {"source": "/register", "destination": "/"},
         {"source": "/login", "destination": "/"},
+        {"source": "/select-club", "destination": "/"},
         {"source": "/profile", "destination": "/"},
         {"source": "/reservations", "destination": "/"},
         {"source": "/bookings", "destination": "/"},

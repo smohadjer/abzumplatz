@@ -1,17 +1,12 @@
 import { Link } from 'react-router';
 import { Signup } from '../components/signup/Signup';
-import { Club } from '../types';
 
-type Props = {
-    clubs: Club[];
-}
-
-export default function Register(props: Props) {
+export default function Register() {
     return (
         <>
-            <Link to="/">Back</Link>
+            <Link className="icon icon--back" to="/">Zurück</Link>
             <h2>Register</h2>
-            <Signup clubs={props.clubs} />
+            <Signup />
         </>
     )
 }

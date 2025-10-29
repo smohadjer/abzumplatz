@@ -2,8 +2,8 @@ import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
-import { addUser } from './_addUser.js';
-import { DBUser } from '../src/types.js';
+import { getJwtPayload } from './verifyAuth.js';
+import { JwtPayload } from '../src/types.js';
 
 const client = new MongoClient(database_uri);
 
@@ -12,11 +12,12 @@ export default async (req, res) => {
     await client.connect();
     const database = client.db(database_name);
     const collection = database.collection('clubs');
+    const userCollection = database.collection('users');
+
     // get all fields except timestamp
     const projection = {
         timestamp: 0
     };
-
     const getAllClubs = async () => {
         const docs = await collection.find({}, {projection})
         // using collation so sort is case insensitive
@@ -66,20 +67,18 @@ export default async (req, res) => {
               return error;
           });
           return res.json({error: errors});
+      } else {
+        console.log('valid data received');
       }
 
       const {
         name,
-        first_name,
-        last_name,
-        password
       } = body;
 
       const courts_count = Number(body.courts_count);
       const start_hour = Number(body.start_hour);
       const end_hour = Number(body.end_hour);
       const reservations_limit = Number(body.reservations_limit);
-      const email = body.email.toLowerCase();
 
       // throw error if club with same name already exists
       const doc = await collection.findOne({ name },{
@@ -101,22 +100,24 @@ export default async (req, res) => {
       const insertResponse = await collection.insertOne(club);
       const club_id = insertResponse.insertedId.toString();
 
-      // insert admin
-      const user: DBUser = {
-          first_name,
-          last_name,
-          club_id,
-          email,
-          password,
-          role: 'admin'
-      };
-      console.log(user);
-      const insertResponseUser = await addUser(database, user);
+      // add club_id to user who posted the club
+      if (club_id) {
+        const payload: JwtPayload = await getJwtPayload(req);
+        const query = {_id: ObjectId.createFromHexString(payload._id)};
+        const updateResonse = await userCollection.updateOne(
+            query,
+            {'$set' : {'club_id' : club_id}}
+        );
+        console.log(updateResonse);
+      }
 
       const docs = await getAllClubs();
       res.status(201).json({
         message: `Verein ${club.name} ist registeriert mit id ${club_id}`,
-        data: docs
+        data: {
+          club_id,
+          clubs: docs
+        }
       });
     }
   } catch (e) {

@@ -8,8 +8,6 @@ import Error from '../Error.js';
 import Radio  from '../Radio.js';
 import Checkbox from '../Checkbox.js';
 import Password from '../password/Password.js';
-import { useNavigate } from "react-router";
-import { useDispatch } from 'react-redux'
 import { Field, ErrorType, FormAttributes } from '../../types';
 import './Form.css';
 
@@ -19,6 +17,7 @@ type Props = {
     initialData: Field[];
     classNames?: string;
     formAttributes: FormAttributes;
+    callback?: Function;
 }
 
 type Option = {
@@ -29,10 +28,7 @@ type Option = {
 export function Form(props: Props) {
     const { label, pathSchema, initialData, formAttributes} = props;
     const [disabled, setDisabled] = useState(false);
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-
-    const [formData, setFormData] = useState<Field[]>(initialData);
+    const [formData, setFormData] = useState<Field[]>(structuredClone(initialData));
 
     //add errors to form data
     const updateFormDataErrors = (errors: ErrorType[]) => {
@@ -75,7 +71,6 @@ export function Form(props: Props) {
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        console.log('handleChange', e.target.name, e.target.value, e.target.type);
         const updatedData = formData?.map(item => {
         if (item.name === e.target.name) {
             if (Array.isArray(item.value)) {
@@ -150,55 +145,8 @@ export function Form(props: Props) {
                 updateFormDataErrors(json.error);
             } else {
                 console.log('Server received valid data', target.action);
-
-                if (url === '/api/reset-password') {
-                    navigate('/login');
-                    return;
-                }
-
-                if (url === '/api/signup') {
-                    console.log(json.message);
-                    // update users in state
-                    dispatch({
-                        type: 'users/fetch',
-                        payload: {
-                            value: json.data
-                        }
-                    });
-                    navigate('/login');
-                    return;
-                }
-
-                if (url === '/api/clubs' && formAttributes.method === 'POST') {
-                    console.log(json.message);
-                    // update clubs in state
-                    dispatch({
-                        type: 'clubs/fetch',
-                        payload: {
-                            value: json.data
-                        }
-                    });
-                    navigate('/login');
-                    return;
-                }
-
-                if (url === '/api/login') {
-                    // store.setState({
-                    //     ...state,
-                    //     isLoggedin: true
-                    // });
-                    dispatch({type: 'auth/login', payload: {
-                        value: true,
-                        first_name: json.first_name,
-                        last_name: json.last_name,
-                        email: json.email,
-                        _id: json._id,
-                        club_id: json.club_id,
-                        role: json.role,
-                    }});
-                    console.log('going to reservations page');
-                    navigate('/reservations');
-                    return;
+                if (props.callback) {
+                    props.callback(json);
                 }
             }
         });
@@ -206,7 +154,6 @@ export function Form(props: Props) {
 
     function getFields() {
         const isChecked = (item: Field, option: Option) => {
-            console.log('isChecked', item.value, option.value);
             if (Array.isArray(item.value)) {
                 return item.value.includes(option.value as string);
             } else {

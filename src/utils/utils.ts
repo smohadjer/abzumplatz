@@ -48,6 +48,7 @@ export const isToday = (someDate: Date) => {
 export const getClub = () => {
     const auth = useSelector((state: RootState) => state.auth);
     const clubs = useSelector((state: RootState) => state.clubs);
+    console.log(auth);
     const club_id = auth.club_id;
     const club = clubs.value.find(club => club._id === club_id);
     return club;
@@ -118,7 +119,11 @@ export const deleteReservation = (
     }
 };
 
-export const makeReservation = (event: FormEvent, closePopup: Function, successCallback: Function, reservationData: any) => {
+export const makeReservation = (
+    event: FormEvent,
+    closePopup: Function,
+    successCallback: Function,
+    reservationData: any) => {
     event.preventDefault();
 
     if (event.target instanceof HTMLFormElement) {

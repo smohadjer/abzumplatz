@@ -82,10 +82,17 @@ export type StateUser = {
     last_name: string;
 }
 
+export type JwtPayload = StateUser & {
+    club_id: string;
+    email: string;
+    role: string;
+    error?: string;
+}
+
 export type DBUser = {
     first_name: string;
     last_name: string;
-    club_id: string;
+    club_id?: string;
     email: string;
     password: string;
     role: string;
@@ -99,11 +106,4 @@ export type AuthenticatedUser = {
     _id: string;
     club_id: string;
     role: string;
-}
-
-export type JwtPayload = StateUser & {
-    club_id: string;
-    email: string;
-    role?: string;
-    error?: string;
 }

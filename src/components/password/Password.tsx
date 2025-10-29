@@ -16,7 +16,6 @@ export default function Password(props: Props) {
 
     function changeHandler(e: ChangeEvent) {
         const input = e.target as HTMLInputElement;
-        console.log(input.value);
         setPassword(input.value);
         props.handleChange(e)
     }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
+import { Navigate } from 'react-router';
 import { RootState } from '../store';
 import {
     isInPast,
@@ -37,16 +38,12 @@ export default function Reservations() {
     const [slot, setSlot] = useState<Slot | null>(null);
     const user = useSelector((state: RootState) => state.auth);
     const club = getClub();
-
     const users = usersData.value;
     const reservations = reservationsData.value;
 
     if (club === undefined) {
-        return (
-            <>
-                <p>Verein nicht gefunden!</p>
-            </>
-        )
+        const url = (user.role === 'admin') ? '/register/club' : '/select-club';
+        return <Navigate to={url} replace />;
     }
 
     const clubHours = Array.from({

@@ -35,8 +35,11 @@
                 }
             ]
         },
-        "club_id": {
-            "type": "string"
+        "role": {
+            "enum": ["player", "admin"],
+            "errorMessage": {
+              "enum": "You did not provide a valid value for this field"
+            }
         },
         "email": {
             "type": "string",
@@ -87,6 +90,6 @@
             }
         }
     },
-    "required": ["first_name", "last_name", "club_id", "email", "password", "privacy"],
+    "required": ["first_name", "last_name", "role", "email", "password", "privacy"],
     "additionalProperties": false
 }

@@ -163,3 +163,7 @@ form.signup label input[type=checkbox] {
     vertical-align: baseline;
     margin-right: 0.25em;
 }
+
+.nowrap + .nowrap {
+    margin-left: 1em;
+}
