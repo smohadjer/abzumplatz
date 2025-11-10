@@ -28,6 +28,11 @@ export const authSlice = createSlice({
     logout: (state) => {
       state.value = false;
       state.first_name = '';
+      state.last_name = '';
+      state.email = '';
+      state._id = '';
+      state.club_id = '';
+      state.role = '';
     },
     setClubId: (state, action) => {
       state.club_id = action.payload.club_id

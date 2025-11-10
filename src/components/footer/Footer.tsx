@@ -12,8 +12,6 @@ export default function Footer() {
     const location = useLocation();
     const page_id = location.pathname.substring(1);
 
-    console.log('footer', auth.value, page_id);
-
     return (
         (auth.value) ?
         <footer>

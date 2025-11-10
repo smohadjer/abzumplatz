@@ -27,8 +27,14 @@ export default async (req, res) => {
             {'$set' : {'club_id' : club_id}}
         );
         console.log(updateResonse);
-        const doc = await fetchUsers(database, payload._id, undefined);
-        return res.json(doc);
+        //const doc = await fetchUsers(database, payload._id, undefined);
+        return res.status(201).json({
+          message: `Added club_id ${club_id} to logged-in user in database.`,
+          data: {
+            club_id
+            //doc
+          }
+        });
       } else {
         const error = 'No club id was submitted...';
         res.status(500).json({error})

@@ -5,7 +5,7 @@ import { isInPast } from '../src/utils/utils.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { getAllReservations } from '../src/utils/utils.js';
 
-export const deleteReservation = async (req, res, reservations,
+export const deleteReservation = async (req, res, reservations: Collection<ReservationItem>,
   users: Collection) => {
     const reservation_id: string = req.query?.reservation_id;
     console.log(`Deleting reserveration with id ${reservation_id}`);
@@ -25,9 +25,8 @@ export const deleteReservation = async (req, res, reservations,
     const user = await users.findOne({
       _id: ObjectId.createFromHexString(payload._id)
     });
-    const club_id = payload.club_id;
     const returnResponse = async () => {
-      const docs = await getAllReservations(reservations, club_id);
+      const docs = await getAllReservations(reservations, user.club_id);
       res.status(200).json({
         message: `Reservation with id ${reservation_id} was deleted.`,
         data: docs

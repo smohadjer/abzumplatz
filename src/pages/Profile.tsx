@@ -19,7 +19,16 @@ export default function Profile() {
         .then((response) => response.json())
         .then(json => {
             console.log(json.message);
+            // reset all state
             dispatch({type: 'auth/logout', payload: {}});
+            dispatch({type: 'reservations/fetch', payload: {
+                value: [],
+                loaded: false
+            }});
+            dispatch({type: 'users/fetch', payload: {
+                value: [],
+                loaded: false
+            }});
         });
     }
 
