@@ -5,7 +5,6 @@ import * as mongoDB from "mongodb";
 import { ReservationItem, StateUser } from './../types';
 
 export async function fetchJson(path: string) {
-  console.log('path:', path);
   const response = await fetch(path);
   const responseJson = await response.json();
   return responseJson;
@@ -21,9 +20,13 @@ export const deepClone = (item: {} | []) => {
 };
 
 export const isAuthenticated = async () => {
-    const response = await fetch('/api/verifyAuth');
-    const isAuthenticated = await response.json();
-    return isAuthenticated;
+    try {
+        const response = await fetch('/api/verifyAuth');
+        const isAuthenticated = await response.json();
+        return isAuthenticated;
+    } catch(error) {
+        console.error('error', error);
+    }
 };
 
 export const isInPast = (reservationDate: Date, hour: number) => {
@@ -48,7 +51,6 @@ export const isToday = (someDate: Date) => {
 export const getClub = () => {
     const auth = useSelector((state: RootState) => state.auth);
     const clubs = useSelector((state: RootState) => state.clubs);
-    console.log(auth);
     const club_id = auth.club_id;
     const club = clubs.value.find(club => club._id === club_id);
     return club;
@@ -173,11 +175,10 @@ export const getAllReservations = async (
     reservations: mongoDB.Collection<ReservationItem>,
     club_id: string
 ) => {
-    const docs = await reservations.find({club_id}).sort({
+    return await reservations.find({club_id}).sort({
       date: 1,
       start_time: 1
-    });
-    return docs.toArray();
+    }).toArray();
   };
 
 export const fetchAppData = async (clubId: string, dispatch: AppDispatch) => {

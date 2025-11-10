@@ -2,11 +2,17 @@ import { Form } from '../form/Form';
 import formJson from './selectClubForm.json';
 import { Field, Club } from '../../types';
 import { useDispatch } from 'react-redux'
-import { JwtPayload } from '../../types.js';
 import { useNavigate } from "react-router";
 
 type Props = {
     clubs: Club[];
+}
+
+type Response = {
+    message: string;
+    data: {
+        club_id: string;
+    }
 }
 
 export function SelectClub(props: Props) {
@@ -18,11 +24,15 @@ export function SelectClub(props: Props) {
             value: club._id,
         }
     });
-    const callback = (response: JwtPayload) => {
-        dispatch({type: 'auth/login', payload: {
-            value: true,
-            ...response
-        }});
+
+    // we update logged-in user in state so that user's club_id is available
+    const callback = (response: Response) => {
+        dispatch({
+            type: 'auth/setClubId',
+            payload: {
+                club_id: response.data.club_id
+            }
+        });
         navigate('/reservations');
     }
 

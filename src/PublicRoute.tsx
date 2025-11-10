@@ -13,14 +13,13 @@ export const PublicRoute = ({ children }: Props) => {
   const isLoggedin = auth.value;
   const role = auth.role;
 
-  console.log('publicRoute', auth);
-  console.log({isLoggedin}, role, location.pathname);
+  console.log('PublicRoute', {isLoggedin}, {role}, location.pathname)
 
   if (isLoggedin) {
     if (auth.club_id) {
       return <Navigate to="/reservations" replace />;
     } else {
-      if (auth.role === 'admin') {
+      if (role === 'admin') {
         return <Navigate to="/register/club" replace />;
       } else {
         return <Navigate to="/select-club" replace />;

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
-import { Navigate } from 'react-router';
 import { RootState } from '../store';
 import {
     isInPast,
@@ -42,8 +41,11 @@ export default function Reservations() {
     const reservations = reservationsData.value;
 
     if (club === undefined) {
-        const url = (user.role === 'admin') ? '/register/club' : '/select-club';
-        return <Navigate to={url} replace />;
+        return (
+            <>
+                <p>Verein nicht gefunden!</p>
+            </>
+        )
     }
 
     const clubHours = Array.from({
