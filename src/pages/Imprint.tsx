@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux'
 import { RootState } from './../store';
+import { Link } from 'react-router';
 
 export default function Imprint() {
     const auth = useSelector((state: RootState) => state.auth);
@@ -7,6 +8,7 @@ export default function Imprint() {
 
     return (
         <div>
+            <Link className="icon icon--back" to={auth.value ? '/profile' : '/'}>Zurück</Link>
             <h2>Impressum</h2>
             <p>Angaben gemäß § 5 TMG:</p>
             <p>

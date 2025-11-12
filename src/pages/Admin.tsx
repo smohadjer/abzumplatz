@@ -28,7 +28,8 @@ export default function Admin() {
             </div>
         ) : (
             <>
-                <h2>Registrierte Spieler</h2>
+                <h2>Admin</h2>
+                <h3>Registrierte Spieler</h3>
                 <ul className="users-list">
                     {users.map(user => <li key={user._id}>{user.first_name} {user.last_name}</li>)}
                 </ul>

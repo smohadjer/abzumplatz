@@ -19,7 +19,6 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import LoginPage from './pages/Login';
 import Layout from './pages/Layout';
-import LayoutPrivate from './pages/LayoutPrivate';
 import NotFound from './pages/NotFound';
 import Imprint from './pages/Imprint';
 
@@ -69,7 +68,7 @@ export default function App() {
     return (
         initialized ?
         <Routes>
-            <Route element={<LayoutPrivate />}>
+            <Route element={<Layout />}>
                 <Route path="/reservations" element={
                     <ProtectedRoute>
                         <Reservations />
@@ -100,8 +99,6 @@ export default function App() {
                         <SelectClubPage clubs={clubs} />
                     </ProtectedRoute>
                 }/>
-            </Route>
-            <Route element={<Layout />}>
                 <Route path="/" element={
                     <PublicRoute>
                         <Home />
@@ -128,15 +125,13 @@ export default function App() {
                     </PublicRoute>
                 } />
                 <Route path="/impressum" element={
-                    <PublicRoute>
-                        <Imprint />
-                    </PublicRoute>
+                    <Imprint />
                 } />
                 <Route path="*" element={<NotFound />} />
             </Route>
         </Routes> : (
             <>
-                <Header route="public" />
+                <Header />
                 <main>
                     <div className="splash">
                         <Loader size="big" text="Loading..." />

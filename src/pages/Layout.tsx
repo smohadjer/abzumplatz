@@ -5,7 +5,7 @@ import Footer from '../components/footer/Footer';
 export default function Layout() {
   return (
     <>
-      <Header route="public" />
+      <Header />
       <main>
         <Outlet />
       </main>

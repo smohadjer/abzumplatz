@@ -34,8 +34,9 @@ export default function Profile() {
 
     return (
         <>
+            <h2>Mein Profil</h2>
             <p>{auth.first_name} {auth.last_name} {role}</p>
-            <p>{auth.email}</p>
+            <p>Email: {auth.email}</p>
             <button onClick={onLogout}>Abmelden</button>
             <p><Link to="/impressum">Impressum</Link></p>
         </>
