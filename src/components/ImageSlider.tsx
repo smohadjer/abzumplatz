@@ -1,5 +1,6 @@
 type Slide = {
     url: string;
+    text: string;
 }
 
 type Props = {
@@ -13,7 +14,7 @@ export const ImageSlider = (props: Props) => {
                 props.slides.map((slide, index) =>
                     <div>
                         <img key={index} src={slide.url} />
-                        <p>{index+1}</p>
+                        <p><span>{index+1}</span>{slide.text}</p>
                     </div>
                 )
             }
