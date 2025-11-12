@@ -1,32 +1,8 @@
-// trying to get users without providing club_id would return an error
-GET http://localhost:3000/api/users
-
-###
-
 // get all users of a club
 GET http://localhost:3000/api/users?club_id=67a501832225683fb61ca069
 
 ###
 
-// get user by first_name
-GET http://localhost:3000/api/users?first_name=saeid
-
-###
-
 // get user by id
-GET http://localhost:3000/api/users?id=67a5ab2e9cda22e8dad5dd98
+GET http://localhost:3000/api/users?id=679e1a839a82bd9b19fbb036
 
-###
-
-// sign up a new user
-POST http://localhost:3000/api/signup
-Content-Type: application/json
-
-{
-    "first_name": "Jackie",
-    "last_name": "Jones",
-    "role": "player",
-    "email": "jackie@test.com",
-    "password": "blahbalh?T23",
-    "privacy": "agree"
-}

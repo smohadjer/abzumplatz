@@ -52,6 +52,10 @@ h2 + p {
     margin-top: 0.5em;
 }
 
+.center {
+    text-align: center;
+}
+
 .splash {
     min-height: 100%;
     display: flex;
@@ -76,5 +80,39 @@ a {
 
     li {
         margin-bottom: 0.25em;
+    }
+}
+
+.tagline {
+    color: #666;
+    margin-top: 1em;
+    text-align: center;
+    font-size: 14px;
+}
+
+.slider {
+    text-align: center;
+    width: 100%;
+    margin: 2em auto;
+    display: flex;
+    flex-wrap: nowrap;
+
+    p {
+        background: #999;
+        text-align: center;
+        color: white;
+        border-radius: 50%;
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        margin: 0.5em 0;
+        font-size: 14px;
+    }
+
+    img {
+        border: solid 1px #ccc;
+        border-radius: 10px;
+        width: 85%;
     }
 }

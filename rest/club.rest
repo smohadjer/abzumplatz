@@ -3,11 +3,6 @@ GET http://localhost:3000/api/clubs
 
 ###
 
-// get all the clubs
-GET https://abzumplatz.de/api/clubs
-
-###
-
 // registers a club, a date field in ISO format is added during insertion by api
 // only admins can register a club and new club's id is added to user in db after club is inserted and api returns id of the club
 POST http://localhost:3000/api/clubs
@@ -15,7 +10,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2OGVmNTE1MTQ5MTQwYjA2OTk0MTdkMTUiLCJmaXJzdF9uYW1lIjoidGVzdGFkbWluIiwibGFzdF9uYW1lIjoiYmxhaCIsImVtYWlsIjoiYWRtaW5AdGVzdC5kZSIsInJvbGUiOiJhZG1pbiIsImV4cCI6MTc2NzYxODExNH0.6_YzF97abzxld0jFkQ4YYIcSRw1csAcT7qe7UYhJoHw
 
 {
-    "name": "netesw Club",
+    "name": "Bike Club",
     "courts_count": 5,
     "start_hour": 9,
     "end_hour": 21,
