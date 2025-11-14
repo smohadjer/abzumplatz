@@ -1,15 +1,5 @@
 .my-reservations {
     ul {
-        margin: 0.25em 0 0;
-        padding: 0;
-        font-size: 16px;
-
-        li {
-            line-height: 26px;
-            margin-left: 1em;
-            margin-right: 1em;
-        }
-
         .icon--delete {
             cursor: pointer;
             margin-left: 0.25em;

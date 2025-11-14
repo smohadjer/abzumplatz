@@ -33,8 +33,10 @@ main {
     padding: 0 0.75em 1em;
     scroll-behavior: contain;
     overflow-y: auto;
+    width: 100%;
     max-width: 1024px;
     margin: 0 auto;
+    box-sizing: border-box;
 }
 
 h1 {
@@ -77,11 +79,11 @@ a {
     color: var(--blue);
 }
 
-.users-list {
-    padding-left: 0;
+ul {
+    padding-left: 17px;
 
     li {
-        margin-bottom: 0.25em;
+        margin-bottom: 0.3em;
     }
 }
 
