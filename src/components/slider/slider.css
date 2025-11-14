@@ -1,0 +1,40 @@
+.slider {
+    text-align: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 1em auto 2em;
+    display: flex;
+    flex-wrap: nowrap;
+
+    .slide {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+
+        p {
+            font-size: 12px;
+            text-align: center;
+            margin: 0 1em 1em;
+        }
+
+        span {
+            background: #999;
+            text-align: center;
+            color: white;
+            border-radius: 50%;
+            display: block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            margin: 0.5em auto;
+            font-size: 14px;
+        }
+
+        img {
+            border: solid 1px #ccc;
+            border-radius: 10px;
+            width: 90%;
+        }
+    }
+}
