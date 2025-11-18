@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from './../store';
-import { fetchUsers } from '../utils/utils';
-import { Loader } from '../components/loader/Loader';
+import { RootState } from './../../store';
+import { fetchUsers } from '../../utils/utils';
+import { Loader } from '../../components/loader/Loader';
+import { Link } from 'react-router';
 
-export default function Admin() {
+export default function AdminMembersPage() {
     const [loading, setLoading] = useState(false);
     const usersData = useSelector((state: RootState) => state.users);
     const user = useSelector((state: RootState) => state.auth);
@@ -28,8 +29,8 @@ export default function Admin() {
             </div>
         ) : (
             <>
-                <h2>Admin</h2>
-                <h3>Registrierte Spieler</h3>
+                <Link className="icon icon--back" to="/admin">Zurück</Link>
+                <h2>Mitglieder</h2>
                 <ul className="users-list">
                     {users.map(user => <li key={user._id}>{user.first_name} {user.last_name}</li>)}
                 </ul>

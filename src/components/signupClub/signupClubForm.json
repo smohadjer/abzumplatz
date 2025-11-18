@@ -7,6 +7,12 @@
     },
     "fields": [
         {
+            "name": "_id",
+            "label": "Club ID",
+            "type": "hidden",
+            "value": ""
+        },
+        {
             "name": "name",
             "label": "Name des Vereins",
             "type": "text",

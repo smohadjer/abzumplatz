@@ -210,6 +210,21 @@ export const fetchAppData = async (clubId: string, dispatch: AppDispatch) => {
     });
 };
 
+export const fetchClub = async (clubId: string, dispatch: AppDispatch) => {
+    console.log('Fetching club data')
+    const path = `/api/clubs?id=${clubId}`;
+    const data = await fetch(path);
+    const json = await data.json();
+    dispatch({
+        type: 'club/fetch',
+        payload: {
+            value: json,
+            loaded: true
+        }
+    });
+};
+
+
 export const fetchUsers = async (clubId: string, dispatch: AppDispatch) => {
     console.log('Fetching users...')
     const usersEndpoint = `/api/users?club_id=${clubId}`;

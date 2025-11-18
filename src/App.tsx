@@ -10,7 +10,9 @@ import { PublicRoute } from './PublicRoute';
 import Home from './pages/Home';
 import SelectClubPage from './pages/SelectClubPage';
 import Reservations from './pages/Reservations';
-import Admin from './pages/Admin';
+import AdminHomePage from './pages/admin/Home';
+import AdminMembersPage from './pages/admin/Members'
+import AdminClubPage from './pages/admin/Club';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import Register from './pages/Register';
@@ -86,7 +88,17 @@ export default function App() {
                 }/>
                 <Route path="/admin" element={
                     <ProtectedRoute>
-                        <Admin />
+                        <AdminHomePage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/members" element={
+                    <ProtectedRoute>
+                        <AdminMembersPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/club" element={
+                    <ProtectedRoute>
+                        <AdminClubPage />
                     </ProtectedRoute>
                 }/>
                 <Route path="/register/club" element={
