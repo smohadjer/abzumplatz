@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './reducers/authSlice';
 import clubsReducer from './reducers/clubsSlice';
+import clubReducer from './reducers/clubSlice';
 import usersReducer from './reducers/usersSlice';
 import reservationsReducer from './reducers/reservationsSlice';
 import type { Action, ThunkAction } from '@reduxjs/toolkit';
@@ -9,6 +10,7 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     clubs: clubsReducer,
+    club: clubReducer,
     users: usersReducer,
     reservations: reservationsReducer,
   }

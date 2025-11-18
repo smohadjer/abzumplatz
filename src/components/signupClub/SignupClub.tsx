@@ -1,47 +1,31 @@
 import { Form } from '../form/Form';
 import formJson from './signupClubForm.json';
-import { useNavigate } from "react-router";
-import { useDispatch } from 'react-redux'
-import { Club } from '../../types';
+import { Field } from '../../types';
 
-type Response = {
-    message: string;
-    data: {
-        club_id: string;
-        clubs: Club[];
-    }
+type Props = {
+    label: string;
+    data?: any;
+    callback?: Function;
 }
 
-export function SignupClub() {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+export function SignupClub(props: Props) {
+    const { label, data, callback } = props;
 
-    const callback = async (response: Response) => {
-        console.log(response.data);
-        if (response.data) {
-            dispatch({
-                type: 'auth/setClubId',
-                payload: {
-                    club_id: response.data.club_id
-                }
-            });
-
-            dispatch({
-                type: 'clubs/fetch',
-                payload: {
-                    value: response.data.clubs
-                }
-            });
-            navigate('/reservations');
+    // normalize form fields
+    const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
+    normalizedFields.map(field => {
+        if (data && data.hasOwnProperty(field.name)) {
+            field.value = data[field.name];
         }
-    }
+        return field;
+    });
 
     return (
         <Form
             classNames="signup"
-            initialData={formJson.fields}
+            initialData={normalizedFields}
             formAttributes={formJson.form}
-            label="Verein Registrieren"
+            label={label}
             pathSchema="/schema/club.json"
             callback={callback}
         />
