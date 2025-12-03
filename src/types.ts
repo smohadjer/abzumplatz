@@ -42,10 +42,14 @@ export type State = {
     isLoggedin: boolean;
 }
 
+export type Court = {
+  status: string;
+}
+
 export type Club = {
     _id: string;
     name: string;
-    courts_count: number;
+    courts: Court[];
     reservations_limit: number;
     start_hour: number;
     end_hour: number;

@@ -3,7 +3,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './../../store';
 import { fetchClub } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
-import { SignupClub } from '../../components/signupClub/SignupClub';
+import { EditCourts } from '../../components/editCourts/EditCourts';
+
 import { Link, useNavigate } from 'react-router';
 import { Club } from '../../types';
 
@@ -15,7 +16,7 @@ type Response = {
     }
 }
 
-export default function AdminClubPage() {
+export default function AdminCourtsPage() {
     const [loading, setLoading] = useState(false);
     const user = useSelector((state: RootState) => state.auth);
     const clubData = useSelector((state: RootState) => state.club);
@@ -65,8 +66,8 @@ export default function AdminClubPage() {
         ) : (
             <>
                 <Link className="icon icon--back" to="/admin">Zurück</Link>
-                <h2>Verein Editeiren</h2>
-                <SignupClub
+                <h2>Plätze Verwalten</h2>
+                <EditCourts
                     callback={callback}
                     data={clubData.value} />
             </>

@@ -80,6 +80,12 @@ export default function Reservations() {
 
         if (event.target instanceof HTMLElement) {
             const slot = event.target;
+
+            if (slot.classList.contains('disabled')) {
+                alert('Reservierungen für diesen Platz wurden von der Verwaltung Ihres Vereins deaktiviert.');
+                return;
+            }
+
             const reservedByOthers = slot.classList.contains('reserved') && !slot.classList.contains('my-reservation');
 
             // slots in the past or reserved by others should not be clickable unless user is admin
@@ -166,7 +172,7 @@ export default function Reservations() {
                             {clubHours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}
                         </div>
                         <div className="slots">
-                            <Header count={club.courts_count} />
+                            <Header courts={club.courts} />
                             {clubHours.map(hour =>
                                 <Rows
                                     reservations={normalizedReservations}
@@ -174,7 +180,7 @@ export default function Reservations() {
                                     key={hour}
                                     hour={hour}
                                     date={isoDate}
-                                    count={club.courts_count}
+                                    courts={club.courts}
                                     user_id={user._id}
                                     isPast={isInPast(reservationDate, hour)}
                                 />
