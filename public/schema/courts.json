@@ -1,0 +1,13 @@
+{
+    "type": "object",
+    "properties": {
+        "_id": {
+            "type": "string"
+        },
+        "courts": {
+            "type": "array"
+        }
+    },
+    "required": ["courts"],
+    "additionalProperties": false
+}

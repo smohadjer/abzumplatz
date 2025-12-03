@@ -30,7 +30,7 @@ export default function AdminMembersPage() {
         ) : (
             <>
                 <Link className="icon icon--back" to="/admin">Zurück</Link>
-                <h2>Mitglieder</h2>
+                <h2>Mitgliederliste ({users.length})</h2>
                 <ul className="users-list">
                     {users.map(user => <li key={user._id}>{user.first_name} {user.last_name}</li>)}
                 </ul>

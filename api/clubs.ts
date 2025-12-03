@@ -10,6 +10,12 @@ const projection = {
     timestamp: 0
 };
 
+const fetchClub = async (id: string, collection) => {
+  const query = {_id: ObjectId.createFromHexString(id)};
+  const doc = await collection.findOne(query, {projection});
+  return doc;
+};
+
 export default async (req, res) => {
   try {
     await client.connect();
@@ -20,8 +26,7 @@ export default async (req, res) => {
     if (req.method === 'GET') {
       const id = req.query?.id;
       if (id) {
-        const query = {_id: ObjectId.createFromHexString(id)};
-        const doc = await collection.findOne(query, {projection})
+        const doc = await fetchClub(id, collection);
         if (doc) {
           return res.json(doc);
         } else {
@@ -34,7 +39,7 @@ export default async (req, res) => {
     }
 
     if (req.method === 'POST') {
-      console.log('Post received for club', req.body._id)
+      console.log('Post received', req.body)
       // validate data
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/club.json', 'utf8'));
       const validator = ajv.compile(schema);
@@ -53,7 +58,7 @@ export default async (req, res) => {
               }
               return error;
           });
-          return res.json({error: errors});
+          return res.status(500).json({error: errors});
       } else {
         console.log('valid data received');
       }
@@ -66,14 +71,19 @@ export default async (req, res) => {
     }
   } catch (e) {
     console.error(e);
-    res.status(500).json({error: e.message});
+    const errors = [
+      {
+        message: e.message,
+        instancePath: `#${e.cause}`
+      }
+    ];
+    res.status(500).json({error: errors});
   } finally {
     await client.close();
   }
 }
 
 async function addClub(collection, req, res, body, userCollection) {
-  const courts_count = Number(body.courts_count);
   const start_hour = Number(body.start_hour);
   const end_hour = Number(body.end_hour);
   const reservations_limit = Number(body.reservations_limit);
@@ -83,16 +93,27 @@ async function addClub(collection, req, res, body, userCollection) {
     collation: { locale: "en", strength: 2 }
   });
   if (doc) {
-    throw new Error(`Club with name ${body.name} already exists`);
+    const error = new Error(`Club with name ${body.name} already exists`, {
+      cause: 'name'
+    });
+    throw error;
+  }
+
+  // add courts array to db
+  const courts = [];
+  for (let i=0; i < Number(body.courts_count); i++) {
+    courts.push({
+      status: 'active'
+    });
   }
 
   // insert club
   const club = {
     name: body.name,
-    courts_count,
     start_hour,
     end_hour,
     reservations_limit,
+    courts,
     timestamp: new Date()
   };
   const insertResponse = await collection.insertOne(club);
@@ -125,17 +146,31 @@ async function updateClub(collection, res, body) {
   const end_hour = Number(body.end_hour);
   const reservations_limit = Number(body.reservations_limit);
 
-    const query = {_id: ObjectId.createFromHexString(body._id)};
-    const updateResonse = await collection.updateOne(
-        query,
-        {'$set' : {
-          name : body.name,
-          courts_count,
-          start_hour,
-          end_hour,
-          reservations_limit,
-        }}
-    );
+  // updating courts array in db if user has changed courts_count
+  const doc = await fetchClub(body._id, collection);
+  const courts = doc.courts;
+  if (courts_count < courts.length) {
+    courts.length = courts_count;
+  } else if (courts_count > courts.length) {
+    const diff = courts_count - courts.length;
+    for (let i=0; i < diff; i++) {
+      courts.push({
+        status: 'active'
+      });
+    }
+  }
+
+  const query = {_id: ObjectId.createFromHexString(body._id)};
+  const updateResonse = await collection.updateOne(
+      query,
+      {'$set' : {
+        name : body.name,
+        start_hour,
+        end_hour,
+        reservations_limit,
+        courts,
+      }}
+  );
 
   if (!updateResonse) {
     throw new Error(`Club ${body.name} couldn't be updated`);

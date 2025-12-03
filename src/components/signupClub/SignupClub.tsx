@@ -3,7 +3,7 @@ import formJson from './signupClubForm.json';
 import { Field } from '../../types';
 
 type Props = {
-    label: string;
+    label?: string;
     data?: any;
     callback?: Function;
 }
@@ -13,19 +13,23 @@ export function SignupClub(props: Props) {
 
     // normalize form fields
     const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
-    normalizedFields.map(field => {
-        if (data && data.hasOwnProperty(field.name)) {
-            field.value = data[field.name];
-        }
-        return field;
-    });
+    if (data) {
+        const normalizedData = structuredClone(data);
+        normalizedData.courts_count = data.courts.length;
+        normalizedFields.map(field => {
+            if (normalizedData && normalizedData.hasOwnProperty(field.name)) {
+                field.value = normalizedData[field.name];
+            }
+            return field;
+        });
+    }
 
     return (
         <Form
             classNames="signup"
             initialData={normalizedFields}
             formAttributes={formJson.form}
-            label={label}
+            label={label ?? 'Absenden'}
             pathSchema="/schema/club.json"
             callback={callback}
         />

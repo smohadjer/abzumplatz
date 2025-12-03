@@ -35,9 +35,9 @@ export function Form(props: Props) {
         if (formData && formData.length) {
             const data = [...formData];
             errors.forEach(error => {
-                console.log(error)
+                console.log(error);
                 let fieldName: string = '';
-                if (error.instancePath.length > 0) {
+                if (error.instancePath?.length > 0) {
                     fieldName = error.instancePath.substring(1);
                 } else {
                     if (error.keyword === 'required') {
