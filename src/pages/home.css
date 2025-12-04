@@ -1,29 +1,56 @@
 .navbar {
     display: flex;
     flex-direction: column;
-    max-width: 300px;
+    max-width: 260px;
     margin: auto;
 
     a {
         padding: 0.5em;
-        display: block;
+        display: inline-block;
         background: var(--blue);
-        margin: 0.5em 0;
+        margin: 0 0 0.75em 0;
         color: #fff;
         text-align: center;
-        font-size: 20px;
+        font-size: 18px;
         text-decoration: none;
+        height: 2.8em;
+        border-radius: 0.25em;
+
+        &:first-child {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+        }
 
         span {
             display: block;
             font-size: 15px;
-            margin-top: 0.5em;
+            margin-top: 0.25em;
         }
     }
 }
 
 .content {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 80ch;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+
+.intro {
+    margin: 0.5em 0;
+}
+
+.hero-image {
+    width: 40%;
+    max-width: 640px;
+    display: block;
+    margin: 1.5em auto 1.5em;
+}
+
+
+.tagline {
+    color: #666;
+    margin: 3em 0 1.5em;
+    text-align: center;
+    font-size: 14px;
 }

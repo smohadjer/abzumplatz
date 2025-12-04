@@ -55,7 +55,7 @@
             "type": "checkbox",
             "options": [
                 {
-                    "label": "Durch die Registrierung und Verwendung dieser App erklären Sie sich damit einverstanden, dass die von Ihnen bereitgestellten Informationen vom App-Entwickler und dem Personal Ihres Clubs abgerufen und verwendet werden können, um die App zu verbessern, Support bereitzustellen und die ordnungsgemäße Verwendung der Clubressourcen sicherzustellen.",
+                    "label": "Mit Ihrer Registrierung und Nutzung dieser App erklären Sie sich damit einverstanden, dass die von Ihnen angegebenen Informationen und Ihre Nutzungsstatistiken vom App-Entwickler und dem Administrator Ihres Vereins verwendet werden dürfen, um die Funktionalität der App zu verbessern, Benutzer zu unterstützen und die ordnungsgemäße Verwendung der Vereinsressourcen sicherzustellen.",
                     "value": "agree"
                 }
             ],
