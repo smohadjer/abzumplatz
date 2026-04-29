@@ -1,6 +1,9 @@
 {
     "rewrites": [
         {"source": "/admin", "destination": "/"},
+        {"source": "/admin/members", "destination": "/"},
+        {"source": "/admin/club", "destination": "/"},
+        {"source": "/admin/courts", "destination": "/"},
         {"source": "/register/club", "destination": "/"},
         {"source": "/register", "destination": "/"},
         {"source": "/login", "destination": "/"},

@@ -10,7 +10,8 @@ export const fetchUsers = async (database, userId: string, clubId: string) => {
           _id: 1,
           club_id: 1,
           role: 1,
-          email: 1
+          email: 1,
+          status: 1,
       };
       const query = {_id: ObjectId.createFromHexString(userId)};
       const doc = await collection.findOne(query, {projection});
@@ -19,6 +20,8 @@ export const fetchUsers = async (database, userId: string, clubId: string) => {
       const projection = {
           first_name: 1,
           last_name: 1,
+          email: 1,
+          status: 1,
           _id: 1,
       };
       const query = { club_id: clubId };

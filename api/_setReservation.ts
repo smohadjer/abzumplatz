@@ -79,6 +79,16 @@ export const setReservation = async (req, res, reservations, clubs,
     const user = await users.findOne({
       _id: ObjectId.createFromHexString(payload._id)
     });
+
+    if (!user)  {
+      return res.status(404).json({error: 'User not found!'});
+    }
+
+    // throw error if user is inactive
+    if (user.status !== 'active') {
+      throw new Error('Ihr Konto ist derzeit inaktiv. Bitte wenden Sie sich an den Support.');
+    }
+
     const userId: string = user._id.toString();
 
     const overlappingHoursFilter = (item: ReservationItem) => {
