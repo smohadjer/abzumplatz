@@ -1,6 +1,7 @@
 .loader {
     vertical-align: middle;
     color: #666;
+    line-height: 1;
 
     &.has-text {
         display: flex;
