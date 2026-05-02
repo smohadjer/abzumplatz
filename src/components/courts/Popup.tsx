@@ -16,6 +16,7 @@ type Slot = {
     court_number: string;
     reservation_id?: string;
     recurring?: boolean;
+    user_name?: string;
 }
 
 export function Popup(props: {
@@ -44,8 +45,9 @@ export function Popup(props: {
         if (popupType === 'deleteReservation') {
             return (
                 <>
-                    <p>Reservierungsdatum: {getLocalDate(slot.date)}<br />
-                    Reservierungszeit: {slot.hour} Uhr</p>
+                    <p>Datum: {getLocalDate(slot.date)}<br />
+                    Zeit: {slot.hour} Uhr
+                    {slot.user_name && <><br />Reserviert von: {slot.user_name}</>}</p>
 
                     {slot.recurring && <p>Dies ist eine wiederkehrende Reservierung. Bitte wählen Sie aus, wie Sie sie löschen möchten:</p>}
 

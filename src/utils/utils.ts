@@ -26,6 +26,7 @@ export const isAuthenticated = async () => {
         return isAuthenticated;
     } catch(error) {
         console.error('error', error);
+        return null;
     }
 };
 

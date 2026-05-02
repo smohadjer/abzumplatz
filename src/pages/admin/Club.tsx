@@ -58,7 +58,7 @@ export default function AdminClubPage() {
     }, []);
 
     return (
-        loading ? (
+        loading || !clubData.loaded ? (
             <div className="splash">
                 <Loader size="big" text="Loading data..." />
             </div>
