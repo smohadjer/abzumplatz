@@ -12,15 +12,13 @@ export default function Home() {
     return (
         <>
             <div className="navbar">
-                <Link to="/login">Anmelden</Link>
-                <Link to="/register">Registrieren
-                    <span>Für Spieler und Vereinsadmin</span>
-                </Link>
-                {/* <Link to="/register/club">Verein Registrieren
-                    <span>Für Clubadministratoren</span>
-                </Link> */}
+                <div className="navbar-login">
+                    <Link to="/login">Anmelden</Link>
+                    <Link className="navbar-text-link" to="/register/player">Mit E-Mail registerieren</Link>
+                </div>
             </div>
             <p className="intro">Abzumplatz ermöglicht es Tennisvereinen, ihren Mitgliedern kostenlose Online-Reservierungen ihrer Tennisplätze anzubieten.</p>
+            <p className="club-register"><Link to="/register/club">Verein registrieren</Link></p>
             <img className="hero-image" src="/assets/1.png" alt="screenshot" />
             {/* <Slider slides={slides} /> */}
             <div className="content">
@@ -31,7 +29,6 @@ export default function Home() {
                     <li>Möglichkeit zum Sperren und Entsperren einzelner Tennisplätze</li>
                     <li>Übersicht aller registrierten Mitglieder</li>
                 </ul>
-                <p className="tagline">Made mit ❤️ für 🎾 in Freiburg</p>
             </div>
         </>
     )

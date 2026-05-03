@@ -119,7 +119,7 @@ export function Form(props: Props) {
         if (pathSchema && !formAttributes?.disableClientSideValidation) {
             const schema = await fetchJson(pathSchema);
             if (!validateData(data, schema, errorCallback)) {
-                console.log('client side validation failed, not submitting form');
+                // console.log('client side validation failed, not submitting form');
                 return;
             }
         }

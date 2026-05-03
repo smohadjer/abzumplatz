@@ -27,6 +27,17 @@ export default function Profile() {
                 value: [],
                 loaded: false
             }});
+            dispatch({type: 'club/fetch', payload: {
+                value: {
+                    _id: '',
+                    name: '',
+                    courts: [],
+                    reservations_limit: 0,
+                    start_hour: 0,
+                    end_hour: 0,
+                },
+                loaded: false
+            }});
         });
     }
 

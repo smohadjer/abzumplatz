@@ -11,6 +11,7 @@ export default function Footer() {
     //const club = getClub();
     const location = useLocation();
     const page_id = location.pathname.substring(1);
+    const isRegisterPage = page_id === 'register' || page_id.startsWith('register/');
 
     return (
         (auth.value) ?
@@ -25,7 +26,7 @@ export default function Footer() {
         <footer>
             <Link to="/"><span className={`icon icon--home${page_id === '' ? ' selected' : ''}`}></span></Link>
             <Link to="/login"><span className={`icon icon--login${page_id === 'login' ? ' selected' : ''}`}></span></Link>
-            <Link to="/register"><span className={`icon icon--register${page_id === 'register' ? ' selected' : ''}`}></span></Link>
+            <Link to="/register/player"><span className={`icon icon--register${isRegisterPage ? ' selected' : ''}`}></span></Link>
             <Link to="/impressum"><span className={`icon icon--imprint${page_id === 'impressum' ? ' selected' : ''}`}></span></Link>
         </footer>
     )

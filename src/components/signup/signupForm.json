@@ -21,14 +21,11 @@
             "value": ""
         },
         {
-            "name": "role",
-            "label": "Rolle",
-            "type": "radio",
+            "name": "club_id",
+            "label": "Verein",
+            "type": "select",
             "required": true,
-            "options": [
-                {"label": "Spieler", "value": "player"},
-                {"label": "Vereinsadmin", "value": "admin"}
-            ],
+            "options": [],
             "value": ""
         },
         {
