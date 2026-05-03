@@ -20,7 +20,6 @@ export function Login() {
             }
         });
 
-        console.log('redirecting to reservations page after login...');
         navigate('/reservations');
     }
 

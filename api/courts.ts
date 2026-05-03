@@ -1,31 +1,43 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import { Collection, MongoClient, ObjectId, WithId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
+import { getJwtPayload } from './verifyAuth.js';
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import { Club, DBUser } from '../src/types.js';
+
+type ClubDocument = Omit<Club, '_id'> & {
+  timestamp?: Date;
+}
+
+type CourtsFormBody = {
+  _id: string;
+  courts: string[];
+}
 
 const client = new MongoClient(database_uri);
 const projection = {
     timestamp: 0
 };
 
-const fetchClub = async (id: string, collection) => {
+const fetchClub = async (id: string, collection: Collection<ClubDocument>) => {
   const query = {_id: ObjectId.createFromHexString(id)};
   const doc = await collection.findOne(query, {projection});
   return doc;
 };
 
-export default async (req, res) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
   try {
     await client.connect();
     const database = client.db(database_name);
-    const collection = database.collection('clubs');
+    const collection = database.collection<ClubDocument>('clubs');
+    const users = database.collection<DBUser>('users');
 
     if (req.method === 'POST') {
-      console.log('Post received', req.body)
       // validate data
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/courts.json', 'utf8'));
       const validator = ajv.compile(schema);
-      const body = sanitize(req.body);
+      const body = sanitize(req.body) as unknown as CourtsFormBody;
       const valid = validator(body);
 
       if (!valid) {
@@ -41,12 +53,25 @@ export default async (req, res) => {
               return error;
           });
           return res.json({error: errors});
-      } else {
-        console.log('valid data received');
+      }
+
+      const payload = await getJwtPayload(req);
+      if (!payload) {
+        return res.status(401).json({error: 'Authentication required'});
+      }
+
+      const requester = await users.findOne({
+        _id: ObjectId.createFromHexString(payload._id)
+      });
+      if (!requester) {
+        return res.status(401).json({error: 'Authentication required'});
+      }
+      if (requester.role !== 'admin') {
+        return res.status(403).json({error: 'Only admins can update courts'});
       }
 
       if (body._id) {
-        await updateCourts(collection, res, body);
+        await updateCourts(collection, res, body, requester);
       }
     }
   } catch (e) {
@@ -63,8 +88,21 @@ export default async (req, res) => {
   }
 }
 
-async function updateCourts(collection, res, body) {
+async function updateCourts(
+  collection: Collection<ClubDocument>,
+  res: VercelResponse,
+  body: CourtsFormBody,
+  requester: WithId<DBUser>
+) {
+  if (requester.club_id !== body._id) {
+    return res.status(403).json({error: 'Updating these courts is not allowed'});
+  }
+
   const doc = await fetchClub(body._id, collection);
+  if (!doc) {
+    return res.status(404).json({error: 'Club not found'});
+  }
+
   const courts = doc.courts;
   const activeCourtsIndices = body.courts.map(court => Number(court.split('_')[1]));
   courts.forEach((court, index) => {
@@ -97,7 +135,7 @@ async function updateCourts(collection, res, body) {
   });
 }
 
-async function getAllClubs(collection) {
+async function getAllClubs(collection: Collection<ClubDocument>) {
     const docs = await collection.find({}, {projection})
     // using collation so sort is case insensitive
     .collation({

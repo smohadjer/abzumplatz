@@ -3,12 +3,13 @@ import * as fs from 'fs';
 import { MongoClient } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import bcrypt from 'bcrypt';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/resetPassword.json', 'utf8'));
 const client = new MongoClient(database_uri);
 const saltRounds = 10;
 
-export default async (req, res) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
         const validator = ajv.compile(schema);
         const valid = validator(sanitize(req.body));
@@ -57,10 +58,10 @@ export default async (req, res) => {
                         resetTokenExpiry: undefined
                     },
                 };
-                const result = await collection.updateOne(filter, updateDoc);
-                console.log(
-                    `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
-                );
+                await collection.updateOne(filter, updateDoc);
+                // console.log(
+                //     `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
+                // );
                 return res.status(201).json({message: `Password is updated now`});
                 // res.setHeader('Location', '/login');
                 // res.status(302).end();

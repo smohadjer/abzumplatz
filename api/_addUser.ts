@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt';
+import { Db } from 'mongodb';
 import { DBUser } from '../src/types.js';
 
 const saltRounds = 10;
 
-export async function addUser(database, user: DBUser) {
+export async function addUser(database: Db, user: DBUser) {
     const collectionUsers = database.collection('users');
     collectionUsers.createIndex(
         {

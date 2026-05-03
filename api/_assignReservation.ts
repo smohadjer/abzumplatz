@@ -1,15 +1,20 @@
 import { ObjectId, Collection } from 'mongodb';
-import { JwtPayload, ReservationItem } from '../src/types.js';
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import { DBUser, JwtPayload, ReservationItem } from '../src/types.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { getAllReservations } from '../src/utils/utils.js';
 
 export const assignReservation = async (
-  req,
-  res,
+  req: VercelRequest,
+  res: VercelResponse,
   reservations: Collection<ReservationItem>,
-  users: Collection
+  users: Collection<DBUser>
 ) => {
-  const reservation_id: string = req.query?.reservation_id;
+  const reservation_id = req.query?.reservation_id;
+  if (!reservation_id || Array.isArray(reservation_id)) {
+    return res.status(400).json({error: 'Reservation id is required'});
+  }
+
   const query = {
     _id: ObjectId.createFromHexString(reservation_id)
   };

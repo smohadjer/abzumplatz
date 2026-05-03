@@ -12,12 +12,12 @@ export const config = {
 };
 
 if (typeof EdgeRuntime === 'string') {
-  console.log('******* EdgeRuntime *********');
+  // console.log('******* EdgeRuntime *********');
 }
 
 export default async function middleware(req) {
   const url = new URL(req.url);
-  console.log('middleware: ', req.method, url.pathname);
+  // console.log('middleware: ', req.method, url.pathname);
 
   // only POST requests are restricted
   if (req.method === 'GET') {

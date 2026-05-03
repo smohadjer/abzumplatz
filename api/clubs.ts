@@ -1,31 +1,53 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import { Collection, MongoClient, ObjectId, WithId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
-import { JwtPayload } from '../src/types.js';
+import { Club, DBUser, JwtPayload } from '../src/types.js';
+import { VercelRequest, VercelResponse } from '@vercel/node';
+
+type ClubDocument = Omit<Club, '_id'> & {
+  timestamp?: Date;
+}
+
+type ClubFormBody = {
+  _id?: string;
+  name: string;
+  courts_count: number | string;
+  start_hour: number | string;
+  end_hour: number | string;
+  reservations_limit: number | string;
+}
+
+if (!database_uri || !database_name) {
+    throw new Error('Database configuration is missing');
+}
 
 const client = new MongoClient(database_uri);
 const projection = {
     timestamp: 0
 };
 
-const fetchClub = async (id: string, collection) => {
+const fetchClub = async (id: string, collection: Collection<ClubDocument>) => {
   const query = {_id: ObjectId.createFromHexString(id)};
   const doc = await collection.findOne(query, {projection});
   return doc;
 };
 
-export default async (req, res) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
   try {
     await client.connect();
     const database = client.db(database_name);
-    const collection = database.collection('clubs');
-    const userCollection = database.collection('users');
+    const collection = database.collection<ClubDocument>('clubs');
+    const userCollection = database.collection<DBUser>('users');
 
     if (req.method === 'GET') {
       const id = req.query?.id;
       if (id) {
+        if (Array.isArray(id)) {
+          return res.status(400).json({error: 'Club id is invalid'});
+        }
+
         const doc = await fetchClub(id, collection);
         if (doc) {
           return res.json(doc);
@@ -39,34 +61,50 @@ export default async (req, res) => {
     }
 
     if (req.method === 'POST') {
-      console.log('Post received', req.body)
       // validate data
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/club.json', 'utf8'));
       const validator = ajv.compile(schema);
-      const body = sanitize(req.body);
+      const body = sanitize(req.body) as ClubFormBody;
       const valid = validator(body);
 
       if (!valid) {
           const errors = validator.errors;
-          errors.map(error => {
-              // for custom error messages
-              if (error.parentSchema) {
-                  const customErrorMessage = error.parentSchema.errorMessage;
-                  if (customErrorMessage) {
-                    error.message = customErrorMessage;
-                  }
-              }
-              return error;
-          });
-          return res.status(500).json({error: errors});
-      } else {
-        console.log('valid data received');
+          if (errors) {
+            errors.map(error => {
+                // for custom error messages
+                if (error.parentSchema) {
+                    const customErrorMessage = error.parentSchema.errorMessage;
+                    if (customErrorMessage) {
+                      error.message = customErrorMessage;
+                    }
+                }
+                return error;
+            });
+            return res.status(500).json({error: errors});
+          } else {
+            return res.status(500).json({error: 'Invalid data'});   
+          }
+      }
+
+      const payload = await getJwtPayload(req);
+      if (!payload) {
+        return res.status(401).json({error: 'Authentication required'});
+      }
+
+      const requester = await userCollection.findOne({
+        _id: ObjectId.createFromHexString(payload._id)
+      });
+      if (!requester) {
+        return res.status(401).json({error: 'Authentication required'});
+      }
+      if (requester.role !== 'admin') {
+        return res.status(403).json({error: 'Only admins can edit clubs'});
       }
 
       if (body._id) {
-        await updateClub(collection, res, body);
+        await updateClub(collection, res, body, requester);
       } else {
-        await addClub(collection, req, res, body, userCollection);
+        await addClub(collection, res, body, userCollection, payload, requester);
       }
     }
   } catch (e) {
@@ -83,7 +121,18 @@ export default async (req, res) => {
   }
 }
 
-async function addClub(collection, req, res, body, userCollection) {
+async function addClub(
+  collection: Collection<ClubDocument>,
+  res: VercelResponse,
+  body: ClubFormBody,
+  userCollection: Collection<DBUser>,
+  payload: JwtPayload,
+  requester: WithId<DBUser>
+) {
+  if (requester.club_id) {
+    return res.status(403).json({error: 'Creating another club is not allowed'});
+  }
+
   const start_hour = Number(body.start_hour);
   const end_hour = Number(body.end_hour);
   const reservations_limit = Number(body.reservations_limit);
@@ -121,7 +170,6 @@ async function addClub(collection, req, res, body, userCollection) {
 
   // add club_id to user who posted the club
   if (club_id) {
-    const payload: JwtPayload = await getJwtPayload(req);
     const query = {_id: ObjectId.createFromHexString(payload._id)};
     const updateResonse = await userCollection.updateOne(
         query,
@@ -140,7 +188,16 @@ async function addClub(collection, req, res, body, userCollection) {
 }
 
 
-async function updateClub(collection, res, body) {
+async function updateClub(
+  collection: Collection<ClubDocument>,
+  res: VercelResponse,
+  body: ClubFormBody,
+  requester: WithId<DBUser>
+) {
+  if (requester.club_id !== body._id) {
+    return res.status(403).json({error: 'Updating this club is not allowed'});
+  }
+
   const courts_count = Number(body.courts_count);
   const start_hour = Number(body.start_hour);
   const end_hour = Number(body.end_hour);
@@ -148,6 +205,10 @@ async function updateClub(collection, res, body) {
 
   // updating courts array in db if user has changed courts_count
   const doc = await fetchClub(body._id, collection);
+  if (!doc) {
+    return res.status(404).json({error: 'Club not found'});
+  }
+
   const courts = doc.courts;
   if (courts_count < courts.length) {
     courts.length = courts_count;
@@ -186,7 +247,7 @@ async function updateClub(collection, res, body) {
   });
 }
 
-async function getAllClubs(collection) {
+async function getAllClubs(collection: Collection<ClubDocument>) {
     const docs = await collection.find({}, {projection})
     // using collation so sort is case insensitive
     .collation({

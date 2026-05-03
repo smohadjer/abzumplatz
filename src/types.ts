@@ -100,6 +100,7 @@ export type DBUser = {
     email: string;
     password: string;
     role: string;
+    status?: string;
 }
 
 export type AuthenticatedUser = {

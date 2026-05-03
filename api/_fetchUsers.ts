@@ -1,6 +1,17 @@
-import { ObjectId } from 'mongodb';
+import { Db, ObjectId, WithId } from 'mongodb';
 
-export const fetchUsers = async (database, userId: string, clubId: string) => {
+type FetchedUser = {
+    first_name: string;
+    last_name: string;
+    email: string;
+    status: string;
+    role: string;
+    club_id?: string;
+}
+
+export async function fetchUsers(database: Db, userId: string, clubId?: undefined): Promise<WithId<FetchedUser> | null>;
+export async function fetchUsers(database: Db, userId: undefined, clubId: string): Promise<WithId<FetchedUser>[]>;
+export async function fetchUsers(database: Db, userId?: string, clubId?: string) {
     const collection = database.collection('users');
 
     if (userId) {
