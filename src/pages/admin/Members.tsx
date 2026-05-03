@@ -83,14 +83,20 @@ export default function AdminMembersPage() {
                     {pending ? <Loader size="small" /> : null}
                 </h2>
                 <ul className="users-list">
-                    {users.map(user => {
-                        return <li key={user._id}>
+	                {users.map(user => {
+	                        const classNames = [
+	                            user.role === 'admin' ? 'user-list-item--admin' : '',
+	                            user.status !== 'active' ? 'user-list-item--inactive' : '',
+	                        ].filter(Boolean).join(' ');
+
+	                        return <li className={classNames || undefined} key={user._id}>
                             <label htmlFor={user._id}>
                                 <input id={user._id} type="checkbox" defaultChecked={user.status === "active"} onChange={handleChange} />
                                 {user.first_name} {user.last_name}
-                            </label>
-                            <span style={{ marginLeft: '0.25rem' }}>(<a href={`mailto:${user.email}`}>{user.email}</a>)</span>
-                        </li>;
+	                            </label>
+	                            <span style={{ marginLeft: '0.25rem' }}>(<a href={`mailto:${user.email}`}>{user.email}</a>)</span>
+	                            {user.role === 'admin' ? <span> (Admin)</span> : null}
+	                        </li>;
                     })}
                 </ul>
             </>

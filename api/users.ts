@@ -45,7 +45,7 @@ export default async (req, res) => {
       };
       const result = await collection.updateOne(query, updateDoc);
       if (result.modifiedCount > 0) {
-        const user = await collection.findOne(query, {projection: {password: 0, club_id: 0, role: 0}});
+        const user = await collection.findOne(query, {projection: {password: 0, club_id: 0}});
         return res.json(user);
       } else {
         return res.status(404).json({error: `User with id ${user_id} not found!`});

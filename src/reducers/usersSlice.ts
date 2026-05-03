@@ -9,6 +9,7 @@ export const usersSlice = createSlice({
         last_name: '',
         email: '',
         status: 'active',
+        role: '',
         _id: '',
       }
     ],
