@@ -25,6 +25,7 @@ type Slot = {
     court_number: string;
     reservation_id?: string;
     recurring?: boolean;
+    user_name?: string;
 }
 
 export default function Reservations() {
@@ -103,7 +104,8 @@ export default function Reservations() {
                     date: slot.dataset.date!,
                     hour: Number(slot.dataset.hour),
                     reservation_id: slot.dataset.reservation_id,
-                    recurring: slot.dataset.recurring === 'true'
+                    recurring: slot.dataset.recurring === 'true',
+                    user_name: slot.dataset.user_name
                 });
                 return;
             }

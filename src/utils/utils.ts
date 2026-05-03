@@ -26,6 +26,7 @@ export const isAuthenticated = async () => {
         return isAuthenticated;
     } catch(error) {
         console.error('error', error);
+        return null;
     }
 };
 
@@ -119,6 +120,41 @@ export const deleteReservation = (
             closePopup();
         });
     }
+};
+
+export const assignReservation = (
+    reservationId: string | undefined,
+    closePopup: Function,
+    successCallback: Function) => {
+    if (!reservationId) {
+        alert('Reservierung nicht gefunden');
+        return;
+    }
+
+    fetch(`/api/reservations?reservation_id=${reservationId}`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            form_method: 'assign'
+        })
+    })
+    .then((response) => response.json())
+    .then(json => {
+        if (json.error) {
+            console.error(json.error);
+            alert(json.error);
+        } else {
+            if (json.data) {
+                successCallback(json.data);
+            }
+        }
+    })
+    .finally(() => {
+        closePopup();
+    });
 };
 
 export const makeReservation = (

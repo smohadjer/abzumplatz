@@ -12,6 +12,7 @@ export default function AdminMembersPage() {
     const user = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
     const users = usersData.value;
+    const activeUsersCount = users.filter(user => user.status === 'active').length;
 
     useEffect(() => {
         if (!usersData.loaded) {
@@ -78,7 +79,7 @@ export default function AdminMembersPage() {
         ) : (
             <>
                 <Link className="icon icon--back" to="/admin">Zurück</Link>
-                <h2><span style={{ marginRight: '0.5rem' }}>Mitgliederliste ({users.length})</span>
+                <h2><span style={{ marginRight: '0.5rem' }}>Mitgliederliste (active: {activeUsersCount}, all: {users.length})</span>
                     {pending ? <Loader size="small" /> : null}
                 </h2>
                 <ul className="users-list">

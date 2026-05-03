@@ -3,16 +3,14 @@ import { createSlice } from '@reduxjs/toolkit';
 export const clubSlice = createSlice({
   name: 'club',
   initialState: {
-    value: [
-      {
-        _id: '',
-        name: '',
-        courts: [],
-        reservations_limit: 0,
-        start_hour: 0,
-        end_hour: 0,
-      }
-    ],
+    value: {
+      _id: '',
+      name: '',
+      courts: [],
+      reservations_limit: 0,
+      start_hour: 0,
+      end_hour: 0,
+    },
     loaded: false
   },
   reducers: {
