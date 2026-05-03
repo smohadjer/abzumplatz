@@ -51,8 +51,8 @@ export default function App() {
             });
 
             // fetch logged-in user and save it to store
-            const authenticated: JwtPayload = await isAuthenticated();
-            if (authenticated.error) {
+            const authenticated: JwtPayload | null = await isAuthenticated();
+            if (!authenticated || authenticated.error) {
                 console.log('Not logged-in!');
             } else {
                 console.log('User is logged-in', authenticated)
@@ -160,5 +160,4 @@ export default function App() {
         )
     );
 }
-
 

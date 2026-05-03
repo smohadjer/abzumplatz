@@ -15,6 +15,9 @@ export default async (request, response) => {
         const database = client.db(database_name);
         const user_id = payload._id;
         const doc = await fetchUsers(database, user_id, undefined);
+        if (!doc) {
+            return response.status(404).json({error: 'User not found'});
+        }
         return response.json(doc);
 
         // response.status(200).json({

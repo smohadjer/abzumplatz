@@ -41,6 +41,7 @@ export function Rows(props: Props) {
                 }
                 key={courtNumber}
                 data-reservation_id={reservation ? reservation._id : undefined}
+                data-user_name={reservation ? reservation.user_name : undefined}
             >{reservation ? getLabel(reservation) : ''}
             </div>
         );
