@@ -2,7 +2,7 @@ import { sanitize, ajv } from './_lib.js';
 import * as fs from 'fs';
 import { addUser } from './_addUser.js';
 import { DBUser } from '../src/types.js';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
@@ -12,11 +12,13 @@ if (!database_uri || !database_name) {
 
 const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup.json', 'utf8'));
+const objectIdPattern = /^[0-9a-fA-F]{24}$/;
 
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
         const validator = ajv.compile(schema);
-        const valid = validator(sanitize(req.body));
+        const body = sanitize(req.body);
+        const valid = validator(body);
         if (!valid) {
             const errors = validator.errors;
             if (errors) {
@@ -35,19 +37,30 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 return res.status(500).json({error: 'Invalid data'});
             }
         } else {
-            const { first_name, last_name, password, role } = req.body;
-            const email = req.body.email.toLowerCase();
+            const { first_name, last_name, password, club_id } = body;
+            const email = body.email.toLowerCase();
             const user: DBUser = {
                 first_name,
                 last_name,
                 email,
                 password,
-                role,
+                club_id,
+                role: 'player',
+                status: 'active',
             };
 
             try {
                 await client.connect();
                 const database = client.db(database_name);
+                if (!objectIdPattern.test(club_id)) {
+                    throw new Error(`Club with id ${club_id} does not exist`, { cause: 'club_id' });
+                }
+                const club = await database.collection('clubs').findOne({
+                    _id: ObjectId.createFromHexString(club_id)
+                });
+                if (!club) {
+                    throw new Error(`Club with id ${club_id} does not exist`, { cause: 'club_id' });
+                }
                 const insertResponse = await addUser(database, user);
                 res.status(201).json({
                   message: `User ${first_name} ${last_name} is registered`,

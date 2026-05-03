@@ -16,7 +16,7 @@ import AdminClubPage from './pages/admin/Club';
 import AdminCourtsPage from './pages/admin/Courts';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
-import Register from './pages/Register';
+import RegisterPlayer from './pages/RegisterPlayer';
 import RegisterClub from './pages/RegisterClub';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -108,9 +108,9 @@ export default function App() {
                     </ProtectedRoute>
                 }/>
                 <Route path="/register/club" element={
-                    <ProtectedRoute>
+                    <PublicRoute>
                         <RegisterClub />
-                    </ProtectedRoute>
+                    </PublicRoute>
                 }/>
                 <Route path="/select-club" element={
                     <ProtectedRoute>
@@ -122,9 +122,9 @@ export default function App() {
                         <Home />
                     </PublicRoute>
                 } />
-                <Route path="/register" element={
+                <Route path="/register/player" element={
                     <PublicRoute>
-                        <Register />
+                        <RegisterPlayer />
                     </PublicRoute>
                 } />
                 <Route path="/login" element={

@@ -21,14 +21,11 @@
             "value": ""
         },
         {
-            "name": "role",
-            "label": "Rolle",
-            "type": "radio",
+            "name": "club_id",
+            "label": "Verein",
+            "type": "select",
             "required": true,
-            "options": [
-                {"label": "Spieler", "value": "player"},
-                {"label": "Vereinsadmin", "value": "admin"}
-            ],
+            "options": [],
             "value": ""
         },
         {
@@ -55,7 +52,7 @@
             "type": "checkbox",
             "options": [
                 {
-                    "label": "Mit Ihrer Registrierung und Nutzung dieser App erklären Sie sich damit einverstanden, dass die von Ihnen angegebenen Informationen und Ihre Nutzungsstatistiken vom App-Entwickler und dem Administrator Ihres Vereins verwendet werden dürfen, um die Funktionalität der App zu verbessern, Benutzer zu unterstützen und die ordnungsgemäße Verwendung der Vereinsressourcen sicherzustellen.",
+                    "label": "Mit Ihrer Registrierung und Nutzung dieser App erklären Sie sich damit einverstanden, dass die von Ihnen angegebenen Informationen und Ihre Nutzungsstatistiken vom App-Entwickler und dem Administrator Ihres Vereins verwendet werden dürfen, um die Funktionalität der App zu verbessern und die ordnungsgemäße Verwendung der Vereinsressourcen sicherzustellen.",
                     "value": "agree"
                 }
             ],
