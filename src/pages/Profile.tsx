@@ -8,7 +8,6 @@ export default function Profile() {
     const auth = useSelector((state: RootState) => state.auth);
     const role = auth?.role === 'admin' ? '(Admin)' : '';
     const onLogout = () => {
-        console.log('logging out...');
         fetch('/api/logout', {
             method: 'POST',
             headers: {
@@ -17,8 +16,7 @@ export default function Profile() {
             }
         })
         .then((response) => response.json())
-        .then(json => {
-            console.log(json.message);
+        .then(() => {
             // reset all state
             dispatch({type: 'auth/logout', payload: {}});
             dispatch({type: 'reservations/fetch', payload: {

@@ -13,7 +13,7 @@ export const ProtectedRoute = ({children}: ProtectedRouteProps) => {
     const isLoggedin = auth.value;
     const role = auth.role;
 
-    console.log('ProtectedRoute', {isLoggedin}, {role}, location.pathname)
+    // console.log('ProtectedRoute', {isLoggedin}, {role}, location.pathname)
 
     if (!isLoggedin) {
         return <Navigate to="/" replace />;
@@ -32,12 +32,12 @@ export const ProtectedRoute = ({children}: ProtectedRouteProps) => {
         }
 
         if (role !== 'admin' && location.pathname === '/admin' ) {
-            console.log('redirecting non-admin user to /reservations page');
+            // console.log('redirecting non-admin user to /reservations page');
             return <Navigate to="/reservations" replace />;
         }
 
         if (location.pathname === '/select-club' && auth.club_id) {
-            console.log('redirecting user to /reservations page');
+            // console.log('redirecting user to /reservations page');
             return <Navigate to="/reservations" replace />;
         }
 

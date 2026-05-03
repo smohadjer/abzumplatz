@@ -9,7 +9,12 @@ import {
   getLocalDate,
   getAllReservations
 } from '../src/utils/utils.js';
-import { JwtPayload, ReservationItem } from '../src/types.js';
+import { DBUser, JwtPayload, ReservationItem } from '../src/types.js';
+import { VercelRequest, VercelResponse } from '@vercel/node';
+
+type ReservationClub = {
+  reservations_limit: number;
+}
 
 const getError = (key: string, options?) => {
     switch (key) {
@@ -36,7 +41,10 @@ const getError = (key: string, options?) => {
     }
 };
 
-const getUserReservations = async (reservations, user_id): Promise<ReservationItem[]> => {
+const getUserReservations = async (
+  reservations: Collection<ReservationItem>,
+  user_id: string
+): Promise<ReservationItem[]> => {
   const docs = await reservations.find({
     user_id,
     date: { $gte: new Date().toISOString().split('T')[0] }
@@ -47,8 +55,12 @@ const getUserReservations = async (reservations, user_id): Promise<ReservationIt
   return docs.toArray();
 };
 
-export const setReservation = async (req, res, reservations, clubs,
-    users: Collection) => {
+export const setReservation = async (
+    req: VercelRequest,
+    res: VercelResponse,
+    reservations: Collection<ReservationItem>,
+    clubs: Collection<ReservationClub>,
+    users: Collection<DBUser>) => {
     const body = sanitize(req.body);
     const { court_num, date, label } = body;
     const start_time = Number(body.start_time);
@@ -61,21 +73,28 @@ export const setReservation = async (req, res, reservations, clubs,
     const valid = validator(body);
     if (!valid) {
       const errors = validator.errors;
-      errors.map(error => {
-          // for custom error messages
-          if (error.parentSchema) {
-              const customErrorMessage = error.parentSchema.errorMessage;
-              if (customErrorMessage) {
-                error.message = customErrorMessage;
-              }
-          }
-          return error;
-      });
-      console.error(errors);
-      return res.json({error: errors});
+      if (errors) { 
+        errors.map(error => {
+            // for custom error messages
+            if (error.parentSchema) {
+                const customErrorMessage = error.parentSchema.errorMessage;
+                if (customErrorMessage) {
+                  error.message = customErrorMessage;
+                }
+            }
+            return error;
+        });
+        console.error(errors);
+        return res.json({error: errors});
+      } else {
+        return res.json({error: 'Invalid data'});
+      }
     }
 
-    const payload: JwtPayload = await getJwtPayload(req);
+    const payload = await getJwtPayload(req);
+    if (!payload) {
+      return res.status(401).json({error: 'Unauthorized'});
+    }
     const user = await users.findOne({
       _id: ObjectId.createFromHexString(payload._id)
     });
@@ -125,8 +144,12 @@ export const setReservation = async (req, res, reservations, clubs,
     }
 
     const userReservations = await getUserReservations(reservations, userId);
+    const club_id = user.club_id;
+    if (!club_id) {
+      throw new Error('User does not belong to a club');
+    }
     const userClub = await clubs.findOne(
-      {_id: ObjectId.createFromHexString(user.club_id)}
+      {_id: ObjectId.createFromHexString(club_id)}
     );
 
     // validation for none-admin users
@@ -142,7 +165,10 @@ export const setReservation = async (req, res, reservations, clubs,
       }
 
       // throw error if user has already reached maximum allowed number of reservations
-      const limit =  userClub.reservations_limit;
+      const limit = userClub?.reservations_limit;
+      if (limit === undefined) {
+        throw new Error('Club not found');
+      }
       if (userReservations.length >= limit) {
         throw new Error(getError('reached_limit', {limit}));
       }
@@ -161,7 +187,7 @@ export const setReservation = async (req, res, reservations, clubs,
 
     // insert reservation
     const reservation = {
-      club_id: user.club_id,
+      club_id: club_id,
       user_id: userId,
       court_num,
       date,
@@ -172,7 +198,7 @@ export const setReservation = async (req, res, reservations, clubs,
       timestamp: new Date()
     };
     const insertResponse = await reservations.insertOne(reservation);
-    const docs = await getAllReservations(reservations, user.club_id);
+    const docs = await getAllReservations(reservations, club_id);
 
     res.status(201).json({
       message: `Platz ${court_num} ist reserviert mit Reservierungsnummer: ${insertResponse.insertedId}`,

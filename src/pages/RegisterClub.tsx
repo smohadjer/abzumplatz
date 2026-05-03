@@ -16,7 +16,6 @@ export default function RegisterClub() {
     const dispatch = useDispatch();
 
     const callback = async (response: Response) => {
-        console.log(response.data);
         if (response.data) {
             dispatch({
                 type: 'auth/setClubId',

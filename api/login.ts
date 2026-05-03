@@ -5,27 +5,37 @@ import { jwtSecret, environment, database_uri, database_name } from './_config.j
 import bcrypt from 'bcrypt';
 import { SignJWT } from 'jose';
 import { JwtPayload } from '../src/types.js';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/login.json', 'utf8'));
+
+if (!database_uri || !database_name) {
+    throw new Error('Database configuration is missing');
+}
+
 const client = new MongoClient(database_uri);
 
-export default async (req, res) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
         const validator = ajv.compile(schema);
         const valid = validator(sanitize(req.body));
         if (!valid) {
             const errors = validator.errors;
-            errors.map(error => {
-                // for custom error messages
-                if (error.parentSchema) {
-                    const customErrorMessage = error.parentSchema.errorMessage;
-                    if (customErrorMessage) {
-                      error.message = customErrorMessage;
+            if (errors) {
+                errors.map(error => {
+                    // for custom error messages
+                    if (error.parentSchema) {
+                        const customErrorMessage = error.parentSchema.errorMessage;
+                        if (customErrorMessage) {
+                        error.message = customErrorMessage;
+                        }
                     }
-                }
-                return error;
-            });
-            return res.json({error: errors});
+                    return error;
+                });
+                return res.json({error: errors});
+            } else {
+                return res.json({error: 'Invalid data'});
+            }
         } else {
             const { email, password } = req.body;
             //return res.json('Server received valid data');
@@ -91,7 +101,7 @@ export default async (req, res) => {
 }
 
 
-function setCookieServerless(res, token) {
+function setCookieServerless(res: VercelResponse, token: string) {
     // if we are not running app locally use secure so cookie is sent only over https
     const secure = (environment === 'local') ? '' : '; Secure';
 
@@ -102,5 +112,5 @@ function setCookieServerless(res, token) {
     // setting token in a httpOnly cookie, we need to specify Path since we
     // want browser to send cookie when page outside /api folder is requested
     // as we also use the cookie to allow access to public/admin.html
-    res.setHeader('Set-Cookie', [`jwt=${token}; Expires=${cookieDate.toUTCString()}; HttpOnly; Path=/${secure}`]);
+    res.setHeader('Set-Cookie', [`jwt=${token}; Expires=${cookieDate.toUTCString()}; HttpOnly; SameSite=Lax; Path=/${secure}`]);
   }
