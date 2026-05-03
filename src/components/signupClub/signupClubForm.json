@@ -320,7 +320,7 @@
         },
         {
             "name": "reservations_limit",
-            "label": "Maximum erlaubte Reservierungen",
+            "label": "Maximale Anzahl aktiver Buchungen pro Spieler",
             "type": "select",
             "options": [
                 {

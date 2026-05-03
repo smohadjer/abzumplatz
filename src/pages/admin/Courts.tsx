@@ -48,14 +48,14 @@ export default function AdminCourtsPage() {
     }
 
     useEffect(() => {
-        if (!clubData.loaded) {
+        if (!clubData.loaded || clubData.value._id !== club_id) {
             (async () => {
                 setLoading(true);
                 await fetchClub(club_id, dispatch);
                 setLoading(false);
             })();
         }
-    }, []);
+    }, [club_id, clubData.loaded, clubData.value._id, dispatch]);
 
     return (
         loading || !clubData.loaded ? (

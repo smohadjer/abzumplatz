@@ -9,20 +9,11 @@ type Props = {
 export const PublicRoute = ({ children }: Props) => {
   const auth = useSelector((state: RootState) => state.auth);
   const isLoggedin = auth.value;
-  const role = auth.role;
 
   // console.log('PublicRoute', {isLoggedin}, {role}, location.pathname)
 
   if (isLoggedin) {
-    if (auth.club_id) {
-      return <Navigate to="/reservations" replace />;
-    } else {
-      if (role === 'admin') {
-        return <Navigate to="/register/club" replace />;
-      } else {
-        return <Navigate to="/select-club" replace />;
-      }
-    }
+    return <Navigate to="/reservations" replace />;
   }
 
   return children;

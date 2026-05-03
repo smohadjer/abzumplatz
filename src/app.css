@@ -90,6 +90,10 @@ button {
     margin-top: 1em;
 }
 
+button:first-child {
+    margin-top: 0;
+}
+
 ul {
     padding-left: 17px;
 

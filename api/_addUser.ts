@@ -5,7 +5,7 @@ import { DBUser } from '../src/types.js';
 const saltRounds = 10;
 
 export async function addUser(database: Db, user: DBUser) {
-    const collectionUsers = database.collection('users');
+    const collectionUsers = database.collection<DBUser>('users');
     collectionUsers.createIndex(
         {
            email: 1

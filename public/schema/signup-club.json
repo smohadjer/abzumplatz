@@ -35,13 +35,6 @@
                 }
             ]
         },
-        "club_id": {
-            "type": "string",
-            "minLength": 1,
-            "errorMessage": {
-              "minLength": "You did not provide a valid value for this field"
-            }
-        },
         "email": {
             "type": "string",
             "allOf": [
@@ -89,8 +82,47 @@
             "errorMessage": {
               "enum": "This is not a valid value."
             }
+        },
+        "name": {
+            "type": "string",
+            "allOf": [
+                {
+                    "maxLength": 100,
+                    "errorMessage": "Name is too long"
+                }
+            ]
+        },
+        "courts_count": {
+            "type": "integer",
+            "allOf": [
+                {
+                    "minimum": 1,
+                    "exclusiveMaximum": 20
+                }
+            ]
+        },
+        "start_hour": {
+            "type": "integer",
+            "allOf": [
+                {
+                    "minimum": 1,
+                    "exclusiveMaximum": 24
+                }
+            ]
+        },
+        "end_hour": {
+            "type": "integer",
+            "allOf": [
+                {
+                    "minimum": 1,
+                    "exclusiveMaximum": 24
+                }
+            ]
+        },
+        "reservations_limit": {
+            "type": "integer"
         }
     },
-    "required": ["first_name", "last_name", "club_id", "email", "password", "privacy"],
+    "required": ["first_name", "last_name", "email", "password", "privacy", "name", "courts_count", "start_hour", "end_hour", "reservations_limit"],
     "additionalProperties": false
 }

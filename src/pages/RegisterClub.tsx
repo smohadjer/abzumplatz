@@ -1,44 +1,45 @@
-import { SignupClub } from '../components/signupClub/SignupClub';
 import { useNavigate } from "react-router";
-import { useDispatch } from 'react-redux'
-import { Club } from '../types';
-
-type Response = {
-    message: string;
-    data: {
-        club_id: string;
-        clubs: Club[];
-    }
-}
+import { Link } from 'react-router';
+import { Form } from '../components/form/Form';
+import signupFormJson from '../components/signup/signupForm.json';
+import signupClubFormJson from '../components/signupClub/signupClubForm.json';
+import { Field } from '../types';
 
 export default function RegisterClub() {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
-    const callback = async (response: Response) => {
-        if (response.data) {
-            dispatch({
-                type: 'auth/setClubId',
-                payload: {
-                    club_id: response.data.club_id
-                }
-            });
-
-            dispatch({
-                type: 'clubs/fetch',
-                payload: {
-                    value: response.data.clubs
-                }
-            });
-            navigate('/reservations');
-        }
+    const callback = async () => {
+        navigate('/login');
     }
+
+    const userFields = (signupFormJson.fields as Field[])
+        .filter(field => field.name !== 'club_id');
+    const privacyField = userFields.find(field => field.name === 'privacy');
+    const clubFields = (signupClubFormJson.fields as Field[])
+        .filter(field => field.name !== '_id');
+    const fields: Field[] = JSON.parse(JSON.stringify([
+        ...userFields.filter(field => field.name !== 'privacy'),
+        ...clubFields,
+        ...(privacyField ? [privacyField] : [])
+    ]));
+    const formAttributes = {
+        ...signupFormJson.form,
+        action: '/api/signup-club'
+    };
 
     return (
         <>
+            <Link className="icon icon--back" to="/">Zurück</Link>
             <h2>Verein Registrieren</h2>
             <p>Als Administrator sollten Sie Ihren Verein registrieren, bevor Sie und die Spieler Reservierungen vornehmen können.</p>
-            <SignupClub label="Verein Registrieren" callback={callback} />
+            <Form
+                classNames="signup"
+                initialData={fields}
+                formAttributes={formAttributes}
+                label="Verein Registrieren"
+                pathSchema="/schema/signup-club.json"
+                callback={callback}
+            />
         </>
     )
 }
