@@ -2,15 +2,16 @@ import sendEmail from './_sendEmail.js';
 import { MongoClient } from 'mongodb';
 import crypto from 'crypto';
 import { database_uri, database_name } from './_config.js';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 
 const client = new MongoClient(database_uri);
 
-const myCallback = (res) => {
-    console.log('Email was sent scuccessfully!');
+const myCallback = (res: VercelResponse) => {
+    // console.log('Email was sent scuccessfully!');
     res.status(200).send({ message: "Mail sent" });
 };
 
-export default async (req, res) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
     const {email} = req.body;
     const token = crypto.randomBytes(32).toString('hex');
     const expiry = Date.now() + 3600000; // 1 hour
@@ -30,10 +31,10 @@ export default async (req, res) => {
                       resetTokenExpiry: expiry
                     },
                 };
-                const result = await collection.updateOne({email}, updateDoc);
-                console.log(
-                    `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
-                );
+                await collection.updateOne({email}, updateDoc);
+                // console.log(
+                //     `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
+                // );
 
                 const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
                 sendEmail({
@@ -56,7 +57,7 @@ export default async (req, res) => {
             });
         } finally {
             // Close the connection after the operation completes
-            console.log('closing connection')
+            // console.log('closing connection')
             await client.close();
         }
     }

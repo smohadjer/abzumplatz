@@ -35,7 +35,6 @@ export function Form(props: Props) {
         if (formData && formData.length) {
             const data = [...formData];
             errors.forEach(error => {
-                console.log(error);
                 let fieldName: string = '';
                 if (error.instancePath?.length > 0) {
                     fieldName = error.instancePath.substring(1);
@@ -112,7 +111,6 @@ export function Form(props: Props) {
 
         const json = JSON.stringify(data);
         const errorCallback = (errors: ErrorType[]) => {
-            console.log(errors);
             updateFormDataErrors(errors);
             setDisabled(false);
         }
@@ -125,8 +123,6 @@ export function Form(props: Props) {
                 return;
             }
         }
-
-        console.log('submitting form...');
 
         // submit form data as json to server
         fetch(url, {
@@ -144,7 +140,6 @@ export function Form(props: Props) {
                 console.error(json.error);
                 updateFormDataErrors(json.error);
             } else {
-                console.log('Server received valid data', target.action);
                 if (props.callback) {
                     props.callback(json);
                 }

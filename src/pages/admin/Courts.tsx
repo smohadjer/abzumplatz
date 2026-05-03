@@ -25,7 +25,6 @@ export default function AdminCourtsPage() {
     const navigate = useNavigate();
 
     const callback = async (response: Response) => {
-        console.log(response.data);
         if (response.data) {
             dispatch({
                 type: 'clubs/fetch',

@@ -218,7 +218,6 @@ export const getAllReservations = async (
   };
 
 export const fetchAppData = async (clubId: string, dispatch: AppDispatch) => {
-    console.log('Fetching app data...')
     const usersEndpoint = `/api/users?club_id=${clubId}`;
     const reservationsEndpoint = `/api/reservations?club_id=${clubId}`;
     const usersRequest: Promise<StateUser[]> = fetch(usersEndpoint)
@@ -247,7 +246,6 @@ export const fetchAppData = async (clubId: string, dispatch: AppDispatch) => {
 };
 
 export const fetchClub = async (clubId: string, dispatch: AppDispatch) => {
-    console.log('Fetching club data')
     const path = `/api/clubs?id=${clubId}`;
     const data = await fetch(path);
     const json = await data.json();
@@ -262,7 +260,6 @@ export const fetchClub = async (clubId: string, dispatch: AppDispatch) => {
 
 
 export const fetchUsers = async (clubId: string, dispatch: AppDispatch) => {
-    console.log('Fetching users...')
     const usersEndpoint = `/api/users?club_id=${clubId}`;
     const usersData = await fetch(usersEndpoint);
     const users: StateUser[] = await usersData.json();
@@ -276,7 +273,6 @@ export const fetchUsers = async (clubId: string, dispatch: AppDispatch) => {
 };
 
 export const fetchReservations = async (clubId: string, dispatch: AppDispatch) => {
-    console.log('Fetching reservations...')
     const reservationsEndpoint = `/api/reservations?club_id=${clubId}`;
     const reservationsData = await fetch(reservationsEndpoint);
     const reservations: ReservationItem[] = await reservationsData.json();

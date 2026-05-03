@@ -1,5 +1,4 @@
 import { Navigate } from 'react-router';
-import { useLocation } from 'react-router'
 import { useSelector } from 'react-redux'
 import { RootState } from './store';
 
@@ -8,12 +7,11 @@ type Props = {
 };
 
 export const PublicRoute = ({ children }: Props) => {
-  const location = useLocation();
   const auth = useSelector((state: RootState) => state.auth);
   const isLoggedin = auth.value;
   const role = auth.role;
 
-  console.log('PublicRoute', {isLoggedin}, {role}, location.pathname)
+  // console.log('PublicRoute', {isLoggedin}, {role}, location.pathname)
 
   if (isLoggedin) {
     if (auth.club_id) {

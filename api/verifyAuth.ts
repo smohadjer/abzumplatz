@@ -4,11 +4,16 @@ import { JwtPayload } from '../src/types.js';
 import { fetchUsers } from './_fetchUsers.js';
 import { database_uri, database_name } from './_config.js';
 import { MongoClient } from 'mongodb';
+import { VercelRequest, VercelResponse } from '@vercel/node';
+
+if (!database_uri || !database_name) {
+    throw new Error('Database configuration is missing');
+}   
 
 const client = new MongoClient(database_uri);
 
-export default async (request, response) => {
-    const payload: JwtPayload = await getJwtPayload(request);
+export default async (request: VercelRequest, response: VercelResponse) => {
+    const payload = await getJwtPayload(request);
 
     if (payload) {
         await client.connect();
@@ -34,12 +39,11 @@ export default async (request, response) => {
     }
 }
 
-export const getJwtPayload = async (req) : Promise<JwtPayload> => {
+export const getJwtPayload = async (req: VercelRequest) : Promise<JwtPayload | undefined> => {
     const jwt = req.cookies?.jwt;
     const authHeader = req.headers.authorization;
     const hasBearerAuthHeader = authHeader && authHeader.startsWith('Bearer ');
     const token = hasBearerAuthHeader ? authHeader.split(' ')[1] : jwt;
-    console.log(token);
     const secret = new TextEncoder().encode(jwtSecret);
 
     try {

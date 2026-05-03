@@ -6,7 +6,7 @@ import 'dotenv/config';
 import { MongoClient } from 'mongodb';
 import { database_uri, database_name } from '../api/_config.js';
 
-console.log('database_uri:', database_uri);
+// console.log('database_uri:', database_uri);
 
 const client = new MongoClient(database_uri);
 
@@ -15,12 +15,12 @@ async function run() {
     await client.connect();
     const database = client.db(database_name);
     const collection = database.collection('users');
-    const result = await collection.updateMany({}, {
+    await collection.updateMany({}, {
       $set: {
         status: 'active'
       }
     });
-    console.log(`Updated ${result.modifiedCount} documents`);
+    // console.log(`Updated ${result.modifiedCount} documents`);
   } finally {
     // Close the connection after the operation completes
     await client.close();
