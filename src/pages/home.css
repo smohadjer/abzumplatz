@@ -19,7 +19,7 @@
         margin: 0;
         color: #fff;
         text-align: center;
-        font-size: 16px;
+        font-size: 1.125rem;
         text-decoration: none;
         min-height: 2.25em;
         border-radius: 0.25em;
@@ -50,6 +50,7 @@
 }
 
 .intro {
+    font-size: 1.125rem;
     margin: 1em 0;
 }
 
@@ -66,7 +67,7 @@
         background: var(--blue);
         color: #fff;
         text-align: center;
-        font-size: 16px;
+        font-size: 1.125rem;
         text-decoration: none;
         min-height: 2.25em;
         border-radius: 0.25em;
@@ -76,7 +77,7 @@
 
 .hero-image {
     width: 40%;
-    max-width: 640px;
+    max-width: 300px;
     display: block;
     margin: 1.5em auto 1.5em;
 }
