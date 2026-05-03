@@ -1,10 +1,12 @@
 import { MouseEventHandler } from "react";
 import {
     getLocalDate,
+    assignReservation,
     deleteReservation,
     makeReservation
 } from './../../utils/utils';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
 import { Loader } from '../loader/Loader';
 import { ReservationForm } from "../courts/ReservationForm";
 
@@ -27,6 +29,7 @@ export function Popup(props: {
         closePopup: MouseEventHandler;
     }) {
     const dispatch = useDispatch();
+    const user = useSelector((state: RootState) => state.auth);
     const reservationData = {
         court_number: props.slot.court_number,
         hour: props.slot.hour,
@@ -49,28 +52,38 @@ export function Popup(props: {
                     Zeit: {slot.hour} Uhr
                     {slot.user_name && <><br />Reserviert von: {slot.user_name}</>}</p>
 
-                    {slot.recurring && <p>Dies ist eine wiederkehrende Reservierung. Bitte wählen Sie aus, wie Sie sie löschen möchten:</p>}
-
-                    <form
-                        method="POST"
-                        action={`/api/reservations?reservation_id=${slot.reservation_id}`}
-                        onSubmit={(event) => {
+                    {user.role === 'admin' && <button
+                        type="button"
+                        disabled={props.disabled}
+                        onClick={() => {
                             props.setDisabled(true);
-                            deleteReservation(event, props.closePopup, successCallback);
-                        }}>
-                        <input type="hidden" name="form_method" value="delete" />
-                        <input type="hidden" name="date" value={slot.date} />
-                        {slot.recurring ?
-                            <div className="delete_fields">
-                                <label><input defaultChecked type="radio" name="delete_type" value="once" /> Nur diesen Termin</label>
-                                <label><input type="radio" name="delete_type" value="once_and_future" /> Diesen Termin und alle folgenden</label>
-                                <label><input type="radio" name="delete_type" value="all" /> Alle Termine</label>
-                            </div>
-                            : <input type="hidden" name="delete_type" value="all" />
-                        }
-                        <button type="submit" disabled={props.disabled}>Reservierung löschen</button>
-                        {props.disabled ? <Loader /> : null}
-                    </form>
+                            assignReservation(slot.reservation_id, props.closePopup, successCallback);
+                        }}>Reservierung mir zuweisen</button>}
+
+                    <div className={user.role === 'admin' ? 'delete-reservation-panel' : undefined}>
+                        {slot.recurring && <p>Dies ist eine wiederkehrende Reservierung. Bitte wählen Sie aus, wie Sie sie löschen möchten:</p>}
+
+                        <form
+                            method="POST"
+                            action={`/api/reservations?reservation_id=${slot.reservation_id}`}
+                            onSubmit={(event) => {
+                                props.setDisabled(true);
+                                deleteReservation(event, props.closePopup, successCallback);
+                            }}>
+                            <input type="hidden" name="form_method" value="delete" />
+                            <input type="hidden" name="date" value={slot.date} />
+                            {slot.recurring ?
+                                <div className="delete_fields">
+                                    <label><input defaultChecked type="radio" name="delete_type" value="once" /> Nur diesen Termin</label>
+                                    <label><input type="radio" name="delete_type" value="once_and_future" /> Diesen Termin und alle folgenden</label>
+                                    <label><input type="radio" name="delete_type" value="all" /> Alle Termine</label>
+                                </div>
+                                : <input type="hidden" name="delete_type" value="all" />
+                            }
+                            <button type="submit" disabled={props.disabled}>Reservierung löschen</button>
+                            {props.disabled ? <Loader /> : null}
+                        </form>
+                    </div>
                 </>
             );
         } else {

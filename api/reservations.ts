@@ -4,6 +4,7 @@ import { getAllReservations } from '../src/utils/utils.js';
 import { ReservationItem } from '../src/types.js';
 import { deleteReservation } from './_deleteReservation.js';
 import { setReservation } from './_setReservation.js';
+import { assignReservation } from './_assignReservation.js';
 
 const client = new MongoClient(database_uri);
 
@@ -28,6 +29,8 @@ export default async (req, res) => {
     if (req.method === 'POST') {
       if (req.body.form_method === 'delete') {
         await deleteReservation(req, res, reservations, users);
+      } else if (req.body.form_method === 'assign') {
+        await assignReservation(req, res, reservations, users);
       } else {
         await setReservation(req, res, reservations, clubs, users);
       }
