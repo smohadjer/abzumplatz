@@ -22,6 +22,7 @@ export function Signup() {
     const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
     const clubField = normalizedFields.find(field => field.name === 'club_id');
     if (clubField) {
+        clubField.hint = 'Falls Sie Ihren Verein nicht finden, bitten Sie den Sportwart Ihres Vereins, Ihren Verein auf abzumplatz.de zu registrieren.';
         clubField.options = [
             {
                 label: 'Verein auswählen',

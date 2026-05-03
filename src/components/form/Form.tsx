@@ -204,6 +204,7 @@ export function Form(props: Props) {
                         item={item}
                         handleChange={handleChange}
                     />
+                    <Hint text={item.hint} />
                     <Error error={item.error} />
                     </div>
                 </div>

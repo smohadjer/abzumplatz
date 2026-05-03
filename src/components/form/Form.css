@@ -63,6 +63,12 @@
         display: none;
     }
 
+    .hint {
+        font-size: 0.875em;
+        color: #555;
+        margin-top: 0.25em;
+    }
+
     .row-error {
         .error {
             display: block;
