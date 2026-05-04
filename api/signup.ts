@@ -57,6 +57,22 @@ function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument) {
     `;
 }
 
+function buildWelcomeEmail(user: DBUser, club: ClubDocument) {
+    return `
+        <p>Hallo ${escapeHtml(user.first_name)},</p>
+        <p>willkommen bei ${escapeHtml(club.name ?? 'Ab zum Platz')}! Ihr Benutzerkonto wurde erfolgreich registriert.</p>
+        <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
+            <tbody>
+                <tr><td><strong>Name</strong></td><td>${escapeHtml(`${user.first_name} ${user.last_name}`)}</td></tr>
+                <tr><td><strong>E-Mail</strong></td><td>${escapeHtml(user.email)}</td></tr>
+                <tr><td><strong>Verein</strong></td><td>${escapeHtml(club.name)}</td></tr>
+                <tr><td><strong>Status</strong></td><td>${escapeHtml(user.status)}</td></tr>
+            </tbody>
+        </table>
+        <p>Sie können sich jetzt in der App anmelden und Plätze reservieren.</p>
+    `;
+}
+
 async function notifyClubAdmins(database: Db, user: DBUser, club: ClubDocument) {
     const admins = await database.collection<AdminUserDocument>('users').find({
         club_id: user.club_id,
@@ -87,6 +103,14 @@ async function notifyClubAdmins(database: Db, user: DBUser, club: ClubDocument) 
     if (failedNotifications.length) {
         throw new Error(`Failed to send ${failedNotifications.length} admin registration notification(s)`);
     }
+}
+
+async function sendWelcomeEmail(user: DBUser, club: ClubDocument) {
+    await sendEmail({
+        email: user.email,
+        subject: `Willkommen bei ${club.name ?? 'Ab zum Platz'}`,
+        html: buildWelcomeEmail(user, club),
+    });
 }
 
 export default async (req: VercelRequest, res: VercelResponse) => {
@@ -141,6 +165,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     await notifyClubAdmins(database, user, club);
                 } catch (notificationError) {
                     console.error('Failed to notify club admins about new user registration', notificationError);
+                }
+                try {
+                    await sendWelcomeEmail(user, club);
+                } catch (welcomeEmailError) {
+                    console.error('Failed to send welcome email after new user registration', welcomeEmailError);
                 }
                 res.status(201).json({
                   message: `User ${first_name} ${last_name} is registered`,
