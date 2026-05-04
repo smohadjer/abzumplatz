@@ -37,7 +37,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 // );
 
                 const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
-                sendEmail({
+                await sendEmail({
                     email: req.body.email,
                     subject: 'Passwort zurücksetzen',
                     html: `<p>Besuchen Sie die <a href="${resetLink}">folgende Seite</a>, um Ihr Kontopasswort zurückzusetzen. Nach der Passwortänderung müssen Sie sich mit dem neuen Passwort anmelden.</p>`,

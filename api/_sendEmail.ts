@@ -1,5 +1,12 @@
 import nodemailer from 'nodemailer';
 
+type SendEmailOptions = {
+  email: string | string[];
+  subject: string;
+  html: string;
+  callback?: () => void;
+}
+
 const transporter = nodemailer.createTransport({
   //host: "smtp.fastmail.com",
   //port: 465,
@@ -11,7 +18,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-export default async (options) => {
+export default async (options: SendEmailOptions) => {
   const mailData = {
       from: process.env.email_username,
       to: options.email,
@@ -19,11 +26,8 @@ export default async (options) => {
       html: options.html
   };
 
-  transporter.sendMail(mailData, (error, info) => {
-      if (error) {
-          console.error(error);
-      } else {
-        options.callback();
-      }
-  });
+  const info = await transporter.sendMail(mailData);
+  options.callback?.();
+
+  return info;
 };
