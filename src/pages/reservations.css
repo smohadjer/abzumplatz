@@ -195,6 +195,17 @@ h2 {
                         color: #333;
                     }
 
+                    .recurring-marker {
+                        display: inline-block;
+                        margin-right: 0.25em;
+                        padding: 0.1em 0.25em 0;
+                        border: 1px solid currentColor;
+                        border-radius: 2px;
+                        font-size: 0.8em;
+                        font-weight: bold;
+                        line-height: 1.1;
+                    }
+
                     &.my-reservation:not(.past) {
                         background: #faaeae;
                         text-decoration: underline;

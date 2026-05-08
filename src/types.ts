@@ -62,12 +62,14 @@ export type ReservationItem = {
     user_id: string;
     date: string;
     court_num: string;
+    court_nums?: string[];
     start_time: number;
     end_time: number;
     label?: string;
     recurring?: boolean;
     deleted_dates?: string[];
     end_date?: string;
+    timestamp?: Date | string;
 }
 
 /* we make _id optional so we can insert reservation items into db without an id */

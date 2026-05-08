@@ -4,6 +4,14 @@
         "court_num": {
             "type": "integer"
         },
+        "court_nums": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        },
         "date": {
             "type": "string"
         },
