@@ -80,6 +80,12 @@ export const recurringReservationIsOnSameDay = (reservationItem: ReservationItem
     return (new Date(reservationItem.date) < new Date(isoDate));
 };
 
+export const reservationIsOnSameDay = (reservationItem: ReservationItem, isoDate: string) => {
+    if (reservationItem.deleted_dates && reservationItem.deleted_dates.find(item => item === isoDate)) return false;
+    if (reservationItem.date === isoDate) return true;
+    return recurringReservationIsOnSameDay(reservationItem, isoDate);
+};
+
 export const getLocalDate = (date: string | undefined) => {
     if (date) {
         const day = new Date(date);
@@ -170,11 +176,13 @@ export const makeReservation = (
         const duration = Number(formData.get('duration') ?? 1);
         const label = formData.get('label');
         const recurring = formData.get('recurring') ?? false;
+        const courtNums = formData.getAll('court_nums');
 
         const data = {
             club_id: reservationData.club_id,
             user_id: reservationData.user_id,
             court_num: reservationData.court_number,
+            ...(courtNums.length ? {court_nums: courtNums} : {}),
             start_time: reservationData.hour,
             end_time:  reservationData.hour + duration,
             date: reservationData.date,
