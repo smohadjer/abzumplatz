@@ -55,6 +55,10 @@
         margin-left: 0;
     }
 
+    p + form {
+        margin-top: 1em;
+    }
+
     form {
         fieldset {
             border: 0;
@@ -72,6 +76,10 @@
             &[disabled] {
                 opacity: 0.5;
             }
+        }
+
+        input[type=hidden] + button[type=submit] {
+            margin-top: 0;
         }
 
         label {

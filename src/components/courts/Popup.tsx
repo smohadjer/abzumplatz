@@ -55,14 +55,16 @@ export function Popup(props: {
         });
     }
     const formatBoolean = (value: boolean | undefined) => value ? 'Ja' : 'Nein';
+    const courtNums = props.slot.court_nums ?? [props.slot.court_number];
+    const courtsLabel = courtNums.length === 1 ? 'Platz' : 'Plätze';
     const getReservationDetails = (slot: Slot) => [
         ['Reserviert von', slot.user_name],
-        ['Plätze', slot.court_nums?.join(', ') ?? slot.court_number],
+        [courtsLabel, courtNums.join(', ')],
         ['Datum', getLocalDate(slot.date)],
         ['Startzeit', `${slot.hour}:00 Uhr`],
         ['Endzeit', slot.end_time ? `${slot.end_time}:00 Uhr` : undefined],
         ['Reservierungslabel', slot.label],
-        ['Wiederholt sich jede Woche', formatBoolean(slot.recurring)],
+        ['Wiederholt sich jede Woche', user.role === 'admin' ? formatBoolean(slot.recurring) : undefined],
         ['Gelöschte Termine', slot.deleted_dates?.map(date => getLocalDate(date)).join(', ')],
         ['Enddatum', getLocalDate(slot.end_date)],
         ['Erstellt am', slot.timestamp ? new Date(slot.timestamp).toLocaleString('de-DE') : undefined],
