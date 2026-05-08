@@ -88,7 +88,11 @@ export default function Reservations() {
         }
 
         if (event.target instanceof HTMLElement) {
-            const slot = event.target;
+            const slot = event.target.closest<HTMLElement>('.cell');
+
+            if (!slot) {
+                return;
+            }
 
             if (slot.classList.contains('disabled')) {
                 alert('Reservierungen für diesen Platz wurden von der Verwaltung Ihres Vereins deaktiviert.');
