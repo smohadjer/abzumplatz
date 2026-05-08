@@ -3,7 +3,8 @@ import {
     getLocalDate,
     assignReservation,
     deleteReservation,
-    makeReservation
+    makeReservation,
+    getClub
 } from './../../utils/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
@@ -16,9 +17,17 @@ type Slot = {
     date: string;
     hour: number;
     court_number: string;
+    court_nums?: string[];
+    club_id?: string;
     reservation_id?: string;
+    end_time?: number;
     recurring?: boolean;
     user_name?: string;
+    user_id?: string;
+    label?: string;
+    deleted_dates?: string[];
+    end_date?: string;
+    timestamp?: string;
 }
 
 export function Popup(props: {
@@ -30,6 +39,7 @@ export function Popup(props: {
     }) {
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.auth);
+    const club = getClub();
     const reservationData = {
         court_number: props.slot.court_number,
         hour: props.slot.hour,
@@ -44,15 +54,30 @@ export function Popup(props: {
             }
         });
     }
+    const formatBoolean = (value: boolean | undefined) => value ? 'Ja' : 'Nein';
+    const getReservationDetails = (slot: Slot) => [
+        ['Reserviert von', slot.user_name],
+        ['Plätze', slot.court_nums?.join(', ') ?? slot.court_number],
+        ['Datum', getLocalDate(slot.date)],
+        ['Startzeit', `${slot.hour}:00 Uhr`],
+        ['Endzeit', slot.end_time ? `${slot.end_time}:00 Uhr` : undefined],
+        ['Reservierungslabel', slot.label],
+        ['Wiederholt sich jede Woche', formatBoolean(slot.recurring)],
+        ['Gelöschte Termine', slot.deleted_dates?.map(date => getLocalDate(date)).join(', ')],
+        ['Enddatum', getLocalDate(slot.end_date)],
+        ['Erstellt am', slot.timestamp ? new Date(slot.timestamp).toLocaleString('de-DE') : undefined],
+    ].filter((detail) => detail[1] !== undefined && detail[1] !== '');
     const getPopupContent = (slot: Slot, popupType: string) => {
         if (popupType === 'deleteReservation') {
             return (
                 <>
-                    <p>Datum: {getLocalDate(slot.date)}<br />
-                    Zeit: {slot.hour} Uhr
-                    {slot.user_name && <><br />Reserviert von: {slot.user_name}</>}</p>
+                    <p>
+                        {getReservationDetails(slot).map(([label, value]) => (
+                            <span key={label}>{label}: {value}<br /></span>
+                        ))}
+                    </p>
 
-                    {user.role === 'admin' && <button
+                    {user.role === 'admin' && slot.user_id !== user._id && <button
                         type="button"
                         disabled={props.disabled}
                         onClick={() => {
@@ -60,7 +85,7 @@ export function Popup(props: {
                             assignReservation(slot.reservation_id, props.closePopup, successCallback);
                         }}>Reservierung mir zuweisen</button>}
 
-                    <div className={user.role === 'admin' ? 'delete-reservation-panel' : undefined}>
+                    <div className="delete-reservation-panel">
                         {slot.recurring && <p>Dies ist eine wiederkehrende Reservierung. Bitte wählen Sie aus, wie Sie sie löschen möchten:</p>}
 
                         <form
@@ -74,9 +99,9 @@ export function Popup(props: {
                             <input type="hidden" name="date" value={slot.date} />
                             {slot.recurring ?
                                 <div className="delete_fields">
-                                    <label><input defaultChecked type="radio" name="delete_type" value="once" /> Nur diesen Termin</label>
+                                    <label><input type="radio" name="delete_type" value="once" /> Nur diesen Termin</label>
                                     <label><input type="radio" name="delete_type" value="once_and_future" /> Diesen Termin und alle folgenden</label>
-                                    <label><input type="radio" name="delete_type" value="all" /> Alle Termine</label>
+                                    <label><input defaultChecked type="radio" name="delete_type" value="all" /> Alle Termine</label>
                                 </div>
                                 : <input type="hidden" name="delete_type" value="all" />
                             }
@@ -89,13 +114,15 @@ export function Popup(props: {
         } else {
             return (
                 <>
-                    <p>Möchten Sie den Platz {slot.court_number} am {getLocalDate(slot.date)} um {slot.hour}:00 Uhr reservieren?</p>
+                    <p>Reservierung am {getLocalDate(slot.date)} um {slot.hour}:00 Uhr</p>
                     <ReservationForm
                         submitHandler={(event) => {
                             props.setDisabled(true);
                             makeReservation(event, props.closePopup, successCallback, reservationData);
                         }}
                         disabled={props.disabled}
+                        courts={club?.courts ?? []}
+                        selectedCourtNumber={slot.court_number}
                     />
                 </>
             );

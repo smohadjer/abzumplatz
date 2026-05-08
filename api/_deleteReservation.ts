@@ -5,6 +5,26 @@ import { getJwtPayload } from './verifyAuth.js';
 import { getAllReservations } from '../src/utils/utils.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
+const getWeeklyOccurrenceDatesBefore = (startDate: string, endDate: string) => {
+  const dates: string[] = [];
+  const current = new Date(startDate);
+  const end = new Date(endDate);
+
+  while (current < end) {
+    dates.push(current.toISOString().split('T')[0]);
+    current.setDate(current.getDate() + 7);
+  }
+
+  return dates;
+};
+
+const previousOccurrencesWereDeleted = (reservation: ReservationItem, selectedDate: string) => {
+  const deletedDates = new Set(reservation.deleted_dates ?? []);
+  const previousOccurrenceDates = getWeeklyOccurrenceDatesBefore(reservation.date, selectedDate);
+
+  return previousOccurrenceDates.every(date => deletedDates.has(date));
+};
+
 export const deleteReservation = async (req: VercelRequest, res: VercelResponse, reservations: Collection<ReservationItem>,
   users: Collection<DBUser>) => {
     const reservation_id = req.query?.reservation_id;
@@ -76,6 +96,16 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
       await returnResponse();
     // set end_date of reservation doc in db to req.body.date
     } else {
+      if (previousOccurrencesWereDeleted(reservation, req.body.date)) {
+        const result = await reservations.deleteOne(query);
+        if (result.deletedCount > 0) {
+          await returnResponse();
+        } else {
+          return res.json({error: 'Delete failed!'});
+        }
+        return;
+      }
+
       reservation.end_date = req.body.date;
       await reservations.replaceOne(query, reservation);
       await returnResponse();

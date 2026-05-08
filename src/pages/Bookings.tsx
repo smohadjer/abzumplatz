@@ -10,9 +10,17 @@ type Slot = {
     date: string;
     hour: number;
     court_number: string;
+    court_nums?: string[];
+    club_id?: string;
     reservation_id?: string;
+    end_time?: number;
     recurring?: boolean;
     user_name?: string;
+    user_id?: string;
+    label?: string;
+    deleted_dates?: string[];
+    end_date?: string;
+    timestamp?: string;
 }
 
 export default function Bookings() {
@@ -28,6 +36,7 @@ export default function Bookings() {
 
     const user = useSelector((state: RootState) => state.auth);
     const userReservations = getUserReservations();
+    const parseDatasetArray = (value: string | undefined) => value ? JSON.parse(value) : undefined;
 
     // get users and reservations
     useEffect(() => {
@@ -52,11 +61,19 @@ export default function Bookings() {
                     showPopup={(slot: HTMLElement) => {
                         setSlot({
                             court_number: slot.dataset.court_number!,
+                            court_nums: parseDatasetArray(slot.dataset.court_nums),
+                            club_id: slot.dataset.club_id,
                             date: slot.dataset.date!,
                             hour: Number(slot.dataset.hour),
+                            end_time: slot.dataset.end_time ? Number(slot.dataset.end_time) : undefined,
                             reservation_id: slot.dataset.reservation_id,
                             recurring: slot.dataset.recurring === 'true',
-                            user_name: `${user.first_name.charAt(0)}. ${user.last_name}`
+                            user_name: `${user.first_name.charAt(0)}. ${user.last_name}`,
+                            user_id: slot.dataset.user_id,
+                            label: slot.dataset.label,
+                            deleted_dates: parseDatasetArray(slot.dataset.deleted_dates),
+                            end_date: slot.dataset.end_date,
+                            timestamp: slot.dataset.timestamp
                         });
                     }}
                     reservations={userReservations}

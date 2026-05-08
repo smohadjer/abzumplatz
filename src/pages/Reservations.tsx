@@ -4,7 +4,7 @@ import { RootState } from '../store';
 import {
     isInPast,
     getClub,
-    recurringReservationIsOnSameDay,
+    reservationIsOnSameDay,
     getUserReservations,
     fetchAppData,
     fetchUsers,
@@ -23,9 +23,17 @@ type Slot = {
     date: string;
     hour: number;
     court_number: string;
+    court_nums?: string[];
+    club_id?: string;
     reservation_id?: string;
+    end_time?: number;
     recurring?: boolean;
     user_name?: string;
+    user_id?: string;
+    label?: string;
+    deleted_dates?: string[];
+    end_date?: string;
+    timestamp?: string;
 }
 
 export default function Reservations() {
@@ -55,8 +63,7 @@ export default function Reservations() {
     const [reservationDate, setReservationDate] = useState(new Date());
     const isoDate = reservationDate.toISOString().split('T')[0];
     const reservationFilter = (reservationItem: ReservationItem) => {
-        return reservationItem.date === isoDate ||
-        recurringReservationIsOnSameDay(reservationItem, isoDate);
+        return reservationIsOnSameDay(reservationItem, isoDate);
     };
     const getUserName = (userId: string) => {
         if (users.length > 0) {
@@ -74,6 +81,7 @@ export default function Reservations() {
         setDisabled(false);
         setSlot(null);
     };
+    const parseDatasetArray = (value: string | undefined) => value ? JSON.parse(value) : undefined;
     const clickHandler = (event: React.MouseEvent) => {
         if (disabled) {
             return;
@@ -103,9 +111,17 @@ export default function Reservations() {
                     court_number: slot.dataset.court_number!,
                     date: slot.dataset.date!,
                     hour: Number(slot.dataset.hour),
+                    court_nums: parseDatasetArray(slot.dataset.court_nums),
+                    club_id: slot.dataset.club_id,
                     reservation_id: slot.dataset.reservation_id,
+                    end_time: slot.dataset.end_time ? Number(slot.dataset.end_time) : undefined,
                     recurring: slot.dataset.recurring === 'true',
-                    user_name: slot.dataset.user_name
+                    user_name: slot.dataset.user_name,
+                    user_id: slot.dataset.user_id,
+                    label: slot.dataset.label,
+                    deleted_dates: parseDatasetArray(slot.dataset.deleted_dates),
+                    end_date: slot.dataset.end_date,
+                    timestamp: slot.dataset.timestamp
                 });
                 return;
             }
