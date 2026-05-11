@@ -12,13 +12,10 @@ export default function Home() {
     return (
         <>
             <div className="navbar">
-                <div className="navbar-login">
-                    <Link to="/login">Anmelden</Link>
-                    <Link className="navbar-text-link" to="/register/player">Mit E-Mail registerieren</Link>
-                </div>
+                <p><Link className="button" to="/login">Anmelden</Link></p>
+                <p>Neuer Spieler? <Link className="navbar-text-link" to="/register/player">Hier registerieren</Link></p>
             </div>
-            <p className="intro">Abzumplatz ermöglicht es Tennisvereinen, ihren Mitgliedern kostenlose Online-Reservierungen ihrer Tennisplätze anzubieten.</p>
-            <p className="club-register"><Link to="/register/club">Verein registrieren</Link></p>
+            <p className="intro">Abzumplatz ermöglicht es Tennisvereinen, ihren Mitgliedern kostenlose Online-Reservierungen ihrer Tennisplätze anzubieten. <Link className="button" to="/register/club">Registrieren Sie Ihren Verein einfach hier</Link> und teilen Sie den Link mit Ihren Vereinsmitgliedern.</p>
             <img className="hero-image" src="/assets/1.png" alt="screenshot" />
             {/* <Slider slides={slides} /> */}
             <div className="content">
