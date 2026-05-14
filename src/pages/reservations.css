@@ -30,11 +30,14 @@ h2 {
         display: flex;
         justify-content:center;
         align-items: center;
-        margin-bottom: 0.5em;
 
         button {
             margin-top: 0;
         }
+    }
+
+    .header_refresh {
+        margin-bottom: 0.7em;
     }
 
     .header_datepicker {
@@ -48,6 +51,7 @@ h2 {
     .header {
         text-align: center;
         padding: 10px;
+        margin-bottom: 0.5em;
 
         .icon--reload {
             background-size: 22px;
@@ -78,7 +82,7 @@ h2 {
         .shortday {
             /* color: var(--blue); */
             vertical-align: middle;
-            line-height: 27px;
+            line-height: 40px;
             font-size: inherit;
             font-family: inherit;
         }

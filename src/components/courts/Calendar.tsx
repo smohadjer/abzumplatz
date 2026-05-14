@@ -51,7 +51,10 @@ export function Calendar(props: Props) {
                     <span className="shortday">{new Date(isoDate).toLocaleDateString('de-DE', {weekday: 'short'}).toUpperCase()}</span>
                     <input type="date"
                     value={isoDate}
-                    onChange={e => setReservationDate(new Date(e.target.value))} />
+                    onChange={e => {
+                        const selectedDate = e.currentTarget.value;
+                        setReservationDate(selectedDate ? new Date(selectedDate) : new Date());
+                    }} />
                 </span>
                 <button
                     onClick={nextDay}
