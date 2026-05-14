@@ -25,17 +25,20 @@ h2 {
     text-align: left;
     position: relative;
 
-    .header {
-        text-align: center;
-        padding: 10px;
+    .header_refresh,
+    .header_datepicker {
         display: flex;
         justify-content:center;
         align-items: center;
-        font-family: monospace;
+        margin-bottom: 0.5em;
 
         button {
             margin-top: 0;
         }
+    }
+
+    .header_datepicker {
+        font-family: monospace;
     }
 
     /* input, button {
@@ -43,13 +46,21 @@ h2 {
     } */
 
     .header {
-        font-family: monospace;
+        text-align: center;
+        padding: 10px;
 
         .icon--reload {
-            background-size: 28px;
-            height: 28px;
-            padding-left: 28px;
-            margin-right: 1em;
+            background-size: 22px;
+            height: 22px;
+            line-height: 22px;
+            padding-left: 25px;
+            margin-right: 0.75em;
+            vertical-align: middle;
+            font-size: 17px;
+            color: var(--blue);
+            cursor: pointer;
+            border-right: solid 1px #999;
+            padding-right: 0.75em;
         }
     }
 
@@ -84,7 +95,7 @@ h2 {
             margin-left: 0.5em;
             padding-bottom: 0;
             padding: 0;
-            border-bottom: solid 1px white;
+            text-align: center;
 
             &::-webkit-calendar-picker-indicator {
                 display: none;
@@ -100,10 +111,9 @@ h2 {
         color: var(--blue);
         background: none;
         padding: 0;
-        margin-left: 1em;
         border: 0;
-        text-decoration: underline;
         vertical-align: middle;
+        cursor: pointer;
 
         &[disabled] {
             color: #ccc;
@@ -112,10 +122,10 @@ h2 {
     }
 
     .prev, .next {
-        font-size: 1.5em;
+        font-size: 2em;
         font-weight: bold;
         line-height: 1;
-        padding: 0 0.5em 5px;
+        padding: 0 0.5em;
         vertical-align: middle;
         background: #3264c8;
         color: white;
@@ -123,6 +133,7 @@ h2 {
         border-radius: 0;
         height: 40px;
         box-sizing: border-box;
+        font-family: inherit;
     }
 
     .next {
