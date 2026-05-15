@@ -12,9 +12,9 @@ export function MyReservations(props: {
 
     return (
         <div className="my-reservations">
-            <h2>Meine Reservierungen {club &&
+            <h1>Meine Reservierungen {club &&
                 <span>({reservations.length} von {club.reservations_limit.toString()})</span>}
-            </h2>
+            </h1>
             {reservations.length ?
                 <ul>
                 {reservations.map(item => {

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux'
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './../store';
-import { Link } from 'react-router';
+import { fetchUsers, getClub } from '../utils/utils';
 
 type AdminContact = {
     first_name: string;
@@ -10,41 +10,26 @@ type AdminContact = {
 }
 
 export default function Imprint() {
+    const dispatch = useDispatch();
     const auth = useSelector((state: RootState) => state.auth);
-    const [adminContact, setAdminContact] = useState<AdminContact | null>(null);
+    const usersData = useSelector((state: RootState) => state.users);
+    const club = getClub();
+    const adminContact = usersData.value.find((user): user is AdminContact & { role: string; status: string; _id: string } => {
+        return user.role === 'admin' && Boolean(user.email);
+    });
     const subject = `abzumplatz: Feedback von ${auth.first_name} ${auth.last_name}`;
     const reservationRequestSubject = 'abzumplatz: Anfrage zur Platzreservierung';
 
     useEffect(() => {
-        if (!auth.value || !auth.club_id) return;
+        if (!auth.value || !auth.club_id || usersData.loaded) return;
 
-        fetch(`/api/users?club_id=${auth.club_id}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('Could not load admin contact');
-                }
-                return res.json();
-            })
-            .then(users => {
-                const admin = users.find((user: AdminContact & { role: string }) => user.role === 'admin');
-                if (admin) {
-                    setAdminContact(admin);
-                }
-            })
-            .catch(error => console.error(error));
-    }, [auth.value, auth.club_id]);
+        fetchUsers(auth.club_id, dispatch);
+    }, [auth.value, auth.club_id, usersData.loaded, dispatch]);
 
     return (
         <div>
-            <Link className="icon icon--back" to={auth.value ? '/profile' : '/'}>Zurück</Link>
-            <h2>Impressum</h2>
-            <p>Angaben gemäß § 5 TMG:</p>
-            <p>
-                Saeid Mohadjer<br />
-                Denzlingerstr. 20<br />
-                79108 Freiburg im Breisgau<br />
-                Deutschland</p>
-            <p>Support:  <a href={`mailto:abzumplatz@gmail.com?subject=${subject}`}>abzumplatz@gmail.com</a></p>
+            <h1>Impressum</h1>
+            {club && <p>Verein: {club.name}</p>}
             {adminContact ? (
                 <p>
                     Anfragen zur Platzreservierung: {' '}
@@ -53,6 +38,13 @@ export default function Imprint() {
                     </a>
                 </p>
             ) : null}
+            <p>Angaben gemäß § 5 TMG:</p>
+            <p>
+                Saeid Mohadjer<br />
+                Denzlingerstr. 20<br />
+                79108 Freiburg im Breisgau<br />
+                Deutschland</p>
+            <p>Support:  <a href={`mailto:abzumplatz@gmail.com?subject=${subject}`}>abzumplatz@gmail.com</a></p>
             <p>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV: Saeid Mohadjer (Anschrift wie oben)</p>
         </div>
     )

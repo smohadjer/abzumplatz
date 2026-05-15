@@ -19,7 +19,7 @@ export default function Home() {
             <img className="hero-image" src="/assets/1.png" alt="screenshot" />
             {/* <Slider slides={slides} /> */}
             <div className="content">
-                <h2>Was abzumplatz Ihnen bietet:</h2>
+                <h1>Was abzumplatz Ihnen bietet:</h1>
                 <ul>
                 <li>Kostenlose Online-Platzreservierung für Tennisvereine</li>
                 <li>Einfache Registrierung für Vereine und Spieler</li>

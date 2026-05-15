@@ -62,8 +62,10 @@ a.icon:hover {
 }
 
 .icon--back {
+    display: inline-block;
     background-image: url(./images/back.svg);
     padding-left: 15px;
+    margin-top: 1em;
     background-position: left center;
     background-size: 18px;
     color: var(--blue);
@@ -89,5 +91,5 @@ a.icon:hover {
 }
 
 .icon--imprint {
-    background-image: url(./images/copyright.svg);
+    background-image: url(./images/info.svg);
 }

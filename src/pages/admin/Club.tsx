@@ -63,8 +63,8 @@ export default function AdminClubPage() {
             </div>
         ) : (
             <>
+                <h1>Verein Editeiren</h1>
                 <Link className="icon icon--back" to="/admin">Zurück</Link>
-                <h2>Verein Editeiren</h2>
                 <SignupClub
                     callback={callback}
                     data={clubData.value} />
