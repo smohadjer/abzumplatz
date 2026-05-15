@@ -78,10 +78,10 @@ export default function AdminMembersPage() {
             </div>
         ) : (
             <>
-                <Link className="icon icon--back" to="/admin">Zurück</Link>
-                <h2><span style={{ marginRight: '0.5rem' }}>Mitgliederliste (active: {activeUsersCount}, all: {users.length})</span>
+                <h1><span style={{ marginRight: '0.5rem' }}>Mitgliederliste (active: {activeUsersCount}, all: {users.length})</span>
                     {pending ? <Loader size="small" /> : null}
-                </h2>
+                </h1>
+                <Link className="icon icon--back" to="/admin">Zurück</Link>
                 <ul className="users-list">
 	                {users.map(user => {
 	                        const classNames = [

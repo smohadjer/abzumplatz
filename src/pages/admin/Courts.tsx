@@ -64,8 +64,8 @@ export default function AdminCourtsPage() {
             </div>
         ) : (
             <>
+                <h1>Plätze Verwalten</h1>
                 <Link className="icon icon--back" to="/admin">Zurück</Link>
-                <h2>Plätze Verwalten</h2>
                 <EditCourts
                     callback={callback}
                     data={clubData.value} />

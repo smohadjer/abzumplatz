@@ -1,11 +1,12 @@
 import { useSelector } from 'react-redux'
 import { RootState } from './../store';
-import { Link } from 'react-router';
 import { useDispatch } from 'react-redux'
+import { getClub } from '../utils/utils';
 
 export default function Profile() {
     const dispatch = useDispatch();
     const auth = useSelector((state: RootState) => state.auth);
+    const club = getClub();
     const role = auth?.role === 'admin' ? '(Admin)' : '';
     const onLogout = () => {
         fetch('/api/logout', {
@@ -43,11 +44,11 @@ export default function Profile() {
 
     return (
         <>
-            <h2>Mein Profil</h2>
+            <h1>Mein Profil</h1>
             <p>{auth.first_name} {auth.last_name} {role}</p>
+            {club && <p>Verein: {club.name}</p>}
             <p>Email: {auth.email}</p>
             <button onClick={onLogout}>Abmelden</button>
-            <p><Link to="/impressum">Impressum</Link></p>
         </>
     )
 }

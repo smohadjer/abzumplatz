@@ -4,8 +4,8 @@ import { Signup } from '../components/signup/Signup';
 export default function RegisterPlayer() {
     return (
         <>
+            <h1>Spieler registrieren</h1>
             <Link className="icon icon--back" to="/">Zurück</Link>
-            <h2>Spieler registrieren</h2>
             <Signup />
         </>
     )

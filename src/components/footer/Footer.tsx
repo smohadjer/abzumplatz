@@ -19,6 +19,7 @@ export default function Footer() {
             <Link to="/reservations"><span className={`icon icon--home${page_id === 'reservations' ? ' selected' : ''}`}></span></Link>
             <Link to="/bookings"><span className={`icon icon--list${page_id === 'bookings' ? ' selected' : ''}`}></span></Link>
             <Link to="/profile"><span className={`icon icon--account${page_id === 'profile' ? ' selected' : ''}`}></span></Link>
+            <Link to="/impressum"><span className={`icon icon--imprint${page_id === 'impressum' ? ' selected' : ''}`}></span></Link>
             {auth.role === 'admin' &&
                  <Link to="/admin"><span className={`icon icon--admin${page_id === 'admin' ? ' selected' : ''}`}></span></Link>
             }
