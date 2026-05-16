@@ -44,7 +44,7 @@ export default function Imprint() {
                 Denzlingerstr. 20<br />
                 79108 Freiburg im Breisgau<br />
                 Deutschland</p>
-            <p>Support:  <a href={`mailto:abzumplatz@gmail.com?subject=${subject}`}>abzumplatz@gmail.com</a></p>
+            <p><a href={`mailto:abzumplatz@gmail.com?subject=${subject}`}>abzumplatz@gmail.com</a></p>
             <p>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV: Saeid Mohadjer (Anschrift wie oben)</p>
         </div>
     )

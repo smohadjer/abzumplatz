@@ -1,4 +1,4 @@
-import { sanitize, ajv } from './_lib.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
 import * as fs from 'fs';
 import { addUser } from './_addUser.js';
 import { Club, DBUser } from '../src/types.js';
@@ -39,17 +39,15 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             if (errors) {
                 errors.map(error => {
                     // for custom error messages
-                    if (error.parentSchema) {
-                        const customErrorMessage = error.parentSchema.errorMessage;
-                        if (customErrorMessage) {
+                    const customErrorMessage = getCustomErrorMessage(error);
+                    if (customErrorMessage) {
                         error.message = customErrorMessage;
-                        }
                     }
                     return error;
                 });
                 return res.status(500).json({error: errors});
             } else {
-                return res.status(500).json({error: 'Invalid data'});
+                return res.status(500).json({error: 'Ungültige Daten.'});
             }
         }
 
@@ -61,7 +59,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 collation: { locale: "en", strength: 2 }
             });
             if (existingClub) {
-                throw new Error(`Club with name ${body.name} already exists`, {
+                throw new Error('Ein Verein mit diesem Namen existiert bereits.', {
                     cause: 'name'
                 });
             }

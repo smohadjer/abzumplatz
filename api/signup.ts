@@ -1,4 +1,4 @@
-import { sanitize, ajv } from './_lib.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
 import * as fs from 'fs';
 import { addUser } from './_addUser.js';
 import sendEmail from './_sendEmail.js';
@@ -123,17 +123,15 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             if (errors) {
                 errors.map(error => {
                     // for custom error messages
-                    if (error.parentSchema) {
-                        const customErrorMessage = error.parentSchema.errorMessage;
-                        if (customErrorMessage) {
+                    const customErrorMessage = getCustomErrorMessage(error);
+                    if (customErrorMessage) {
                         error.message = customErrorMessage;
-                        }
                     }
                     return error;
                 });
                 return res.status(500).json({error: errors});
             } else {
-                return res.status(500).json({error: 'Invalid data'});
+                return res.status(500).json({error: 'Ungültige Daten.'});
             }
         } else {
             const { first_name, last_name, password, club_id } = body;
@@ -152,13 +150,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 await client.connect();
                 const database = client.db(database_name);
                 if (!objectIdPattern.test(club_id)) {
-                    throw new Error(`Club with id ${club_id} does not exist`, { cause: 'club_id' });
+                    throw new Error('Der ausgewählte Verein existiert nicht.', { cause: 'club_id' });
                 }
                 const club = await database.collection<ClubDocument>('clubs').findOne({
                     _id: ObjectId.createFromHexString(club_id)
                 });
                 if (!club) {
-                    throw new Error(`Club with id ${club_id} does not exist`, { cause: 'club_id' });
+                    throw new Error('Der ausgewählte Verein existiert nicht.', { cause: 'club_id' });
                 }
                 await addUser(database, user);
                 try {

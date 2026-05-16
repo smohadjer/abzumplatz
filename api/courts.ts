@@ -1,6 +1,6 @@
 import { Collection, MongoClient, ObjectId, WithId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
-import { sanitize, ajv } from './_lib.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
@@ -44,11 +44,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           const errors = validator.errors;
           errors.map(error => {
               // for custom error messages
-              if (error.parentSchema) {
-                  const customErrorMessage = error.parentSchema.errorMessage;
-                  if (customErrorMessage) {
-                    error.message = customErrorMessage;
-                  }
+              const customErrorMessage = getCustomErrorMessage(error);
+              if (customErrorMessage) {
+                  error.message = customErrorMessage;
               }
               return error;
           });
