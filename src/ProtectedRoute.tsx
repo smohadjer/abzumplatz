@@ -16,7 +16,7 @@ export const ProtectedRoute = ({children}: ProtectedRouteProps) => {
     if (!isLoggedin) {
         return <Navigate to="/" replace />;
     } else {
-        if (auth.role !== 'admin' && location.pathname === '/admin' ) {
+        if (auth.role !== 'admin' && location.pathname.startsWith('/admin')) {
             // console.log('redirecting non-admin user to /reservations page');
             return <Navigate to="/reservations" replace />;
         }
