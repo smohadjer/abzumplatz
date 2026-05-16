@@ -47,7 +47,7 @@ const sendNewClubNotification = async (body: SignupClubBody, clubId: string) => 
     }
 
     await transporter.sendMail({
-        from: process.env.SMTP_USER,
+        from: process.env.email_username,
         to: 'abzumplatz@gmail.com',
         subject: `New club registration: ${body.name}`,
         text: `A new club has been registered on Abzumplatz.\n\nClub: ${body.name}\nClub ID: ${clubId}\nAdmin: ${body.first_name} ${body.last_name}\nAdmin email: ${body.email}\nCourts: ${body.courts_count}`,
