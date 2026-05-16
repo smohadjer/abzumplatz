@@ -30,7 +30,7 @@ if (!database_uri || !database_name) {
 const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup-club.json', 'utf8'));
 
-const transporter = process.env.SMTP_USER && process.env.SMTP_PASS
+const transporter = process.env.email_username && process.env.email_password
     ? nodemailer.createTransport({
         service: 'gmail',
         auth: {
