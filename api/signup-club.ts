@@ -1,5 +1,6 @@
 import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
 import * as fs from 'fs';
+import nodemailer from 'nodemailer';
 import { addUser } from './_addUser.js';
 import { Club, DBUser } from '../src/types.js';
 import { MongoClient, ObjectId } from 'mongodb';
@@ -28,6 +29,30 @@ if (!database_uri || !database_name) {
 
 const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup-club.json', 'utf8'));
+
+const transporter = process.env.SMTP_USER && process.env.SMTP_PASS
+    ? nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+        },
+    })
+    : null;
+
+const sendNewClubNotification = async (body: SignupClubBody, clubId: string) => {
+    if (!transporter) {
+        console.warn('SMTP credentials are missing. Skipping new club registration email.');
+        return;
+    }
+
+    await transporter.sendMail({
+        from: process.env.SMTP_USER,
+        to: 'abzumplatz@gmail.com',
+        subject: `New club registration: ${body.name}`,
+        text: `A new club has been registered on Abzumplatz.\n\nClub: ${body.name}\nClub ID: ${clubId}\nAdmin: ${body.first_name} ${body.last_name}\nAdmin email: ${body.email}\nCourts: ${body.courts_count}`,
+    });
+};
 
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
@@ -96,6 +121,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 {_id: new ObjectId(userResponse.insertedId)},
                 {'$set' : {'club_id' : club_id}}
             );
+
+            try {
+                await sendNewClubNotification(body, club_id);
+            } catch (emailError) {
+                console.error('Failed to send new club registration email', emailError);
+            }
 
             res.status(201).json({
                 message: `Verein ${club.name} ist registeriert mit id ${club_id}`,
