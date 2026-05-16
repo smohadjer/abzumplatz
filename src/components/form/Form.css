@@ -1,6 +1,6 @@
 .form-react {
     margin-top: 1em;
-    padding: 1em;
+    padding: 1em 1em 1.5em;
     background: #eee;
     width: 100%;
     box-sizing: border-box;
@@ -111,6 +111,14 @@
         }
     }
 
+    .password-label-row {
+        align-items: center;
+        display: flex;
+        gap: 1em;
+        justify-content: space-between;
+        margin-bottom: 0.25em;
+    }
+
     button[disabled] {
         opacity: 0.25;
         cursor: default;
@@ -162,10 +170,20 @@
             padding-left: 0.2em;
         }
     }
+
+    .checkbox-details-button {
+        background: none;
+        border: 0;
+        color: var(--blue);
+        cursor: pointer;
+        font: inherit;
+        margin: 0;
+        padding: 0 0 0 0.2em;
+    }
 }
 
 /* for better alignment of label and input field in Safari */
-form.signup label input[type=checkbox] {
+form.signup input[type=checkbox] {
     vertical-align: baseline;
     margin-right: 0.25em;
 }

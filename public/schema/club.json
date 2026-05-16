@@ -9,7 +9,7 @@
             "allOf": [
                 {
                     "maxLength": 100,
-                    "errorMessage": "Name is too long"
+                    "errorMessage": "Der Name ist zu lang."
                 }
             ]
         },
@@ -18,7 +18,8 @@
             "allOf": [
                 {
                     "minimum": 1,
-                    "exclusiveMaximum": 20
+                    "exclusiveMaximum": 20,
+                    "errorMessage": "Die Anzahl der Plätze muss zwischen 1 und 19 liegen."
                 }
             ]
         },
@@ -27,7 +28,8 @@
             "allOf": [
                 {
                     "minimum": 1,
-                    "exclusiveMaximum": 24
+                    "exclusiveMaximum": 24,
+                    "errorMessage": "Die Startzeit muss zwischen 1 und 23 Uhr liegen."
                 }
             ]
         },
@@ -36,7 +38,8 @@
             "allOf": [
                 {
                     "minimum": 1,
-                    "exclusiveMaximum": 24
+                    "exclusiveMaximum": 24,
+                    "errorMessage": "Die Endzeit muss zwischen 1 und 23 Uhr liegen."
                 }
             ]
         },

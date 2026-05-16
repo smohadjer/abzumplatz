@@ -1,4 +1,4 @@
-import { sanitize, ajv } from './_lib.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
 import * as fs from 'fs';
 import { MongoClient } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
@@ -17,11 +17,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             const errors = validator.errors;
             errors.map(error => {
                 // for custom error messages
-                if (error.parentSchema) {
-                    const customErrorMessage = error.parentSchema.errorMessage;
-                    if (customErrorMessage) {
-                      error.message = customErrorMessage;
-                    }
+                const customErrorMessage = getCustomErrorMessage(error);
+                if (customErrorMessage) {
+                    error.message = customErrorMessage;
                 }
                 return error;
             });
@@ -45,7 +43,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     return res.status(500).json({error: [
                         {
                             instancePath: '/password',
-                            message: `No user with valid token was found!`
+                            message: 'Der Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen.'
                         }
                     ]});
                 }

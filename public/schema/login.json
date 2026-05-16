@@ -6,15 +6,15 @@
             "allOf": [
                 {
                     "minLength": 6,
-                    "errorMessage": "Email should be at least 6 characters long"
+                    "errorMessage": "Die E-Mail-Adresse muss mindestens 6 Zeichen lang sein."
                 },
                 {
                     "maxLength": 127,
-                    "errorMessage": "Email is too long"
+                    "errorMessage": "Die E-Mail-Adresse ist zu lang."
                 },
                 {
                     "pattern": "^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
-                    "errorMessage": "This is not a valid email address."
+                    "errorMessage": "Dies ist keine gültige E-Mail-Adresse."
                 }
             ]
         },

@@ -20,7 +20,7 @@ export async function addUser(database: Db, user: DBUser) {
     );
     const doc = await collectionUsers.findOne({ email: user.email });
     if (doc) {
-        throw new Error(`Email ${user.email} already exists`, { cause: 'invalid_email' });
+        throw new Error('Diese E-Mail-Adresse wird bereits verwendet.', { cause: 'invalid_email' });
     }
 
     const hashedPassword = await bcrypt.hash(user.password, saltRounds);

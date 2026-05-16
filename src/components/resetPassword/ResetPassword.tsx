@@ -13,7 +13,7 @@ export function ResetPassword() {
 
     if (!resetToken) {
         return (
-            <p className="error">Token not found! Please visit this page through link sent to your in email or request a <Link to="/forgot-password">new token</Link>.</p>
+            <p className="error">Der Link zum Zurücksetzen des Passworts ist ungültig. Bitte öffnen Sie die Seite über den Link in Ihrer E-Mail oder fordern Sie einen <Link to="/forgot-password">neuen Link</Link> an.</p>
         )
     }
 

@@ -41,7 +41,7 @@ export function Form(props: Props) {
                 } else {
                     if (error.keyword === 'required') {
                         fieldName = error.params.missingProperty
-                        error.message = `This is a required field`
+                        error.message = 'Dies ist ein Pflichtfeld.'
                     }
                 }
                 data.map(field => {
@@ -213,7 +213,6 @@ export function Form(props: Props) {
             case 'password':
                 return (
                 <div className={item.error  ? 'row row-error' : 'row'} key={index}>
-                    <label>{item.label}: {item.required ? '*' : ''}</label>
                     <div>
                     <Password
                         item={item}

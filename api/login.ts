@@ -1,4 +1,4 @@
-import { sanitize, ajv } from './_lib.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
 import * as fs from 'fs';
 import { MongoClient } from 'mongodb';
 import { jwtSecret, environment, database_uri, database_name } from './_config.js';
@@ -24,17 +24,15 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             if (errors) {
                 errors.map(error => {
                     // for custom error messages
-                    if (error.parentSchema) {
-                        const customErrorMessage = error.parentSchema.errorMessage;
-                        if (customErrorMessage) {
+                    const customErrorMessage = getCustomErrorMessage(error);
+                    if (customErrorMessage) {
                         error.message = customErrorMessage;
-                        }
                     }
                     return error;
                 });
                 return res.json({error: errors});
             } else {
-                return res.json({error: 'Invalid data'});
+                return res.json({error: 'Ungültige Daten.'});
             }
         } else {
             const { email, password } = req.body;
@@ -47,12 +45,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 const collection = database.collection('users');
                 const user = await collection.findOne({ email: email.toLowerCase() });
                 if (!user) {
-                  throw new Error(`User with email ${email} does not exist!`);
+                  throw new Error('Es existiert kein Benutzer mit dieser E-Mail-Adresse.');
                 } else {
                   if (await bcrypt.compare(password, user.password)) {
                     authenticated = true;
                   } else {
-                    throw new Error('Login failed');
+                    throw new Error('Anmeldung fehlgeschlagen.');
                   }
                 }
 

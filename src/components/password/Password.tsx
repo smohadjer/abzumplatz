@@ -28,21 +28,20 @@ export default function Password(props: Props) {
     const passwordItem = structuredClone(props.item);
     passwordItem.type = type;
 
-    const flexClass = (props.item.hasStrengthIndicator &&
-        props.item.hasDisplayToggle) ? 'flex' : '';
-    const passwordWrapperClass = `password-wrapper ${flexClass}`;
-
     return (
         <>
+            <div className="password-label-row">
+                <label>{props.item.label}: {props.item.required ? '*' : ''}</label>
+                {props.item.hasDisplayToggle &&
+                    <PasswordToggle type={type} onClick={clickHandler} />}
+            </div>
             <Input
                 item={passwordItem}
                 handleChange={changeHandler}
             />
-            <div className={passwordWrapperClass}>
+            <div className="password-wrapper">
                 {props.item.hasStrengthIndicator &&
                     <StrengthChecker password={password} />}
-                {props.item.hasDisplayToggle &&
-                    <PasswordToggle type={type} onClick={clickHandler} />}
             </div>
         </>
     )
