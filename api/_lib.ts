@@ -24,4 +24,15 @@ export const ajv = new Ajv({
     verbose: true // adds additional propertie sto error object that we use for custom error messages
 });
 
+export function getCustomErrorMessage(error: any) {
+    const customErrorMessage = error.parentSchema?.errorMessage;
+
+    if (typeof customErrorMessage === 'string') {
+        return customErrorMessage;
+    }
+
+    if (customErrorMessage && typeof customErrorMessage === 'object') {
+        return customErrorMessage[error.keyword];
+    }
+}
 

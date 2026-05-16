@@ -26,7 +26,7 @@ body {
 }
 
 header {
-    padding: 0.5em;
+    padding: 0 0.5em;
 }
 
 main {
@@ -40,7 +40,7 @@ main {
 }
 
 h1 {
-    font-size: 1.5em;
+    font-size: 1.4em;
 }
 
 h2 {

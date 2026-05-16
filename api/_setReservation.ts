@@ -1,6 +1,6 @@
 
 import { ObjectId, Collection } from 'mongodb';
-import { sanitize, ajv } from './_lib.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import {
@@ -79,18 +79,16 @@ export const setReservation = async (
       if (errors) { 
         errors.map(error => {
             // for custom error messages
-            if (error.parentSchema) {
-                const customErrorMessage = error.parentSchema.errorMessage;
-                if (customErrorMessage) {
-                  error.message = customErrorMessage;
-                }
+            const customErrorMessage = getCustomErrorMessage(error);
+            if (customErrorMessage) {
+                error.message = customErrorMessage;
             }
             return error;
         });
         console.error(errors);
         return res.json({error: errors});
       } else {
-        return res.json({error: 'Invalid data'});
+        return res.json({error: 'Ungültige Daten.'});
       }
     }
 

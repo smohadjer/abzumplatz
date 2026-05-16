@@ -23,7 +23,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             const collection = database.collection('users');
             const user = await collection.findOne({ email });
             if (!user) {
-                throw new Error(`User with email ${email} does not exist!`);
+                throw new Error('Es existiert kein Benutzer mit dieser E-Mail-Adresse.');
             } else {
                 const updateDoc = {
                     $set: {
