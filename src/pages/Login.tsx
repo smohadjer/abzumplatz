@@ -5,7 +5,7 @@ export default function LoginPage() {
     return (
         <>
             <h1>Anmelden</h1>
-            <Link className="icon icon--back" to="/">Zurück</Link>
+            <p><Link className="icon icon--back" to="/">Zurück</Link></p>
             <Login />
         </>
 

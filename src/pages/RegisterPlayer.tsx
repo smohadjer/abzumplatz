@@ -5,7 +5,7 @@ export default function RegisterPlayer() {
     return (
         <>
             <h1>Spieler registrieren</h1>
-            <Link className="icon icon--back" to="/">Zurück</Link>
+            <p><Link className="icon icon--back" to="/">Zurück</Link></p>
             <Signup />
         </>
     )

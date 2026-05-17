@@ -30,7 +30,7 @@ export default function RegisterClub() {
     return (
         <>
             <h1>Verein Registrieren</h1>
-            <Link className="icon icon--back" to="/">Zurück</Link>
+            <p><Link className="icon icon--back" to="/">Zurück</Link></p>
             <p>Als Administrator sollten Sie Ihren Verein registrieren, bevor Sie und die Spieler Reservierungen vornehmen können.</p>
             <Form
                 classNames="signup"
