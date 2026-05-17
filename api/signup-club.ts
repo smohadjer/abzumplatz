@@ -1,7 +1,7 @@
 import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
 import * as fs from 'fs';
-import nodemailer from 'nodemailer';
 import { addUser } from './_addUser.js';
+import sendEmail from './_sendEmail.js';
 import { Club, DBUser } from '../src/types.js';
 import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
@@ -30,25 +30,9 @@ if (!database_uri || !database_name) {
 const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup-club.json', 'utf8'));
 
-const transporter = process.env.email_username && process.env.email_password
-    ? nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.email_username,
-            pass: process.env.email_password,
-        }
-    })
-    : null;
-
 const sendNewClubNotification = async (body: SignupClubBody, clubId: string) => {
-    if (!transporter) {
-        console.warn('SMTP credentials are missing. Skipping new club registration email.');
-        return;
-    }
-
-    await transporter.sendMail({
-        from: process.env.email_username,
-        to: 'abzumplatz@gmail.com',
+    await sendEmail({
+        email: 'info@abzumplatz@de',
         subject: `New club registration: ${body.name}`,
         text: `A new club has been registered on Abzumplatz.\n\nClub: ${body.name}\nClub ID: ${clubId}\nAdmin: ${body.first_name} ${body.last_name}\nAdmin email: ${body.email}\nCourts: ${body.courts_count}`,
     });
