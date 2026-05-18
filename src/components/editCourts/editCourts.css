@@ -1,0 +1,10 @@
+.editCourtsForm {
+    span.nowrap {
+        display: block;
+        margin: 1em 0 0;
+    }
+
+    input[type=checkbox]:not(:checked) + .label--checkbox {
+        color: #777;
+    }
+}

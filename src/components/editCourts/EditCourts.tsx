@@ -1,6 +1,7 @@
 import { Form } from '../form/Form';
 import formJson from './form.json';
 import { Field, Court } from '../../types';
+import './editCourts.css';
 
 type Props = {
     label?: string;
@@ -40,14 +41,14 @@ export function EditCourts(props: Props) {
     normalizedFields.push({
         name: 'courts',
         value: courtsValue,
-        label: 'Aktive Plätze',
+        label: 'Plätze in der Benutzeroberfläche aktivieren/deaktivieren',
         type: 'checkbox',
         options: courtsOptions,
     });
 
     return (
         <Form
-            classNames="signup"
+            classNames="editCourtsForm"
             initialData={normalizedFields}
             formAttributes={formJson.form}
             label={label ?? 'Absenden'}
