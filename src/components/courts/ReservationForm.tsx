@@ -1,11 +1,11 @@
 import { useSelector } from 'react-redux';
 import { RootState } from './../../store';
-import { FormEventHandler } from "react";
+import { SubmitEventHandler } from "react";
 import { Loader } from './../loader/Loader';
 import { Court } from '../../types';
 
 type Props = {
-    submitHandler: FormEventHandler;
+    submitHandler: SubmitEventHandler<HTMLFormElement>;
     disabled: boolean;
     courts: Court[];
     selectedCourtNumber: string;
@@ -13,11 +13,16 @@ type Props = {
 
 export function ReservationForm(props: Props) {
     const user = useSelector((state: RootState) => state.auth);
-    const submitHandler: FormEventHandler<HTMLFormElement> = (event) => {
-        const courtCheckbox = event.currentTarget.querySelector<HTMLInputElement>('input[name="court_nums"]');
+    const userDisplayName = [
+        user.first_name ? `${user.first_name.charAt(0)}.` : '',
+        user.last_name
+    ].filter(Boolean).join(' ');
+    const submitHandler: SubmitEventHandler<HTMLFormElement> = (event) => {
+        const form = event.currentTarget;
+        const courtCheckbox = form.querySelector<HTMLInputElement>('input[name="court_nums"]');
         courtCheckbox?.setCustomValidity('');
 
-        if (user.role === 'admin' && !new FormData(event.currentTarget).getAll('court_nums').length) {
+        if (user.role === 'admin' && !new FormData(form).getAll('court_nums').length) {
             event.preventDefault();
             courtCheckbox?.setCustomValidity('Bitte wählen Sie mindestens einen Platz aus.');
             courtCheckbox?.reportValidity();
@@ -80,7 +85,7 @@ export function ReservationForm(props: Props) {
                 </div>
                 <div className="reservation-field">
                     <label>Reservierungslabel:</label>
-                    <input name="label" required />
+                    <input name="label" defaultValue={userDisplayName} required />
                 </div>
                 <div>
                     <input type="checkbox" id="recurring" name="recurring" value="true" />
