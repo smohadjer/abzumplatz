@@ -116,7 +116,6 @@ export function Popup(props: {
         } else {
             return (
                 <>
-                    <p>Reservierung am {getLocalDate(slot.date)} um {slot.hour}:00 Uhr</p>
                     <ReservationForm
                         submitHandler={(event) => {
                             props.setDisabled(true);
@@ -125,6 +124,10 @@ export function Popup(props: {
                         disabled={props.disabled}
                         courts={club?.courts ?? []}
                         selectedCourtNumber={slot.court_number}
+                        date={slot.date}
+                        startHour={slot.hour}
+                        clubStartHour={club?.start_hour ?? slot.hour}
+                        clubEndHour={club?.end_hour ?? slot.hour + 1}
                     />
                 </>
             );

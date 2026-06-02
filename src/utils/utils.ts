@@ -163,6 +163,27 @@ export const assignReservation = (
     });
 };
 
+const getReservationPayload = (formData: FormData, reservationData: any) => {
+    const duration = Number(formData.get('duration') ?? 1);
+    const label = formData.get('label');
+    const recurring = formData.get('recurring') ?? false;
+    const courtNums = formData.getAll('court_nums');
+    const startTime = Number(formData.get('start_time') ?? reservationData.hour);
+    const date = formData.get('date') ?? reservationData.date;
+
+    return {
+        club_id: reservationData.club_id,
+        user_id: reservationData.user_id,
+        court_num: reservationData.court_number,
+        ...(courtNums.length ? {court_nums: courtNums} : {}),
+        start_time: startTime,
+        end_time:  startTime + duration,
+        date,
+        ...(typeof label === 'string' ? {label} : {}),
+        recurring
+    };
+};
+
 export const makeReservation = (
     event: FormEvent,
     closePopup: Function,
@@ -173,22 +194,7 @@ export const makeReservation = (
     if (event.target instanceof HTMLFormElement) {
         const form: HTMLFormElement = event.target!;
         const formData = new FormData(form);
-        const duration = Number(formData.get('duration') ?? 1);
-        const label = formData.get('label');
-        const recurring = formData.get('recurring') ?? false;
-        const courtNums = formData.getAll('court_nums');
-
-        const data = {
-            club_id: reservationData.club_id,
-            user_id: reservationData.user_id,
-            court_num: reservationData.court_number,
-            ...(courtNums.length ? {court_nums: courtNums} : {}),
-            start_time: reservationData.hour,
-            end_time:  reservationData.hour + duration,
-            date: reservationData.date,
-            label,
-            recurring
-        };
+        const data = getReservationPayload(formData, reservationData);
 
         fetch(form.action, {
             method: form.method,

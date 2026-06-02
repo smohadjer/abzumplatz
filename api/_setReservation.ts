@@ -22,7 +22,7 @@ const getError = (key: string, options?) => {
         return 'Nur Administratoren können wiederkehrende Reservierungen vornehmen.';
         break;
       case 'more_hours':
-        return 'Nur Administratoren können Reservierungen mit einer Dauer von mehr als einer Stunde vornehmen.';
+        return 'Nur Administratoren können Reservierungen mit einer Dauer von mehr als zwei Stunden vornehmen.';
         break;
       case 'reached_limit':
         return `Sie haben die maximal zulässige Anzahl an Reservierungen (${options.limit}) erreicht.`;
@@ -168,8 +168,8 @@ export const setReservation = async (
 
     // validation for none-admin users
     if (!user.role || user.role !== 'admin') {
-      // throw error if a non-admin tries to use the admin-only court selector
-      if (body.court_nums !== undefined) {
+      // throw error if a non-admin tries to reserve a court other than the selected one
+      if (body.court_nums !== undefined && (courtNums.length !== 1 || courtNums[0] !== court_num.toString())) {
         throw new Error(getError('court_selection'));
       }
 
@@ -183,8 +183,8 @@ export const setReservation = async (
         throw new Error(getError('recurring'));
       }
 
-      // throw error if reservation is more than one hour
-      if ((end_time - start_time) > 1) {
+      // throw error if reservation is more than two hours
+      if ((end_time - start_time) > 2) {
         throw new Error(getError('more_hours'));
       }
 
