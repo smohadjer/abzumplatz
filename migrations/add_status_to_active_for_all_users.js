@@ -1,19 +1,26 @@
 /*
-Run this script in terminal from root of porject using command `node migrations/[script.js]`. Rename `api/_config.ts` to `api/_config.js` before running script and undo afterwards.
+Run from the project root:
+
+  node migrations/add_status_to_active_for_all_users.js
+
 */
 
 import 'dotenv/config';
 import { MongoClient } from 'mongodb';
-import { database_uri, database_name } from '../api/_config.js';
 
-// console.log('database_uri:', database_uri);
+const databaseName = 'abzumplatz';
+const databaseUri = process.env.db_uri;
 
-const client = new MongoClient(database_uri);
+if (!databaseUri) {
+  throw new Error('Missing db_uri environment variable');
+}
+
+const client = new MongoClient(databaseUri);
 
 async function run() {
   try {
     await client.connect();
-    const database = client.db(database_name);
+    const database = client.db(databaseName);
     const collection = database.collection('users');
     await collection.updateMany({}, {
       $set: {

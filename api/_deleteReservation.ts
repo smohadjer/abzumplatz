@@ -27,8 +27,8 @@ const previousOccurrencesWereDeleted = (reservation: ReservationItem, selectedDa
 
 export const deleteReservation = async (req: VercelRequest, res: VercelResponse, reservations: Collection<ReservationItem>,
   users: Collection<DBUser>) => {
-    const reservation_id = req.query?.reservation_id;
-    if (!reservation_id || Array.isArray(reservation_id)) {
+    const reservation_id = req.body?.reservation_id;
+    if (!reservation_id || typeof reservation_id !== 'string') {
       return res.status(400).json({error: 'Reservation id is required'});
     }
 

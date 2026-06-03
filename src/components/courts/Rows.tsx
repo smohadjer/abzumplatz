@@ -20,7 +20,7 @@ export function Rows(props: Props) {
         const courtStatus = props.courts[i].status;
         const courtNumber = i+1;
         const reservation = reservationsFiltered.find(item => {
-            const courtNums = item.court_nums?.map(courtNum => courtNum.toString()) ?? [item.court_num.toString()];
+            const courtNums = item.court_nums.map(courtNum => courtNum.toString());
             return courtNums.includes(courtNumber.toString());
         });
         const isMyReservation = reservation?.user_id === props.user_id ? true : false;
@@ -39,15 +39,16 @@ export function Rows(props: Props) {
                 (isMyReservation ? ' my-reservation' : '')}
                 onClick={props.onClick}
                 data-court_number={courtNumber}
-                data-hour={props.hour}
+                data-hour={reservation ? reservation.start_time : props.hour}
                 data-date={props.date}
+                data-reservation_date={reservation ? reservation.date : undefined}
                 data-recurring={
                     (reservation && reservation.recurring) ? reservation.recurring : false
                 }
                 key={courtNumber}
                 data-reservation_id={reservation ? reservation._id : undefined}
                 data-club_id={reservation ? reservation.club_id : undefined}
-                data-court_nums={reservation?.court_nums ? JSON.stringify(reservation.court_nums) : undefined}
+                data-court_nums={reservation ? JSON.stringify(reservation.court_nums) : undefined}
                 data-end_time={reservation ? reservation.end_time : undefined}
                 data-user_name={reservation ? reservation.user_name : undefined}
                 data-user_id={reservation ? reservation.user_id : undefined}

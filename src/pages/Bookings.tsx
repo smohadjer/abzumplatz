@@ -68,7 +68,7 @@ export default function Bookings() {
                             end_time: slot.dataset.end_time ? Number(slot.dataset.end_time) : undefined,
                             reservation_id: slot.dataset.reservation_id,
                             recurring: slot.dataset.recurring === 'true',
-                            user_name: `${user.first_name.charAt(0)}. ${user.last_name}`,
+                            user_name: `${user.first_name} ${user.last_name}`,
                             user_id: slot.dataset.user_id,
                             label: slot.dataset.label,
                             deleted_dates: parseDatasetArray(slot.dataset.deleted_dates),

@@ -22,16 +22,16 @@ const getError = (key: string, options?) => {
         return 'Nur Administratoren können wiederkehrende Reservierungen vornehmen.';
         break;
       case 'more_hours':
-        return 'Nur Administratoren können Reservierungen mit einer Dauer von mehr als einer Stunde vornehmen.';
+        return 'Nur Administratoren können Reservierungen mit einer Dauer von mehr als zwei Stunden vornehmen.';
         break;
       case 'reached_limit':
         return `Sie haben die maximal zulässige Anzahl an Reservierungen (${options.limit}) erreicht.`;
         break;
       case 'already_booked':
-        return `Platz ${options.court_num} ist zur angegebenen Zeit nicht verfügbar.`;
+        return `Platz ${options.courtNum} ist zur angegebenen Zeit nicht verfügbar.`;
         break;
       case 'overlapping':
-        return `Platz ${options.court_num} ist am ${options.localDate} zu einem Zeitpunkt gebucht, der sich mit Ihrer Buchung überschneidet.`;
+        return `Platz ${options.courtNum} ist am ${options.localDate} zu einem Zeitpunkt gebucht, der sich mit Ihrer Buchung überschneidet.`;
         break;
       case 'multiple_courts':
         return 'Eine gleichzeitige Reservierung mehrerer Plätze ist nicht gestattet.';
@@ -65,7 +65,7 @@ export const setReservation = async (
     clubs: Collection<ReservationClub>,
     users: Collection<DBUser>) => {
     const body = sanitize(req.body);
-    const { court_num, date, label } = body;
+    const { date, label } = body;
     const start_time = Number(body.start_time);
     const end_time = Number(body.end_time);
     const recurring: boolean = body.recurring === 'true';
@@ -116,21 +116,18 @@ export const setReservation = async (
        (start_time >= item.start_time && start_time < item.end_time);
     }
 
-    const requestedCourtNums = Array.isArray(body.court_nums) ? body.court_nums : [court_num];
+    const requestedCourtNums = Array.isArray(body.court_nums) ? body.court_nums : [body.court_nums];
     const courtNums = [...new Set(requestedCourtNums.map((item) => item.toString()))];
 
     // throw error if a reservation for any selected court in the same time exists
     const reservationsForSelectedCourts: ReservationItem[] = await reservations.find({
         club_id: user.club_id,
-        $or: [
-          { court_num: { $in: courtNums } },
-          { court_nums: { $in: courtNums } }
-        ]
+        court_nums: { $in: courtNums }
       }).toArray();
 
     for (const selectedCourtNum of courtNums) {
       const reservationsForSameCourt = reservationsForSelectedCourts.filter((item) => {
-        const itemCourtNums = item.court_nums?.map((courtNum) => courtNum.toString()) ?? [item.court_num.toString()];
+        const itemCourtNums = item.court_nums.map((courtNum) => courtNum.toString());
         return itemCourtNums.includes(selectedCourtNum);
       });
       const reservationsOnSameDay = reservationsForSameCourt.filter((item) => {
@@ -138,7 +135,7 @@ export const setReservation = async (
       });
       const reservationsWithOverlappingTime = reservationsOnSameDay.filter(overlappingHoursFilter);
       if (reservationsWithOverlappingTime.length) {
-        throw new Error(getError('already_booked', {court_num: selectedCourtNum}));
+        throw new Error(getError('already_booked', {courtNum: selectedCourtNum}));
       }
 
       // throw error if reservation is recurring and another reservation for same
@@ -152,7 +149,7 @@ export const setReservation = async (
         const reservationsWithOverlappingTime = reservationsOnSameDayInFuture.filter(overlappingHoursFilter);
         if (reservationsWithOverlappingTime.length) {
           const localDate = getLocalDate(reservationsWithOverlappingTime[0].date);
-          throw new Error(getError('overlapping', {court_num: selectedCourtNum, localDate}));
+          throw new Error(getError('overlapping', {courtNum: selectedCourtNum, localDate}));
         }
       }
     }
@@ -168,8 +165,8 @@ export const setReservation = async (
 
     // validation for none-admin users
     if (!user.role || user.role !== 'admin') {
-      // throw error if a non-admin tries to use the admin-only court selector
-      if (body.court_nums !== undefined) {
+      // throw error if a non-admin tries to reserve a court other than the selected one
+      if (courtNums.length !== 1) {
         throw new Error(getError('court_selection'));
       }
 
@@ -183,8 +180,8 @@ export const setReservation = async (
         throw new Error(getError('recurring'));
       }
 
-      // throw error if reservation is more than one hour
-      if ((end_time - start_time) > 1) {
+      // throw error if reservation is more than two hours
+      if ((end_time - start_time) > 2) {
         throw new Error(getError('more_hours'));
       }
 
@@ -213,7 +210,6 @@ export const setReservation = async (
     const reservation = {
       club_id: club_id,
       user_id: userId,
-      court_num: courtNums[0],
       court_nums: courtNums,
       date,
       start_time,

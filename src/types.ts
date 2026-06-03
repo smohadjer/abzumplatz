@@ -61,8 +61,7 @@ export type ReservationItem = {
     club_id: string;
     user_id: string;
     date: string;
-    court_num: string;
-    court_nums?: string[];
+    court_nums: string[];
     start_time: number;
     end_time: number;
     label?: string;
