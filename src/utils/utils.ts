@@ -93,17 +93,21 @@ export const getLocalDate = (date: string | undefined) => {
     }
 };
 
-export const deleteReservation = (
+export const editReservation = (
     event: FormEvent,
-    closePopup: Function,
-    successCallback: Function) => {
+    successCallback: Function): Promise<boolean> => {
     event.preventDefault();
 
     if (event.target instanceof HTMLFormElement) {
         const form: HTMLFormElement = event.target!;
         const formData = new FormData(form);
 
-        fetch(form.action, {
+        if (!formData.get('reservation_id')) {
+            alert('Reservierung nicht gefunden');
+            return Promise.resolve(false);
+        }
+
+        return fetch(form.action, {
             method: form.method,
             headers: {
                 'Accept': 'application/json',
@@ -116,51 +120,17 @@ export const deleteReservation = (
             if (json.error) {
                 console.error(json.error);
                 alert(json.error);
+                return false;
             } else {
                 if (json.data) {
                     successCallback(json.data);
                 }
+                return true;
             }
-        })
-        .finally(() => {
-            closePopup();
         });
     }
-};
 
-export const assignReservation = (
-    reservationId: string | undefined,
-    closePopup: Function,
-    successCallback: Function) => {
-    if (!reservationId) {
-        alert('Reservierung nicht gefunden');
-        return;
-    }
-
-    fetch(`/api/reservations?reservation_id=${reservationId}`, {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            form_method: 'assign'
-        })
-    })
-    .then((response) => response.json())
-    .then(json => {
-        if (json.error) {
-            console.error(json.error);
-            alert(json.error);
-        } else {
-            if (json.data) {
-                successCallback(json.data);
-            }
-        }
-    })
-    .finally(() => {
-        closePopup();
-    });
+    return Promise.resolve(false);
 };
 
 const getReservationPayload = (formData: FormData, reservationData: any) => {

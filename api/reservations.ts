@@ -4,7 +4,7 @@ import { getAllReservations } from '../src/utils/utils.js';
 import { DBUser, ReservationItem } from '../src/types.js';
 import { deleteReservation } from './_deleteReservation.js';
 import { setReservation } from './_setReservation.js';
-import { assignReservation } from './_assignReservation.js';
+import { editReservation } from './_editReservation.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
@@ -52,10 +52,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     if (req.method === 'POST') {
-      if (req.body.form_method === 'delete') {
+      if (req.body.delete === 'true') {
         await deleteReservation(req, res, reservations, users);
-      } else if (req.body.form_method === 'assign') {
-        await assignReservation(req, res, reservations, users);
+      } else if (req.body.reservation_id) {
+        await editReservation(req, res, reservations, users);
       } else {
         await setReservation(req, res, reservations, clubs, users);
       }

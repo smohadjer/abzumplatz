@@ -68,7 +68,7 @@ export default function Reservations() {
     const getUserName = (userId: string) => {
         if (users.length > 0) {
             const user = users.find((item: StateUser) => item._id === userId);
-            return user ? user.first_name.charAt(0) + '. ' + user.last_name : userId;
+            return user ? `${user.first_name} ${user.last_name}` : userId;
         } else {
             console.warn('no user found', users)
             return userId;

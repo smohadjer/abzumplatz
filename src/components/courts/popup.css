@@ -41,16 +41,6 @@
         cursor: pointer;
     }
 
-    .delete-reservation-panel {
-        margin-top: 1em;
-        padding-top: 1em;
-        border-top: 1px solid #d3d3d3;
-
-        p:first-child {
-            margin-top: 0;
-        }
-    }
-
     input[type=checkbox] {
         margin-left: 0;
     }
@@ -86,6 +76,32 @@
 
         label {
             margin-right: 1em;
+        }
+
+        &.edit-reservation-form {
+            .checkbox-label {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.35em;
+                margin-right: 0;
+            }
+
+            .form-actions {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5em;
+                margin-top: 1em;
+
+                button {
+                    margin-top: 0;
+                }
+
+                button[type=button] {
+                    background: white;
+                    color: #666;
+                    border: 1px solid #aaa;
+                }
+            }
         }
 
         .reservation-field {
@@ -164,7 +180,9 @@
         }
 
         .delete_fields {
-            margin-top: 1em;
+            input {
+                margin-left: 0;
+            }
 
             label {
                 display: block;
