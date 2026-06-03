@@ -1,31 +1,16 @@
 import { ObjectId, Collection } from 'mongodb';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { DBUser, JwtPayload, ReservationItem } from '../src/types.js';
+import { DBUser, ReservationItem } from '../src/types.js';
 import { getJwtPayload } from './verifyAuth.js';
 import {
   getAllReservations,
-  getDayName,
-  getLocalDate,
-  isInPast,
-  reservationIsOnSameDay
+  isInPast
 } from '../src/utils/utils.js';
-
-const getError = (key: string, options?) => {
-  switch (key) {
-    case 'recurring':
-      return 'Nur Administratoren können wiederkehrende Reservierungen vornehmen.';
-    case 'more_hours':
-      return 'Nur Administratoren können Reservierungen mit einer Dauer von mehr als zwei Stunden vornehmen.';
-    case 'already_booked':
-      return `Platz ${options.courtNum} ist zur angegebenen Zeit nicht verfügbar.`;
-    case 'overlapping':
-      return `Platz ${options.courtNum} ist am ${options.localDate} zu einem Zeitpunkt gebucht, der sich mit Ihrer Buchung überschneidet.`;
-    case 'multiple_courts':
-      return 'Eine gleichzeitige Reservierung mehrerer Plätze ist nicht gestattet.';
-    default:
-      return 'Es ist ein Fehler aufgetreten. Bitte wenden Sie sich an den Support.'
-  }
-};
+import {
+  getCourtNums,
+  validateNonAdminReservationRules,
+  validateReservationOverlap
+} from './_reservationValidation.js';
 
 export const editReservation = async (
   req: VercelRequest,
@@ -47,9 +32,9 @@ export const editReservation = async (
     return res.status(404).json({error: 'Reservation not found'});
   }
 
-  const payload: JwtPayload = await getJwtPayload(req);
+  const payload = await getJwtPayload(req);
   if (!payload) {
-    return res.status(401).json({error: 'Authentication required'});
+    return res.status(401).json({ error: 'Authentication required'});
   }
 
   const user = await users.findOne({
@@ -60,7 +45,12 @@ export const editReservation = async (
     return res.status(404).json({error: 'User not found'});
   }
 
-  if (reservation.club_id !== user.club_id) {
+  const club_id = user.club_id;
+  if (!club_id) {
+    throw new Error('User does not belong to a club');
+  }
+
+  if (reservation.club_id !== club_id) {
     return res.status(403).json({error: 'Editing this reservation is not allowed'});
   }
 
@@ -106,16 +96,7 @@ export const editReservation = async (
   }
 
   const recurring = bodyUpdates.recurring === true || bodyUpdates.recurring === 'true';
-  const requestedCourtNums = Array.isArray(bodyUpdates.court_nums) ? bodyUpdates.court_nums : [bodyUpdates.court_nums];
-  if (!requestedCourtNums.length) {
-    return res.status(400).json({error: 'At least one court is required'});
-  }
-
-  const courtNums = [...new Set(requestedCourtNums.map((item) => item.toString()).filter(Boolean))];
-  if (!courtNums.length) {
-    return res.status(400).json({error: 'At least one court is required'});
-  }
-
+  const courtNums = getCourtNums(bodyUpdates.court_nums);
   const updates = {
     ...bodyUpdates,
     court_nums: courtNums,
@@ -134,62 +115,16 @@ export const editReservation = async (
   }
 
   if (user.role !== 'admin') {
-    if (courtNums.length > 1) {
-      throw new Error(getError('multiple_courts'));
-    }
-
-    if (recurring) {
-      throw new Error(getError('recurring'));
-    }
-
-    if ((end_time - start_time) > 2) {
-      throw new Error(getError('more_hours'));
-    }
+    validateNonAdminReservationRules(courtNums, recurring, start_time, end_time);
   }
 
-  const overlappingHoursFilter = (item: ReservationItem) => {
-    return (start_time <= item.start_time && end_time > item.start_time) ||
-      (start_time >= item.start_time && start_time < item.end_time);
-  };
-
-  const reservationsForSelectedCourts: ReservationItem[] = await reservations.find({
-    _id: {$ne: query._id},
-    club_id: user.club_id,
-    court_nums: { $in: courtNums }
-  }).toArray();
-
-  for (const selectedCourtNum of courtNums) {
-    const reservationsForSameCourt = reservationsForSelectedCourts.filter((item) => {
-      const itemCourtNums = item.court_nums.map((courtNum) => courtNum.toString());
-      return itemCourtNums.includes(selectedCourtNum);
-    });
-    const reservationsOnSameDay = reservationsForSameCourt.filter((item) => {
-      return reservationIsOnSameDay(item, updates.date);
-    });
-    const reservationsWithOverlappingTime = reservationsOnSameDay.filter(overlappingHoursFilter);
-    if (reservationsWithOverlappingTime.length) {
-      throw new Error(getError('already_booked', {courtNum: selectedCourtNum}));
-    }
-
-    if (recurring) {
-      const reservationsOnSameDayInFuture = reservationsForSameCourt.filter(item => {
-        return getDayName(item.date) === getDayName(updates.date) && (
-          new Date(item.date) > new Date(updates.date)
-        )
-      });
-      const reservationsWithOverlappingTime = reservationsOnSameDayInFuture.filter(overlappingHoursFilter);
-      if (reservationsWithOverlappingTime.length) {
-        const localDate = getLocalDate(reservationsWithOverlappingTime[0].date);
-        throw new Error(getError('overlapping', {courtNum: selectedCourtNum, localDate}));
-      }
-    }
-  }
+  await validateReservationOverlap(reservations, club_id, courtNums, updates.date, start_time, end_time, recurring, query._id);
 
   await reservations.updateOne(query, {
     '$set': updates
   });
 
-  const docs = await getAllReservations(reservations, user.club_id);
+  const docs = await getAllReservations(reservations, club_id);
   return res.status(200).json({
     message: `Reservation with id ${reservation_id} was edited.`,
     data: docs

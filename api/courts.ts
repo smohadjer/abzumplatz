@@ -15,6 +15,10 @@ type CourtsFormBody = {
   courts: string[];
 }
 
+if (!database_uri || !database_name) {
+  throw new Error('Database configuration is missing');
+}
+
 const client = new MongoClient(database_uri);
 const projection = {
     timestamp: 0

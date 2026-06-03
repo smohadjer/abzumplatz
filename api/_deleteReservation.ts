@@ -60,8 +60,13 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
       return res.status(401).json({error: 'Authentication required'});
     }
 
+    const club_id = user.club_id;
+    if (!club_id) {
+      throw new Error('User does not belong to a club');
+    }
+
     const returnResponse = async () => {
-      const docs = await getAllReservations(reservations, user.club_id);
+      const docs = await getAllReservations(reservations, club_id);
       res.status(200).json({
         message: `Reservation with id ${reservation_id} was deleted.`,
         data: docs
@@ -73,7 +78,7 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
       return res.status(403).json({error: 'Deleting this reservation is not allowed'});
     }
 
-    if (reservation.club_id !== user.club_id) {
+    if (reservation.club_id !== club_id) {
       return res.status(403).json({error: 'Deleting this reservation is not allowed'});
     }
 

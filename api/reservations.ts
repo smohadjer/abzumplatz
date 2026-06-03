@@ -5,8 +5,13 @@ import { DBUser, ReservationItem } from '../src/types.js';
 import { deleteReservation } from './_deleteReservation.js';
 import { setReservation } from './_setReservation.js';
 import { editReservation } from './_editReservation.js';
+import { ReservationValidationError } from './_reservationValidation.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
+
+if (!database_uri || !database_name) {
+  throw new Error('Database configuration is missing');
+}
 
 const client = new MongoClient(database_uri);
 
@@ -61,6 +66,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
     }
   } catch (e) {
+    if (e instanceof ReservationValidationError) {
+      return res.status(e.statusCode).json({error: e.message});
+    }
+
     console.error(e.message);
     res.status(500).json({error: e.message});
   } finally {
