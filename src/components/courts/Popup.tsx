@@ -1,20 +1,18 @@
-import { MouseEventHandler } from "react";
 import {
     getLocalDate,
-    assignReservation,
-    deleteReservation,
+    editReservation,
     makeReservation,
     getClub
 } from './../../utils/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { Loader } from '../loader/Loader';
 import { ReservationForm } from "../courts/ReservationForm";
 
 import './popup.css';
 
 type Slot = {
     date: string;
+    reservation_date?: string;
     hour: number;
     court_number: string;
     court_nums?: string[];
@@ -35,7 +33,7 @@ export function Popup(props: {
         slot: Slot;
         disabled: boolean;
         setDisabled: Function;
-        closePopup: MouseEventHandler;
+        closePopup: Function;
     }) {
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.auth);
@@ -55,68 +53,67 @@ export function Popup(props: {
         });
     }
     const formatBoolean = (value: boolean | undefined) => value ? 'Ja' : 'Nein';
+    const formatTimestamp = (timestamp: string | undefined) => timestamp ? new Date(timestamp).toLocaleString('de-DE') : undefined;
     const courtNums = props.slot.court_nums ?? [props.slot.court_number];
     const courtsLabel = courtNums.length === 1 ? 'Platz' : 'Plätze';
+    const reservationDate = props.slot.reservation_date ?? props.slot.date;
     const getReservationDetails = (slot: Slot) => [
-        ['Reserviert von', slot.user_name],
+        ['Reserviert von', slot.user_name ? `${slot.user_name}${formatTimestamp(slot.timestamp) ? ` am ${formatTimestamp(slot.timestamp)}.` : '.'}` : undefined],
         [courtsLabel, courtNums.join(', ')],
-        ['Datum', getLocalDate(slot.date)],
+        ['Datum', getLocalDate(reservationDate)],
         ['Startzeit', `${slot.hour}:00 Uhr`],
         ['Endzeit', slot.end_time ? `${slot.end_time}:00 Uhr` : undefined],
         ['Reservierungslabel', slot.label],
         ['Wiederholt sich jede Woche', user.role === 'admin' ? formatBoolean(slot.recurring) : undefined],
         ['Gelöschte Termine', slot.deleted_dates?.map(date => getLocalDate(date)).join(', ')],
         ['Enddatum', getLocalDate(slot.end_date)],
-        ['Erstellt am', slot.timestamp ? new Date(slot.timestamp).toLocaleString('de-DE') : undefined],
     ].filter((detail) => detail[1] !== undefined && detail[1] !== '');
+    const getReservationSummaryDetails = (slot: Slot) => {
+        const details = getReservationDetails(slot);
+        return details.slice(0, 1);
+    };
     const getPopupContent = (slot: Slot, popupType: string) => {
         if (popupType === 'deleteReservation') {
             return (
                 <>
                     <p>
-                        {getReservationDetails(slot).map(([label, value]) => (
-                            <span key={label}>{label}: {value}<br /></span>
+                        {getReservationSummaryDetails(slot).map(([label, value]) => (
+                            <span key={label}>{label === 'Reserviert von' ? `${label} ${value}` : `${label}: ${value}`}<br /></span>
                         ))}
                     </p>
 
-                    {user.role === 'admin' && slot.user_id !== user._id && <button
-                        type="button"
-                        disabled={props.disabled}
-                        onClick={() => {
+                    <ReservationForm
+                        submitHandler={async (event) => {
                             props.setDisabled(true);
-                            assignReservation(slot.reservation_id, props.closePopup, successCallback);
-                        }}>Reservierung mir zuweisen</button>}
-
-                    <div className="delete-reservation-panel">
-                        {slot.recurring && <p>Dies ist eine wiederkehrende Reservierung. Bitte wählen Sie aus, wie Sie sie löschen möchten:</p>}
-
-                        <form
-                            method="POST"
-                            action={`/api/reservations?reservation_id=${slot.reservation_id}`}
-                            onSubmit={(event) => {
-                                props.setDisabled(true);
-                                deleteReservation(event, props.closePopup, successCallback);
-                            }}>
-                            <input type="hidden" name="form_method" value="delete" />
-                            <input type="hidden" name="date" value={slot.date} />
-                            {slot.recurring ?
-                                <div className="delete_fields">
-                                    <label><input type="radio" name="delete_type" value="once" /> Nur diesen Termin</label>
-                                    <label><input type="radio" name="delete_type" value="once_and_future" /> Diesen Termin und alle folgenden</label>
-                                    <label><input defaultChecked type="radio" name="delete_type" value="all" /> Alle Termine</label>
-                                </div>
-                                : <input type="hidden" name="delete_type" value="all" />
+                            const success = await editReservation(event, successCallback);
+                            props.setDisabled(false);
+                            if (success) {
+                                props.closePopup();
                             }
-                            <button type="submit" disabled={props.disabled}>Reservierung löschen</button>
-                            {props.disabled ? <Loader /> : null}
-                        </form>
-                    </div>
+                        }}
+                        disabled={props.disabled}
+                        courts={club?.courts ?? []}
+                        selectedCourtNumber={slot.court_number}
+                        selectedCourtNumbers={courtNums}
+                        date={reservationDate}
+                        deleteDate={slot.date}
+                        startHour={slot.hour}
+                        duration={slot.end_time ? slot.end_time - slot.hour : 1}
+                        label={slot.label}
+                        recurring={slot.recurring}
+                        clubStartHour={club?.start_hour ?? slot.hour}
+                        clubEndHour={club?.end_hour ?? slot.hour + 1}
+                        reservationId={slot.reservation_id}
+                        showAssignToMe={user.role === 'admin' && slot.user_id !== user._id}
+                        includeDeleteControls={true}
+                        submitLabel="Speichern"
+                        cancelHandler={props.closePopup}
+                    />
                 </>
             );
         } else {
             return (
                 <>
-                    <p>Reservierung am {getLocalDate(slot.date)} um {slot.hour}:00 Uhr</p>
                     <ReservationForm
                         submitHandler={(event) => {
                             props.setDisabled(true);
@@ -125,6 +122,10 @@ export function Popup(props: {
                         disabled={props.disabled}
                         courts={club?.courts ?? []}
                         selectedCourtNumber={slot.court_number}
+                        date={slot.date}
+                        startHour={slot.hour}
+                        clubStartHour={club?.start_hour ?? slot.hour}
+                        clubEndHour={club?.end_hour ?? slot.hour + 1}
                     />
                 </>
             );
@@ -134,7 +135,7 @@ export function Popup(props: {
     return (
         <div className="lightbox">
             <div className="popup">
-                <button className="close" disabled={props.disabled} onClick={props.closePopup}>X</button>
+                <button className="close" disabled={props.disabled} onClick={() => props.closePopup()}>X</button>
                 {getPopupContent(props.slot, props.type)}
             </div>
         </div>

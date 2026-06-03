@@ -24,15 +24,6 @@ export default async (request: VercelRequest, response: VercelResponse) => {
             return response.status(404).json({error: 'User not found'});
         }
         return response.json(doc);
-
-        // response.status(200).json({
-        //     first_name: payload.first_name,
-        //     last_name: payload.last_name,
-        //     email: payload.email,
-        //     club_id: payload.club_id,
-        //     _id: payload._id,
-        //     role: payload.role
-        // });
     } else {
         const error = 'No jwt token or invalid jwt token, redirecting to login page';
         response.status(500).json({error})

@@ -21,6 +21,7 @@ import './reservations.css';
 
 type Slot = {
     date: string;
+    reservation_date?: string;
     hour: number;
     court_number: string;
     court_nums?: string[];
@@ -68,7 +69,7 @@ export default function Reservations() {
     const getUserName = (userId: string) => {
         if (users.length > 0) {
             const user = users.find((item: StateUser) => item._id === userId);
-            return user ? user.first_name.charAt(0) + '. ' + user.last_name : userId;
+            return user ? `${user.first_name} ${user.last_name}` : userId;
         } else {
             console.warn('no user found', users)
             return userId;
@@ -114,6 +115,7 @@ export default function Reservations() {
                 setSlot({
                     court_number: slot.dataset.court_number!,
                     date: slot.dataset.date!,
+                    reservation_date: slot.dataset.reservation_date,
                     hour: Number(slot.dataset.hour),
                     court_nums: parseDatasetArray(slot.dataset.court_nums),
                     club_id: slot.dataset.club_id,

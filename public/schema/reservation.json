@@ -1,9 +1,6 @@
 {
     "type": "object",
     "properties": {
-        "court_num": {
-            "type": "integer"
-        },
         "court_nums": {
             "type": "array",
             "items": {
@@ -28,6 +25,6 @@
             "type": "boolean"
         }
     },
-    "required": ["court_num", "date", "start_time", "end_time"],
+    "required": ["court_nums", "date", "start_time", "end_time"],
     "additionalProperties": false
 }

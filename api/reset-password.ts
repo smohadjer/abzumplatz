@@ -6,6 +6,11 @@ import bcrypt from 'bcrypt';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/resetPassword.json', 'utf8'));
+
+if (!database_uri || !database_name) {
+    throw new Error('Database configuration is missing');
+}
+
 const client = new MongoClient(database_uri);
 const saltRounds = 10;
 

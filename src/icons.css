@@ -28,6 +28,16 @@ a.icon:hover {
     background-size: 20px;
 }
 
+.icon--edit {
+    background-color: var(--blue);
+    background-image: none;
+    mask: url(./images/edit.svg) no-repeat left center;
+    mask-size: 20px;
+    -webkit-mask: url(./images/edit.svg) no-repeat left center;
+    -webkit-mask-size: 20px;
+    background-size: 20px;
+}
+
 .icon--reload {
     background-image: url(./images/refresh.svg);
 }

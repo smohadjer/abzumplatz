@@ -1,6 +1,7 @@
 .my-reservations {
     ul {
-        .icon--delete {
+        .icon--inline {
+            color: var(--blue);
             cursor: pointer;
             margin-left: 0.25em;
         }

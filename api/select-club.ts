@@ -1,11 +1,12 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
-import { sanitize, ajv } from './_lib.js';
-import * as fs from 'fs';
+import { sanitize } from './_lib.js';
 import { getJwtPayload } from './verifyAuth.js';
-import { JwtPayload } from '../src/types.js';
-import { fetchUsers } from './_fetchUsers.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
+
+if (!database_uri || !database_name) {
+  throw new Error('Database configuration is missing');
+}
 
 const client = new MongoClient(database_uri);
 
@@ -22,7 +23,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
       // add club_id to user who posted the club
       if (club_id) {
-        const payload: JwtPayload = await getJwtPayload(req);
+        const payload = await getJwtPayload(req);
         if (!payload) {
           return res.status(401).json({error: 'Authentication required'});
         }
@@ -49,13 +50,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             query,
             {'$set' : {'club_id' : club_id}}
         );
-        // console.log(updateResonse);
-        //const doc = await fetchUsers(database, payload._id, undefined);
+
         return res.status(201).json({
           message: `Added club_id ${club_id} to logged-in user in database.`,
           data: {
             club_id
-            //doc
           }
         });
       } else {

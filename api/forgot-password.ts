@@ -4,6 +4,10 @@ import crypto from 'crypto';
 import { database_uri, database_name } from './_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
+if (!database_uri || !database_name) {
+    throw new Error('Database configuration is missing');
+}
+
 const client = new MongoClient(database_uri);
 
 const myCallback = (res: VercelResponse) => {

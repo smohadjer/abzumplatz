@@ -93,74 +93,75 @@ export const getLocalDate = (date: string | undefined) => {
     }
 };
 
-export const deleteReservation = (
+export const editReservation = (
     event: FormEvent,
-    closePopup: Function,
-    successCallback: Function) => {
+    successCallback: Function): Promise<boolean> => {
     event.preventDefault();
 
     if (event.target instanceof HTMLFormElement) {
         const form: HTMLFormElement = event.target!;
         const formData = new FormData(form);
 
-        fetch(form.action, {
+        if (!formData.get('reservation_id')) {
+            alert('Reservierung nicht gefunden');
+            return Promise.resolve(false);
+        }
+
+        const data = formData.get('delete') === 'true' ?
+            {
+                ...Object.fromEntries(formData),
+                date: formData.get('delete_date') ?? formData.get('date')
+            } :
+            {
+                reservation_id: formData.get('reservation_id'),
+                ...getReservationPayload(formData),
+                ...(formData.get('user_id') ? {user_id: formData.get('user_id')} : {})
+            };
+
+        return fetch(form.action, {
             method: form.method,
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(Object.fromEntries(formData))
+            body: JSON.stringify(data)
         })
         .then((response) => response.json())
         .then(json => {
             if (json.error) {
                 console.error(json.error);
                 alert(json.error);
+                return false;
             } else {
                 if (json.data) {
                     successCallback(json.data);
                 }
+                return true;
             }
-        })
-        .finally(() => {
-            closePopup();
         });
     }
+
+    return Promise.resolve(false);
 };
 
-export const assignReservation = (
-    reservationId: string | undefined,
-    closePopup: Function,
-    successCallback: Function) => {
-    if (!reservationId) {
-        alert('Reservierung nicht gefunden');
-        return;
-    }
+const getReservationPayload = (formData: FormData, reservationData?: any) => {
+    const duration = Number(formData.get('duration') ?? 1);
+    const label = formData.get('label');
+    const recurring = formData.get('recurring') ?? false;
+    const courtNums = formData.getAll('court_nums');
+    const startTime = Number(formData.get('start_time') ?? reservationData?.hour);
+    const date = formData.get('date') ?? reservationData?.date;
 
-    fetch(`/api/reservations?reservation_id=${reservationId}`, {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            form_method: 'assign'
-        })
-    })
-    .then((response) => response.json())
-    .then(json => {
-        if (json.error) {
-            console.error(json.error);
-            alert(json.error);
-        } else {
-            if (json.data) {
-                successCallback(json.data);
-            }
-        }
-    })
-    .finally(() => {
-        closePopup();
-    });
+    return {
+        club_id: reservationData?.club_id,
+        user_id: reservationData?.user_id,
+        ...(courtNums.length ? {court_nums: courtNums} : {}),
+        start_time: startTime,
+        end_time:  startTime + duration,
+        date,
+        ...(typeof label === 'string' ? {label} : {}),
+        recurring
+    };
 };
 
 export const makeReservation = (
@@ -173,22 +174,7 @@ export const makeReservation = (
     if (event.target instanceof HTMLFormElement) {
         const form: HTMLFormElement = event.target!;
         const formData = new FormData(form);
-        const duration = Number(formData.get('duration') ?? 1);
-        const label = formData.get('label');
-        const recurring = formData.get('recurring') ?? false;
-        const courtNums = formData.getAll('court_nums');
-
-        const data = {
-            club_id: reservationData.club_id,
-            user_id: reservationData.user_id,
-            court_num: reservationData.court_number,
-            ...(courtNums.length ? {court_nums: courtNums} : {}),
-            start_time: reservationData.hour,
-            end_time:  reservationData.hour + duration,
-            date: reservationData.date,
-            label,
-            recurring
-        };
+        const data = getReservationPayload(formData, reservationData);
 
         fetch(form.action, {
             method: form.method,
