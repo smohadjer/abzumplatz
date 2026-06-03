@@ -30,7 +30,7 @@ export function MyReservations(props: {
 	                        <li key={key}>
 	                            {item.label ? `${item.label}, ` : ''}
 	                            {weekday} {isoDate}, {''}
-	                            {item.start_time}-{item.end_time} Uhr,
+	                            {item.start_time}-{item.end_time} Uhr,{' '}
 	                            {courtNums.length > 1 ? 'Plätze' : 'Platz'} {courtNumsLabel}
                             {item.recurring ? ' (wiederkehrend)' : ''}
                             {props.hasPopup && <span
@@ -47,7 +47,7 @@ export function MyReservations(props: {
                                 data-deleted_dates={item.deleted_dates ? JSON.stringify(item.deleted_dates) : undefined}
                                 data-end_date={item.end_date}
                                 data-timestamp={item.timestamp ? item.timestamp.toString() : undefined}
-                                className="icon icon--inline icon--delete"></span>}
+                                className="icon icon--inline icon--edit"></span>}
                         </li>
                     )}
                 )}

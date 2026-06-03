@@ -107,7 +107,15 @@ export const editReservation = async (
 
   const recurring = bodyUpdates.recurring === true || bodyUpdates.recurring === 'true';
   const requestedCourtNums = Array.isArray(bodyUpdates.court_nums) ? bodyUpdates.court_nums : [bodyUpdates.court_nums];
-  const courtNums = [...new Set(requestedCourtNums.map((item) => item.toString()))];
+  if (!requestedCourtNums.length) {
+    return res.status(400).json({error: 'At least one court is required'});
+  }
+
+  const courtNums = [...new Set(requestedCourtNums.map((item) => item.toString()).filter(Boolean))];
+  if (!courtNums.length) {
+    return res.status(400).json({error: 'At least one court is required'});
+  }
+
   const updates = {
     ...bodyUpdates,
     court_nums: courtNums,
