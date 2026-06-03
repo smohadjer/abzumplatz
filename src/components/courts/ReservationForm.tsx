@@ -36,6 +36,7 @@ export function ReservationForm(props: Props) {
         user.first_name ? `${user.first_name.charAt(0)}.` : '',
         user.last_name
     ].filter(Boolean).join(' ');
+    const labelDefaultValue = props.label ?? (props.reservationId ? '' : userDisplayName);
     const selectedCourtNumbers = props.selectedCourtNumbers ?? [props.selectedCourtNumber];
     const courtOptions = user.role === 'admin' ?
         props.courts.map((court, index) => ({
@@ -94,7 +95,7 @@ export function ReservationForm(props: Props) {
             {(user.role === 'admin') && <>
                 <div className="reservation-field">
                         <label>Reservierungslabel:</label>
-                        <input name="label" defaultValue={props.label ?? userDisplayName} required />
+                        <input name="label" defaultValue={labelDefaultValue} required />
                 </div>
             </>}
             <div
