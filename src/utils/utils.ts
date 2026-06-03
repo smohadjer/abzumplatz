@@ -107,13 +107,24 @@ export const editReservation = (
             return Promise.resolve(false);
         }
 
+        const data = formData.get('delete') === 'true' ?
+            {
+                ...Object.fromEntries(formData),
+                date: formData.get('delete_date') ?? formData.get('date')
+            } :
+            {
+                reservation_id: formData.get('reservation_id'),
+                ...getReservationPayload(formData),
+                ...(formData.get('user_id') ? {user_id: formData.get('user_id')} : {})
+            };
+
         return fetch(form.action, {
             method: form.method,
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(Object.fromEntries(formData))
+            body: JSON.stringify(data)
         })
         .then((response) => response.json())
         .then(json => {
@@ -133,18 +144,17 @@ export const editReservation = (
     return Promise.resolve(false);
 };
 
-const getReservationPayload = (formData: FormData, reservationData: any) => {
+const getReservationPayload = (formData: FormData, reservationData?: any) => {
     const duration = Number(formData.get('duration') ?? 1);
     const label = formData.get('label');
     const recurring = formData.get('recurring') ?? false;
     const courtNums = formData.getAll('court_nums');
-    const startTime = Number(formData.get('start_time') ?? reservationData.hour);
-    const date = formData.get('date') ?? reservationData.date;
+    const startTime = Number(formData.get('start_time') ?? reservationData?.hour);
+    const date = formData.get('date') ?? reservationData?.date;
 
     return {
-        club_id: reservationData.club_id,
-        user_id: reservationData.user_id,
-        court_num: reservationData.court_number,
+        club_id: reservationData?.club_id,
+        user_id: reservationData?.user_id,
         ...(courtNums.length ? {court_nums: courtNums} : {}),
         start_time: startTime,
         end_time:  startTime + duration,

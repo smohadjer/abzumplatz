@@ -21,6 +21,7 @@ import './reservations.css';
 
 type Slot = {
     date: string;
+    reservation_date?: string;
     hour: number;
     court_number: string;
     court_nums?: string[];
@@ -114,6 +115,7 @@ export default function Reservations() {
                 setSlot({
                     court_number: slot.dataset.court_number!,
                     date: slot.dataset.date!,
+                    reservation_date: slot.dataset.reservation_date,
                     hour: Number(slot.dataset.hour),
                     court_nums: parseDatasetArray(slot.dataset.court_nums),
                     club_id: slot.dataset.club_id,

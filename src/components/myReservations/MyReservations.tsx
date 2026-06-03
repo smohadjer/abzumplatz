@@ -22,19 +22,21 @@ export function MyReservations(props: {
                     const isoDate = day.toLocaleDateString('de-DE');
                     const weekday = day.toLocaleDateString('de-DE', {weekday: 'short'});
                     const key = item._id!.toString();
-                    const courtNums = item.court_nums?.join(', ') ?? item.court_num;
+                    const courtNums = item.court_nums;
+                    const courtNumsLabel = courtNums.join(', ');
+                    const primaryCourtNum = courtNums[0];
 
 	                    return (
 	                        <li key={key}>
 	                            {item.label ? `${item.label}, ` : ''}
 	                            {weekday} {isoDate}, {''}
 	                            {item.start_time}-{item.end_time} Uhr,
-	                            {item.court_nums && item.court_nums.length > 1 ? 'Plätze' : 'Platz'} {courtNums}
+	                            {courtNums.length > 1 ? 'Plätze' : 'Platz'} {courtNumsLabel}
                             {item.recurring ? ' (wiederkehrend)' : ''}
                             {props.hasPopup && <span
                                 onClick={event => {props.showPopup(event.target)}}
-                                data-court_number={item.court_num}
-                                data-court_nums={item.court_nums ? JSON.stringify(item.court_nums) : undefined}
+                                data-court_number={primaryCourtNum}
+                                data-court_nums={JSON.stringify(courtNums)}
                                 data-club_id={item.club_id}
                                 data-hour={item.start_time}
                                 data-end_time={item.end_time}

@@ -8,7 +8,7 @@ export const reservationsSlice = createSlice({
         club_id: '',
         user_id: '',
         date: '',
-        court_num: '',
+        court_nums: [],
         start_time: 0,
         end_time: 0,
         label: '',
