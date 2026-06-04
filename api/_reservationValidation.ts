@@ -21,6 +21,7 @@ type ReservationErrorOptions = {
   courtNum?: string;
   limit?: number;
   localDate?: string | undefined;
+  reservationId?: string;
 };
 
 type ReservationBody = {
@@ -68,7 +69,7 @@ export const getReservationError = (key: ReservationErrorKey, options: Reservati
     case 'reached_limit':
       return `Sie haben die maximal zulässige Anzahl an Reservierungen (${options.limit}) erreicht.`;
     case 'already_booked':
-      return `Platz ${options.courtNum} ist zur angegebenen Zeit nicht verfügbar.`;
+      return `Platz ${options.courtNum} ist zur angegebenen Zeit nicht verfügbar. Reservierung überschneidet sich mit einer bestehenden Reservierung${options.reservationId ? ` (ID: ${options.reservationId})` : ''}.`;
     case 'overlapping':
       return `Platz ${options.courtNum} ist am ${options.localDate} zu einem Zeitpunkt gebucht, der sich mit Ihrer Buchung überschneidet.`;
     case 'multiple_courts':
@@ -181,9 +182,13 @@ export const validateReservationOverlap = async (
     const reservationsOnSameDay = reservationsForSameCourt.filter((item) => {
       return reservationIsOnSameDay(item, date);
     });
+
     const reservationsWithOverlappingTime = reservationsOnSameDay.filter(overlappingHoursFilter);
     if (reservationsWithOverlappingTime.length) {
-      throw new Error(getReservationError('already_booked', {courtNum: selectedCourtNum}));
+      throw new Error(getReservationError('already_booked', {
+        courtNum: selectedCourtNum,
+        reservationId: reservationsWithOverlappingTime[0]._id?.toString()
+      }));
     }
 
     if (recurring) {
