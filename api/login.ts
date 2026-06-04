@@ -17,8 +17,9 @@ const client = new MongoClient(database_uri);
 
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
+        const body = sanitize(req.body);
         const validator = ajv.compile(schema);
-        const valid = validator(sanitize(req.body));
+        const valid = validator(body);
         if (!valid) {
             const errors = validator.errors;
             if (errors) {
@@ -35,7 +36,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 return res.json({error: 'Ungültige Daten.'});
             }
         } else {
-            const { email, password } = req.body;
+            const { email, password } = body;
             //return res.json('Server received valid data');
             let authenticated = false;
 

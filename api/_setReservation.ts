@@ -1,14 +1,12 @@
-
 import { ObjectId, Collection } from 'mongodb';
-import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
-import * as fs from 'fs';
+import { sanitize } from './_lib.js';
 import { getJwtPayload } from './verifyAuth.js';
 import {
   getAllReservations
 } from '../src/utils/utils.js';
 import {
-  getCourtNums,
   getReservationError,
+  validateReservationBody,
   validateNonAdminReservationRules,
   validateReservationOverlap
 } from './_reservationValidation.js';
@@ -40,32 +38,13 @@ export const setReservation = async (
     clubs: Collection<ReservationClub>,
     users: Collection<DBUser>) => {
     const body = sanitize(req.body);
-    const { date, label } = body;
-    const start_time = Number(body.start_time);
-    const end_time = Number(body.end_time);
-    const recurring: boolean = body.recurring === 'true';
-
-    const schema = JSON.parse(fs.readFileSync(process.cwd() +
-      '/public/schema/reservation.json', 'utf8'));
-    const validator = ajv.compile(schema);
-    const valid = validator(body);
-    if (!valid) {
-      const errors = validator.errors;
-      if (errors) { 
-        errors.map(error => {
-            // for custom error messages
-            const customErrorMessage = getCustomErrorMessage(error);
-            if (customErrorMessage) {
-                error.message = customErrorMessage;
-            }
-            return error;
-        });
-        console.error(errors);
-        return res.json({error: errors});
-      } else {
-        return res.json({error: 'Ungültige Daten.'});
-      }
+    const validatedReservation = validateReservationBody(body);
+    if ('errors' in validatedReservation) {
+      console.error(validatedReservation.errors);
+      return res.json({error: validatedReservation.errors});
     }
+    const { body: validatedBody, courtNums, startTime, endTime, recurring } = validatedReservation;
+    const { date, label } = validatedBody;
 
     const payload = await getJwtPayload(req);
     if (!payload) {
@@ -90,8 +69,7 @@ export const setReservation = async (
     }
 
     const userId: string = user._id.toString();
-    const courtNums = getCourtNums(body.court_nums);
-    await validateReservationOverlap(reservations, club_id, courtNums, date, start_time, end_time, recurring);
+    await validateReservationOverlap(reservations, club_id, courtNums, date, startTime, endTime, recurring);
 
     const userReservations = await getUserReservations(reservations, userId);
     const userClub = await clubs.findOne(
@@ -100,7 +78,7 @@ export const setReservation = async (
 
     // validation for none-admin users
     if (!user.role || user.role !== 'admin') {
-      validateNonAdminReservationRules(courtNums, recurring, start_time, end_time, 'court_selection');
+      validateNonAdminReservationRules(courtNums, recurring, startTime, endTime, 'court_selection');
 
       // throw error if user has already reached maximum allowed number of reservations
       const limit = userClub?.reservations_limit;
@@ -116,7 +94,7 @@ export const setReservation = async (
         return item.date === date;
       });
       const userReservationsAtSameTime = userReservationsOnSameDay.filter((item) => {
-        return item.start_time === start_time;
+        return item.start_time === startTime;
       });
       if (userReservationsAtSameTime.length > 0) {
         throw new Error(getReservationError('multiple_courts'));
@@ -129,8 +107,8 @@ export const setReservation = async (
       user_id: userId,
       court_nums: courtNums,
       date,
-      start_time,
-      end_time,
+      start_time: startTime,
+      end_time: endTime,
       label,
       recurring,
       timestamp: new Date()

@@ -1,20 +1,54 @@
 import Ajv from 'ajv';
 
-type Data = {
-    [key:string]: string;
+type Sanitizable =
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | Sanitizable[]
+    | { [key: string]: Sanitizable };
+
+const shouldPreserveWhitespace = (keyPath: string[]) => {
+    const fieldName = keyPath[keyPath.length - 1];
+    return fieldName === 'password';
+};
+
+function sanitizeValue(value: Sanitizable, keyPath: string[] = []): Sanitizable {
+    if (typeof value === 'string') {
+        if (shouldPreserveWhitespace(keyPath)) {
+            return value.length ? value : undefined;
+        }
+
+        const trimmedValue = value.trim();
+        return trimmedValue.length ? trimmedValue : undefined;
+    }
+
+    if (Array.isArray(value)) {
+        return value
+            .map((item, index) => sanitizeValue(item, [...keyPath, index.toString()]))
+            .filter((item) => item !== undefined);
+    }
+
+    if (value && typeof value === 'object') {
+        const temp: { [key: string]: Sanitizable } = {};
+
+        for (const [key, item] of Object.entries(value)) {
+            const sanitizedItem = sanitizeValue(item as Sanitizable, [...keyPath, key]);
+
+            if (sanitizedItem !== undefined) {
+                temp[key] = sanitizedItem;
+            }
+        }
+
+        return temp;
+    }
+
+    return value;
 }
 
-export function sanitize(data: Data) {
-    const temp: Data = {};
-    for (const [key, value] of Object.entries(data)) {
-        // if a string property has no value don't send it to api
-        if (typeof value === 'string' && value.length === 0) {
-            // do nothing
-        } else {
-            temp[key] = value;
-        }
-    }
-    return temp;
+export function sanitize<T extends Sanitizable>(data: T): T {
+    return sanitizeValue(data) as T;
 }
 
 export const ajv = new Ajv({
@@ -35,4 +69,3 @@ export function getCustomErrorMessage(error: any) {
         return customErrorMessage[error.keyword];
     }
 }
-

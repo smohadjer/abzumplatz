@@ -16,8 +16,9 @@ const saltRounds = 10;
 
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
+        const body = sanitize(req.body);
         const validator = ajv.compile(schema);
-        const valid = validator(sanitize(req.body));
+        const valid = validator(body);
         if (!valid) {
             const errors = validator.errors;
             errors.map(error => {
@@ -30,7 +31,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             });
             return res.json({error: errors});
         } else {
-            const { resetToken, password } = req.body;
+            const { resetToken, password } = body;
             //return res.json('Server received valid data');
 
             try {

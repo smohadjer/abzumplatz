@@ -26,8 +26,7 @@ export function Rows(props: Props) {
         const isMyReservation = reservation?.user_id === props.user_id ? true : false;
         const isRecurringReservation = reservation?.recurring ? true : false;
         const getLabel = (reservation: NormalizedReservationItem) => {
-            const label = reservation.label ? reservation.label : reservation.user_name;
-            return label;
+            return reservation.label || reservation.user_name;
         }
 
         row.push(

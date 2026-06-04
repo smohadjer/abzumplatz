@@ -18,6 +18,13 @@ body {
     line-height: 1.3;
 }
 
+/* Keep text-entry controls at iOS Safari's non-zoom threshold. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+select,
+textarea {
+    font-size: 16px;
+}
+
 #root {
     height: 100%;
     background: white;

@@ -64,7 +64,7 @@ export type ReservationItem = {
     court_nums: string[];
     start_time: number;
     end_time: number;
-    label?: string;
+    label: string;
     recurring?: boolean;
     deleted_dates?: string[];
     end_date?: string;

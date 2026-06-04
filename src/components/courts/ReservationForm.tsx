@@ -28,15 +28,22 @@ type Props = {
 export function ReservationForm(props: Props) {
     const user = useSelector((state: RootState) => state.auth);
     const [deleteReservationChecked, setDeleteReservationChecked] = useState(false);
+    const capitalizeName = (value: string | undefined) => {
+        if (!value) {
+            return '';
+        }
+
+        return value.charAt(0).toUpperCase() + value.slice(1);
+    };
     const clubHours = Array.from({
         length: props.clubEndHour - props.clubStartHour
     }, (_, i) => i + props.clubStartHour);
     const durationOptions = user.role === 'admin' ? [1,2,3,4,5,6,7,8,9,10] : [1,2];
-    const userDisplayName = [
-        user.first_name ? `${user.first_name.charAt(0)}.` : '',
-        user.last_name
+    const generatedUserLabel = [
+        capitalizeName(user.first_name),
+        capitalizeName(user.last_name)
     ].filter(Boolean).join(' ');
-    const labelDefaultValue = props.label ?? (props.reservationId ? '' : userDisplayName);
+    const labelDefaultValue = props.reservationId ? props.label : (props.label ?? generatedUserLabel);
     const selectedCourtNumbers = props.selectedCourtNumbers ?? [props.selectedCourtNumber];
     const courtOptions = user.role === 'admin' ?
         props.courts.map((court, index) => ({
@@ -70,6 +77,7 @@ export function ReservationForm(props: Props) {
             action="/api/reservations"
             onSubmit={submitHandler}>
             {props.reservationId && <input type="hidden" name="reservation_id" value={props.reservationId} />}
+            {!props.reservationId && user.role !== 'admin' && <input type="hidden" name="label" value={labelDefaultValue} />}
             <div className="reservation-field">
                 <label>Datum:</label>
                 <input name="date" type="date" defaultValue={props.date} readOnly={user.role !== 'admin'} required />

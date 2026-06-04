@@ -1,4 +1,5 @@
 import { ObjectId, Collection } from 'mongodb';
+import { sanitize } from './_lib.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { DBUser, ReservationItem } from '../src/types.js';
 import { getJwtPayload } from './verifyAuth.js';
@@ -7,7 +8,7 @@ import {
   isInPast
 } from '../src/utils/utils.js';
 import {
-  getCourtNums,
+  validateReservationBody,
   validateNonAdminReservationRules,
   validateReservationOverlap
 } from './_reservationValidation.js';
@@ -18,7 +19,8 @@ export const editReservation = async (
   reservations: Collection<ReservationItem>,
   users: Collection<DBUser>
 ) => {
-  const reservation_id = req.body?.reservation_id;
+  const body = sanitize(req.body);
+  const reservation_id = body?.reservation_id;
   if (!reservation_id || typeof reservation_id !== 'string') {
     return res.status(400).json({error: 'Reservation id is required'});
   }
@@ -75,33 +77,25 @@ export const editReservation = async (
     label,
     court_nums,
     recurring: recurringValue
-  } = req.body;
-  const bodyUpdates = {
+  } = body;
+  const validatedBody = {
     date,
-    ...(label !== undefined ? {label} : {}),
+    label,
     court_nums,
     recurring: recurringValue,
     start_time: startTimeValue,
     end_time: endTimeValue
   };
-
-  if (!bodyUpdates.date || bodyUpdates.start_time === undefined || bodyUpdates.end_time === undefined || !bodyUpdates.court_nums) {
-    return res.status(400).json({error: 'Reservation date, time and courts are required'});
+  const validatedReservation = validateReservationBody(validatedBody);
+  if ('errors' in validatedReservation) {
+    return res.json({error: validatedReservation.errors});
   }
-
-  const start_time = Number(bodyUpdates.start_time);
-  const end_time = Number(bodyUpdates.end_time);
-  if (!Number.isFinite(start_time) || !Number.isFinite(end_time)) {
-    return res.status(400).json({error: 'Reservation time is invalid'});
-  }
-
-  const recurring = bodyUpdates.recurring === true || bodyUpdates.recurring === 'true';
-  const courtNums = getCourtNums(bodyUpdates.court_nums);
+  const { body: normalizedBody, courtNums, startTime, endTime, recurring } = validatedReservation;
   const updates = {
-    ...bodyUpdates,
+    ...normalizedBody,
     court_nums: courtNums,
-    start_time,
-    end_time,
+    start_time: startTime,
+    end_time: endTime,
     recurring,
     ...(user_id ? {user_id} : {})
   };
@@ -115,10 +109,10 @@ export const editReservation = async (
   }
 
   if (user.role !== 'admin') {
-    validateNonAdminReservationRules(courtNums, recurring, start_time, end_time);
+    validateNonAdminReservationRules(courtNums, recurring, startTime, endTime);
   }
 
-  await validateReservationOverlap(reservations, club_id, courtNums, updates.date, start_time, end_time, recurring, query._id);
+  await validateReservationOverlap(reservations, club_id, courtNums, updates.date, startTime, endTime, recurring, query._id);
 
   await reservations.updateOne(query, {
     '$set': updates

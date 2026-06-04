@@ -25,6 +25,6 @@
             "type": "boolean"
         }
     },
-    "required": ["court_nums", "date", "start_time", "end_time"],
+    "required": ["court_nums", "date", "start_time", "end_time", "label"],
     "additionalProperties": false
 }

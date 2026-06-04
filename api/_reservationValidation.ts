@@ -1,5 +1,7 @@
+import { ajv, getCustomErrorMessage } from './_lib.js';
 import { Collection, ObjectId } from 'mongodb';
 import { ReservationItem } from '../src/types.js';
+import * as fs from 'fs';
 import {
   getDayName,
   getLocalDate,
@@ -19,6 +21,32 @@ type ReservationErrorOptions = {
   courtNum?: string;
   limit?: number;
   localDate?: string | undefined;
+};
+
+type ReservationBody = {
+  court_nums: unknown;
+  date: unknown;
+  start_time: unknown;
+  end_time: unknown;
+  label: unknown;
+  recurring?: unknown;
+};
+
+type NormalizedReservationBody = {
+  court_nums: string[];
+  date: string;
+  start_time: number;
+  end_time: number;
+  label: string;
+  recurring: boolean;
+};
+
+type ValidReservationBody = {
+  body: NormalizedReservationBody;
+  courtNums: string[];
+  startTime: number;
+  endTime: number;
+  recurring: boolean;
 };
 
 export class ReservationValidationError extends Error {
@@ -61,6 +89,46 @@ export const getCourtNums = (courtNumsInput: unknown) => {
   }
 
   return courtNums;
+};
+
+export const validateReservationBody = (body: ReservationBody): ValidReservationBody | { errors: any[] } => {
+  const schema = JSON.parse(fs.readFileSync(process.cwd() +
+    '/public/schema/reservation.json', 'utf8'));
+  const validator = ajv.compile(schema);
+  const valid = validator(body);
+
+  if (!valid) {
+    const errors = validator.errors ?? [];
+    errors.forEach(error => {
+      const customErrorMessage = getCustomErrorMessage(error);
+      if (customErrorMessage) {
+        error.message = customErrorMessage;
+      }
+    });
+
+    return { errors };
+  }
+
+  const startTime = Number(body.start_time);
+  const endTime = Number(body.end_time);
+  if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) {
+    throw new ReservationValidationError('Reservation time is invalid');
+  }
+
+  return {
+    body: {
+      court_nums: getCourtNums(body.court_nums),
+      date: body.date as string,
+      start_time: startTime,
+      end_time: endTime,
+      label: body.label as string,
+      recurring: body.recurring === true || body.recurring === 'true'
+    },
+    courtNums: getCourtNums(body.court_nums),
+    startTime,
+    endTime,
+    recurring: body.recurring === true || body.recurring === 'true'
+  };
 };
 
 export const validateNonAdminReservationRules = (
