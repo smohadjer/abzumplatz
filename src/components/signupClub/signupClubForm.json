@@ -319,6 +319,147 @@
             "value": 20
         },
         {
+            "name": "timezone",
+            "label": "Zeitzone des Vereins",
+            "type": "select",
+            "required": true,
+            "value": "Europe/Berlin",
+            "options": [
+                {
+                    "label": "Europe/Berlin",
+                    "value": "Europe/Berlin"
+                },
+                {
+                    "label": "Europe/Vienna",
+                    "value": "Europe/Vienna"
+                },
+                {
+                    "label": "Europe/Zurich",
+                    "value": "Europe/Zurich"
+                },
+                {
+                    "label": "Europe/Amsterdam",
+                    "value": "Europe/Amsterdam"
+                },
+                {
+                    "label": "Europe/Brussels",
+                    "value": "Europe/Brussels"
+                },
+                {
+                    "label": "Europe/Copenhagen",
+                    "value": "Europe/Copenhagen"
+                },
+                {
+                    "label": "Europe/Paris",
+                    "value": "Europe/Paris"
+                },
+                {
+                    "label": "Europe/London",
+                    "value": "Europe/London"
+                },
+                {
+                    "label": "Europe/Madrid",
+                    "value": "Europe/Madrid"
+                },
+                {
+                    "label": "Europe/Rome",
+                    "value": "Europe/Rome"
+                },
+                {
+                    "label": "Europe/Lisbon",
+                    "value": "Europe/Lisbon"
+                },
+                {
+                    "label": "Europe/Prague",
+                    "value": "Europe/Prague"
+                },
+                {
+                    "label": "Europe/Warsaw",
+                    "value": "Europe/Warsaw"
+                },
+                {
+                    "label": "Europe/Athens",
+                    "value": "Europe/Athens"
+                },
+                {
+                    "label": "Europe/Helsinki",
+                    "value": "Europe/Helsinki"
+                },
+                {
+                    "label": "Europe/Istanbul",
+                    "value": "Europe/Istanbul"
+                },
+                {
+                    "label": "America/New_York",
+                    "value": "America/New_York"
+                },
+                {
+                    "label": "America/Chicago",
+                    "value": "America/Chicago"
+                },
+                {
+                    "label": "America/Denver",
+                    "value": "America/Denver"
+                },
+                {
+                    "label": "America/Los_Angeles",
+                    "value": "America/Los_Angeles"
+                },
+                {
+                    "label": "America/Toronto",
+                    "value": "America/Toronto"
+                },
+                {
+                    "label": "America/Vancouver",
+                    "value": "America/Vancouver"
+                },
+                {
+                    "label": "America/Sao_Paulo",
+                    "value": "America/Sao_Paulo"
+                },
+                {
+                    "label": "Africa/Cairo",
+                    "value": "Africa/Cairo"
+                },
+                {
+                    "label": "Africa/Johannesburg",
+                    "value": "Africa/Johannesburg"
+                },
+                {
+                    "label": "Asia/Dubai",
+                    "value": "Asia/Dubai"
+                },
+                {
+                    "label": "Asia/Kolkata",
+                    "value": "Asia/Kolkata"
+                },
+                {
+                    "label": "Asia/Bangkok",
+                    "value": "Asia/Bangkok"
+                },
+                {
+                    "label": "Asia/Singapore",
+                    "value": "Asia/Singapore"
+                },
+                {
+                    "label": "Asia/Tokyo",
+                    "value": "Asia/Tokyo"
+                },
+                {
+                    "label": "Asia/Seoul",
+                    "value": "Asia/Seoul"
+                },
+                {
+                    "label": "Australia/Sydney",
+                    "value": "Australia/Sydney"
+                },
+                {
+                    "label": "Pacific/Auckland",
+                    "value": "Pacific/Auckland"
+                }
+            ]
+        },
+        {
             "name": "reservations_limit",
             "label": "Maximale Anzahl aktiver Buchungen pro Spieler",
             "type": "select",

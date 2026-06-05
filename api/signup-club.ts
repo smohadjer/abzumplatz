@@ -20,6 +20,7 @@ type SignupClubBody = {
     courts_count: number | string;
     start_hour: number | string;
     end_hour: number | string;
+    timezone: string;
     reservations_limit: number | string;
 }
 
@@ -90,10 +91,19 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 });
             }
 
+            try {
+                new Intl.DateTimeFormat('en-US', { timeZone: body.timezone });
+            } catch {
+                throw new Error('Bitte geben Sie eine gültige IANA-Zeitzone an.', {
+                    cause: 'timezone'
+                });
+            }
+
             const club = {
                 name: body.name,
                 start_hour: Number(body.start_hour),
                 end_hour: Number(body.end_hour),
+                timezone: body.timezone,
                 reservations_limit: Number(body.reservations_limit),
                 courts,
                 timestamp: new Date()

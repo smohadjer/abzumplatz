@@ -122,10 +122,23 @@
                 }
             ]
         },
+        "timezone": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 3,
+                    "errorMessage": "Bitte geben Sie eine gültige Zeitzone an."
+                },
+                {
+                    "maxLength": 100,
+                    "errorMessage": "Die Zeitzone ist zu lang."
+                }
+            ]
+        },
         "reservations_limit": {
             "type": "integer"
         }
     },
-    "required": ["first_name", "last_name", "email", "password", "privacy", "name", "courts_count", "start_hour", "end_hour", "reservations_limit"],
+    "required": ["first_name", "last_name", "email", "password", "privacy", "name", "courts_count", "start_hour", "end_hour", "timezone", "reservations_limit"],
     "additionalProperties": false
 }

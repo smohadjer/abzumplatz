@@ -16,6 +16,7 @@ type ClubFormBody = {
   courts_count: number | string;
   start_hour: number | string;
   end_hour: number | string;
+  timezone: string;
   reservations_limit: number | string;
 }
 
@@ -133,7 +134,17 @@ async function addClub(
 
   const start_hour = Number(body.start_hour);
   const end_hour = Number(body.end_hour);
+  const timezone = body.timezone;
   const reservations_limit = Number(body.reservations_limit);
+
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: timezone });
+  } catch {
+    const error = new Error('Bitte geben Sie eine gültige IANA-Zeitzone an.', {
+      cause: 'timezone'
+    });
+    throw error;
+  }
 
   // throw error if club with same name already exists
   const doc = await collection.findOne({ name: body.name },{
@@ -159,6 +170,7 @@ async function addClub(
     name: body.name,
     start_hour,
     end_hour,
+    timezone,
     reservations_limit,
     courts,
     timestamp: new Date()
@@ -199,7 +211,17 @@ async function updateClub(
   const courts_count = Number(body.courts_count);
   const start_hour = Number(body.start_hour);
   const end_hour = Number(body.end_hour);
+  const timezone = body.timezone;
   const reservations_limit = Number(body.reservations_limit);
+
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: timezone });
+  } catch {
+    const error = new Error('Bitte geben Sie eine gültige IANA-Zeitzone an.', {
+      cause: 'timezone'
+    });
+    throw error;
+  }
 
   // updating courts array in db if user has changed courts_count
   const doc = await fetchClub(body._id, collection);
@@ -226,6 +248,7 @@ async function updateClub(
         name : body.name,
         start_hour,
         end_hour,
+        timezone,
         reservations_limit,
         courts,
       }}

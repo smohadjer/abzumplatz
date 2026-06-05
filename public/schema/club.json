@@ -43,10 +43,23 @@
                 }
             ]
         },
+        "timezone": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 3,
+                    "errorMessage": "Bitte geben Sie eine gültige Zeitzone an."
+                },
+                {
+                    "maxLength": 100,
+                    "errorMessage": "Die Zeitzone ist zu lang."
+                }
+            ]
+        },
         "reservations_limit": {
             "type": "integer"
         }
     },
-    "required": ["name", "courts_count"],
+    "required": ["name", "courts_count", "timezone"],
     "additionalProperties": false
 }

@@ -166,9 +166,8 @@ const getReservationPayload = (formData: FormData, reservationData?: any) => {
 
 export const makeReservation = (
     event: FormEvent,
-    closePopup: Function,
     successCallback: Function,
-    reservationData: any) => {
+    reservationData: any): Promise<boolean> => {
     event.preventDefault();
 
     if (event.target instanceof HTMLFormElement) {
@@ -176,7 +175,7 @@ export const makeReservation = (
         const formData = new FormData(form);
         const data = getReservationPayload(formData, reservationData);
 
-        fetch(form.action, {
+        return fetch(form.action, {
             method: form.method,
             headers: {
                 'Accept': 'application/json',
@@ -189,16 +188,17 @@ export const makeReservation = (
             if (json.error) {
                 console.error(json.error);
                 alert(json.error);
+                return false;
             } else {
                 if (json.data) {
                     successCallback(json.data);
                 }
+                return true;
             }
-        })
-        .finally(() => {
-            closePopup();
         });
     }
+
+    return Promise.resolve(false);
 };
 
 export const getAllReservations = async (

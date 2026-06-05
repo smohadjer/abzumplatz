@@ -11,6 +11,7 @@ export const clubsSlice = createSlice({
         reservations_limit: 0,
         start_hour: 0,
         end_hour: 0,
+        timezone: 'Europe/Berlin',
       }
     ]
   },

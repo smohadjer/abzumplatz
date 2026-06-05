@@ -53,6 +53,7 @@ export type Club = {
     reservations_limit: number;
     start_hour: number;
     end_hour: number;
+    timezone: string;
 }
 
 export type ReservationItem = {
