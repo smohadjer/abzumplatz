@@ -8,18 +8,24 @@ import { editReservation } from './_editReservation.js';
 import { ReservationValidationError } from './_reservationValidation.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-
-if (!database_uri || !database_name) {
-  throw new Error('Database configuration is missing');
-}
-
-const client = new MongoClient(database_uri);
+import { getErrorMessage } from './_errors.js';
 
 type ReservationClub = {
   start_hour: number;
   end_hour: number;
   reservations_limit: number;
 }
+
+type ReservationRouteBody = {
+  delete?: string;
+  reservation_id?: string;
+}
+
+if (!database_uri || !database_name) {
+  throw new Error('Database configuration is missing');
+}
+
+const client = new MongoClient(database_uri);
 
 export default async (req: VercelRequest, res: VercelResponse) => {
   try {
@@ -59,9 +65,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     if (req.method === 'POST') {
-      if (req.body.delete === 'true') {
+      const body = req.body as ReservationRouteBody;
+      if (body.delete === 'true') {
         await deleteReservation(req, res, reservations, users);
-      } else if (req.body.reservation_id) {
+      } else if (body.reservation_id) {
         await editReservation(req, res, reservations, clubs, users);
       } else {
         await setReservation(req, res, reservations, clubs, users);
@@ -72,8 +79,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       return res.status(e.statusCode).json({error: e.message});
     }
 
-    console.error(e.message);
-    res.status(500).json({error: e.message});
+    const message = getErrorMessage(e);
+    console.error(message);
+    res.status(500).json({error: message});
   } finally {
     await client.close();
   }

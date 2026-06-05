@@ -4,8 +4,14 @@ import { MongoClient } from 'mongodb';
 import { jwtSecret, environment, database_uri, database_name } from './_config.js';
 import bcrypt from 'bcrypt';
 import { SignJWT } from 'jose';
-import { JwtPayload } from '../src/types.js';
+import { DBUser, JwtPayload } from '../src/types.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { getErrorMessage } from './_errors.js';
+
+type LoginBody = {
+    email: string;
+    password: string;
+}
 
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/login.json', 'utf8'));
 
@@ -17,7 +23,7 @@ const client = new MongoClient(database_uri);
 
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
-        const body = sanitize(req.body);
+        const body = sanitize(req.body) as LoginBody;
         const validator = ajv.compile(schema);
         const valid = validator(body);
         if (!valid) {
@@ -43,7 +49,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             try {
                 await client.connect();
                 const database = client.db(database_name);
-                const collection = database.collection('users');
+                const collection = database.collection<DBUser>('users');
                 const user = await collection.findOne({ email: email.toLowerCase() });
                 if (!user) {
                   throw new Error('Es existiert kein Benutzer mit dieser E-Mail-Adresse.');
@@ -56,6 +62,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 }
 
                 if (authenticated) {
+                    if (!user.club_id || !user.first_name || !user.last_name || !user.role) {
+                      throw new Error('Benutzerkonto ist unvollständig konfiguriert.');
+                    }
                     const secret = new TextEncoder().encode(jwtSecret);
                     const alg = 'HS256';
                     const payload: JwtPayload = {
@@ -81,13 +90,14 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     // res.status(302).end();
                 }
             } catch (e) {
-                console.error(e.message);
+                const message = getErrorMessage(e);
+                console.error(message);
 
                 // login form is submitted via ajax, redirect happens on client
                 res.status(401).json({
                     error: [{
                         'instancePath': '/email',
-                        'message': e.message
+                        'message': message
                     }]
                 });
 

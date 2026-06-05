@@ -7,6 +7,15 @@ import type { Db } from 'mongodb';
 import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { createError, getErrorCause, getErrorMessage } from './_errors.js';
+
+type SignupBody = {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    club_id: string;
+}
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -116,10 +125,10 @@ async function sendWelcomeEmail(user: DBUser, club: ClubDocument) {
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
         const validator = ajv.compile(schema);
-        const body = sanitize(req.body);
+        const body = sanitize(req.body) as SignupBody;
         const valid = validator(body);
         if (!valid) {
-            const errors = validator.errors;
+            const errors = validator.errors ?? [];
             if (errors) {
                 errors.map(error => {
                     // for custom error messages
@@ -150,13 +159,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 await client.connect();
                 const database = client.db(database_name);
                 if (!objectIdPattern.test(club_id)) {
-                    throw new Error('Der ausgewählte Verein existiert nicht.', { cause: 'club_id' });
+                    throw createError('Der ausgewählte Verein existiert nicht.', 'club_id');
                 }
                 const club = await database.collection<ClubDocument>('clubs').findOne({
                     _id: ObjectId.createFromHexString(club_id)
                 });
                 if (!club) {
-                    throw new Error('Der ausgewählte Verein existiert nicht.', { cause: 'club_id' });
+                    throw createError('Der ausgewählte Verein existiert nicht.', 'club_id');
                 }
                 await addUser(database, user);
                 try {
@@ -174,11 +183,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 });
             } catch (e) {
                 console.error(e);
-                const instancePath = (e.cause === 'invalid_email') ? '/email' : '/undefined';
+                const instancePath = (getErrorCause(e) === 'invalid_email') ? '/email' : '/undefined';
                 res.status(500).json({error: [
                     {
                         instancePath: instancePath,
-                        message: e.message
+                        message: getErrorMessage(e)
                     }
             ]});
             }  finally {

@@ -4,6 +4,19 @@ import { MongoClient } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import bcrypt from 'bcrypt';
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { getErrorMessage } from './_errors.js';
+
+type ResetPasswordBody = {
+    resetToken: string;
+    password: string;
+}
+
+type PasswordResetUser = {
+    email: string;
+    password: string;
+    resetToken?: string;
+    resetTokenExpiry?: number;
+}
 
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/resetPassword.json', 'utf8'));
 
@@ -16,11 +29,11 @@ const saltRounds = 10;
 
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
-        const body = sanitize(req.body);
+        const body = sanitize(req.body) as ResetPasswordBody;
         const validator = ajv.compile(schema);
         const valid = validator(body);
         if (!valid) {
-            const errors = validator.errors;
+            const errors = validator.errors ?? [];
             errors.map(error => {
                 // for custom error messages
                 const customErrorMessage = getCustomErrorMessage(error);
@@ -37,7 +50,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             try {
                 await client.connect();
                 const database = client.db(database_name);
-                const collection = database.collection('users');
+                const collection = database.collection<PasswordResetUser>('users');
                 const filter = {
                     resetToken,
                     resetTokenExpiry: { $gt: Date.now() },
@@ -71,10 +84,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 // res.status(302).end();
                 //return res.redirect(307, '/login');
             } catch (e) {
+                const message = getErrorMessage(e);
                 console.error(e);
                 return res.status(500).json({error: [{
                     instancePath: '/undefined',
-                    message: e.message
+                    message
                 }]});
             }
         }
