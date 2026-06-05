@@ -29,12 +29,7 @@ a.icon:hover {
 }
 
 .icon--edit {
-    background-color: var(--blue);
-    background-image: none;
-    mask: url(./images/edit.svg) no-repeat left center;
-    mask-size: 20px;
-    -webkit-mask: url(./images/edit.svg) no-repeat left center;
-    -webkit-mask-size: 20px;
+    background-image: url(./images/edit.svg);
     background-size: 20px;
 }
 
