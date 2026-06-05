@@ -16,6 +16,8 @@ if (!database_uri || !database_name) {
 const client = new MongoClient(database_uri);
 
 type ReservationClub = {
+  start_hour: number;
+  end_hour: number;
   reservations_limit: number;
 }
 
@@ -60,7 +62,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       if (req.body.delete === 'true') {
         await deleteReservation(req, res, reservations, users);
       } else if (req.body.reservation_id) {
-        await editReservation(req, res, reservations, users);
+        await editReservation(req, res, reservations, clubs, users);
       } else {
         await setReservation(req, res, reservations, clubs, users);
       }

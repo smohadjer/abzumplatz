@@ -2,18 +2,23 @@ import { ObjectId, Collection } from 'mongodb';
 import { sanitize } from './_lib.js';
 import { getJwtPayload } from './verifyAuth.js';
 import {
-  getAllReservations
+  getAllReservations,
+  isReservationActive
 } from '../src/utils/utils.js';
 import {
   getReservationError,
   validateReservationBody,
   validateNonAdminReservationRules,
+  validateReservationNotInPast,
+  validateReservationWithinClubHours,
   validateReservationOverlap
 } from './_reservationValidation.js';
 import { DBUser, ReservationItem } from '../src/types.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
 type ReservationClub = {
+  start_hour: number;
+  end_hour: number;
   reservations_limit: number;
 }
 
@@ -22,13 +27,13 @@ const getUserReservations = async (
   user_id: string
 ): Promise<ReservationItem[]> => {
   const docs = await reservations.find({
-    user_id,
-    date: { $gte: new Date().toISOString().split('T')[0] }
+    user_id
   }).sort({
     date: 1,
     start_time: 1
   });
-  return docs.toArray();
+  const reservationsArray = await docs.toArray();
+  return reservationsArray.filter((reservation) => isReservationActive(reservation));
 };
 
 export const setReservation = async (
@@ -68,23 +73,27 @@ export const setReservation = async (
       throw new Error('User does not belong to a club');
     }
 
+    const userClub = await clubs.findOne(
+      {_id: ObjectId.createFromHexString(club_id)}
+    );
+    if (!userClub) {
+      throw new Error('Club not found');
+    }
+
+    validateReservationNotInPast(date, startTime);
+    validateReservationWithinClubHours(startTime, endTime, userClub.start_hour, userClub.end_hour);
+
     const userId: string = user._id.toString();
     await validateReservationOverlap(reservations, club_id, courtNums, date, startTime, endTime, recurring);
 
     const userReservations = await getUserReservations(reservations, userId);
-    const userClub = await clubs.findOne(
-      {_id: ObjectId.createFromHexString(club_id)}
-    );
 
     // validation for none-admin users
     if (!user.role || user.role !== 'admin') {
       validateNonAdminReservationRules(courtNums, recurring, startTime, endTime, 'court_selection');
 
       // throw error if user has already reached maximum allowed number of reservations
-      const limit = userClub?.reservations_limit;
-      if (limit === undefined) {
-        throw new Error('Club not found');
-      }
+      const limit = userClub.reservations_limit;
       if (userReservations.length >= limit) {
         throw new Error(getReservationError('reached_limit', {limit}));
       }

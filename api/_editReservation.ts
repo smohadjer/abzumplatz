@@ -10,13 +10,21 @@ import {
 import {
   validateReservationBody,
   validateNonAdminReservationRules,
+  validateReservationNotInPast,
+  validateReservationWithinClubHours,
   validateReservationOverlap
 } from './_reservationValidation.js';
+
+type ReservationClub = {
+  start_hour: number;
+  end_hour: number;
+}
 
 export const editReservation = async (
   req: VercelRequest,
   res: VercelResponse,
   reservations: Collection<ReservationItem>,
+  clubs: Collection<ReservationClub>,
   users: Collection<DBUser>
 ) => {
   const body = sanitize(req.body);
@@ -50,6 +58,13 @@ export const editReservation = async (
   const club_id = user.club_id;
   if (!club_id) {
     throw new Error('User does not belong to a club');
+  }
+
+  const club = await clubs.findOne({
+    _id: ObjectId.createFromHexString(club_id)
+  });
+  if (!club) {
+    throw new Error('Club not found');
   }
 
   if (reservation.club_id !== club_id) {
@@ -111,6 +126,9 @@ export const editReservation = async (
   if (user.role !== 'admin') {
     validateNonAdminReservationRules(courtNums, recurring, startTime, endTime);
   }
+
+  validateReservationNotInPast(updates.date, startTime);
+  validateReservationWithinClubHours(startTime, endTime, club.start_hour, club.end_hour);
 
   await validateReservationOverlap(reservations, club_id, courtNums, updates.date, startTime, endTime, recurring, query._id);
 

@@ -11,8 +11,10 @@ import {
 type ReservationErrorKey =
   'already_booked' |
   'court_selection' |
+  'in_past' |
   'more_hours' |
   'multiple_courts' |
+  'outside_club_hours' |
   'overlapping' |
   'reached_limit' |
   'recurring';
@@ -64,6 +66,8 @@ export const getReservationError = (key: ReservationErrorKey, options: Reservati
   switch (key) {
     case 'recurring':
       return 'Nur Administratoren können wiederkehrende Reservierungen vornehmen.';
+    case 'in_past':
+      return 'Eine Reservierung in der Vergangenheit ist nicht möglich.';
     case 'more_hours':
       return 'Nur Administratoren können Reservierungen mit einer Dauer von mehr als zwei Stunden vornehmen.';
     case 'reached_limit':
@@ -76,6 +80,8 @@ export const getReservationError = (key: ReservationErrorKey, options: Reservati
       return 'Eine gleichzeitige Reservierung mehrerer Plätze ist nicht gestattet.';
     case 'court_selection':
       return 'Nur Administratoren können Plätze für eine Reservierung auswählen.';
+    case 'outside_club_hours':
+      return 'Die Reservierung liegt außerhalb der erlaubten Reservierungszeiten des Vereins.';
     default:
       return 'Es ist ein Fehler aufgetreten. Bitte wenden Sie sich an den Support.';
   }
@@ -149,6 +155,29 @@ export const validateNonAdminReservationRules = (
 
   if ((endTime - startTime) > 2) {
     throw new Error(getReservationError('more_hours'));
+  }
+};
+
+export const validateReservationWithinClubHours = (
+  startTime: number,
+  endTime: number,
+  clubStartHour: number,
+  clubEndHour: number
+) => {
+  if (startTime < clubStartHour || endTime > clubEndHour || startTime >= endTime) {
+    throw new Error(getReservationError('outside_club_hours'));
+  }
+};
+
+export const validateReservationNotInPast = (
+  date: string,
+  startTime: number
+) => {
+  const reservationTime = new Date(date);
+  reservationTime.setHours(startTime, 0, 0, 0);
+
+  if (reservationTime < new Date()) {
+    throw new Error(getReservationError('in_past'));
   }
 };
 

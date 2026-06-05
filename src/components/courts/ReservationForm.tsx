@@ -58,12 +58,35 @@ export function ReservationForm(props: Props) {
     const submitHandler: SubmitEventHandler<HTMLFormElement> = (event) => {
         const form = event.currentTarget;
         const courtCheckbox = form.querySelector<HTMLInputElement>('input[name="court_nums"]');
+        const durationSelect = form.querySelector<HTMLSelectElement>('select[name="duration"]');
         courtCheckbox?.setCustomValidity('');
+        durationSelect?.setCustomValidity('');
 
         if (!new FormData(form).getAll('court_nums').length) {
             event.preventDefault();
             courtCheckbox?.setCustomValidity('Bitte wählen Sie mindestens einen Platz aus.');
             courtCheckbox?.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
+        const startTime = Number(formData.get('start_time') ?? props.startHour);
+        const duration = Number(formData.get('duration') ?? 1);
+        const dateValue = String(formData.get('date') ?? props.date);
+        const reservationTime = new Date(dateValue);
+        reservationTime.setHours(startTime, 0, 0, 0);
+
+        if (reservationTime < new Date()) {
+            event.preventDefault();
+            durationSelect?.setCustomValidity('Eine Reservierung in der Vergangenheit ist nicht möglich.');
+            durationSelect?.reportValidity();
+            return;
+        }
+
+        if ((startTime + duration) > props.clubEndHour) {
+            event.preventDefault();
+            durationSelect?.setCustomValidity('Die Reservierung endet nach der erlaubten Reservierungszeit des Vereins.');
+            durationSelect?.reportValidity();
             return;
         }
 
@@ -84,13 +107,20 @@ export function ReservationForm(props: Props) {
             </div>
             <div className="reservation-field">
                 <label>Startzeit:</label>
-                <select className="time-select" name="start_time" defaultValue={props.startHour}>
-                    {clubHours.map(hour => (
-                        <option value={hour} key={hour}>
-                            {hour}:00 Uhr
-                        </option>
-                    ))}
-                </select>
+                {user.role === 'admin' ? (
+                    <select className="time-select" name="start_time" defaultValue={props.startHour}>
+                        {clubHours.map(hour => (
+                            <option value={hour} key={hour}>
+                                {hour}:00 Uhr
+                            </option>
+                        ))}
+                    </select>
+                ) : (
+                    <>
+                        <input type="hidden" name="start_time" value={props.startHour} />
+                        <input type="text" readOnly value={`${props.startHour}:00 Uhr`} />
+                    </>
+                )}
             </div>
             <div className="reservation-field">
                 <label>Dauer:</label>
