@@ -21,9 +21,8 @@ export const ProtectedRoute = ({children}: ProtectedRouteProps) => {
             return <Navigate to="/reservations" replace />;
         }
 
-        if (location.pathname === '/select-club' && auth.club_id) {
-            // console.log('redirecting user to /reservations page');
-            return <Navigate to="/reservations" replace />;
+        if (location.pathname === '/select-club' && auth.role === 'admin') {
+            return <Navigate to="/admin" replace />;
         }
 
         return children;

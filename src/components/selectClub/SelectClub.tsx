@@ -3,6 +3,8 @@ import formJson from './selectClubForm.json';
 import { Field, Club } from '../../types';
 import { useDispatch } from 'react-redux'
 import { useNavigate } from "react-router";
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 type Props = {
     clubs: Club[];
@@ -12,13 +14,17 @@ type Response = {
     message: string;
     data: {
         club_id: string;
+        status: string;
     }
 }
 
 export function SelectClub(props: Props) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const clubs = props.clubs.map(club => {
+    const auth = useSelector((state: RootState) => state.auth);
+    const clubs = props.clubs
+        .filter(club => club._id !== auth.club_id)
+        .map(club => {
         return {
             label: club.name,
             value: club._id,
@@ -30,7 +36,22 @@ export function SelectClub(props: Props) {
         dispatch({
             type: 'auth/setClubId',
             payload: {
-                club_id: response.data.club_id
+                club_id: response.data.club_id,
+                status: response.data.status
+            }
+        });
+        dispatch({
+            type: 'users/fetch',
+            payload: {
+                value: [],
+                loaded: false
+            }
+        });
+        dispatch({
+            type: 'reservations/fetch',
+            payload: {
+                value: [],
+                loaded: false
             }
         });
         navigate('/reservations');
@@ -40,6 +61,9 @@ export function SelectClub(props: Props) {
     const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
     normalizedFields.map(field => {
         if (field.name === 'club_id' && field.options) {
+            if (auth.club_id) {
+                field.label = 'Neuer Verein';
+            }
             field.options.push(...clubs);
         }
         return field;
@@ -50,7 +74,7 @@ export function SelectClub(props: Props) {
             classNames="select-club"
             initialData={normalizedFields}
             formAttributes={formJson.form}
-            label="Absenden"
+            label={auth.club_id ? 'Verein wechseln' : 'Absenden'}
             callback={callback}
         />
     )

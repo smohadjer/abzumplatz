@@ -3,6 +3,40 @@ import { database_uri, database_name } from './_config.js';
 import { fetchUsers } from './_fetchUsers.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import sendEmail from './_sendEmail.js';
+import { escapeHtml } from './_lib.js';
+
+type ClubDocument = {
+  name?: string;
+}
+
+function getStatusLabel(status: string) {
+  return status === 'active' ? 'aktiv' : 'inaktiv';
+}
+
+function buildStatusChangedEmail(
+  targetUser: { first_name?: string; last_name?: string; email?: string; status?: string },
+  clubName?: string,
+  adminContact?: { first_name?: string; last_name?: string; email?: string }
+) {
+  const fullName = `${targetUser.first_name ?? ''} ${targetUser.last_name ?? ''}`.trim();
+  const statusLabel = getStatusLabel(targetUser.status ?? 'inactive');
+  const adminName = `${adminContact?.first_name ?? ''} ${adminContact?.last_name ?? ''}`.trim();
+
+  return `
+    <p>Hallo ${escapeHtml(targetUser.first_name ?? '')},</p>
+    <p>der Status Ihres Benutzerkontos wurde aktualisiert.</p>
+    <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
+      <tbody>
+        <tr><td><strong>Name</strong></td><td>${escapeHtml(fullName)}</td></tr>
+        <tr><td><strong>E-Mail</strong></td><td>${escapeHtml(targetUser.email)}</td></tr>
+        <tr><td><strong>Verein</strong></td><td>${escapeHtml(clubName ?? 'Ab zum Platz')}</td></tr>
+        <tr><td><strong>Neuer Status</strong></td><td>${escapeHtml(statusLabel)}</td></tr>
+      </tbody>
+    </table>
+    <p>Bei Fragen zu dieser Änderung wenden Sie sich bitte an ${escapeHtml(adminName || 'die Vereinsverwaltung')} (${escapeHtml(adminContact?.email ?? '-')}).</p>
+  `;
+}
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -15,6 +49,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     await client.connect();
     const database = client.db(database_name);
     const collection = database.collection('users');
+    const clubCollection = database.collection<ClubDocument>('clubs');
 
     if (req.method === 'GET') {
       const payload = await getJwtPayload(req);
@@ -107,6 +142,29 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const result = await collection.updateOne(query, updateDoc);
       if (result.modifiedCount > 0) {
         const user = await collection.findOne(query, {projection: {password: 0, club_id: 0}});
+        if (targetUser.email) {
+          try {
+            const club = requester.club_id ? await clubCollection.findOne({
+              _id: ObjectId.createFromHexString(requester.club_id)
+            }) : null;
+            await sendEmail({
+              email: targetUser.email,
+              subject: `Ihr Kontostatus bei ${club?.name ?? 'Ab zum Platz'} wurde aktualisiert`,
+              html: buildStatusChangedEmail({
+                first_name: targetUser.first_name,
+                last_name: targetUser.last_name,
+                email: targetUser.email,
+                status,
+              }, club?.name, {
+                first_name: requester.first_name,
+                last_name: requester.last_name,
+                email: requester.email,
+              }),
+            });
+          } catch (emailError) {
+            console.error('Failed to send member status change email', emailError);
+          }
+        }
         return res.json(user);
       } else {
         return res.status(404).json({error: `User with id ${user_id} not found!`});
