@@ -94,7 +94,7 @@ export default function AdminMembersPage() {
                         role="tab"
                         aria-selected={activeTab === 'active'}
                     >
-                        Active members ({activeUsersCount})
+                        Aktive Mitglieder ({activeUsersCount})
                     </button>
                     <button
                         type="button"
@@ -103,7 +103,7 @@ export default function AdminMembersPage() {
                         role="tab"
                         aria-selected={activeTab === 'inactive'}
                     >
-                        Inactive members ({inactiveUsersCount})
+                        Inaktive Mitglieder ({inactiveUsersCount})
                     </button>
                 </div>
                 <ul className="users-list">
