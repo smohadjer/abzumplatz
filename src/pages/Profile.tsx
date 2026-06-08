@@ -8,6 +8,7 @@ export default function Profile() {
     const auth = useSelector((state: RootState) => state.auth);
     const club = getClub();
     const role = auth?.role === 'admin' ? '(Admin)' : '';
+    const status = auth.status === 'inactive' ? 'Inaktiv' : 'Aktiv';
     const onLogout = () => {
         fetch('/api/logout', {
             method: 'POST',
@@ -45,9 +46,26 @@ export default function Profile() {
     return (
         <>
             <h1>Mein Profil</h1>
-            <p>{auth.first_name} {auth.last_name} {role}</p>
-            {club && <p>Verein: {club.name}</p>}
-            <p>Email: {auth.email}</p>
+            <table className="profile-table">
+                <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <td>{auth.first_name} {auth.last_name} {role}</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>{status}</td>
+                    </tr>
+                    <tr>
+                        <th>Verein</th>
+                        <td>{club?.name ?? '-'}</td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td>{auth.email}</td>
+                    </tr>
+                </tbody>
+            </table>
             <button onClick={onLogout}>Abmelden</button>
         </>
     )

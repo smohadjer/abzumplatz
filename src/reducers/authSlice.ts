@@ -10,6 +10,7 @@ export const authSlice = createSlice({
     _id: '',
     club_id: '',
     role: '',
+    status: '',
   },
   reducers: {
     login: (state, action) => {
@@ -24,6 +25,7 @@ export const authSlice = createSlice({
       state._id = action.payload._id;
       state.club_id = action.payload.club_id;
       state.role = action.payload.role;
+      state.status = action.payload.status ?? '';
     },
     logout: (state) => {
       state.value = false;
@@ -33,6 +35,7 @@ export const authSlice = createSlice({
       state._id = '';
       state.club_id = '';
       state.role = '';
+      state.status = '';
     },
     setClubId: (state, action) => {
       state.club_id = action.payload.club_id

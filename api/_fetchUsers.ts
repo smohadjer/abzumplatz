@@ -9,6 +9,11 @@ type FetchedUser = {
     club_id?: string;
 }
 
+const normalizeUserRole = <T extends { role?: string | null }>(user: T) => ({
+    ...user,
+    role: user.role || 'player',
+});
+
 export async function fetchUsers(database: Db, userId: string, clubId?: undefined): Promise<WithId<FetchedUser> | null>;
 export async function fetchUsers(database: Db, userId: undefined, clubId: string): Promise<WithId<FetchedUser>[]>;
 export async function fetchUsers(database: Db, userId?: string, clubId?: string) {
@@ -26,7 +31,7 @@ export async function fetchUsers(database: Db, userId?: string, clubId?: string)
       };
       const query = {_id: ObjectId.createFromHexString(userId)};
       const doc = await collection.findOne(query, {projection});
-      return doc;
+      return doc ? normalizeUserRole(doc) : null;
     } else {
       const projection = {
           first_name: 1,
@@ -50,6 +55,6 @@ export async function fetchUsers(database: Db, userId?: string, clubId?: string)
         .sort({ first_name: 1 })
         .toArray();
 
-      return docs;
+      return docs.map(normalizeUserRole);
     }
 };

@@ -26,6 +26,7 @@ export async function addUser(database: Db, user: DBUser) {
 
     const hashedPassword = await bcrypt.hash(user.password, saltRounds);
     user.password = hashedPassword;
+    user.timestamp = new Date();
     const insertResponse = await collectionUsers.insertOne(user);
     return insertResponse;
 }

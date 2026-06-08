@@ -62,7 +62,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 }
 
                 if (authenticated) {
-                    if (!user.club_id || !user.first_name || !user.last_name || !user.role) {
+                    const role = user.role || 'player';
+
+                    if (!user.club_id || !user.first_name || !user.last_name) {
                       throw new Error('Benutzerkonto ist unvollständig konfiguriert.');
                     }
                     const secret = new TextEncoder().encode(jwtSecret);
@@ -73,7 +75,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                       last_name: user.last_name,
                       club_id: user.club_id,
                       email: user.email,
-                      role: user.role,
+                      role,
+                      status: user.status ?? 'active',
                     };
                     const token = await new SignJWT(payload)
                       .setProtectedHeader({ alg })
