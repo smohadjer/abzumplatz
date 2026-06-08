@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from './../store';
 import { useDispatch } from 'react-redux'
 import { getClub } from '../utils/utils';
+import { Link } from 'react-router';
 
 export default function Profile() {
     const dispatch = useDispatch();
@@ -66,7 +67,10 @@ export default function Profile() {
                     </tr>
                 </tbody>
             </table>
-            <button onClick={onLogout}>Abmelden</button>
+            <div className="profile-actions">
+                {auth.role !== 'admin' ? <Link className="button-link" to="/select-club">Verein wechseln</Link> : <span />}
+                <button className="button-link button-link--secondary" onClick={onLogout}>Abmelden</button>
+            </div>
         </>
     )
 }

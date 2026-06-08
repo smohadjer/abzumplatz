@@ -38,7 +38,10 @@ export const authSlice = createSlice({
       state.status = '';
     },
     setClubId: (state, action) => {
-      state.club_id = action.payload.club_id
+      state.club_id = action.payload.club_id;
+      if (action.payload.status) {
+        state.status = action.payload.status;
+      }
     }
   }
 })

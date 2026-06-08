@@ -1,4 +1,4 @@
-import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
+import { sanitize, ajv, getCustomErrorMessage, escapeHtml } from './_lib.js';
 import * as fs from 'fs';
 import { addUser } from './_addUser.js';
 import sendEmail from './_sendEmail.js';
@@ -31,15 +31,6 @@ type ClubDocument = {
 
 type AdminUserDocument = {
     email?: string;
-}
-
-function escapeHtml(value: unknown) {
-    return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
 }
 
 function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument) {
