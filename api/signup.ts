@@ -8,7 +8,7 @@ import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createError, getErrorCause, getErrorMessage } from './_utils/_errors.js';
-import { AdminEmailDocument, ClubDocument, ClubNameDocument } from './_utils/_types.js';
+import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';
 
 type SignupBody = {
     first_name: string;
@@ -32,7 +32,7 @@ const getAppOrigin = (req: VercelRequest) => {
     return host ? `${protocol}://${host}` : '';
 };
 
-function buildNewUserNotificationEmail(user: DBUser, club: ClubNameDocument, membersUrl: string) {
+function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument, membersUrl: string) {
     const fullName = `${user.first_name} ${user.last_name}`;
     const registeredAt = new Date().toLocaleString('de-DE', {
         dateStyle: 'medium',
@@ -61,7 +61,7 @@ function buildNewUserNotificationEmail(user: DBUser, club: ClubNameDocument, mem
     `;
 }
 
-function buildWelcomeEmail(user: DBUser, club?: ClubNameDocument) {
+function buildWelcomeEmail(user: DBUser, club?: ClubDocument) {
     const hasClub = Boolean(user.club_id && club);
 
     return `
@@ -83,7 +83,7 @@ function buildWelcomeEmail(user: DBUser, club?: ClubNameDocument) {
     `;
 }
 
-async function notifyClubAdmins(database: Db, user: DBUser, club: ClubNameDocument, membersUrl: string) {
+async function notifyClubAdmins(database: Db, user: DBUser, club: ClubDocument, membersUrl: string) {
     if (!user.club_id) {
         return;
     }
