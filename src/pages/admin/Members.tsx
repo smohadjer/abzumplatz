@@ -3,12 +3,14 @@ import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './../../store';
 import { fetchUsers } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 export default function AdminMembersPage() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialTab = searchParams.get('tab') === 'inactive' ? 'inactive' : 'active';
     const [loading, setLoading] = useState(false);
     const [pending, setPending] = useState(false);
-    const [activeTab, setActiveTab] = useState<'active' | 'inactive'>('active');
+    const [activeTab, setActiveTab] = useState<'active' | 'inactive'>(initialTab);
     const usersData = useSelector((state: RootState) => state.users);
     const user = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
@@ -17,6 +19,11 @@ export default function AdminMembersPage() {
     const activeUsersCount = users.filter(isActiveUser).length;
     const inactiveUsersCount = users.length - activeUsersCount;
     const visibleUsers = users.filter(member => activeTab === 'active' ? isActiveUser(member) : !isActiveUser(member));
+
+    const setTab = (tab: 'active' | 'inactive') => {
+        setActiveTab(tab);
+        setSearchParams(tab === 'inactive' ? {tab} : {});
+    };
 
     useEffect(() => {
         if (!usersData.loaded) {
@@ -28,7 +35,35 @@ export default function AdminMembersPage() {
         }
     }, []);
 
-    
+    const updateUserInStore = (updatedUser: { _id: string; status: string }) => {
+        const users = usersData.value.map(user => {
+            if (user._id === updatedUser._id) {
+                return {
+                    ...user,
+                    status: updatedUser.status
+                }
+            } else {
+                return user;
+            }
+        });
+        dispatch({
+            type: 'users/fetch',
+            payload: {
+                value: users,
+                loaded: true
+            }
+        });
+    };
+
+    const removeUserFromStore = (userId: string) => {
+        dispatch({
+            type: 'users/fetch',
+            payload: {
+                value: usersData.value.filter(user => user._id !== userId),
+                loaded: true
+            }
+        });
+    };
 
     const handleChange: ChangeEventHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.target.value = e.target.checked ? "active" : "inactive";
@@ -50,30 +85,45 @@ export default function AdminMembersPage() {
                 throw new Error('Something went wrong!');
             }
         }).then(data => {
-            // update user status in store
-            const users = usersData.value.map(user => {
-                if (user._id === data._id) {
-                    return {
-                        ...user,
-                        status: data.status
-                    }
-                } else {
-                    return user;
-                }
-            });
-            dispatch({
-                type: 'users/fetch',
-                payload: {
-                    value: users,
-                    loaded: true
-                }
-            });
+            updateUserInStore(data);
             setPending(false);
         }).catch(e => {
             console.error(e);
             setPending(false);
         });
     }
+
+    const handleRemove = async (userId: string) => {
+        if (!confirm('Möchten Sie dieses inaktive Mitglied wirklich aus dem Verein entfernen?')) {
+            return;
+        }
+
+        setPending(true);
+        try {
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    action: 'remove'
+                })
+            });
+            const data = await response.json();
+
+            if (!response.ok || data.error) {
+                throw new Error(data.error ?? 'Mitglied konnte nicht entfernt werden.');
+            }
+
+            removeUserFromStore(userId);
+        } catch (error) {
+            console.error(error);
+            alert(error instanceof Error ? error.message : 'Mitglied konnte nicht entfernt werden.');
+        } finally {
+            setPending(false);
+        }
+    };
 
     return (
         loading ? (
@@ -90,7 +140,7 @@ export default function AdminMembersPage() {
                     <button
                         type="button"
                         className={activeTab === 'active' ? 'members-tab members-tab--active' : 'members-tab'}
-                        onClick={() => setActiveTab('active')}
+                        onClick={() => setTab('active')}
                         role="tab"
                         aria-selected={activeTab === 'active'}
                     >
@@ -99,7 +149,7 @@ export default function AdminMembersPage() {
                     <button
                         type="button"
                         className={activeTab === 'inactive' ? 'members-tab members-tab--active' : 'members-tab'}
-                        onClick={() => setActiveTab('inactive')}
+                        onClick={() => setTab('inactive')}
                         role="tab"
                         aria-selected={activeTab === 'inactive'}
                     >
@@ -120,6 +170,16 @@ export default function AdminMembersPage() {
 	                            </label>
 	                            <span style={{ marginLeft: '0.25rem' }}>(<a href={`mailto:${user.email}`}>{user.email}</a>)</span>
 	                            {user.role === 'admin' ? <span> (Admin)</span> : null}
+                                {!isActiveUser(user) && user.role !== 'admin' ? (
+                                    <button
+                                        type="button"
+                                        disabled={pending}
+                                        onClick={() => handleRemove(user._id)}
+                                        style={{ marginLeft: '0.5rem' }}
+                                    >
+                                        Aus Verein entfernen
+                                    </button>
+                                ) : null}
 	                        </li>;
                     })}
                 </ul>
