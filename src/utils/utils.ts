@@ -3,6 +3,7 @@ import { RootState, AppDispatch } from './../store';
 import { FormEvent } from "react";
 import * as mongoDB from "mongodb";
 import { ReservationItem, StateUser } from './../types';
+import { isReservationActive } from './reservations';
 
 export async function fetchJson(path: string) {
   const response = await fetch(path);
@@ -63,17 +64,6 @@ export const getUserReservations = () => {
     const userReservations = reservations.filter(item => item.user_id === user._id);
     const validUserReservations = userReservations.filter(item => isReservationActive(item));
     return validUserReservations;
-};
-
-export const isReservationActive = (reservation: ReservationItem, now = new Date()) => {
-    if (reservation.recurring) {
-        return true;
-    }
-
-    const reservationEndTime = new Date(reservation.date);
-    reservationEndTime.setHours(reservation.end_time, 0, 0, 0);
-
-    return reservationEndTime > now;
 };
 
 export const getDayName = (date: string) => {
