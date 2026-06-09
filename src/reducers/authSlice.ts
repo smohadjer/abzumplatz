@@ -23,7 +23,7 @@ export const authSlice = createSlice({
       state.last_name = action.payload.last_name;
       state.email = action.payload.email;
       state._id = action.payload._id;
-      state.club_id = action.payload.club_id;
+      state.club_id = action.payload.club_id ?? '';
       state.role = action.payload.role;
       state.status = action.payload.status ?? '';
     },

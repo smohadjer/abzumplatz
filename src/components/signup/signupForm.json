@@ -21,14 +21,6 @@
             "value": ""
         },
         {
-            "name": "club_id",
-            "label": "Verein",
-            "type": "select",
-            "required": true,
-            "options": [],
-            "value": ""
-        },
-        {
             "name": "email",
             "label": "Email",
             "type": "email",
@@ -44,6 +36,13 @@
             "required": true,
             "hasStrengthIndicator": true,
             "hasDisplayToggle": true,
+            "value": ""
+        },
+        {
+            "name": "club_id",
+            "label": "Verein",
+            "type": "select",
+            "options": [],
             "value": ""
         },
         {

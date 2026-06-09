@@ -14,7 +14,7 @@ type SignupBody = {
     last_name: string;
     email: string;
     password: string;
-    club_id: string;
+    club_id?: string;
 }
 
 if (!database_uri || !database_name) {
@@ -33,7 +33,13 @@ type AdminUserDocument = {
     email?: string;
 }
 
-function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument) {
+const getAppOrigin = (req: VercelRequest) => {
+    const protocol = req.headers['x-forwarded-proto'] ?? 'https';
+    const host = req.headers.host;
+    return host ? `${protocol}://${host}` : '';
+};
+
+function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument, membersUrl: string) {
     const fullName = `${user.first_name} ${user.last_name}`;
     const registeredAt = new Date().toLocaleString('de-DE', {
         dateStyle: 'medium',
@@ -42,38 +48,49 @@ function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument) {
     });
 
     return `
-        <p>Ein neuer Benutzer hat sich bei ${escapeHtml(club.name ?? 'Ihrem Verein')} registriert.</p>
+        <p>Ein neuer Benutzer hat sich bei ${escapeHtml(club.name ?? 'Ihrem Verein')} registriert und wartet auf Freischaltung.</p>
         <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
             <tbody>
                 <tr><td><strong>Name</strong></td><td>${escapeHtml(fullName)}</td></tr>
                 <tr><td><strong>E-Mail</strong></td><td>${escapeHtml(user.email)}</td></tr>
                 <tr><td><strong>Rolle</strong></td><td>${escapeHtml(user.role)}</td></tr>
-                <tr><td><strong>Status</strong></td><td>${escapeHtml(user.status)}</td></tr>
+                <tr><td><strong>Status</strong></td><td>${escapeHtml(user.status ?? 'inactive')}</td></tr>
                 <tr><td><strong>Verein</strong></td><td>${escapeHtml(club.name)}</td></tr>
-                <tr><td><strong>Vereins-ID</strong></td><td>${escapeHtml(user.club_id)}</td></tr>
+                <tr><td><strong>Vereins-ID</strong></td><td>${escapeHtml(user.club_id ?? '-')}</td></tr>
                 <tr><td><strong>Registriert am</strong></td><td>${escapeHtml(registeredAt)}</td></tr>
             </tbody>
         </table>
+        <p style="margin-top: 16px;">
+            <a href="${escapeHtml(membersUrl)}" style="display: inline-block; padding: 10px 16px; background: #3264c8; color: #ffffff; text-decoration: none; border-radius: 4px;">Neue Mitglieder aktivieren</a>
+        </p>
     `;
 }
 
-function buildWelcomeEmail(user: DBUser, club: ClubDocument) {
+function buildWelcomeEmail(user: DBUser, club?: ClubDocument) {
+    const hasClub = Boolean(user.club_id && club);
+
     return `
         <p>Hallo ${escapeHtml(user.first_name)},</p>
-        <p>willkommen bei ${escapeHtml(club.name ?? 'Ab zum Platz')}! Ihr Benutzerkonto wurde erfolgreich registriert.</p>
+        <p>willkommen bei ${escapeHtml(hasClub ? club?.name : 'Ab zum Platz')}! Ihr Benutzerkonto wurde erfolgreich registriert.</p>
         <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
             <tbody>
                 <tr><td><strong>Name</strong></td><td>${escapeHtml(`${user.first_name} ${user.last_name}`)}</td></tr>
                 <tr><td><strong>E-Mail</strong></td><td>${escapeHtml(user.email)}</td></tr>
-                <tr><td><strong>Verein</strong></td><td>${escapeHtml(club.name)}</td></tr>
-                <tr><td><strong>Status</strong></td><td>${escapeHtml(user.status)}</td></tr>
+                <tr><td><strong>Verein</strong></td><td>${escapeHtml(hasClub ? club?.name : '-')}</td></tr>
+                <tr><td><strong>Status</strong></td><td>${escapeHtml(user.status ?? 'inactive')}</td></tr>
             </tbody>
         </table>
-        <p>Sie können sich jetzt in der App anmelden und Plätze reservieren.</p>
+        ${hasClub
+            ? '<p>Ihr Konto ist derzeit inaktiv. Bitte warten Sie, bis der Vereinsadministrator Ihr Konto freischaltet.</p>'
+            : '<p>Bitte wählen Sie nach dem Login einen Verein aus, um Reservierungen vornehmen zu können.</p>'}
     `;
 }
 
-async function notifyClubAdmins(database: Db, user: DBUser, club: ClubDocument) {
+async function notifyClubAdmins(database: Db, user: DBUser, club: ClubDocument, membersUrl: string) {
+    if (!user.club_id) {
+        return;
+    }
+
     const admins = await database.collection<AdminUserDocument>('users').find({
         club_id: user.club_id,
         role: 'admin',
@@ -91,8 +108,8 @@ async function notifyClubAdmins(database: Db, user: DBUser, club: ClubDocument) 
         return;
     }
 
-    const subject = `Neue Registrierung: ${user.first_name} ${user.last_name}`;
-    const html = buildNewUserNotificationEmail(user, club);
+    const subject = `Neue Registrierung wartet auf Freischaltung: ${user.first_name} ${user.last_name}`;
+    const html = buildNewUserNotificationEmail(user, club, membersUrl);
     const results = await Promise.allSettled(adminEmails.map(email => sendEmail({
         email,
         subject,
@@ -105,10 +122,10 @@ async function notifyClubAdmins(database: Db, user: DBUser, club: ClubDocument) 
     }
 }
 
-async function sendWelcomeEmail(user: DBUser, club: ClubDocument) {
+async function sendWelcomeEmail(user: DBUser, club?: ClubDocument) {
     await sendEmail({
         email: user.email,
-        subject: `Willkommen bei ${club.name ?? 'Ab zum Platz'}`,
+        subject: `Willkommen bei ${club?.name ?? 'Ab zum Platz'}`,
         html: buildWelcomeEmail(user, club),
     });
 }
@@ -134,38 +151,47 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 return res.status(500).json({error: 'Ungültige Daten.'});
             }
         } else {
-            const { first_name, last_name, password, club_id } = body;
+            const { first_name, last_name, password } = body;
+            const club_id = body.club_id?.trim();
             const email = body.email.toLowerCase();
             const user: DBUser = {
                 first_name,
                 last_name,
                 email,
                 password,
-                club_id,
+                ...(club_id ? {club_id} : {}),
                 role: 'player',
-                status: 'active',
+                status: 'inactive',
             };
 
             try {
                 await client.connect();
                 const database = client.db(database_name);
-                if (!objectIdPattern.test(club_id)) {
-                    throw createError('Der ausgewählte Verein existiert nicht.', 'club_id');
+                let club: ClubDocument | null = null;
+
+                if (club_id) {
+                    if (!objectIdPattern.test(club_id)) {
+                        throw createError('Der ausgewählte Verein existiert nicht.', 'club_id');
+                    }
+                    club = await database.collection<ClubDocument>('clubs').findOne({
+                        _id: ObjectId.createFromHexString(club_id)
+                    });
+                    if (!club) {
+                        throw createError('Der ausgewählte Verein existiert nicht.', 'club_id');
+                    }
                 }
-                const club = await database.collection<ClubDocument>('clubs').findOne({
-                    _id: ObjectId.createFromHexString(club_id)
-                });
-                if (!club) {
-                    throw createError('Der ausgewählte Verein existiert nicht.', 'club_id');
-                }
+
                 await addUser(database, user);
-                try {
-                    await notifyClubAdmins(database, user, club);
-                } catch (notificationError) {
-                    console.error('Failed to notify club admins about new user registration', notificationError);
+                if (club && club_id) {
+                    try {
+                        const membersUrl = `${getAppOrigin(req)}/admin/members?tab=inactive`;
+                        await notifyClubAdmins(database, user, club, membersUrl);
+                    } catch (notificationError) {
+                        console.error('Failed to notify club admins about new user registration', notificationError);
+                    }
                 }
                 try {
-                    await sendWelcomeEmail(user, club);
+                    await sendWelcomeEmail(user, club ?? undefined);
                 } catch (welcomeEmailError) {
                     console.error('Failed to send welcome email after new user registration', welcomeEmailError);
                 }
@@ -174,7 +200,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 });
             } catch (e) {
                 console.error(e);
-                const instancePath = (getErrorCause(e) === 'invalid_email') ? '/email' : '/undefined';
+                const instancePath = getErrorCause(e) === 'invalid_email' ? '/email' : `/${getErrorCause(e) ?? 'undefined'}`;
                 res.status(500).json({error: [
                     {
                         instancePath: instancePath,

@@ -5,6 +5,7 @@ import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { DBUser, ReservationItem } from '../src/types.js';
 import sendEmail from './_sendEmail.js';
+import { isReservationActive } from '../src/utils/reservations.js';
 
 type ClubDocument = {
   name?: string;
@@ -23,22 +24,47 @@ const validationError = (message: string) => ({
   ]
 });
 
-const isReservationActive = (reservation: ReservationItem, now = new Date()) => {
-  if (reservation.recurring) {
-    return true;
+async function deleteActiveReservationsForUser(
+  reservationsCollection: ReturnType<MongoClient['db']>['collection'],
+  userId: string,
+  clubId?: string
+) {
+  const reservations = await reservationsCollection.find({
+    user_id: userId,
+    ...(clubId ? {club_id: clubId} : {})
+  }).toArray() as ReservationItem[];
+  const activeReservationIds = reservations
+    .filter(reservation => isReservationActive(reservation))
+    .map(reservation => reservation._id)
+    .filter((id): id is ObjectId => Boolean(id));
+
+  if (!activeReservationIds.length) {
+    return 0;
   }
 
-  const reservationEndTime = new Date(reservation.date);
-  reservationEndTime.setHours(reservation.end_time, 0, 0, 0);
+  const deleteResult = await reservationsCollection.deleteMany({
+    _id: {$in: activeReservationIds}
+  });
 
-  return reservationEndTime > now;
+  return deleteResult.deletedCount;
+}
+
+const getAppOrigin = (req: VercelRequest) => {
+  const protocol = req.headers['x-forwarded-proto'] ?? 'https';
+  const host = req.headers.host;
+  return host ? `${protocol}://${host}` : '';
 };
 
-function buildClubChangeNotificationEmail(user: Pick<DBUser, 'first_name' | 'last_name' | 'email'>, fromClubName?: string, toClubName?: string) {
+function buildClubChangeNotificationEmail(
+  user: Pick<DBUser, 'first_name' | 'last_name' | 'email'>,
+  fromClubName?: string,
+  toClubName?: string,
+  membersUrl?: string
+) {
   const fullName = `${user.first_name} ${user.last_name}`.trim();
 
   return `
-    <p>Ein Spieler hat den Verein gewechselt.</p>
+    <p>Ein Spieler hat seine Vereinszuordnung geändert.</p>
     <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
       <tbody>
         <tr><td><strong>Name</strong></td><td>${escapeHtml(fullName)}</td></tr>
@@ -47,6 +73,7 @@ function buildClubChangeNotificationEmail(user: Pick<DBUser, 'first_name' | 'las
         <tr><td><strong>Neuer Verein</strong></td><td>${escapeHtml(toClubName ?? '-')}</td></tr>
       </tbody>
     </table>
+    ${membersUrl ? `<p style="margin-top: 16px;"><a href="${escapeHtml(membersUrl)}" style="display: inline-block; padding: 10px 16px; background: #3264c8; color: #ffffff; text-decoration: none; border-radius: 4px;">Neue Mitglieder aktivieren</a></p>` : ''}
   `;
 }
 
@@ -96,97 +123,123 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
     if (req.method === 'POST') {
       const body = sanitize(req.body);
-      const { club_id } = body;
+      const { club_id, action } = body;
+      const payload = await getJwtPayload(req);
+      if (!payload) {
+        return res.status(401).json({error: 'Authentication required'});
+      }
 
-      // add club_id to user who posted the club
-      if (club_id) {
-        const payload = await getJwtPayload(req);
-        if (!payload) {
-          return res.status(401).json({error: 'Authentication required'});
+      const requester = await userCollection.findOne({
+        _id: ObjectId.createFromHexString(payload._id)
+      });
+      if (!requester) {
+        return res.status(401).json({error: 'Authentication required'});
+      }
+      if (requester.role === 'admin') {
+        return res.status(403).json({error: 'Admins cannot select an existing club'});
+      }
+
+      const previousClubId = requester.club_id;
+      const previousClub = previousClubId ? await clubCollection.findOne({
+        _id: ObjectId.createFromHexString(previousClubId)
+      }) : null;
+      const query = {_id: ObjectId.createFromHexString(payload._id)};
+
+      if (action === 'leave' || club_id === '') {
+        if (previousClubId) {
+          await deleteActiveReservationsForUser(reservationsCollection, payload._id, previousClubId);
         }
 
-        const requester = await userCollection.findOne({
-          _id: ObjectId.createFromHexString(payload._id)
+        await userCollection.updateOne(query, {
+          $set: {status: 'inactive'},
+          $unset: {club_id: ''}
         });
-        if (!requester) {
-          return res.status(401).json({error: 'Authentication required'});
-        }
-        if (requester.role === 'admin') {
-          return res.status(403).json({error: 'Admins cannot select an existing club'});
-        }
 
-        const club = await clubCollection.findOne({
-          _id: ObjectId.createFromHexString(club_id)
-        });
-        if (!club) {
-          return res.status(404).json(validationError('Verein nicht gefunden.'));
-        }
-
-        if (requester.club_id === club_id) {
-          return res.status(409).json(validationError('Sie sind diesem Verein bereits zugeordnet.'));
-        }
-
-        if (requester.club_id && requester.club_id !== club_id) {
-          const userReservations = await reservationsCollection.find({
-            user_id: payload._id,
-            club_id: requester.club_id
-          }).toArray();
-          const hasActiveReservations = userReservations.some(reservation => isReservationActive(reservation));
-
-          if (hasActiveReservations) {
-            return res.status(409).json(validationError('Bitte stornieren Sie zuerst Ihre aktiven Reservierungen, bevor Sie den Verein wechseln.'));
-          }
-        }
-
-        const previousClubId = requester.club_id;
-        const previousClub = previousClubId ? await clubCollection.findOne({
-          _id: ObjectId.createFromHexString(previousClubId)
-        }) : null;
-
-        const query = {_id: ObjectId.createFromHexString(payload._id)};
-        const updateResonse = await userCollection.updateOne(
-            query,
-            {'$set' : {'club_id' : club_id, 'status': 'active'}}
-        );
-
-        if (previousClubId && previousClubId !== club_id) {
+        if (previousClubId) {
           const html = buildClubChangeNotificationEmail({
             first_name: requester.first_name,
             last_name: requester.last_name,
             email: requester.email,
-          }, previousClub?.name, club.name);
+          }, previousClub?.name, undefined);
 
           try {
-            await Promise.allSettled([
-              notifyClubAdminsOfChange(
-                database,
-                previousClubId,
-                `${requester.first_name} ${requester.last_name} hat ${previousClub?.name ?? 'Ihren Verein'} verlassen`,
-                html
-              ),
-              notifyClubAdminsOfChange(
-                database,
-                club_id,
-                `${requester.first_name} ${requester.last_name} ist ${club.name ?? 'Ihrem Verein'} beigetreten`,
-                html
-              )
-            ]);
+            await notifyClubAdminsOfChange(
+              database,
+              previousClubId,
+              `${requester.first_name} ${requester.last_name} hat ${previousClub?.name ?? 'Ihren Verein'} verlassen`,
+              html
+            );
           } catch (emailError) {
-            console.error('Failed to notify club admins about club change', emailError);
+            console.error('Failed to notify club admins about club leave', emailError);
           }
         }
 
         return res.status(201).json({
-          message: `Added club_id ${club_id} to logged-in user in database.`,
+          message: 'Removed club_id from logged-in user in database.',
           data: {
-            club_id,
-            status: 'active'
+            club_id: '',
+            status: 'inactive'
           }
         });
-      } else {
-        const error = 'No club id was submitted...';
-        res.status(500).json({error})
       }
+
+      if (!club_id) {
+        return res.status(400).json(validationError('Bitte wählen Sie einen gültigen Verein aus.'));
+      }
+
+      const club = await clubCollection.findOne({
+        _id: ObjectId.createFromHexString(club_id)
+      });
+      if (!club) {
+        return res.status(404).json(validationError('Verein nicht gefunden.'));
+      }
+
+      if (requester.club_id === club_id) {
+        return res.status(409).json(validationError('Sie sind diesem Verein bereits zugeordnet.'));
+      }
+
+      if (previousClubId && previousClubId !== club_id) {
+        await deleteActiveReservationsForUser(reservationsCollection, payload._id, previousClubId);
+      }
+
+      await userCollection.updateOne(
+        query,
+        {'$set' : {'club_id' : club_id, 'status': 'inactive'}}
+      );
+
+      const membersUrl = `${getAppOrigin(req)}/admin/members?tab=inactive`;
+      const html = buildClubChangeNotificationEmail({
+        first_name: requester.first_name,
+        last_name: requester.last_name,
+        email: requester.email,
+      }, previousClub?.name, club.name, membersUrl);
+
+      try {
+        await Promise.allSettled([
+          ...(previousClubId && previousClubId !== club_id ? [notifyClubAdminsOfChange(
+            database,
+            previousClubId,
+            `${requester.first_name} ${requester.last_name} hat ${previousClub?.name ?? 'Ihren Verein'} verlassen`,
+            html
+          )] : []),
+          notifyClubAdminsOfChange(
+            database,
+            club_id,
+            `${requester.first_name} ${requester.last_name} wartet auf Freischaltung bei ${club.name ?? 'Ihrem Verein'}`,
+            html
+          )
+        ]);
+      } catch (emailError) {
+        console.error('Failed to notify club admins about club change', emailError);
+      }
+
+      return res.status(201).json({
+        message: `Added club_id ${club_id} to logged-in user in database.`,
+        data: {
+          club_id,
+          status: 'inactive'
+        }
+      });
     }
   } catch (e) {
     console.error(e);

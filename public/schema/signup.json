@@ -36,11 +36,7 @@
             ]
         },
         "club_id": {
-            "type": "string",
-            "minLength": 1,
-            "errorMessage": {
-              "minLength": "Bitte wählen Sie einen gültigen Wert aus."
-            }
+            "type": "string"
         },
         "email": {
             "type": "string",
@@ -54,7 +50,7 @@
                     "errorMessage": "Die E-Mail-Adresse ist zu lang."
                 },
                 {
-                    "pattern": "^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
+                    "pattern": "^[a-zA-Z0-9.!#$%&'*+\/?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
                     "errorMessage": "Dies ist keine gültige E-Mail-Adresse."
                 }
             ]
@@ -91,6 +87,6 @@
             }
         }
     },
-    "required": ["first_name", "last_name", "club_id", "email", "password", "privacy"],
+    "required": ["first_name", "last_name", "email", "password", "privacy"],
     "additionalProperties": false
 }
