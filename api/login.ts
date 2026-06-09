@@ -64,7 +64,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 if (authenticated) {
                     const role = user.role || 'player';
 
-                    if (!user.club_id || !user.first_name || !user.last_name) {
+                    if (!user.first_name || !user.last_name) {
                       throw new Error('Benutzerkonto ist unvollständig konfiguriert.');
                     }
                     const secret = new TextEncoder().encode(jwtSecret);
@@ -73,7 +73,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                       _id: user._id.toString(),
                       first_name: user.first_name,
                       last_name: user.last_name,
-                      club_id: user.club_id,
+                      club_id: user.club_id ?? '',
                       email: user.email,
                       role,
                       status: user.status ?? 'active',
