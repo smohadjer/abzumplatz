@@ -57,15 +57,15 @@ export default function AdminMembersPage() {
         const remainingUsers = usersData.value
             .filter(user => !removedUserIds.includes(user._id))
             .map(user => {
-            if (updatedUserMap.has(user._id)) {
-                return {
-                    ...user,
-                    status: updatedUserMap.get(user._id)!
-                };
-            } else {
-                return user;
-            }
-        });
+                if (updatedUserMap.has(user._id)) {
+                    return {
+                        ...user,
+                        status: updatedUserMap.get(user._id)!
+                    };
+                } else {
+                    return user;
+                }
+            });
         dispatch({
             type: 'users/fetch',
             payload: {
@@ -93,6 +93,7 @@ export default function AdminMembersPage() {
     const submitLabel = selectedUserIds.length > 0
         ? `${submitLabelBase} (${selectedUserIds.length})`
         : submitLabelBase;
+
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
@@ -220,45 +221,45 @@ export default function AdminMembersPage() {
                         </>
                     ) : null}
                     <ul className="users-list">
-	                {visibleUsers.map(user => {
-	                        const classNames = [
-	                            user.role === 'admin' ? 'user-list-item--admin' : '',
-	                            isActiveUser(user) ? '' : 'user-list-item--inactive',
+                        {visibleUsers.map(user => {
+                            const classNames = [
+                                user.role === 'admin' ? 'user-list-item--admin' : '',
+                                isActiveUser(user) ? '' : 'user-list-item--inactive',
                                 selectedUserIds.includes(user._id) ? 'user-list-item--selected' : '',
-	                        ].filter(Boolean).join(' ');
+                            ].filter(Boolean).join(' ');
 
-	                        return <li className={classNames || undefined} key={user._id}>
-                            {user.role !== 'admin' ? (
-                                <label className="members-list-item" htmlFor={user._id}>
-                                    <input
-                                        id={user._id}
-                                        type="checkbox"
-                                        checked={selectedUserIds.includes(user._id)}
-                                        disabled={pending}
-                                        onChange={() => toggleSelection(user._id)}
-                                    />
-                                    <span className="members-list-name">
-                                        {user.first_name} {user.last_name}
-                                    </span>
-	                                <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
-                                </label>
-                            ) : (
-                                <label className="members-list-item" htmlFor={user._id}>
-                                    <input
-                                        id={user._id}
-                                        type="checkbox"
-                                        checked={false}
-                                        disabled={true}
-                                        onChange={() => undefined}
-                                    />
-                                    <span className="members-list-name members-list-name--admin">
-                                        {user.first_name} {user.last_name} (Admin)
-                                    </span>
-	                                <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
-                                </label>
-                            )}
-	                        </li>;
-                    })}
+                            return <li className={classNames || undefined} key={user._id}>
+                                {user.role !== 'admin' ? (
+                                    <label className="members-list-item" htmlFor={user._id}>
+                                        <input
+                                            id={user._id}
+                                            type="checkbox"
+                                            checked={selectedUserIds.includes(user._id)}
+                                            disabled={pending}
+                                            onChange={() => toggleSelection(user._id)}
+                                        />
+                                        <span className="members-list-name">
+                                            {user.first_name} {user.last_name}
+                                        </span>
+                                        <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
+                                    </label>
+                                ) : (
+                                    <label className="members-list-item" htmlFor={user._id}>
+                                        <input
+                                            id={user._id}
+                                            type="checkbox"
+                                            checked={false}
+                                            disabled={true}
+                                            onChange={() => undefined}
+                                        />
+                                        <span className="members-list-name members-list-name--admin">
+                                            {user.first_name} {user.last_name} (Admin)
+                                        </span>
+                                        <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
+                                    </label>
+                                )}
+                            </li>;
+                        })}
                     </ul>
                 </form>
             </>
