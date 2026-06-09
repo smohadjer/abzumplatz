@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEventHandler} from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './../../store';
 import { fetchUsers } from '../../utils/utils';
@@ -65,33 +65,31 @@ export default function AdminMembersPage() {
         });
     };
 
-    const handleChange: ChangeEventHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.target.value = e.target.checked ? "active" : "inactive";
+    const handleStatusChange = async (userId: string, status: 'active' | 'inactive') => {
         setPending(true);
-
-        fetch('/api/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                user_id: e.target.id,
-                status: e.target.value
-            })
-        }).then(res => {
-            if (res.ok) {
-                return res.json();
-            } else {
-                throw new Error('Something went wrong!');
+        try {
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    status
+                })
+            });
+            const data = await response.json();
+            if (!response.ok || data.error) {
+                throw new Error(data.error ?? 'Status konnte nicht geändert werden.');
             }
-        }).then(data => {
             updateUserInStore(data);
+        } catch (error) {
+            console.error(error);
+            alert(error instanceof Error ? error.message : 'Status konnte nicht geändert werden.');
+        } finally {
             setPending(false);
-        }).catch(e => {
-            console.error(e);
-            setPending(false);
-        });
-    }
+        }
+    };
 
     const handleRemove = async (userId: string) => {
         if (!confirm('Möchten Sie dieses inaktive Mitglied wirklich aus dem Verein entfernen?')) {
@@ -140,6 +138,7 @@ export default function AdminMembersPage() {
                     <button
                         type="button"
                         className={activeTab === 'active' ? 'members-tab members-tab--active' : 'members-tab'}
+                        disabled={pending}
                         onClick={() => setTab('active')}
                         role="tab"
                         aria-selected={activeTab === 'active'}
@@ -149,6 +148,7 @@ export default function AdminMembersPage() {
                     <button
                         type="button"
                         className={activeTab === 'inactive' ? 'members-tab members-tab--active' : 'members-tab'}
+                        disabled={pending}
                         onClick={() => setTab('inactive')}
                         role="tab"
                         aria-selected={activeTab === 'inactive'}
@@ -164,18 +164,28 @@ export default function AdminMembersPage() {
 	                        ].filter(Boolean).join(' ');
 
 	                        return <li className={classNames || undefined} key={user._id}>
-                            <label htmlFor={user._id}>
-                                <input id={user._id} type="checkbox" defaultChecked={isActiveUser(user)} onChange={handleChange} />
-                                {user.first_name} {user.last_name}
-	                            </label>
-	                            <span style={{ marginLeft: '0.25rem' }}>(<a href={`mailto:${user.email}`}>{user.email}</a>)</span>
-	                            {user.role === 'admin' ? <span> (Admin)</span> : null}
+                            <div className="members-list-item">
+                                <span className={user.role === 'admin' ? 'members-list-name members-list-name--admin' : 'members-list-name'}>
+                                    {user.first_name} {user.last_name}{user.role === 'admin' ? ' (Admin)' : ''}
+                                </span>
+	                                <span>(<a href={`mailto:${user.email}`}>{user.email}</a>)</span>
+                            </div>
+                                {user.role !== 'admin' ? (
+                                    <button
+                                        type="button"
+                                        className="button-link members-action-button"
+                                        disabled={pending}
+                                        onClick={() => handleStatusChange(user._id, isActiveUser(user) ? 'inactive' : 'active')}
+                                    >
+                                        {isActiveUser(user) ? 'Deaktivieren' : 'Aktivieren'}
+                                    </button>
+                                ) : null}
                                 {!isActiveUser(user) && user.role !== 'admin' ? (
                                     <button
                                         type="button"
+                                        className="button-link members-action-button"
                                         disabled={pending}
                                         onClick={() => handleRemove(user._id)}
-                                        style={{ marginLeft: '0.5rem' }}
                                     >
                                         Aus Verein entfernen
                                     </button>

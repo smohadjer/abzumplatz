@@ -60,7 +60,9 @@ function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument, members
                 <tr><td><strong>Registriert am</strong></td><td>${escapeHtml(registeredAt)}</td></tr>
             </tbody>
         </table>
-        <p><a href="${escapeHtml(membersUrl)}">Inaktive Mitglieder anzeigen</a></p>
+        <p style="margin-top: 16px;">
+            <a href="${escapeHtml(membersUrl)}" style="display: inline-block; padding: 10px 16px; background: #3264c8; color: #ffffff; text-decoration: none; border-radius: 4px;">Neue Mitglieder aktivieren</a>
+        </p>
     `;
 }
 

@@ -83,7 +83,7 @@ function buildClubChangeNotificationEmail(
         <tr><td><strong>Neuer Verein</strong></td><td>${escapeHtml(toClubName ?? '-')}</td></tr>
       </tbody>
     </table>
-    ${membersUrl ? `<p><a href="${escapeHtml(membersUrl)}">Inaktive Mitglieder anzeigen</a></p>` : ''}
+    ${membersUrl ? `<p style="margin-top: 16px;"><a href="${escapeHtml(membersUrl)}" style="display: inline-block; padding: 10px 16px; background: #3264c8; color: #ffffff; text-decoration: none; border-radius: 4px;">Neue Mitglieder aktivieren</a></p>` : ''}
   `;
 }
 

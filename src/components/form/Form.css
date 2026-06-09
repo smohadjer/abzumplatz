@@ -142,7 +142,7 @@
 
     select {
         border: 1px #ccc solid;
-        padding: 0.25em 0.5em;
+        padding: 0.25em 0;
         display: block;
         width: 100%;
         box-sizing: border-box;
