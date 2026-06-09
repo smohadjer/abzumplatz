@@ -3,8 +3,8 @@ import { sanitize } from './_lib.js';
 import { getJwtPayload } from '../verifyAuth.js';
 import {
   getAllReservations,
-  isReservationActive
 } from '../../src/utils/utils.js';
+import { isReservationActive } from '../../src/utils/reservations.js';
 import {
   getReservationError,
   validateReservationBody,
