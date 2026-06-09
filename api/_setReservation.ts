@@ -4,7 +4,7 @@ import { getJwtPayload } from './verifyAuth.js';
 import {
   getAllReservations,
 } from '../src/utils/utils.js';
-import { isReservationActive } from '../src/utils/reservations';
+import { isReservationActive } from '../src/utils/reservations.js';
 import {
   getReservationError,
   validateReservationBody,

@@ -6,7 +6,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import sendEmail from './_sendEmail.js';
 import { escapeHtml } from './_lib.js';
 import { ReservationItem } from '../src/types.js';
-import { isReservationActive } from '../src/utils/reservations';
+import { isReservationActive } from '../src/utils/reservations.js';
 
 type ClubDocument = {
   name?: string;
