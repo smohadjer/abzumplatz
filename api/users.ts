@@ -5,6 +5,7 @@ import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import sendEmail from './_sendEmail.js';
 import { escapeHtml } from './_lib.js';
+import { ReservationItem } from '../src/types.js';
 
 type ClubDocument = {
   name?: string;
@@ -12,6 +13,43 @@ type ClubDocument = {
 
 function getStatusLabel(status: string) {
   return status === 'active' ? 'aktiv' : 'inaktiv';
+}
+
+const isReservationActive = (reservation: ReservationItem, now = new Date()) => {
+  if (reservation.recurring) {
+    return true;
+  }
+
+  const reservationEndTime = new Date(reservation.date);
+  reservationEndTime.setHours(reservation.end_time, 0, 0, 0);
+
+  return reservationEndTime > now;
+};
+
+async function deleteActiveReservationsForUser(
+  database: ReturnType<MongoClient['db']>,
+  userId: string,
+  clubId?: string
+) {
+  const reservationsCollection = database.collection<ReservationItem>('reservations');
+  const reservations = await reservationsCollection.find({
+    user_id: userId,
+    ...(clubId ? {club_id: clubId} : {})
+  }).toArray();
+  const activeReservationIds = reservations
+    .filter(reservation => isReservationActive(reservation))
+    .map(reservation => reservation._id)
+    .filter((id): id is ObjectId => Boolean(id));
+
+  if (!activeReservationIds.length) {
+    return 0;
+  }
+
+  const deleteResult = await reservationsCollection.deleteMany({
+    _id: {$in: activeReservationIds}
+  });
+
+  return deleteResult.deletedCount;
 }
 
 function buildStatusChangedEmail(
@@ -35,6 +73,29 @@ function buildStatusChangedEmail(
       </tbody>
     </table>
     <p>Bei Fragen zu dieser Änderung wenden Sie sich bitte an ${escapeHtml(adminName || 'die Vereinsverwaltung')} (${escapeHtml(adminContact?.email ?? '-')}).</p>
+  `;
+}
+
+function buildRemovedFromClubEmail(
+  targetUser: { first_name?: string; last_name?: string; email?: string },
+  clubName?: string,
+  adminContact?: { first_name?: string; last_name?: string; email?: string }
+) {
+  const fullName = `${targetUser.first_name ?? ''} ${targetUser.last_name ?? ''}`.trim();
+  const adminName = `${adminContact?.first_name ?? ''} ${adminContact?.last_name ?? ''}`.trim();
+
+  return `
+    <p>Hallo ${escapeHtml(targetUser.first_name ?? '')},</p>
+    <p>Sie wurden aus ${escapeHtml(clubName ?? 'Ihrem Verein')} entfernt.</p>
+    <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
+      <tbody>
+        <tr><td><strong>Name</strong></td><td>${escapeHtml(fullName)}</td></tr>
+        <tr><td><strong>E-Mail</strong></td><td>${escapeHtml(targetUser.email)}</td></tr>
+        <tr><td><strong>Verein</strong></td><td>${escapeHtml(clubName ?? '-')}</td></tr>
+      </tbody>
+    </table>
+    <p>Ihr Konto bleibt bestehen, ist aber keinem Verein mehr zugeordnet. Aktive Reservierungen wurden entfernt.</p>
+    <p>Bei Fragen wenden Sie sich bitte an ${escapeHtml(adminName || 'die Vereinsverwaltung')} (${escapeHtml(adminContact?.email ?? '-')}).</p>
   `;
 }
 
@@ -98,15 +159,14 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
     }
 
-    // update user status
     if (req.method === 'POST') {
       const user_id = req.body.user_id;
       const status = req.body.status;
-      // console.log(user_id, status);
-      if (!user_id || !status) {
+      const action = req.body.action;
+      if (!user_id || (!status && action !== 'remove')) {
         throw new Error('You did not provide user id or status');
       }
-      if (!['active', 'inactive'].includes(status)) {
+      if (status && !['active', 'inactive'].includes(status)) {
         return res.status(400).json({error: 'Invalid status'});
       }
 
@@ -122,7 +182,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(401).json({error: 'Authentication required'});
       }
       if (requester.role !== 'admin') {
-        return res.status(403).json({error: 'Only admins can update member status'});
+        return res.status(403).json({error: 'Only admins can update members'});
       }
 
       const query = {_id: ObjectId.createFromHexString(user_id)};
@@ -132,6 +192,59 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
       if (targetUser.club_id !== requester.club_id) {
         return res.status(403).json({error: 'Updating this member is not allowed'});
+      }
+      if (targetUser.role === 'admin') {
+        return res.status(403).json({error: 'Admin users cannot be changed here'});
+      }
+
+      const club = requester.club_id ? await clubCollection.findOne({
+        _id: ObjectId.createFromHexString(requester.club_id)
+      }) : null;
+
+      if (action === 'remove') {
+        if (targetUser.status === 'active') {
+          return res.status(400).json({error: 'Only inactive members can be removed from club'});
+        }
+
+        await deleteActiveReservationsForUser(database, user_id, requester.club_id);
+        const result = await collection.updateOne(query, {
+          $set: {status: 'inactive'},
+          $unset: {club_id: ''}
+        });
+
+        if (result.modifiedCount > 0) {
+          if (targetUser.email) {
+            try {
+              await sendEmail({
+                email: targetUser.email,
+                subject: `Sie wurden aus ${club?.name ?? 'Ihrem Verein'} entfernt`,
+                html: buildRemovedFromClubEmail({
+                  first_name: targetUser.first_name,
+                  last_name: targetUser.last_name,
+                  email: targetUser.email,
+                }, club?.name, {
+                  first_name: requester.first_name,
+                  last_name: requester.last_name,
+                  email: requester.email,
+                }),
+              });
+            } catch (emailError) {
+              console.error('Failed to send member removal email', emailError);
+            }
+          }
+
+          return res.json({
+            _id: targetUser._id.toString(),
+            club_id: null,
+            status: 'inactive'
+          });
+        }
+
+        return res.status(404).json({error: `User with id ${user_id} not found!`});
+      }
+
+      if (status === 'inactive') {
+        await deleteActiveReservationsForUser(database, user_id, requester.club_id);
       }
 
       const updateDoc = {
@@ -144,9 +257,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         const user = await collection.findOne(query, {projection: {password: 0, club_id: 0}});
         if (targetUser.email) {
           try {
-            const club = requester.club_id ? await clubCollection.findOne({
-              _id: ObjectId.createFromHexString(requester.club_id)
-            }) : null;
             await sendEmail({
               email: targetUser.email,
               subject: `Ihr Kontostatus bei ${club?.name ?? 'Ab zum Platz'} wurde aktualisiert`,
