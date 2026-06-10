@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { MongoClient } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { getErrorMessage } from './_errors.js';
 
@@ -15,6 +16,7 @@ type PasswordResetUser = {
     email: string;
     password: string;
     resetToken?: string;
+    resetTokenHash?: string;
     resetTokenExpiry?: number;
 }
 
@@ -26,6 +28,9 @@ if (!database_uri || !database_name) {
 
 const client = new MongoClient(database_uri);
 const saltRounds = 10;
+const hashResetToken = (token: string) => {
+    return crypto.createHash('sha256').update(token).digest('hex');
+};
 
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
@@ -45,6 +50,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             return res.json({error: errors});
         } else {
             const { resetToken, password } = body;
+            const resetTokenHash = hashResetToken(resetToken);
             //return res.json('Server received valid data');
 
             try {
@@ -52,7 +58,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 const database = client.db(database_name);
                 const collection = database.collection<PasswordResetUser>('users');
                 const filter = {
-                    resetToken,
+                    resetTokenHash,
                     resetTokenExpiry: { $gt: Date.now() },
                 };
                 const doc = await collection.findOne(filter);
@@ -71,9 +77,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 const updateDoc = {
                     $set: {
                         password: hashedPassword,
-                        resetToken: undefined,
-                        resetTokenExpiry: undefined
                     },
+                    $unset: {
+                        resetToken: '',
+                        resetTokenHash: '',
+                        resetTokenExpiry: ''
+                    }
                 };
                 await collection.updateOne(filter, updateDoc);
                 // console.log(

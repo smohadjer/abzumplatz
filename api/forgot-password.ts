@@ -10,6 +10,10 @@ if (!database_uri || !database_name) {
 
 const client = new MongoClient(database_uri);
 
+const hashResetToken = (token: string) => {
+    return crypto.createHash('sha256').update(token).digest('hex');
+};
+
 const myCallback = (res: VercelResponse) => {
     // console.log('Email was sent scuccessfully!');
     res.status(200).send({ message: 'Wenn die E-Mail-Adresse bei uns registriert ist, erhalten Sie in Kürze eine Nachricht mit weiteren Schritten.' });
@@ -18,7 +22,8 @@ const myCallback = (res: VercelResponse) => {
 export default async (req: VercelRequest, res: VercelResponse) => {
     const email = typeof req.body?.email === 'string' ? req.body.email.toLowerCase() : '';
     const token = crypto.randomBytes(32).toString('hex');
-    const expiry = Date.now() + 3600000; // 1 hour
+    const tokenHash = hashResetToken(token);
+    const expiry = Date.now() + 1800000; // 30 minutes
 
     if (req.method === 'POST') {
         try {
@@ -31,9 +36,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             } else {
                 const updateDoc = {
                     $set: {
-                      resetToken: token,
+                      resetTokenHash: tokenHash,
                       resetTokenExpiry: expiry
                     },
+                    $unset: {
+                      resetToken: ''
+                    }
                 };
                 await collection.updateOne({email}, updateDoc);
                 // console.log(
@@ -44,7 +52,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 await sendEmail({
                     email,
                     subject: 'Passwort zurücksetzen',
-                    html: `<p>Besuchen Sie die <a href="${resetLink}">folgende Seite</a>, um Ihr Kontopasswort zurückzusetzen. Nach der Passwortänderung müssen Sie sich mit dem neuen Passwort anmelden.</p>`,
+                    html: `<p>Besuchen Sie die <a href="${resetLink}">folgende Seite</a>, um Ihr Kontopasswort zurückzusetzen. Der Link ist 30 Minuten gültig. Nach Ablauf können Sie einen neuen Link anfordern. Nach der Passwortänderung müssen Sie sich mit dem neuen Passwort anmelden.</p>`,
                     callback: () => {
                       myCallback(res);
                     }
