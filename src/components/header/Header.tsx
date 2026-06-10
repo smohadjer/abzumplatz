@@ -14,7 +14,7 @@ export default function Header() {
     return (
         <header>
             <h1>{isLoggedin && club ? club.name : 'abzumplatz'}</h1>
-            {isHomepage && <p>Kostenlose Platzreservierung für Tennisvereine</p>}
+            {isHomepage && <p>Online Platzreservierung für Tennisvereine</p>}
         </header>
     )
   }

@@ -24,13 +24,13 @@ export default function Home() {
                 <div className="content">
                     <h2>Was abzumplatz Ihnen bietet:</h2>
                     <ul>
-                    <li>Plätze online reservieren in wenigen Sekunden</li>
+                    <li>Tennisplätze online reservieren in wenigen Sekunden</li>
                     <li>Klarer Tageskalender für freie und belegte Plätze</li>
                     <li>Buchungen selbst verwalten und schnell ändern</li>
                     <li>Neue Mitglieder einfach registrieren und freischalten</li>
                     <li>Trainings, Turniere und Serienbuchungen mit wenig Aufwand planen</li>
                     <li>Flexible Regeln für Plätze, Zeiten und Buchungslimits</li>
-                    <li>Direkt im Browser, ohne App und kostenlos für Tennisvereine</li>
+                    <li>Direkt im Browser ohne App</li>
                     </ul>
                 </div>
             </div>

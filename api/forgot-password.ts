@@ -12,11 +12,11 @@ const client = new MongoClient(database_uri);
 
 const myCallback = (res: VercelResponse) => {
     // console.log('Email was sent scuccessfully!');
-    res.status(200).send({ message: "Mail sent" });
+    res.status(200).send({ message: 'Wenn die E-Mail-Adresse bei uns registriert ist, erhalten Sie in Kürze eine Nachricht mit weiteren Schritten.' });
 };
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-    const {email} = req.body;
+    const email = typeof req.body?.email === 'string' ? req.body.email.toLowerCase() : '';
     const token = crypto.randomBytes(32).toString('hex');
     const expiry = Date.now() + 3600000; // 1 hour
 
@@ -27,7 +27,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             const collection = database.collection('users');
             const user = await collection.findOne({ email });
             if (!user) {
-                throw new Error('Es existiert kein Benutzer mit dieser E-Mail-Adresse.');
+                return myCallback(res);
             } else {
                 const updateDoc = {
                     $set: {
@@ -42,7 +42,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
                 const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
                 await sendEmail({
-                    email: req.body.email,
+                    email,
                     subject: 'Passwort zurücksetzen',
                     html: `<p>Besuchen Sie die <a href="${resetLink}">folgende Seite</a>, um Ihr Kontopasswort zurückzusetzen. Nach der Passwortänderung müssen Sie sich mit dem neuen Passwort anmelden.</p>`,
                     callback: () => {
@@ -53,10 +53,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         } catch (e) {
             console.error(e.message);
 
-            res.status(401).json({
+            res.status(500).json({
                 error: [{
                     'instancePath': '/email',
-                    'message': e.message
+                    'message': 'Die Anfrage konnte derzeit nicht verarbeitet werden.'
                 }]
             });
         } finally {

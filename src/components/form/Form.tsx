@@ -30,6 +30,15 @@ export function Form(props: Props) {
     const [disabled, setDisabled] = useState(false);
     const [formData, setFormData] = useState<Field[]>(structuredClone(initialData));
 
+    const getFallbackErrorField = () => {
+        const emailField = formData.find(field => field.name === 'email');
+        if (emailField) {
+            return '/email';
+        }
+
+        return formData[0] ? `/${formData[0].name}` : '/undefined';
+    };
+
     //add errors to form data
     const updateFormDataErrors = (errors: ErrorType[]) => {
         if (formData && formData.length) {
@@ -125,26 +134,69 @@ export function Form(props: Props) {
         }
 
         // submit form data as json to server
-        fetch(url, {
-            method: target.method,
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: json
-        })
-        .then((response) => response.json())
-        .then(json => {
+        try {
+            const response = await fetch(url, {
+                method: target.method,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: json
+            });
+            const responseText = await response.text();
+            const responseJson = responseText ? JSON.parse(responseText) : null;
+
             setDisabled(false);
-            if (json.error) {
-                console.error(json.error);
-                updateFormDataErrors(json.error);
+
+            if (!response.ok) {
+                const fallbackInstancePath = getFallbackErrorField();
+                const responseCode = typeof responseJson?.code === 'string' || typeof responseJson?.code === 'number'
+                    ? String(responseJson.code)
+                    : undefined;
+                const responseMessage = typeof responseJson?.message === 'string'
+                    ? responseJson.message
+                    : undefined;
+                const fallbackMessage = 'Die Anfrage konnte nicht verarbeitet werden.';
+                const baseMessage = responseMessage ?? (
+                    typeof responseJson?.error === 'string'
+                        ? responseJson.error
+                        : fallbackMessage
+                );
+                const errors = Array.isArray(responseJson?.error)
+                    ? responseJson.error
+                    : [{
+                        instancePath: fallbackInstancePath,
+                        message: responseCode ? `${baseMessage} (${responseCode})` : baseMessage,
+                        keyword: 'server',
+                        params: {
+                            missingProperty: ''
+                        }
+                    }];
+                console.error(errors);
+                updateFormDataErrors(errors);
+                return;
+            }
+
+            if (responseJson?.error) {
+                console.error(responseJson.error);
+                updateFormDataErrors(responseJson.error);
             } else {
                 if (props.callback) {
-                    props.callback(json);
+                    props.callback(responseJson);
                 }
             }
-        });
+        } catch (error) {
+            console.error(error);
+            setDisabled(false);
+            updateFormDataErrors([{
+                instancePath: getFallbackErrorField(),
+                message: 'Die Anfrage konnte nicht verarbeitet werden.',
+                keyword: 'server',
+                params: {
+                    missingProperty: ''
+                }
+            }]);
+        }
     }
 
     function getFields() {
