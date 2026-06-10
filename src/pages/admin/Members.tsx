@@ -11,6 +11,8 @@ export default function AdminMembersPage() {
     const [loading, setLoading] = useState(false);
     const [pending, setPending] = useState(false);
     const [activeTab, setActiveTab] = useState<'active' | 'inactive'>(initialTab);
+    const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+    const [inactiveAction, setInactiveAction] = useState<'activate' | 'remove'>('activate');
     const usersData = useSelector((state: RootState) => state.users);
     const user = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
@@ -22,6 +24,7 @@ export default function AdminMembersPage() {
 
     const setTab = (tab: 'active' | 'inactive') => {
         setActiveTab(tab);
+        setSelectedUserIds([]);
         setSearchParams(tab === 'inactive' ? {tab} : {});
     };
 
@@ -35,13 +38,16 @@ export default function AdminMembersPage() {
         }
     }, []);
 
-    const updateUserInStore = (updatedUser: { _id: string; status: string }) => {
-        const users = usersData.value.map(user => {
-            if (user._id === updatedUser._id) {
+    const updateUsersInStore = (updatedUsers: Array<{ _id: string; status: string }>, removedUserIds: string[] = []) => {
+        const updatedUserMap = new Map(updatedUsers.map(updatedUser => [updatedUser._id, updatedUser.status]));
+        const remainingUsers = usersData.value
+            .filter(user => !removedUserIds.includes(user._id))
+            .map(user => {
+            if (updatedUserMap.has(user._id)) {
                 return {
                     ...user,
-                    status: updatedUser.status
-                }
+                    status: updatedUserMap.get(user._id)!
+                };
             } else {
                 return user;
             }
@@ -49,50 +55,35 @@ export default function AdminMembersPage() {
         dispatch({
             type: 'users/fetch',
             payload: {
-                value: users,
+                value: remainingUsers,
                 loaded: true
             }
         });
     };
 
-    const removeUserFromStore = (userId: string) => {
-        dispatch({
-            type: 'users/fetch',
-            payload: {
-                value: usersData.value.filter(user => user._id !== userId),
-                loaded: true
-            }
-        });
+    const toggleSelection = (userId: string) => {
+        setSelectedUserIds(current => current.includes(userId)
+            ? current.filter(id => id !== userId)
+            : [...current, userId]
+        );
     };
 
-    const handleStatusChange = async (userId: string, status: 'active' | 'inactive') => {
-        setPending(true);
-        try {
-            const response = await fetch('/api/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    user_id: userId,
-                    status
-                })
-            });
-            const data = await response.json();
-            if (!response.ok || data.error) {
-                throw new Error(data.error ?? 'Status konnte nicht geändert werden.');
-            }
-            updateUserInStore(data);
-        } catch (error) {
-            console.error(error);
-            alert(error instanceof Error ? error.message : 'Status konnte nicht geändert werden.');
-        } finally {
-            setPending(false);
+    const selectableUsers = visibleUsers.filter(member => member.role !== 'admin');
+    const allVisibleSelected = selectableUsers.length > 0 && selectableUsers.every(member => selectedUserIds.includes(member._id));
+    const submitAction = activeTab === 'active' ? 'deactivate' : inactiveAction;
+    const submitLabelBase = submitAction === 'deactivate'
+        ? 'Mitglieder deaktivieren'
+        : submitAction === 'activate'
+            ? 'Mitglieder aktivieren'
+            : 'Mitglieder entfernen';
+    const submitLabel = selectedUserIds.length > 0
+        ? `${submitLabelBase} (${selectedUserIds.length})`
+        : submitLabelBase;
+    const handleSubmit = async () => {
+        if (!selectedUserIds.length) {
+            return;
         }
-    };
-
-    const handleRemove = async (userId: string) => {
-        if (!confirm('Möchten Sie dieses inaktive Mitglied wirklich aus dem Verein entfernen?')) {
+        if (submitAction === 'remove' && !confirm('Möchten Sie die ausgewählten Mitglieder wirklich aus dem Verein entfernen?')) {
             return;
         }
 
@@ -104,20 +95,19 @@ export default function AdminMembersPage() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    user_id: userId,
-                    action: 'remove'
+                    user_ids: selectedUserIds,
+                    action: submitAction
                 })
             });
             const data = await response.json();
-
             if (!response.ok || data.error) {
-                throw new Error(data.error ?? 'Mitglied konnte nicht entfernt werden.');
+                throw new Error(data.error ?? 'Mitglieder konnten nicht aktualisiert werden.');
             }
-
-            removeUserFromStore(userId);
+            updateUsersInStore(data.updatedUsers ?? [], data.removedUserIds ?? []);
+            setSelectedUserIds([]);
         } catch (error) {
             console.error(error);
-            alert(error instanceof Error ? error.message : 'Mitglied konnte nicht entfernt werden.');
+            alert(error instanceof Error ? error.message : 'Mitglieder konnten nicht aktualisiert werden.');
         } finally {
             setPending(false);
         }
@@ -130,9 +120,7 @@ export default function AdminMembersPage() {
             </div>
         ) : (
             <>
-                <h1><span style={{ marginRight: '0.5rem' }}>Mitgliederliste</span>
-                    {pending ? <Loader size="small" /> : null}
-                </h1>
+                <h1>Mitglieder verwalten</h1>
                 <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
                 <div className="members-tabs" role="tablist" aria-label="Mitgliederstatus">
                     <button
@@ -156,40 +144,99 @@ export default function AdminMembersPage() {
                         Inaktive Mitglieder ({inactiveUsersCount})
                     </button>
                 </div>
+                {selectableUsers.length > 0 ? (
+                    <>
+                        {activeTab === 'inactive' ? (
+                            <div className="members-selection-bar">
+                                <button
+                                    type="button"
+                                    className="members-select-all-button"
+                                    disabled={pending}
+                                    onClick={() => setSelectedUserIds(allVisibleSelected ? [] : selectableUsers.map(member => member._id))}
+                                >
+                                    {allVisibleSelected ? 'Auswahl aufheben' : 'Alle auswählen'}
+                                </button>
+                                <div className="members-action-toggle" role="radiogroup" aria-label="Aktion für inaktive Mitglieder">
+                                    <label className="members-action-option" htmlFor="members-action-activate">
+                                        <input
+                                            id="members-action-activate"
+                                            type="radio"
+                                            name="members-inactive-action"
+                                            value="activate"
+                                            checked={inactiveAction === 'activate'}
+                                            disabled={pending}
+                                            onChange={() => setInactiveAction('activate')}
+                                        />
+                                        <span>Aktivieren</span>
+                                    </label>
+                                    <label className="members-action-option" htmlFor="members-action-remove">
+                                        <input
+                                            id="members-action-remove"
+                                            type="radio"
+                                            name="members-inactive-action"
+                                            value="remove"
+                                            checked={inactiveAction === 'remove'}
+                                            disabled={pending}
+                                            onChange={() => setInactiveAction('remove')}
+                                        />
+                                        <span>Entfernen</span>
+                                    </label>
+                                </div>
+                            </div>
+                        ) : null}
+                        <div className="members-batch-actions">
+                            <div className="members-submit-group">
+                                <button
+                                    type="button"
+                                    className="members-submit-button"
+                                    disabled={pending || !selectedUserIds.length}
+                                    onClick={handleSubmit}
+                                >
+                                    {submitLabel}
+                                </button>
+                                {pending ? <Loader size="small" /> : null}
+                            </div>
+                        </div>
+                    </>
+                ) : null}
                 <ul className="users-list">
 	                {visibleUsers.map(user => {
 	                        const classNames = [
 	                            user.role === 'admin' ? 'user-list-item--admin' : '',
 	                            isActiveUser(user) ? '' : 'user-list-item--inactive',
+                                selectedUserIds.includes(user._id) ? 'user-list-item--selected' : '',
 	                        ].filter(Boolean).join(' ');
 
 	                        return <li className={classNames || undefined} key={user._id}>
-                            <div className="members-list-item">
-                                <span className={user.role === 'admin' ? 'members-list-name members-list-name--admin' : 'members-list-name'}>
-                                    {user.first_name} {user.last_name}{user.role === 'admin' ? ' (Admin)' : ''}
-                                </span>
-	                                <span>(<a href={`mailto:${user.email}`}>{user.email}</a>)</span>
-                            </div>
-                                {user.role !== 'admin' ? (
-                                    <button
-                                        type="button"
-                                        className="button-link members-action-button"
+                            {user.role !== 'admin' ? (
+                                <label className="members-list-item" htmlFor={user._id}>
+                                    <input
+                                        id={user._id}
+                                        type="checkbox"
+                                        checked={selectedUserIds.includes(user._id)}
                                         disabled={pending}
-                                        onClick={() => handleStatusChange(user._id, isActiveUser(user) ? 'inactive' : 'active')}
-                                    >
-                                        {isActiveUser(user) ? 'Deaktivieren' : 'Aktivieren'}
-                                    </button>
-                                ) : null}
-                                {!isActiveUser(user) && user.role !== 'admin' ? (
-                                    <button
-                                        type="button"
-                                        className="button-link members-action-button"
-                                        disabled={pending}
-                                        onClick={() => handleRemove(user._id)}
-                                    >
-                                        Aus Verein entfernen
-                                    </button>
-                                ) : null}
+                                        onChange={() => toggleSelection(user._id)}
+                                    />
+                                    <span className="members-list-name">
+                                        {user.first_name} {user.last_name}
+                                    </span>
+	                                <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
+                                </label>
+                            ) : (
+                                <label className="members-list-item" htmlFor={user._id}>
+                                    <input
+                                        id={user._id}
+                                        type="checkbox"
+                                        checked={false}
+                                        disabled={true}
+                                        onChange={() => undefined}
+                                    />
+                                    <span className="members-list-name members-list-name--admin">
+                                        {user.first_name} {user.last_name} (Admin)
+                                    </span>
+	                                <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
+                                </label>
+                            )}
 	                        </li>;
                     })}
                 </ul>

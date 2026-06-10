@@ -6,8 +6,7 @@
     box-sizing: border-box;
 
     @media (min-width: 768px) {
-        width: auto;
-        display: inline-block;
+        max-width: 500px;
     }
 
     .row + .row {
@@ -52,10 +51,6 @@
         width: 100%;
         box-sizing: border-box;
 
-        @media (min-width: 768px) {
-            width: auto;
-            min-width: 40ch;
-        }
     }
 
     .error {

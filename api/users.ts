@@ -6,7 +6,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import sendEmail from './_sendEmail.js';
 import { escapeHtml } from './_lib.js';
 import { ReservationItem } from '../src/types.js';
-import { isReservationActive } from '../src/utils/reservations.js';
+import { isReservationActive } from '../src/utils/utils.js';
 
 type ClubDocument = {
   name?: string;
@@ -150,14 +150,15 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     if (req.method === 'POST') {
-      const user_id = req.body.user_id;
-      const status = req.body.status;
       const action = req.body.action;
-      if (!user_id || (!status && action !== 'remove')) {
-        throw new Error('You did not provide user id or status');
+      const singleUserId = req.body.user_id;
+      const requestedUserIds = Array.isArray(req.body.user_ids) ? req.body.user_ids : singleUserId ? [singleUserId] : [];
+
+      if (!requestedUserIds.length || !action) {
+        throw new Error('You did not provide user ids or action');
       }
-      if (status && !['active', 'inactive'].includes(status)) {
-        return res.status(400).json({error: 'Invalid status'});
+      if (!['activate', 'deactivate', 'remove'].includes(action)) {
+        return res.status(400).json({error: 'Invalid action'});
       }
 
       const payload = await getJwtPayload(req);
@@ -175,34 +176,50 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(403).json({error: 'Only admins can update members'});
       }
 
-      const query = {_id: ObjectId.createFromHexString(user_id)};
-      const targetUser = await collection.findOne(query);
-      if (!targetUser) {
-        return res.status(404).json({error: `User with id ${user_id} not found!`});
-      }
-      if (targetUser.club_id !== requester.club_id) {
-        return res.status(403).json({error: 'Updating this member is not allowed'});
-      }
-      if (targetUser.role === 'admin') {
-        return res.status(403).json({error: 'Admin users cannot be changed here'});
-      }
-
       const club = requester.club_id ? await clubCollection.findOne({
         _id: ObjectId.createFromHexString(requester.club_id)
       }) : null;
+      const normalizedUserIds = [...new Set(requestedUserIds)];
+      const targetUsers = [];
 
-      if (action === 'remove') {
-        if (targetUser.status === 'active') {
+      for (const userId of normalizedUserIds) {
+        const query = {_id: ObjectId.createFromHexString(userId)};
+        const targetUser = await collection.findOne(query);
+        if (!targetUser) {
+          return res.status(404).json({error: `User with id ${userId} not found!`});
+        }
+        if (targetUser.club_id !== requester.club_id) {
+          return res.status(403).json({error: 'Updating this member is not allowed'});
+        }
+        if (targetUser.role === 'admin') {
+          return res.status(403).json({error: 'Admin users cannot be changed here'});
+        }
+        if (action === 'remove' && targetUser.status === 'active') {
           return res.status(400).json({error: 'Only inactive members can be removed from club'});
         }
 
-        await deleteActiveReservationsForUser(database, user_id, requester.club_id);
-        const result = await collection.updateOne(query, {
-          $set: {status: 'inactive'},
-          $unset: {club_id: ''}
+        targetUsers.push({
+          userId,
+          targetUser,
+          query
         });
+      }
 
-        if (result.modifiedCount > 0) {
+      const updatedUsers: Array<{_id: string; status: string; club_id?: null}> = [];
+      const removedUserIds: string[] = [];
+
+      for (const {userId, targetUser, query} of targetUsers) {
+        if (action === 'remove') {
+          await deleteActiveReservationsForUser(database, userId, requester.club_id);
+          const result = await collection.updateOne(query, {
+            $set: {status: 'inactive'},
+            $unset: {club_id: ''}
+          });
+
+          if (result.modifiedCount === 0) {
+            return res.status(404).json({error: `User with id ${userId} not found!`});
+          }
+
           if (targetUser.email) {
             try {
               await sendEmail({
@@ -223,28 +240,23 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             }
           }
 
-          return res.json({
-            _id: targetUser._id.toString(),
-            club_id: null,
-            status: 'inactive'
-          });
+          removedUserIds.push(targetUser._id.toString());
+          continue;
         }
 
-        return res.status(404).json({error: `User with id ${user_id} not found!`});
-      }
+        const status = action === 'activate' ? 'active' : 'inactive';
 
-      if (status === 'inactive') {
-        await deleteActiveReservationsForUser(database, user_id, requester.club_id);
-      }
+        if (status === 'inactive') {
+          await deleteActiveReservationsForUser(database, userId, requester.club_id);
+        }
 
-      const updateDoc = {
-        $set: {
-          status: status
-        },
-      };
-      const result = await collection.updateOne(query, updateDoc);
-      if (result.modifiedCount > 0) {
-        const user = await collection.findOne(query, {projection: {password: 0, club_id: 0}});
+        const result = await collection.updateOne(query, {
+          $set: {status}
+        });
+        if (result.modifiedCount === 0) {
+          return res.status(404).json({error: `User with id ${userId} not found!`});
+        }
+
         if (targetUser.email) {
           try {
             await sendEmail({
@@ -265,10 +277,17 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             console.error('Failed to send member status change email', emailError);
           }
         }
-        return res.json(user);
-      } else {
-        return res.status(404).json({error: `User with id ${user_id} not found!`});
+
+        updatedUsers.push({
+          _id: targetUser._id.toString(),
+          status
+        });
       }
+
+      return res.json({
+        updatedUsers,
+        removedUserIds
+      });
     }
   } catch (e) {
     console.error(e);
