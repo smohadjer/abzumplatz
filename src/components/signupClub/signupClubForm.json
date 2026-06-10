@@ -20,6 +20,24 @@
             "value": ""
         },
         {
+            "name": "plan_type",
+            "label": "Tarif",
+            "type": "select",
+            "required": true,
+            "value": "free",
+            "hint": "Kostenlos: bis zu 100 Mitglieder. Bezahlplan: unbegrenzte Mitgliederzahl für 100 Euro pro Jahr.",
+            "options": [
+                {
+                    "label": "Kostenlos (bis 100 Mitglieder)",
+                    "value": "free"
+                },
+                {
+                    "label": "Bezahlplan (unbegrenzt, 100 Euro/Jahr)",
+                    "value": "paid"
+                }
+            ]
+        },
+        {
             "name": "courts_count",
             "label": "Anzahl der Plätze",
             "type": "select",
@@ -461,9 +479,14 @@
         },
         {
             "name": "reservations_limit",
-            "label": "Maximale Anzahl aktiver Buchungen pro Spieler",
+            "label": "Maximale Anzahl offener Reservierungen pro Spieler",
             "type": "select",
+            "hint": "Legt fest, wie viele offene Reservierungen ein Spieler haben darf.",
             "options": [
+                {
+                    "label": "Keine Begrenzung",
+                    "value": ""
+                },
                 {
                     "label": "1",
                     "value": 1
@@ -505,8 +528,7 @@
                     "value": 10
                 }
             ],
-            "required": true,
-            "value": 3
+            "value": ""
         }
     ]
 }

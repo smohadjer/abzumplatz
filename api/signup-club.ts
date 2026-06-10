@@ -17,11 +17,12 @@ type SignupClubBody = {
     email: string;
     password: string;
     name: string;
+    plan_type: 'free' | 'paid';
     courts_count: number | string;
     start_hour: number | string;
     end_hour: number | string;
     timezone: string;
-    reservations_limit: number | string;
+    reservations_limit?: number | string;
 }
 
 if (!database_uri || !database_name) {
@@ -35,7 +36,7 @@ const sendNewClubNotification = async (body: SignupClubBody, clubId: string) => 
     await sendEmail({
         email: 'info@abzumplatz@de',
         subject: `New club registration: ${body.name}`,
-        text: `A new club has been registered on Abzumplatz.\n\nClub: ${body.name}\nClub ID: ${clubId}\nAdmin: ${body.first_name} ${body.last_name}\nAdmin email: ${body.email}\nCourts: ${body.courts_count}`,
+        text: `A new club has been registered on Abzumplatz.\n\nClub: ${body.name}\nClub ID: ${clubId}\nPlan: ${body.plan_type}\nAdmin: ${body.first_name} ${body.last_name}\nAdmin email: ${body.email}\nCourts: ${body.courts_count}`,
     });
 };
 
@@ -101,10 +102,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
             const club = {
                 name: body.name,
+                plan_type: body.plan_type,
+                members_limit: body.plan_type === 'free' ? 100 : null,
                 start_hour: Number(body.start_hour),
                 end_hour: Number(body.end_hour),
                 timezone: body.timezone,
-                reservations_limit: Number(body.reservations_limit),
+                reservations_limit: body.reservations_limit !== undefined ? Number(body.reservations_limit) : null,
                 courts,
                 timestamp: new Date()
             };

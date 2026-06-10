@@ -13,6 +13,13 @@
                 }
             ]
         },
+        "plan_type": {
+            "type": "string",
+            "enum": ["free", "paid"],
+            "errorMessage": {
+                "enum": "Bitte wählen Sie einen gültigen Tarif aus."
+            }
+        },
         "courts_count": {
             "type": "integer",
             "allOf": [
@@ -60,6 +67,6 @@
             "type": "integer"
         }
     },
-    "required": ["name", "courts_count", "timezone"],
+    "required": ["name", "plan_type", "courts_count", "timezone"],
     "additionalProperties": false
 }

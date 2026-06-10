@@ -13,11 +13,12 @@ type ClubDocument = Omit<Club, '_id'> & {
 type ClubFormBody = {
   _id?: string;
   name: string;
+  plan_type: 'free' | 'paid';
   courts_count: number | string;
   start_hour: number | string;
   end_hour: number | string;
   timezone: string;
-  reservations_limit: number | string;
+  reservations_limit?: number | string;
 }
 
 if (!database_uri || !database_name) {
@@ -135,7 +136,8 @@ async function addClub(
   const start_hour = Number(body.start_hour);
   const end_hour = Number(body.end_hour);
   const timezone = body.timezone;
-  const reservations_limit = Number(body.reservations_limit);
+  const reservations_limit = body.reservations_limit !== undefined ? Number(body.reservations_limit) : null;
+  const members_limit = body.plan_type === 'free' ? 100 : null;
 
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: timezone });
@@ -168,6 +170,8 @@ async function addClub(
   // insert club
   const club = {
     name: body.name,
+    plan_type: body.plan_type,
+    members_limit,
     start_hour,
     end_hour,
     timezone,
@@ -212,7 +216,8 @@ async function updateClub(
   const start_hour = Number(body.start_hour);
   const end_hour = Number(body.end_hour);
   const timezone = body.timezone;
-  const reservations_limit = Number(body.reservations_limit);
+  const reservations_limit = body.reservations_limit !== undefined ? Number(body.reservations_limit) : null;
+  const members_limit = body.plan_type === 'free' ? 100 : null;
 
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: timezone });
@@ -246,6 +251,8 @@ async function updateClub(
       query,
       {'$set' : {
         name : body.name,
+        plan_type: body.plan_type,
+        members_limit,
         start_hour,
         end_hour,
         timezone,

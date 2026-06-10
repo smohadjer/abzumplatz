@@ -92,6 +92,13 @@
                 }
             ]
         },
+        "plan_type": {
+            "type": "string",
+            "enum": ["free", "paid"],
+            "errorMessage": {
+                "enum": "Bitte wählen Sie einen gültigen Tarif aus."
+            }
+        },
         "courts_count": {
             "type": "integer",
             "allOf": [
@@ -139,6 +146,6 @@
             "type": "integer"
         }
     },
-    "required": ["first_name", "last_name", "email", "password", "privacy", "name", "courts_count", "start_hour", "end_hour", "timezone", "reservations_limit"],
+    "required": ["first_name", "last_name", "email", "password", "privacy", "name", "plan_type", "courts_count", "start_hour", "end_hour", "timezone"],
     "additionalProperties": false
 }

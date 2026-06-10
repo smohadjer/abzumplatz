@@ -10,10 +10,15 @@ import { isReservationActive } from '../src/utils/utils.js';
 
 type ClubDocument = {
   name?: string;
+  members_limit?: number | null;
 }
 
 function getStatusLabel(status: string) {
   return status === 'active' ? 'aktiv' : 'inaktiv';
+}
+
+function isActiveMember(status?: string | null) {
+  return status !== 'inactive';
 }
 
 async function deleteActiveReservationsForUser(
@@ -207,6 +212,20 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           targetUser,
           query
         });
+      }
+
+      if (action === 'activate' && club?.members_limit != null) {
+        const activeMembersCount = await collection.countDocuments({
+          club_id: requester.club_id,
+          status: {$ne: 'inactive'}
+        });
+        const activationCount = targetUsers.filter(({targetUser}) => !isActiveMember(targetUser.status)).length;
+
+        if (activeMembersCount + activationCount > club.members_limit) {
+          return res.status(400).json({
+            error: `In Ihrem Tarif können höchstens ${club.members_limit} aktive Mitglieder freigeschaltet werden.`
+          });
+        }
       }
 
       const updatedUsers: Array<{_id: string; status: string; club_id?: null}> = [];

@@ -50,10 +50,12 @@ export type Club = {
     _id: string;
     name: string;
     courts: Court[];
-    reservations_limit: number;
+    reservations_limit?: number | null;
     start_hour: number;
     end_hour: number;
     timezone: string;
+    plan_type?: 'free' | 'paid';
+    members_limit?: number | null;
 }
 
 export type ReservationItem = {

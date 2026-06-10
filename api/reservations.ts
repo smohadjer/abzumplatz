@@ -13,7 +13,7 @@ import { getErrorMessage } from './_errors.js';
 type ReservationClub = {
   start_hour: number;
   end_hour: number;
-  reservations_limit: number;
+  reservations_limit: number | null;
 }
 
 type ReservationRouteBody = {

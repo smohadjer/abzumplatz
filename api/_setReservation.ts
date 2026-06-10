@@ -19,7 +19,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 type ReservationClub = {
   start_hour: number;
   end_hour: number;
-  reservations_limit: number;
+  reservations_limit: number | null;
 }
 
 const getUserReservations = async (
@@ -94,7 +94,7 @@ export const setReservation = async (
 
       // throw error if user has already reached maximum allowed number of reservations
       const limit = userClub.reservations_limit;
-      if (userReservations.length >= limit) {
+      if (limit != null && userReservations.length >= limit) {
         throw new Error(getReservationError('reached_limit', {limit}));
       }
 
