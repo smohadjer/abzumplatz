@@ -150,19 +150,23 @@ export function Form(props: Props) {
 
             if (!response.ok) {
                 const fallbackInstancePath = getFallbackErrorField();
+                const responseCode = typeof responseJson?.code === 'string' || typeof responseJson?.code === 'number'
+                    ? String(responseJson.code)
+                    : undefined;
                 const responseMessage = typeof responseJson?.message === 'string'
                     ? responseJson.message
                     : undefined;
                 const fallbackMessage = 'Die Anfrage konnte nicht verarbeitet werden.';
+                const baseMessage = responseMessage ?? (
+                    typeof responseJson?.error === 'string'
+                        ? responseJson.error
+                        : fallbackMessage
+                );
                 const errors = Array.isArray(responseJson?.error)
                     ? responseJson.error
                     : [{
                         instancePath: fallbackInstancePath,
-                        message: responseMessage ?? (
-                            typeof responseJson?.error === 'string'
-                                ? responseJson.error
-                                : fallbackMessage
-                        ),
+                        message: responseCode ? `${baseMessage} (${responseCode})` : baseMessage,
                         keyword: 'server',
                         params: {
                             missingProperty: ''
