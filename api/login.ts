@@ -43,6 +43,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             }
         } else {
             const { email, password } = body;
+            const normalizedEmail = email.toLowerCase();
             //return res.json('Server received valid data');
             let authenticated = false;
 
@@ -50,9 +51,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 await client.connect();
                 const database = client.db(database_name);
                 const collection = database.collection<DBUser>('users');
-                const user = await collection.findOne({ email: email.toLowerCase() });
+                const user = await collection.findOne({ email: normalizedEmail });
                 if (!user) {
-                  throw new Error('Es existiert kein Benutzer mit dieser E-Mail-Adresse.');
+                  throw new Error('Anmeldung fehlgeschlagen.');
                 } else {
                   if (await bcrypt.compare(password, user.password)) {
                     authenticated = true;

@@ -200,11 +200,15 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 });
             } catch (e) {
                 console.error(e);
-                const instancePath = getErrorCause(e) === 'invalid_email' ? '/email' : `/${getErrorCause(e) ?? 'undefined'}`;
+                const cause = getErrorCause(e);
+                const instancePath = cause === 'invalid_email' ? '/email' : `/${cause ?? 'undefined'}`;
+                const message = cause === 'invalid_email'
+                    ? 'Registrierung fehlgeschlagen.'
+                    : getErrorMessage(e);
                 res.status(500).json({error: [
                     {
                         instancePath: instancePath,
-                        message: getErrorMessage(e)
+                        message
                     }
             ]});
             }  finally {
