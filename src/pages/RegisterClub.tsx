@@ -31,7 +31,7 @@ export default function RegisterClub() {
         <>
             <h1>Verein Registrieren</h1>
             <p><Link className="icon icon--back" to="/">Zurück</Link></p>
-            <p>Als Administrator sollten Sie Ihren Verein registrieren, bevor Sie und die Spieler Reservierungen vornehmen können.</p>
+            <p>Mit der Registrierung eines Vereins werden Sie automatisch Administrator dieses Vereins und erhalten die Rechte, Spieler und alle Einstellungen Ihres Vereins zu verwalten.</p>
             <Form
                 classNames="signup"
                 initialData={fields}

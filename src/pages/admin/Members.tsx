@@ -120,7 +120,7 @@ export default function AdminMembersPage() {
             </div>
         ) : (
             <>
-                <h1>Mitgliederliste</h1>
+                <h1>Mitglieder verwalten</h1>
                 <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
                 <div className="members-tabs" role="tablist" aria-label="Mitgliederstatus">
                     <button

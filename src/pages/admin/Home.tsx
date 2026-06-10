@@ -5,7 +5,7 @@ export default function AdminHomePage() {
         <>
             <h1>Admin</h1>
             <ul>
-                <li><Link to="/admin/members">Mitgliederliste</Link></li>
+                <li><Link to="/admin/members">Mitglieder verwalten</Link></li>
                 <li><Link to="/admin/club">Verein editieren</Link></li>
                 <li><Link to="/admin/courts">Plätze verwalten</Link></li>
             </ul>
