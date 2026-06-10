@@ -54,14 +54,16 @@ function buildStatusChangedEmail(
   return `
     <p>Hallo ${escapeHtml(targetUser.first_name ?? '')},</p>
     <p>der Status Ihres Benutzerkontos wurde aktualisiert.</p>
-    <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
-      <tbody>
-        <tr><td><strong>Name</strong></td><td>${escapeHtml(fullName)}</td></tr>
-        <tr><td><strong>E-Mail</strong></td><td>${escapeHtml(targetUser.email)}</td></tr>
-        <tr><td><strong>Verein</strong></td><td>${escapeHtml(clubName ?? 'Ab zum Platz')}</td></tr>
-        <tr><td><strong>Neuer Status</strong></td><td>${escapeHtml(statusLabel)}</td></tr>
-      </tbody>
-    </table>
+    <div style="padding: 10px; background: #f2f2f2;">
+      <table cellspacing="0" style="border-collapse: collapse;">
+        <tbody>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Name</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(fullName)}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>E-Mail</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(targetUser.email)}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Verein</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(clubName ?? 'Ab zum Platz')}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Neuer Status</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(statusLabel)}</td></tr>
+        </tbody>
+      </table>
+    </div>
     <p>Bei Fragen zu dieser Änderung wenden Sie sich bitte an ${escapeHtml(adminName || 'die Vereinsverwaltung')} (${escapeHtml(adminContact?.email ?? '-')}).</p>
   `;
 }
@@ -77,13 +79,15 @@ function buildRemovedFromClubEmail(
   return `
     <p>Hallo ${escapeHtml(targetUser.first_name ?? '')},</p>
     <p>Sie wurden aus ${escapeHtml(clubName ?? 'Ihrem Verein')} entfernt.</p>
-    <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
-      <tbody>
-        <tr><td><strong>Name</strong></td><td>${escapeHtml(fullName)}</td></tr>
-        <tr><td><strong>E-Mail</strong></td><td>${escapeHtml(targetUser.email)}</td></tr>
-        <tr><td><strong>Verein</strong></td><td>${escapeHtml(clubName ?? '-')}</td></tr>
-      </tbody>
-    </table>
+    <div style="padding: 10px; background: #f2f2f2;">
+      <table cellspacing="0" style="border-collapse: collapse;">
+        <tbody>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Name</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(fullName)}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>E-Mail</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(targetUser.email)}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Verein</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(clubName ?? '-')}</td></tr>
+        </tbody>
+      </table>
+    </div>
     <p>Ihr Konto bleibt bestehen, ist aber keinem Verein mehr zugeordnet. Aktive Reservierungen wurden entfernt.</p>
     <p>Bei Fragen wenden Sie sich bitte an ${escapeHtml(adminName || 'die Vereinsverwaltung')} (${escapeHtml(adminContact?.email ?? '-')}).</p>
   `;

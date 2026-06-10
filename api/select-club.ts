@@ -65,14 +65,16 @@ function buildClubChangeNotificationEmail(
 
   return `
     <p>Ein Spieler hat seine Vereinszuordnung geändert.</p>
-    <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
-      <tbody>
-        <tr><td><strong>Name</strong></td><td>${escapeHtml(fullName)}</td></tr>
-        <tr><td><strong>E-Mail</strong></td><td>${escapeHtml(user.email)}</td></tr>
-        <tr><td><strong>Bisheriger Verein</strong></td><td>${escapeHtml(fromClubName ?? '-')}</td></tr>
-        <tr><td><strong>Neuer Verein</strong></td><td>${escapeHtml(toClubName ?? '-')}</td></tr>
-      </tbody>
-    </table>
+    <div style="padding: 10px; background: #f2f2f2;">
+      <table cellspacing="0" style="border-collapse: collapse;">
+        <tbody>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Name</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(fullName)}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>E-Mail</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.email)}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Bisheriger Verein</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(fromClubName ?? '-')}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Neuer Verein</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(toClubName ?? '-')}</td></tr>
+        </tbody>
+      </table>
+    </div>
     ${membersUrl ? `<p style="margin-top: 16px;"><a href="${escapeHtml(membersUrl)}" style="display: inline-block; padding: 10px 16px; background: #3264c8; color: #ffffff; text-decoration: none; border-radius: 4px;">Neue Mitglieder aktivieren</a></p>` : ''}
   `;
 }

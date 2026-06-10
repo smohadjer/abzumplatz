@@ -49,17 +49,19 @@ function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument, members
 
     return `
         <p>Ein neuer Benutzer hat sich bei ${escapeHtml(club.name ?? 'Ihrem Verein')} registriert und wartet auf Freischaltung.</p>
-        <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
-            <tbody>
-                <tr><td><strong>Name</strong></td><td>${escapeHtml(fullName)}</td></tr>
-                <tr><td><strong>E-Mail</strong></td><td>${escapeHtml(user.email)}</td></tr>
-                <tr><td><strong>Rolle</strong></td><td>${escapeHtml(user.role)}</td></tr>
-                <tr><td><strong>Status</strong></td><td>${escapeHtml(user.status ?? 'inactive')}</td></tr>
-                <tr><td><strong>Verein</strong></td><td>${escapeHtml(club.name)}</td></tr>
-                <tr><td><strong>Vereins-ID</strong></td><td>${escapeHtml(user.club_id ?? '-')}</td></tr>
-                <tr><td><strong>Registriert am</strong></td><td>${escapeHtml(registeredAt)}</td></tr>
-            </tbody>
-        </table>
+        <div style="padding: 10px; background: #f2f2f2;">
+            <table cellspacing="0" style="border-collapse: collapse;">
+                <tbody>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Name</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(fullName)}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>E-Mail</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.email)}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Rolle</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.role)}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Status</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.status ?? 'inactive')}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Verein</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(club.name)}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Vereins-ID</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.club_id ?? '-')}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Registriert am</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(registeredAt)}</td></tr>
+                </tbody>
+            </table>
+        </div>
         <p style="margin-top: 16px;">
             <a href="${escapeHtml(membersUrl)}" style="display: inline-block; padding: 10px 16px; background: #3264c8; color: #ffffff; text-decoration: none; border-radius: 4px;">Neue Mitglieder aktivieren</a>
         </p>
@@ -71,15 +73,17 @@ function buildWelcomeEmail(user: DBUser, club?: ClubDocument) {
 
     return `
         <p>Hallo ${escapeHtml(user.first_name)},</p>
-        <p>willkommen bei ${escapeHtml(hasClub ? club?.name : 'Ab zum Platz')}! Ihr Benutzerkonto wurde erfolgreich registriert.</p>
-        <table cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
-            <tbody>
-                <tr><td><strong>Name</strong></td><td>${escapeHtml(`${user.first_name} ${user.last_name}`)}</td></tr>
-                <tr><td><strong>E-Mail</strong></td><td>${escapeHtml(user.email)}</td></tr>
-                <tr><td><strong>Verein</strong></td><td>${escapeHtml(hasClub ? club?.name : '-')}</td></tr>
-                <tr><td><strong>Status</strong></td><td>${escapeHtml(user.status ?? 'inactive')}</td></tr>
-            </tbody>
-        </table>
+        <p>willkommen bei ${escapeHtml(hasClub ? club?.name : 'abzumplatz.de')}! Ihr Benutzerkonto wurde erfolgreich registriert.</p>
+        <div style="padding: 10px; background: #f2f2f2;">
+            <table cellspacing="0" style="border-collapse: collapse;">
+                <tbody>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Name</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(`${user.first_name} ${user.last_name}`)}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>E-Mail</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.email)}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Verein</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(hasClub ? club?.name : '-')}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Status</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.status ?? 'inactive')}</td></tr>
+                </tbody>
+            </table>
+        </div>
         ${hasClub
             ? '<p>Ihr Konto ist derzeit inaktiv. Bitte warten Sie, bis der Vereinsadministrator Ihr Konto freischaltet.</p>'
             : '<p>Bitte wählen Sie nach dem Login einen Verein aus, um Reservierungen vornehmen zu können.</p>'}
@@ -125,7 +129,7 @@ async function notifyClubAdmins(database: Db, user: DBUser, club: ClubDocument, 
 async function sendWelcomeEmail(user: DBUser, club?: ClubDocument) {
     await sendEmail({
         email: user.email,
-        subject: `Willkommen bei ${club?.name ?? 'Ab zum Platz'}`,
+        subject: `Willkommen bei ${club?.name ?? 'abzumplatz.de'}`,
         html: buildWelcomeEmail(user, club),
     });
 }
