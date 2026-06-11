@@ -10,6 +10,8 @@ html, body {
     height: 100%;
     margin: 0;
     scroll-behavior: none;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
 }
 
 body {
@@ -30,6 +32,7 @@ textarea {
     background: white;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 header {
@@ -122,6 +125,19 @@ button.button-link {
     min-height: 2.25em;
 }
 
+.admin-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+}
+
+.admin-actions .button-link {
+    min-width: 0;
+    min-height: 0;
+    padding: 0.5em 0.8em;
+}
+
 .button-link--secondary {
     background: #eef3fb;
     color: #234b96;
@@ -199,6 +215,10 @@ ul {
     flex-wrap: wrap;
 }
 
+.members-form {
+    margin-top: 1rem;
+}
+
 .members-tab {
     margin-top: 0;
     padding: 0.45rem 0.75rem;
@@ -234,12 +254,6 @@ ul {
     gap: 1rem;
     align-items: center;
     flex-wrap: wrap;
-}
-
-.members-submit-group {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
 .members-select-all,
@@ -282,7 +296,7 @@ ul {
 }
 
 .members-submit-button:disabled {
-    opacity: 0.25;
+    background: #b8bec8;
     cursor: default;
 }
 
@@ -299,6 +313,11 @@ ul {
     text-align: left;
     vertical-align: top;
     border-bottom: 1px solid #e3e8f2;
+}
+
+.profile-table tr:last-child th,
+.profile-table tr:last-child td {
+    border-bottom: 0;
 }
 
 .profile-table th {

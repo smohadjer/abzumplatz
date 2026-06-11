@@ -1,4 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { Club } from '../types';
+
+type ClubState = {
+  value: Club;
+  loaded: boolean;
+}
 
 export const clubSlice = createSlice({
   name: 'club',
@@ -11,9 +17,11 @@ export const clubSlice = createSlice({
       start_hour: 0,
       end_hour: 0,
       timezone: 'Europe/Berlin',
+      plan_type: undefined,
+      members_limit: null,
     },
     loaded: false
-  },
+  } as ClubState,
   reducers: {
     fetch: (state, action) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It

@@ -4,11 +4,8 @@ import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { Club, DBUser } from '../src/types.js';
-
-type ClubDocument = Omit<Club, '_id'> & {
-  timestamp?: Date;
-}
+import { DBUser } from '../src/types.js';
+import { ClubDocument } from './types.js';
 
 type CourtsFormBody = {
   _id: string;

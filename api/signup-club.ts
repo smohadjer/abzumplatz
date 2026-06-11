@@ -2,28 +2,11 @@ import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
 import * as fs from 'fs';
 import { addUser } from './_addUser.js';
 import sendEmail from './_sendEmail.js';
-import { Club, DBUser } from '../src/types.js';
+import { DBUser } from '../src/types.js';
 import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-
-type ClubDocument = Omit<Club, '_id'> & {
-    timestamp?: Date;
-}
-
-type SignupClubBody = {
-    first_name: string;
-    last_name: string;
-    email: string;
-    password: string;
-    name: string;
-    plan_type: 'free' | 'paid';
-    courts_count: number | string;
-    start_hour: number | string;
-    end_hour: number | string;
-    timezone: string;
-    reservations_limit?: number | string;
-}
+import { ClubDocument, SignupClubBody } from './types.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -31,6 +14,12 @@ if (!database_uri || !database_name) {
 
 const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup-club.json', 'utf8'));
+
+const getPaidUntilOneYearFromNow = () => {
+    const paidUntil = new Date();
+    paidUntil.setFullYear(paidUntil.getFullYear() + 1);
+    return paidUntil.toISOString().slice(0, 10);
+};
 
 const sendNewClubNotification = async (body: SignupClubBody, clubId: string) => {
     await sendEmail({
@@ -102,6 +91,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
             const club = {
                 name: body.name,
+                address_line1: body.address_line1,
+                postal_code: body.postal_code,
+                city: body.city,
+                country: body.country,
+                auto_renew: body.plan_type === 'paid',
+                paid_until: body.plan_type === 'paid' ? getPaidUntilOneYearFromNow() : undefined,
                 plan_type: body.plan_type,
                 members_limit: body.plan_type === 'free' ? 100 : null,
                 start_hour: Number(body.start_hour),

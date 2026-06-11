@@ -47,7 +47,7 @@
                     "errorMessage": "Die E-Mail-Adresse ist zu lang."
                 },
                 {
-                    "pattern": "^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
+                    "pattern": "^[a-zA-Z0-9.!#$%&'*+\\/?=^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
                     "errorMessage": "Dies ist keine gültige E-Mail-Adresse."
                 }
             ]
@@ -80,7 +80,7 @@
         "privacy": {
             "enum": ["agree"],
             "errorMessage": {
-              "enum": "Dies ist kein gültiger Wert."
+                "enum": "Dies ist kein gültiger Wert."
             }
         },
         "name": {
@@ -92,11 +92,63 @@
                 }
             ]
         },
+        "address_line1": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 5,
+                    "errorMessage": "Die Adresse ist zu kurz."
+                },
+                {
+                    "maxLength": 120,
+                    "errorMessage": "Die Adresse ist zu lang."
+                }
+            ]
+        },
+        "postal_code": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 3,
+                    "errorMessage": "Die PLZ ist zu kurz."
+                },
+                {
+                    "maxLength": 20,
+                    "errorMessage": "Die PLZ ist zu lang."
+                }
+            ]
+        },
+        "city": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 2,
+                    "errorMessage": "Der Ort ist zu kurz."
+                },
+                {
+                    "maxLength": 80,
+                    "errorMessage": "Der Ort ist zu lang."
+                }
+            ]
+        },
+        "country": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 2,
+                    "errorMessage": "Das Land ist zu kurz."
+                },
+                {
+                    "maxLength": 80,
+                    "errorMessage": "Das Land ist zu lang."
+                }
+            ]
+        },
         "plan_type": {
             "type": "string",
             "enum": ["free", "paid"],
             "errorMessage": {
-                "enum": "Bitte wählen Sie einen gültigen Tarif aus."
+                "enum": "Bitte wählen Sie einen gültigen Plan aus."
             }
         },
         "courts_count": {
@@ -146,6 +198,6 @@
             "type": "integer"
         }
     },
-    "required": ["first_name", "last_name", "email", "password", "privacy", "name", "plan_type", "courts_count", "start_hour", "end_hour", "timezone"],
+    "required": ["first_name", "last_name", "email", "password", "privacy", "name", "address_line1", "postal_code", "city", "country", "plan_type", "courts_count", "start_hour", "end_hour", "timezone"],
     "additionalProperties": false
 }

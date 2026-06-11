@@ -6,14 +6,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { DBUser, ReservationItem } from '../src/types.js';
 import sendEmail from './_sendEmail.js';
 import { isReservationActive } from '../src/utils/utils.js';
-
-type ClubDocument = {
-  name?: string;
-}
-
-type AdminUserDocument = {
-  email?: string;
-}
+import { AdminEmailDocument, ClubNameDocument } from './types.js';
 
 const validationError = (message: string) => ({
   error: [
@@ -85,7 +78,7 @@ async function notifyClubAdminsOfChange(
   subject: string,
   html: string
 ) {
-  const admins = await database.collection<AdminUserDocument>('users').find({
+  const admins = await database.collection<AdminEmailDocument>('users').find({
     club_id: clubId,
     role: 'admin',
     status: 'active',
@@ -120,7 +113,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     await client.connect();
     const database = client.db(database_name);
     const userCollection = database.collection<DBUser>('users');
-    const clubCollection = database.collection<ClubDocument>('clubs');
+    const clubCollection = database.collection<ClubNameDocument>('clubs');
     const reservationsCollection = database.collection<ReservationItem>('reservations');
 
     if (req.method === 'POST') {

@@ -7,11 +7,7 @@ import sendEmail from './_sendEmail.js';
 import { escapeHtml } from './_lib.js';
 import { ReservationItem } from '../src/types.js';
 import { isReservationActive } from '../src/utils/utils.js';
-
-type ClubDocument = {
-  name?: string;
-  members_limit?: number | null;
-}
+import { ClubNameDocument } from './types.js';
 
 function getStatusLabel(status: string) {
   return status === 'active' ? 'aktiv' : 'inaktiv';
@@ -19,6 +15,15 @@ function getStatusLabel(status: string) {
 
 function isActiveMember(status?: string | null) {
   return status !== 'inactive';
+}
+
+function hasFuturePaidUntil(paidUntil?: string) {
+  if (!paidUntil) {
+    return false;
+  }
+
+  const endOfPaidDay = new Date(`${paidUntil}T23:59:59.999`);
+  return endOfPaidDay > new Date();
 }
 
 async function deleteActiveReservationsForUser(
@@ -109,7 +114,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     await client.connect();
     const database = client.db(database_name);
     const collection = database.collection('users');
-    const clubCollection = database.collection<ClubDocument>('clubs');
+    const clubCollection = database.collection<ClubNameDocument>('clubs');
 
     if (req.method === 'GET') {
       const payload = await getJwtPayload(req);
@@ -214,7 +219,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         });
       }
 
-      if (action === 'activate' && club?.members_limit != null) {
+      const hasPaidCoverage = hasFuturePaidUntil(club?.paid_until);
+      if (action === 'activate' && club?.members_limit != null && !hasPaidCoverage) {
         const activeMembersCount = await collection.countDocuments({
           club_id: requester.club_id,
           status: {$ne: 'inactive'}
@@ -223,7 +229,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
         if (activeMembersCount + activationCount > club.members_limit) {
           return res.status(400).json({
-            error: `In Ihrem Tarif können höchstens ${club.members_limit} aktive Mitglieder freigeschaltet werden.`
+            error: `In Ihrem Plan können höchstens ${club.members_limit} aktive Mitglieder freigeschaltet werden.`
           });
         }
       }

@@ -28,7 +28,28 @@ type Option = {
 export function Form(props: Props) {
     const { label, pathSchema, initialData, formAttributes} = props;
     const [disabled, setDisabled] = useState(false);
-    const [formData, setFormData] = useState<Field[]>(structuredClone(initialData));
+    const applyConditionalVisibility = (fields: Field[]) => {
+        const planType = fields.find(field => field.name === 'plan_type')?.value;
+
+        return fields.map(field => {
+            const updatedField = field.hintByValue && typeof planType === 'string'
+                ? {
+                    ...field,
+                    hint: field.hintByValue[planType] ?? field.hint
+                }
+                : field;
+
+            if (updatedField.name !== 'auto_renew') {
+                return updatedField;
+            }
+
+            return {
+                ...updatedField,
+                hidden: planType !== 'paid'
+            };
+        });
+    };
+    const [formData, setFormData] = useState<Field[]>(() => applyConditionalVisibility(structuredClone(initialData)));
 
     const getFallbackErrorField = () => {
         const emailField = formData.find(field => field.name === 'email');
@@ -99,7 +120,7 @@ export function Form(props: Props) {
         }
         return item;
         })
-        setFormData(updatedData);
+        setFormData(applyConditionalVisibility(updatedData));
     }
 
     async function submitHandler(event: FormEvent) {
@@ -113,7 +134,7 @@ export function Form(props: Props) {
         // Type definition: values can be string OR string[]
         const data: Record<string, string | number | string[]> = {};
         formData?.forEach((item) => {
-            if (item.value) {
+            if (!item.hidden && item.value) {
                 data[item.name] = item.value;
             }
         });
@@ -208,6 +229,10 @@ export function Form(props: Props) {
             }
         };
         const fields = formData?.map((item, index: number) => {
+            if (item.hidden) {
+                return null;
+            }
+
             switch (item.type) {
             case 'hidden':
                 return <input key={index} name={item.name} value={item.value as string} type="hidden" />
@@ -220,6 +245,7 @@ export function Form(props: Props) {
                     <div>
                         <Radio item={item} handleChange={handleChange} />
                     </div>
+                    <Hint text={item.hint} />
                     <Error error={item.error} />
                     </div>
                 </div>

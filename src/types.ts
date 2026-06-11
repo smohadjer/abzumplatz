@@ -11,6 +11,7 @@ export type Field = {
   required?: boolean;
   placeholder?: string;
   hint?: string;
+  hintByValue?: Record<string, string>;
   options?: any[];
   autocomplete?: string;
   hasStrengthIndicator?: boolean;
@@ -49,6 +50,13 @@ export type Court = {
 export type Club = {
     _id: string;
     name: string;
+    timestamp?: Date | string;
+    address_line1?: string;
+    postal_code?: string;
+    city?: string;
+    country?: string;
+    auto_renew?: boolean;
+    paid_until?: string;
     courts: Court[];
     reservations_limit?: number | null;
     start_hour: number;

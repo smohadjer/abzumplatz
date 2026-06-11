@@ -22,6 +22,11 @@ export default function RegisterClub() {
         ...clubFields,
         ...(privacyField ? [privacyField] : [])
     ]));
+    fields.forEach(field => {
+        if (field.name === 'auto_renew') {
+            field.hidden = true;
+        }
+    });
     const formAttributes = {
         ...signupFormJson.form,
         action: '/api/signup-club'

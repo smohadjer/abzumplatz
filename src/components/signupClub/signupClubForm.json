@@ -20,20 +20,68 @@
             "value": ""
         },
         {
+            "name": "address_line1",
+            "label": "Straße und Hausnummer",
+            "type": "text",
+            "required": true,
+            "value": ""
+        },
+        {
+            "name": "postal_code",
+            "label": "PLZ",
+            "type": "text",
+            "required": true,
+            "value": ""
+        },
+        {
+            "name": "city",
+            "label": "Ort",
+            "type": "text",
+            "required": true,
+            "value": ""
+        },
+        {
+            "name": "country",
+            "label": "Land",
+            "type": "text",
+            "required": true,
+            "value": "Deutschland"
+        },
+        {
             "name": "plan_type",
-            "label": "Tarif",
-            "type": "select",
+            "label": "Plan",
+            "type": "radio",
             "required": true,
             "value": "free",
-            "hint": "Kostenlos: bis zu 100 Mitglieder. Bezahlplan: unbegrenzte Mitgliederzahl für 100 Euro pro Jahr.",
+            "hint": "Nur 100 aktive Mitglieder zulässig",
+            "hintByValue": {
+                "free": "Nur 100 aktive Mitglieder zulässig",
+                "paid": "Keine Einschränkungen. Eine Rechnung wird erstellt und per E-Mail an den Admin des Vereins gesendet. Bei einem späteren Wechsel zum Free Plan vor Ablauf des Jahresabos erfolgt keine Rückerstattung."
+            },
             "options": [
                 {
-                    "label": "Kostenlos (bis 100 Mitglieder)",
+                    "label": "Free",
                     "value": "free"
                 },
                 {
-                    "label": "Bezahlplan (unbegrenzt, 100 Euro/Jahr)",
+                    "label": "Bezahlplan (100€ jährlich)",
                     "value": "paid"
+                }
+            ]
+        },
+        {
+            "name": "auto_renew",
+            "label": "Automatische Verlängerung",
+            "type": "radio",
+            "value": "true",
+            "options": [
+                {
+                    "label": "Nein",
+                    "value": "false"
+                },
+                {
+                    "label": "Ja",
+                    "value": "true"
                 }
             ]
         },

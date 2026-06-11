@@ -8,6 +8,7 @@ import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createError, getErrorCause, getErrorMessage } from './_errors.js';
+import { AdminEmailDocument, ClubNameDocument } from './types.js';
 
 type SignupBody = {
     first_name: string;
@@ -25,21 +26,13 @@ const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup.json', 'utf8'));
 const objectIdPattern = /^[0-9a-fA-F]{24}$/;
 
-type ClubDocument = {
-    name?: string;
-}
-
-type AdminUserDocument = {
-    email?: string;
-}
-
 const getAppOrigin = (req: VercelRequest) => {
     const protocol = req.headers['x-forwarded-proto'] ?? 'https';
     const host = req.headers.host;
     return host ? `${protocol}://${host}` : '';
 };
 
-function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument, membersUrl: string) {
+function buildNewUserNotificationEmail(user: DBUser, club: ClubNameDocument, membersUrl: string) {
     const fullName = `${user.first_name} ${user.last_name}`;
     const registeredAt = new Date().toLocaleString('de-DE', {
         dateStyle: 'medium',
@@ -68,7 +61,7 @@ function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument, members
     `;
 }
 
-function buildWelcomeEmail(user: DBUser, club?: ClubDocument) {
+function buildWelcomeEmail(user: DBUser, club?: ClubNameDocument) {
     const hasClub = Boolean(user.club_id && club);
 
     return `
@@ -90,12 +83,12 @@ function buildWelcomeEmail(user: DBUser, club?: ClubDocument) {
     `;
 }
 
-async function notifyClubAdmins(database: Db, user: DBUser, club: ClubDocument, membersUrl: string) {
+async function notifyClubAdmins(database: Db, user: DBUser, club: ClubNameDocument, membersUrl: string) {
     if (!user.club_id) {
         return;
     }
 
-    const admins = await database.collection<AdminUserDocument>('users').find({
+    const admins = await database.collection<AdminEmailDocument>('users').find({
         club_id: user.club_id,
         role: 'admin',
         status: 'active',
