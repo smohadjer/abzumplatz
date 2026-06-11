@@ -8,7 +8,7 @@ import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createError, getErrorCause, getErrorMessage } from './_errors.js';
-import { AdminEmailDocument, ClubNameDocument } from './types.js';
+import { AdminEmailDocument, ClubNameDocument } from './_types.js';
 
 type SignupBody = {
     first_name: string;

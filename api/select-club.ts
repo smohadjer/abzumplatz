@@ -6,7 +6,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { DBUser, ReservationItem } from '../src/types.js';
 import sendEmail from './_sendEmail.js';
 import { isReservationActive } from '../src/utils/utils.js';
-import { AdminEmailDocument, ClubNameDocument } from './types.js';
+import { AdminEmailDocument, ClubNameDocument } from './_types.js';
 
 const validationError = (message: string) => ({
   error: [

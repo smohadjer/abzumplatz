@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { DBUser } from '../src/types.js';
-import { ClubDocument } from './types.js';
+import { ClubDocument } from './_types.js';
 
 type CourtsFormBody = {
   _id: string;

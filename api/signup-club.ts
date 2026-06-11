@@ -6,7 +6,7 @@ import { DBUser } from '../src/types.js';
 import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { ClubDocument, SignupClubBody } from './types.js';
+import { ClubDocument, SignupClubBody } from './_types.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');

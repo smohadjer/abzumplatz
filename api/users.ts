@@ -8,7 +8,7 @@ import { escapeHtml } from './_lib.js';
 import { ReservationItem } from '../src/types.js';
 import { getMembersLimitForPlan } from '../src/planConfig.js';
 import { isReservationActive } from '../src/utils/utils.js';
-import { ClubNameDocument } from './types.js';
+import { ClubNameDocument } from './_types.js';
 
 function getStatusLabel(status: string) {
   return status === 'active' ? 'aktiv' : 'inaktiv';
