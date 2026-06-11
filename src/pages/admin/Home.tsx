@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { fetchClub, fetchUsers } from "../../utils/utils";
 import { Loader } from "../../components/loader/Loader";
+import { getMembersLimitForPlan } from "../../planConfig";
 
 export default function AdminHomePage() {
     const [loadingClub, setLoadingClub] = useState(false);
@@ -16,8 +17,9 @@ export default function AdminHomePage() {
     const activeMembersCount = usersData.loaded
         ? usersData.value.filter(member => member.status !== 'inactive').length
         : null;
-    const remainingMembersCount = club.members_limit != null && activeMembersCount != null
-        ? Math.max(club.members_limit - activeMembersCount, 0)
+    const membersLimit = getMembersLimitForPlan(club.plan_type);
+    const remainingMembersCount = membersLimit != null && activeMembersCount != null
+        ? Math.max(membersLimit - activeMembersCount, 0)
         : null;
     const adminName = `${user.first_name} ${user.last_name}`.trim();
     const address = [club.address_line1, club.postal_code, club.city, club.country]
@@ -98,9 +100,9 @@ export default function AdminHomePage() {
                         <tr>
                             <th>Mitgliederlimit</th>
                             <td>
-                                {club.members_limit != null && remainingMembersCount != null
-                                    ? `${club.members_limit} (noch ${remainingMembersCount} aktive Mitglieder erlaubt)`
-                                    : club.members_limit != null
+                                {membersLimit != null && remainingMembersCount != null
+                                    ? `${membersLimit} (noch ${remainingMembersCount} aktive Mitglieder erlaubt)`
+                                    : membersLimit != null
                                         ? '...'
                                         : 'Kein Limit'}
                             </td>

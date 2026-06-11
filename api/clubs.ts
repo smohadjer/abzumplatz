@@ -135,7 +135,6 @@ async function addClub(
   const end_hour = Number(body.end_hour);
   const timezone = body.timezone;
   const reservations_limit = body.reservations_limit !== undefined ? Number(body.reservations_limit) : null;
-  const members_limit = body.plan_type === 'free' ? 100 : null;
   const auto_renew = body.auto_renew === true || body.auto_renew === 'true';
   const paid_until = body.plan_type === 'paid' ? getPaidUntilOneYearFromNow() : undefined;
 
@@ -177,7 +176,6 @@ async function addClub(
     auto_renew,
     paid_until,
     plan_type: body.plan_type,
-    members_limit,
     start_hour,
     end_hour,
     timezone,
@@ -223,7 +221,6 @@ async function updateClub(
   const end_hour = Number(body.end_hour);
   const timezone = body.timezone;
   const reservations_limit = body.reservations_limit !== undefined ? Number(body.reservations_limit) : null;
-  const members_limit = body.plan_type === 'free' ? 100 : null;
 
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: timezone });
@@ -273,12 +270,14 @@ async function updateClub(
         auto_renew,
         paid_until,
         plan_type: body.plan_type,
-        members_limit,
         start_hour,
         end_hour,
         timezone,
         reservations_limit,
         courts,
+      },
+      '$unset': {
+        members_limit: ''
       }}
   );
 

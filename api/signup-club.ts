@@ -98,7 +98,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 auto_renew: body.plan_type === 'paid',
                 paid_until: body.plan_type === 'paid' ? getPaidUntilOneYearFromNow() : undefined,
                 plan_type: body.plan_type,
-                members_limit: body.plan_type === 'free' ? 100 : null,
                 start_hour: Number(body.start_hour),
                 end_hour: Number(body.end_hour),
                 timezone: body.timezone,

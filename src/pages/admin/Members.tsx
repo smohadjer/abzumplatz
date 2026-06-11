@@ -4,6 +4,7 @@ import { RootState } from './../../store';
 import { fetchClub, fetchUsers } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
 import { Link, useSearchParams } from 'react-router';
+import { getMembersLimitForPlan } from '../../planConfig';
 
 export default function AdminMembersPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -25,8 +26,9 @@ export default function AdminMembersPage() {
     const visibleUsers = users.filter(member => activeTab === 'active' ? isActiveUser(member) : !isActiveUser(member));
     const currentClubFromList = clubs.find(club => club._id === user.club_id);
     const club = currentClubFromList ?? (clubData.value._id === user.club_id ? clubData.value : null);
-    const hasFuturePaidUntil = club?.paid_until ? new Date(club.paid_until) > new Date() : false;
-    const hasMemberCap = club?.members_limit != null && !hasFuturePaidUntil;
+    const membersLimit = getMembersLimitForPlan(club?.plan_type);
+    const hasFuturePaidUntil = club?.paid_until ? new Date(`${club.paid_until}T23:59:59.999`) > new Date() : false;
+    const hasMemberCap = membersLimit != null && !hasFuturePaidUntil;
 
     const setTab = (tab: 'active' | 'inactive') => {
         setActiveTab(tab);
@@ -160,7 +162,7 @@ export default function AdminMembersPage() {
                 </div>
                 {hasMemberCap ? (
                     <p>
-                        Im Free Plan sind maximal {club.members_limit} aktive Mitglieder erlaubt. Wechseln Sie zum{' '}
+                        Im Free Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. Wechseln Sie zum{' '}
                         <Link to="/admin/club">Bezahlplan</Link>, um diese Einschränkung aufzuheben.
                     </p>
                 ) : null}

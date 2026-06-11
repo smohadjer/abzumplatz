@@ -1,6 +1,7 @@
 import { Form } from '../form/Form';
 import formJson from './signupClubForm.json';
 import { Field } from '../../types';
+import { FREE_PLAN_MEMBERS_LIMIT, getMembersLimitForPlan } from '../../planConfig';
 
 type Props = {
     label?: string;
@@ -10,8 +11,8 @@ type Props = {
 
 export function SignupClub(props: Props) {
     const { label, data, callback } = props;
-    const memberLimit = data?.members_limit ?? 100;
     const planType: 'free' | 'paid' = data?.plan_type === 'paid' ? 'paid' : 'free';
+    const memberLimit = getMembersLimitForPlan(planType) ?? FREE_PLAN_MEMBERS_LIMIT;
     const planHints = {
         free: `Nur ${memberLimit} aktive Mitglieder zulässig`,
         paid: 'Keine Einschränkungen. Eine Rechnung wird erstellt und per E-Mail an den Admin des Vereins gesendet. Bei einem späteren Wechsel zum Free Plan vor Ablauf des Jahresabos erfolgt keine Rückerstattung.'

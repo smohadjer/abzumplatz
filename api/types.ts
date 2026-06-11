@@ -6,7 +6,6 @@ export type ClubDocument = Omit<Club, '_id'> & {
 
 export type ClubNameDocument = {
     name?: string;
-    members_limit?: number | null;
     plan_type?: 'free' | 'paid';
     paid_until?: string;
 }

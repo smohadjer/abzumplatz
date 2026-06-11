@@ -6,6 +6,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import sendEmail from './_sendEmail.js';
 import { escapeHtml } from './_lib.js';
 import { ReservationItem } from '../src/types.js';
+import { getMembersLimitForPlan } from '../src/planConfig.js';
 import { isReservationActive } from '../src/utils/utils.js';
 import { ClubNameDocument } from './types.js';
 
@@ -220,16 +221,18 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       const hasPaidCoverage = hasFuturePaidUntil(club?.paid_until);
-      if (action === 'activate' && club?.members_limit != null && !hasPaidCoverage) {
+      const membersLimit = getMembersLimitForPlan(club?.plan_type);
+
+      if (action === 'activate' && membersLimit != null && !hasPaidCoverage) {
         const activeMembersCount = await collection.countDocuments({
           club_id: requester.club_id,
           status: {$ne: 'inactive'}
         });
         const activationCount = targetUsers.filter(({targetUser}) => !isActiveMember(targetUser.status)).length;
 
-        if (activeMembersCount + activationCount > club.members_limit) {
+        if (activeMembersCount + activationCount > membersLimit) {
           return res.status(400).json({
-            error: `In Ihrem Plan können höchstens ${club.members_limit} aktive Mitglieder freigeschaltet werden.`
+            error: `In Ihrem Plan können höchstens ${membersLimit} aktive Mitglieder freigeschaltet werden.`
           });
         }
       }

@@ -18,7 +18,6 @@ export const clubSlice = createSlice({
       end_hour: 0,
       timezone: 'Europe/Berlin',
       plan_type: undefined,
-      members_limit: null,
     },
     loaded: false
   } as ClubState,

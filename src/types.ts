@@ -63,7 +63,6 @@ export type Club = {
     end_hour: number;
     timezone: string;
     plan_type?: 'free' | 'paid';
-    members_limit?: number | null;
 }
 
 export type ReservationItem = {
