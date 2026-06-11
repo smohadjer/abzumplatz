@@ -1,11 +1,11 @@
 import { Collection, MongoClient, ObjectId, WithId } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
-import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
+import { database_uri, database_name } from './_utils/_config.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { DBUser } from '../src/types.js';
-import { ClubDocument } from './_types.js';
+import { ClubDocument } from './_utils/_types.js';
 
 type CourtsFormBody = {
   _id: string;

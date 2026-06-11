@@ -1,14 +1,14 @@
 import { MongoClient, ObjectId } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
-import { fetchUsers } from './_fetchUsers.js';
+import { database_uri, database_name } from './_utils/_config.js';
+import { fetchUsers } from './_utils/_fetchUsers.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import sendEmail from './_sendEmail.js';
-import { escapeHtml } from './_lib.js';
+import sendEmail from './_utils/_sendEmail.js';
+import { escapeHtml } from './_utils/_lib.js';
 import { ReservationItem } from '../src/types.js';
 import { getMembersLimitForPlan } from '../src/planConfig.js';
 import { isReservationActive } from '../src/utils/utils.js';
-import { ClubNameDocument } from './_types.js';
+import { ClubNameDocument } from './_utils/_types.js';
 
 function getStatusLabel(status: string) {
   return status === 'active' ? 'aktiv' : 'inaktiv';
@@ -25,6 +25,21 @@ function hasFuturePaidUntil(paidUntil?: string) {
 
   const endOfPaidDay = new Date(`${paidUntil}T23:59:59.999`);
   return endOfPaidDay > new Date();
+}
+
+function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+function getRequestedUserIds(body: VercelRequest['body']): string[] {
+  const singleUserId = isString(body?.user_id) ? body.user_id : undefined;
+  const requestedUserIds: string[] = Array.isArray(body?.user_ids)
+    ? body.user_ids.filter(isString)
+    : singleUserId
+      ? [singleUserId]
+      : [];
+
+  return requestedUserIds;
 }
 
 async function deleteActiveReservationsForUser(
@@ -166,8 +181,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
     if (req.method === 'POST') {
       const action = req.body.action;
-      const singleUserId = req.body.user_id;
-      const requestedUserIds = Array.isArray(req.body.user_ids) ? req.body.user_ids : singleUserId ? [singleUserId] : [];
+      const requestedUserIds = getRequestedUserIds(req.body);
 
       if (!requestedUserIds.length || !action) {
         throw new Error('You did not provide user ids or action');
@@ -194,7 +208,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const club = requester.club_id ? await clubCollection.findOne({
         _id: ObjectId.createFromHexString(requester.club_id)
       }) : null;
-      const normalizedUserIds = [...new Set(requestedUserIds)];
+      const normalizedUserIds: string[] = [...new Set<string>(requestedUserIds)];
       const targetUsers = [];
 
       for (const userId of normalizedUserIds) {

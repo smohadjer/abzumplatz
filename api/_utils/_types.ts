@@ -1,4 +1,4 @@
-import { Club } from '../src/types.js';
+import { Club } from '../../src/types.js';
 
 export type ClubDocument = Omit<Club, '_id'> & {
     timestamp?: Date;

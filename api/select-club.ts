@@ -1,12 +1,12 @@
 import { MongoClient, ObjectId } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
-import { sanitize, escapeHtml } from './_lib.js';
+import { database_uri, database_name } from './_utils/_config.js';
+import { sanitize, escapeHtml } from './_utils/_lib.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { DBUser, ReservationItem } from '../src/types.js';
-import sendEmail from './_sendEmail.js';
+import sendEmail from './_utils/_sendEmail.js';
 import { isReservationActive } from '../src/utils/utils.js';
-import { AdminEmailDocument, ClubNameDocument } from './_types.js';
+import { AdminEmailDocument, ClubNameDocument } from './_utils/_types.js';
 
 const validationError = (message: string) => ({
   error: [

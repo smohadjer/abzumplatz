@@ -1,12 +1,12 @@
-import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
-import { addUser } from './_addUser.js';
-import sendEmail from './_sendEmail.js';
+import { addUser } from './_utils/_addUser.js';
+import sendEmail from './_utils/_sendEmail.js';
 import { DBUser } from '../src/types.js';
 import { MongoClient, ObjectId } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
+import { database_uri, database_name } from './_utils/_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { ClubDocument, SignupClubBody } from './_types.js';
+import { ClubDocument, SignupClubBody } from './_utils/_types.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');

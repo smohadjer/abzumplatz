@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Db } from 'mongodb';
-import { DBUser } from '../src/types.js';
+import { DBUser } from '../../src/types.js';
 import { createError } from './_errors.js';
 
 const saltRounds = 10;

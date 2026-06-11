@@ -1,14 +1,14 @@
-import { sanitize, ajv, getCustomErrorMessage, escapeHtml } from './_lib.js';
+import { sanitize, ajv, getCustomErrorMessage, escapeHtml } from './_utils/_lib.js';
 import * as fs from 'fs';
-import { addUser } from './_addUser.js';
-import sendEmail from './_sendEmail.js';
+import { addUser } from './_utils/_addUser.js';
+import sendEmail from './_utils/_sendEmail.js';
 import type { DBUser } from '../src/types.js';
 import type { Db } from 'mongodb';
 import { MongoClient, ObjectId } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
+import { database_uri, database_name } from './_utils/_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { createError, getErrorCause, getErrorMessage } from './_errors.js';
-import { AdminEmailDocument, ClubNameDocument } from './_types.js';
+import { createError, getErrorCause, getErrorMessage } from './_utils/_errors.js';
+import { AdminEmailDocument, ClubNameDocument } from './_utils/_types.js';
 
 type SignupBody = {
     first_name: string;

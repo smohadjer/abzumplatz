@@ -1,12 +1,12 @@
 import { ajv, getCustomErrorMessage } from './_lib.js';
 import { Collection, ObjectId } from 'mongodb';
-import { ReservationItem } from '../src/types.js';
+import { ReservationItem } from '../../src/types.js';
 import * as fs from 'fs';
 import {
   getDayName,
   getLocalDate,
   reservationIsOnSameDay
-} from '../src/utils/utils.js';
+} from '../../src/utils/utils.js';
 
 type ReservationErrorKey =
   'already_booked' |
