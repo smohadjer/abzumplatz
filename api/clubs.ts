@@ -1,38 +1,37 @@
 import { Collection, MongoClient, ObjectId, WithId } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
-import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
+import { database_uri, database_name } from './_utils/_config.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
-import { Club, DBUser, JwtPayload } from '../src/types.js';
+import { DBUser, JwtPayload } from '../src/types.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-
-type ClubDocument = Omit<Club, '_id'> & {
-  timestamp?: Date;
-}
-
-type ClubFormBody = {
-  _id?: string;
-  name: string;
-  courts_count: number | string;
-  start_hour: number | string;
-  end_hour: number | string;
-  timezone: string;
-  reservations_limit: number | string;
-}
+import { ClubDocument, ClubFormBody } from './_utils/_types.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
 }
 
 const client = new MongoClient(database_uri);
-const projection = {
-    timestamp: 0
-};
 
 const fetchClub = async (id: string, collection: Collection<ClubDocument>) => {
   const query = {_id: ObjectId.createFromHexString(id)};
-  const doc = await collection.findOne(query, {projection});
+  const doc = await collection.findOne(query);
   return doc;
+};
+
+const getPaidUntilOneYearFromNow = () => {
+  const paidUntil = new Date();
+  paidUntil.setFullYear(paidUntil.getFullYear() + 1);
+  return paidUntil.toISOString().slice(0, 10);
+};
+
+const hasFuturePaidUntil = (paidUntil?: string) => {
+  if (!paidUntil) {
+    return false;
+  }
+
+  const endOfPaidDay = new Date(`${paidUntil}T23:59:59.999`);
+  return endOfPaidDay > new Date();
 };
 
 export default async (req: VercelRequest, res: VercelResponse) => {
@@ -135,7 +134,9 @@ async function addClub(
   const start_hour = Number(body.start_hour);
   const end_hour = Number(body.end_hour);
   const timezone = body.timezone;
-  const reservations_limit = Number(body.reservations_limit);
+  const reservations_limit = body.reservations_limit !== undefined ? Number(body.reservations_limit) : null;
+  const auto_renew = body.auto_renew === true || body.auto_renew === 'true';
+  const paid_until = body.plan_type === 'paid' ? getPaidUntilOneYearFromNow() : undefined;
 
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: timezone });
@@ -168,6 +169,13 @@ async function addClub(
   // insert club
   const club = {
     name: body.name,
+    address_line1: body.address_line1,
+    postal_code: body.postal_code,
+    city: body.city,
+    country: body.country,
+    auto_renew,
+    paid_until,
+    plan_type: body.plan_type,
     start_hour,
     end_hour,
     timezone,
@@ -212,7 +220,7 @@ async function updateClub(
   const start_hour = Number(body.start_hour);
   const end_hour = Number(body.end_hour);
   const timezone = body.timezone;
-  const reservations_limit = Number(body.reservations_limit);
+  const reservations_limit = body.reservations_limit !== undefined ? Number(body.reservations_limit) : null;
 
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: timezone });
@@ -228,6 +236,15 @@ async function updateClub(
   if (!doc) {
     return res.status(404).json({error: 'Club not found'});
   }
+  const preserveExistingPaidCoverage = hasFuturePaidUntil(doc.paid_until);
+  const auto_renew = body.plan_type === 'paid'
+    ? body.auto_renew === true || body.auto_renew === 'true'
+    : doc.auto_renew;
+  const paid_until = body.plan_type === 'paid'
+    ? preserveExistingPaidCoverage
+      ? doc.paid_until
+      : getPaidUntilOneYearFromNow()
+    : doc.paid_until;
 
   const courts = doc.courts;
   if (courts_count < courts.length) {
@@ -246,11 +263,21 @@ async function updateClub(
       query,
       {'$set' : {
         name : body.name,
+        address_line1: body.address_line1,
+        postal_code: body.postal_code,
+        city: body.city,
+        country: body.country,
+        auto_renew,
+        paid_until,
+        plan_type: body.plan_type,
         start_hour,
         end_hour,
         timezone,
         reservations_limit,
         courts,
+      },
+      '$unset': {
+        members_limit: ''
       }}
   );
 
@@ -269,7 +296,7 @@ async function updateClub(
 }
 
 async function getAllClubs(collection: Collection<ClubDocument>) {
-    const docs = await collection.find({}, {projection})
+    const docs = await collection.find({})
     // using collation so sort is case insensitive
     .collation({
         locale: 'en',

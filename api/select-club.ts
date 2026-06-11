@@ -1,18 +1,16 @@
-import { MongoClient, ObjectId } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
-import { sanitize, escapeHtml } from './_lib.js';
+import { Collection, Db, MongoClient, ObjectId } from 'mongodb';
+import { database_uri, database_name } from './_utils/_config.js';
+import { sanitize, escapeHtml } from './_utils/_lib.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { DBUser, ReservationItem } from '../src/types.js';
-import sendEmail from './_sendEmail.js';
+import sendEmail from './_utils/_sendEmail.js';
 import { isReservationActive } from '../src/utils/utils.js';
+import { AdminEmailDocument, ClubNameDocument } from './_utils/_types.js';
 
-type ClubDocument = {
-  name?: string;
-}
-
-type AdminUserDocument = {
-  email?: string;
+type SelectClubBody = {
+  club_id?: string;
+  action?: string;
 }
 
 const validationError = (message: string) => ({
@@ -25,7 +23,7 @@ const validationError = (message: string) => ({
 });
 
 async function deleteActiveReservationsForUser(
-  reservationsCollection: ReturnType<MongoClient['db']>['collection'],
+  reservationsCollection: Collection<ReservationItem>,
   userId: string,
   clubId?: string
 ) {
@@ -80,12 +78,12 @@ function buildClubChangeNotificationEmail(
 }
 
 async function notifyClubAdminsOfChange(
-  database: ReturnType<MongoClient['db']>,
+  database: Db,
   clubId: string,
   subject: string,
   html: string
 ) {
-  const admins = await database.collection<AdminUserDocument>('users').find({
+  const admins = await database.collection<AdminEmailDocument>('users').find({
     club_id: clubId,
     role: 'admin',
     status: 'active',
@@ -109,6 +107,10 @@ async function notifyClubAdminsOfChange(
   })));
 }
 
+function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
 if (!database_uri || !database_name) {
   throw new Error('Database configuration is missing');
 }
@@ -120,12 +122,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     await client.connect();
     const database = client.db(database_name);
     const userCollection = database.collection<DBUser>('users');
-    const clubCollection = database.collection<ClubDocument>('clubs');
+    const clubCollection = database.collection<ClubNameDocument>('clubs');
     const reservationsCollection = database.collection<ReservationItem>('reservations');
 
     if (req.method === 'POST') {
-      const body = sanitize(req.body);
-      const { club_id, action } = body;
+      const body = sanitize(req.body) as SelectClubBody;
+      const club_id = isString(body.club_id) ? body.club_id : undefined;
+      const action = isString(body.action) ? body.action : undefined;
       const payload = await getJwtPayload(req);
       if (!payload) {
         return res.status(401).json({error: 'Authentication required'});
@@ -245,7 +248,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
   } catch (e) {
     console.error(e);
-    res.status(500).json({error: e.message});
+    res.status(500).json({error: e instanceof Error ? e.message : String(e)});
   } finally {
     await client.close();
   }

@@ -1,10 +1,10 @@
 import { ObjectId, Collection } from 'mongodb';
 import { sanitize } from './_lib.js';
-import { getJwtPayload } from './verifyAuth.js';
+import { getJwtPayload } from '../verifyAuth.js';
 import {
   getAllReservations,
   isReservationActive
-} from '../src/utils/utils.js';
+} from '../../src/utils/utils.js';
 import {
   getReservationError,
   validateReservationBody,
@@ -13,13 +13,13 @@ import {
   validateReservationWithinClubHours,
   validateReservationOverlap
 } from './_reservationValidation.js';
-import { DBUser, ReservationItem } from '../src/types.js';
+import { DBUser, ReservationItem } from '../../src/types.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
 type ReservationClub = {
   start_hour: number;
   end_hour: number;
-  reservations_limit: number;
+  reservations_limit: number | null;
 }
 
 const getUserReservations = async (
@@ -94,7 +94,7 @@ export const setReservation = async (
 
       // throw error if user has already reached maximum allowed number of reservations
       const limit = userClub.reservations_limit;
-      if (userReservations.length >= limit) {
+      if (limit != null && userReservations.length >= limit) {
         throw new Error(getReservationError('reached_limit', {limit}));
       }
 

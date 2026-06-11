@@ -1,14 +1,11 @@
 import { Collection, MongoClient, ObjectId, WithId } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
-import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
+import { database_uri, database_name } from './_utils/_config.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { Club, DBUser } from '../src/types.js';
-
-type ClubDocument = Omit<Club, '_id'> & {
-  timestamp?: Date;
-}
+import { DBUser } from '../src/types.js';
+import { ClubDocument } from './_utils/_types.js';
 
 type CourtsFormBody = {
   _id: string;
@@ -45,7 +42,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const valid = validator(body);
 
       if (!valid) {
-          const errors = validator.errors;
+          const errors = validator.errors ?? [];
           errors.map(error => {
               // for custom error messages
               const customErrorMessage = getCustomErrorMessage(error);

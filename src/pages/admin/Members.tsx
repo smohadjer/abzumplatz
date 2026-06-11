@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './../../store';
-import { fetchUsers } from '../../utils/utils';
+import { fetchClub, fetchUsers } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
 import { Link, useSearchParams } from 'react-router';
+import { getMembersLimitForPlan } from '../../planConfig';
 
 export default function AdminMembersPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -15,12 +16,19 @@ export default function AdminMembersPage() {
     const [inactiveAction, setInactiveAction] = useState<'activate' | 'remove'>('activate');
     const usersData = useSelector((state: RootState) => state.users);
     const user = useSelector((state: RootState) => state.auth);
+    const clubs = useSelector((state: RootState) => state.clubs.value);
+    const clubData = useSelector((state: RootState) => state.club);
     const dispatch = useDispatch();
     const users = usersData.value;
     const isActiveUser = (member: typeof users[number]) => member.status !== 'inactive';
     const activeUsersCount = users.filter(isActiveUser).length;
     const inactiveUsersCount = users.length - activeUsersCount;
     const visibleUsers = users.filter(member => activeTab === 'active' ? isActiveUser(member) : !isActiveUser(member));
+    const currentClubFromList = clubs.find(club => club._id === user.club_id);
+    const club = currentClubFromList ?? (clubData.value._id === user.club_id ? clubData.value : null);
+    const membersLimit = getMembersLimitForPlan(club?.plan_type);
+    const hasFuturePaidUntil = club?.paid_until ? new Date(`${club.paid_until}T23:59:59.999`) > new Date() : false;
+    const hasMemberCap = membersLimit != null && !hasFuturePaidUntil;
 
     const setTab = (tab: 'active' | 'inactive') => {
         setActiveTab(tab);
@@ -36,7 +44,13 @@ export default function AdminMembersPage() {
                 setLoading(false);
             })();
         }
-    }, []);
+    }, [dispatch, user.club_id, usersData.loaded]);
+
+    useEffect(() => {
+        if (!currentClubFromList && (!clubData.loaded || clubData.value._id !== user.club_id)) {
+            fetchClub(user.club_id, dispatch);
+        }
+    }, [clubData.loaded, clubData.value._id, currentClubFromList, dispatch, user.club_id]);
 
     const updateUsersInStore = (updatedUsers: Array<{ _id: string; status: string }>, removedUserIds: string[] = []) => {
         const updatedUserMap = new Map(updatedUsers.map(updatedUser => [updatedUser._id, updatedUser.status]));
@@ -79,7 +93,9 @@ export default function AdminMembersPage() {
     const submitLabel = selectedUserIds.length > 0
         ? `${submitLabelBase} (${selectedUserIds.length})`
         : submitLabelBase;
-    const handleSubmit = async () => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
         if (!selectedUserIds.length) {
             return;
         }
@@ -144,62 +160,66 @@ export default function AdminMembersPage() {
                         Inaktive Mitglieder ({inactiveUsersCount})
                     </button>
                 </div>
-                {selectableUsers.length > 0 ? (
-                    <>
-                        {activeTab === 'inactive' ? (
-                            <div className="members-selection-bar">
-                                <button
-                                    type="button"
-                                    className="members-select-all-button"
-                                    disabled={pending}
-                                    onClick={() => setSelectedUserIds(allVisibleSelected ? [] : selectableUsers.map(member => member._id))}
-                                >
-                                    {allVisibleSelected ? 'Auswahl aufheben' : 'Alle auswählen'}
-                                </button>
-                                <div className="members-action-toggle" role="radiogroup" aria-label="Aktion für inaktive Mitglieder">
-                                    <label className="members-action-option" htmlFor="members-action-activate">
-                                        <input
-                                            id="members-action-activate"
-                                            type="radio"
-                                            name="members-inactive-action"
-                                            value="activate"
-                                            checked={inactiveAction === 'activate'}
-                                            disabled={pending}
-                                            onChange={() => setInactiveAction('activate')}
-                                        />
-                                        <span>Aktivieren</span>
-                                    </label>
-                                    <label className="members-action-option" htmlFor="members-action-remove">
-                                        <input
-                                            id="members-action-remove"
-                                            type="radio"
-                                            name="members-inactive-action"
-                                            value="remove"
-                                            checked={inactiveAction === 'remove'}
-                                            disabled={pending}
-                                            onChange={() => setInactiveAction('remove')}
-                                        />
-                                        <span>Entfernen</span>
-                                    </label>
+                {hasMemberCap ? (
+                    <p>
+                        Im Free Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. Wechseln Sie zum{' '}
+                        <Link to="/admin/club">Bezahlplan</Link>, um diese Einschränkung aufzuheben.
+                    </p>
+                ) : null}
+                <form className="members-form" onSubmit={handleSubmit}>
+                    {selectableUsers.length > 0 ? (
+                        <>
+                            {activeTab === 'inactive' ? (
+                                <div className="members-selection-bar">
+                                    <button
+                                        type="button"
+                                        className="members-select-all-button"
+                                        disabled={pending}
+                                        onClick={() => setSelectedUserIds(allVisibleSelected ? [] : selectableUsers.map(member => member._id))}
+                                    >
+                                        {allVisibleSelected ? 'Auswahl aufheben' : 'Alle auswählen'}
+                                    </button>
+                                    <div className="members-action-toggle" role="radiogroup" aria-label="Aktion für inaktive Mitglieder">
+                                        <label className="members-action-option" htmlFor="members-action-activate">
+                                            <input
+                                                id="members-action-activate"
+                                                type="radio"
+                                                name="members-inactive-action"
+                                                value="activate"
+                                                checked={inactiveAction === 'activate'}
+                                                disabled={pending}
+                                                onChange={() => setInactiveAction('activate')}
+                                            />
+                                            <span>Aktivieren</span>
+                                        </label>
+                                        <label className="members-action-option" htmlFor="members-action-remove">
+                                            <input
+                                                id="members-action-remove"
+                                                type="radio"
+                                                name="members-inactive-action"
+                                                value="remove"
+                                                checked={inactiveAction === 'remove'}
+                                                disabled={pending}
+                                                onChange={() => setInactiveAction('remove')}
+                                            />
+                                            <span>Entfernen</span>
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
-                        ) : null}
-                        <div className="members-batch-actions">
-                            <div className="members-submit-group">
+                            ) : null}
+                            <div className="members-batch-actions">
                                 <button
-                                    type="button"
+                                    type="submit"
                                     className="members-submit-button"
                                     disabled={pending || !selectedUserIds.length}
-                                    onClick={handleSubmit}
                                 >
                                     {submitLabel}
                                 </button>
                                 {pending ? <Loader size="small" /> : null}
                             </div>
-                        </div>
-                    </>
-                ) : null}
-                <ul className="users-list">
+                        </>
+                    ) : null}
+                    <ul className="users-list">
 	                {visibleUsers.map(user => {
 	                        const classNames = [
 	                            user.role === 'admin' ? 'user-list-item--admin' : '',
@@ -239,7 +259,8 @@ export default function AdminMembersPage() {
                             )}
 	                        </li>;
                     })}
-                </ul>
+                    </ul>
+                </form>
             </>
         )
     )

@@ -1,11 +1,11 @@
-import { sanitize, ajv, getCustomErrorMessage } from './_lib.js';
+import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
 import { MongoClient } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
+import { database_uri, database_name } from './_utils/_config.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getErrorMessage } from './_errors.js';
+import { getErrorMessage } from './_utils/_errors.js';
 
 type ResetPasswordBody = {
     resetToken: string;

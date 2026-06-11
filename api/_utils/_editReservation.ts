@@ -1,12 +1,12 @@
 import { ObjectId, Collection } from 'mongodb';
 import { sanitize } from './_lib.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { DBUser, ReservationItem } from '../src/types.js';
-import { getJwtPayload } from './verifyAuth.js';
+import { DBUser, ReservationItem } from '../../src/types.js';
+import { getJwtPayload } from '../verifyAuth.js';
 import {
   getAllReservations,
   isInPast
-} from '../src/utils/utils.js';
+} from '../../src/utils/utils.js';
 import {
   validateReservationBody,
   validateNonAdminReservationRules,

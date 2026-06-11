@@ -13,6 +13,73 @@
                 }
             ]
         },
+        "address_line1": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 5,
+                    "errorMessage": "Die Adresse ist zu kurz."
+                },
+                {
+                    "maxLength": 120,
+                    "errorMessage": "Die Adresse ist zu lang."
+                }
+            ]
+        },
+        "postal_code": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 3,
+                    "errorMessage": "Die PLZ ist zu kurz."
+                },
+                {
+                    "maxLength": 20,
+                    "errorMessage": "Die PLZ ist zu lang."
+                }
+            ]
+        },
+        "city": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 2,
+                    "errorMessage": "Der Ort ist zu kurz."
+                },
+                {
+                    "maxLength": 80,
+                    "errorMessage": "Der Ort ist zu lang."
+                }
+            ]
+        },
+        "country": {
+            "type": "string",
+            "allOf": [
+                {
+                    "minLength": 2,
+                    "errorMessage": "Das Land ist zu kurz."
+                },
+                {
+                    "maxLength": 80,
+                    "errorMessage": "Das Land ist zu lang."
+                }
+            ]
+        },
+        "auto_renew": {
+            "type": "boolean"
+        },
+        "paid_until": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "errorMessage": "Bitte geben Sie ein gültiges Datum im Format JJJJ-MM-TT an."
+        },
+        "plan_type": {
+            "type": "string",
+            "enum": ["free", "paid"],
+            "errorMessage": {
+                "enum": "Bitte wählen Sie einen gültigen Plan aus."
+            }
+        },
         "courts_count": {
             "type": "integer",
             "allOf": [
@@ -60,6 +127,6 @@
             "type": "integer"
         }
     },
-    "required": ["name", "courts_count", "timezone"],
+    "required": ["name", "address_line1", "postal_code", "city", "country", "plan_type", "courts_count", "start_hour", "end_hour", "timezone"],
     "additionalProperties": false
 }

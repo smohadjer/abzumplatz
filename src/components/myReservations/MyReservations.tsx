@@ -9,11 +9,13 @@ export function MyReservations(props: {
 }) {
     const { reservations } = props;
     const club = getClub();
+    const reservationsLimit = club?.reservations_limit;
 
     return (
         <div className="my-reservations">
             <h1>Meine Reservierungen {club &&
-                <span>({reservations.length} von {club.reservations_limit.toString()})</span>}
+                reservationsLimit != null &&
+                <span>({reservations.length} von {String(reservationsLimit)})</span>}
             </h1>
             {reservations.length ?
                 <ul>

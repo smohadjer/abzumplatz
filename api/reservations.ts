@@ -1,19 +1,19 @@
 import { MongoClient, ObjectId } from 'mongodb';
-import { database_uri, database_name } from './_config.js';
+import { database_uri, database_name } from './_utils/_config.js';
 import { getAllReservations } from '../src/utils/utils.js';
 import { DBUser, ReservationItem } from '../src/types.js';
-import { deleteReservation } from './_deleteReservation.js';
-import { setReservation } from './_setReservation.js';
-import { editReservation } from './_editReservation.js';
-import { ReservationValidationError } from './_reservationValidation.js';
+import { deleteReservation } from './_utils/_deleteReservation.js';
+import { setReservation } from './_utils/_setReservation.js';
+import { editReservation } from './_utils/_editReservation.js';
+import { ReservationValidationError } from './_utils/_reservationValidation.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getErrorMessage } from './_errors.js';
+import { getErrorMessage } from './_utils/_errors.js';
 
 type ReservationClub = {
   start_hour: number;
   end_hour: number;
-  reservations_limit: number;
+  reservations_limit: number | null;
 }
 
 type ReservationRouteBody = {

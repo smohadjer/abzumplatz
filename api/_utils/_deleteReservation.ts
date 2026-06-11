@@ -1,8 +1,8 @@
 import { ObjectId, Collection } from 'mongodb';
-import { DBUser, JwtPayload, ReservationItem } from '../src/types.js';
-import { isInPast } from '../src/utils/utils.js';
-import { getJwtPayload } from './verifyAuth.js';
-import { getAllReservations } from '../src/utils/utils.js';
+import { DBUser, JwtPayload, ReservationItem } from '../../src/types.js';
+import { isInPast } from '../../src/utils/utils.js';
+import { getJwtPayload } from '../verifyAuth.js';
+import { getAllReservations } from '../../src/utils/utils.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
 const getWeeklyOccurrenceDatesBefore = (startDate: string, endDate: string) => {

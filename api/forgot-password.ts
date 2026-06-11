@@ -1,7 +1,7 @@
-import sendEmail from './_sendEmail.js';
+import sendEmail from './_utils/_sendEmail.js';
 import { MongoClient } from 'mongodb';
 import crypto from 'crypto';
-import { database_uri, database_name } from './_config.js';
+import { database_uri, database_name } from './_utils/_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
 if (!database_uri || !database_name) {

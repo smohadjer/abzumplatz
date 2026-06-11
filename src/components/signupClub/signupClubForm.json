@@ -20,6 +20,72 @@
             "value": ""
         },
         {
+            "name": "address_line1",
+            "label": "Straße und Hausnummer",
+            "type": "text",
+            "required": true,
+            "value": ""
+        },
+        {
+            "name": "postal_code",
+            "label": "PLZ",
+            "type": "text",
+            "required": true,
+            "value": ""
+        },
+        {
+            "name": "city",
+            "label": "Ort",
+            "type": "text",
+            "required": true,
+            "value": ""
+        },
+        {
+            "name": "country",
+            "label": "Land",
+            "type": "text",
+            "required": true,
+            "value": "Deutschland"
+        },
+        {
+            "name": "plan_type",
+            "label": "Plan",
+            "type": "radio",
+            "required": true,
+            "value": "free",
+            "hint": "Nur 100 aktive Mitglieder zulässig",
+            "hintByValue": {
+                "free": "Nur 100 aktive Mitglieder zulässig",
+                "paid": "Keine Einschränkungen. Eine Rechnung wird erstellt und per E-Mail an den Admin des Vereins gesendet. Bei einem späteren Wechsel zum Free Plan vor Ablauf des Jahresabos erfolgt keine Rückerstattung."
+            },
+            "options": [
+                {
+                    "label": "Free",
+                    "value": "free"
+                },
+                {
+                    "label": "Bezahlplan (100€ jährlich)",
+                    "value": "paid"
+                }
+            ]
+        },
+        {
+            "name": "auto_renew",
+            "label": "Automatische Verlängerung",
+            "type": "radio",
+            "value": "true",
+            "options": [
+                {
+                    "label": "Nein",
+                    "value": "false"
+                },
+                {
+                    "label": "Ja",
+                    "value": "true"
+                }
+            ]
+        },
+        {
             "name": "courts_count",
             "label": "Anzahl der Plätze",
             "type": "select",
@@ -461,9 +527,14 @@
         },
         {
             "name": "reservations_limit",
-            "label": "Maximale Anzahl aktiver Buchungen pro Spieler",
+            "label": "Maximale Anzahl offener Reservierungen pro Spieler",
             "type": "select",
+            "hint": "Legt fest, wie viele offene Reservierungen ein Spieler haben darf.",
             "options": [
+                {
+                    "label": "Keine Begrenzung",
+                    "value": ""
+                },
                 {
                     "label": "1",
                     "value": 1
@@ -505,8 +576,7 @@
                     "value": 10
                 }
             ],
-            "required": true,
-            "value": 3
+            "value": ""
         }
     ]
 }
