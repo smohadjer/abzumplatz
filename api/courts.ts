@@ -42,7 +42,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const valid = validator(body);
 
       if (!valid) {
-          const errors = validator.errors;
+          const errors = validator.errors ?? [];
           errors.map(error => {
               // for custom error messages
               const customErrorMessage = getCustomErrorMessage(error);

@@ -5,19 +5,29 @@ type FetchedUser = {
     last_name: string;
     email: string;
     status: string;
-    role: string;
+    role?: string | null;
     club_id?: string;
 }
 
-const normalizeUserRole = <T extends { role?: string | null }>(user: T) => ({
-    ...user,
-    role: user.role || 'player',
-});
+type NormalizedFetchedUser = Omit<FetchedUser, 'role'> & {
+    role: string;
+}
 
-export async function fetchUsers(database: Db, userId: string, clubId?: undefined): Promise<WithId<FetchedUser> | null>;
-export async function fetchUsers(database: Db, userId: undefined, clubId: string): Promise<WithId<FetchedUser>[]>;
-export async function fetchUsers(database: Db, userId?: string, clubId?: string) {
-    const collection = database.collection('users');
+function normalizeUserRole(user: WithId<FetchedUser>): WithId<NormalizedFetchedUser> {
+    return {
+        ...user,
+        role: user.role || 'player',
+    };
+}
+
+export async function fetchUsers(database: Db, userId: string, clubId?: undefined): Promise<WithId<NormalizedFetchedUser> | null>;
+export async function fetchUsers(database: Db, userId: undefined, clubId: string): Promise<WithId<NormalizedFetchedUser>[]>;
+export async function fetchUsers(
+    database: Db,
+    userId?: string,
+    clubId?: string
+): Promise<WithId<NormalizedFetchedUser> | null | WithId<NormalizedFetchedUser>[]> {
+    const collection = database.collection<FetchedUser>('users');
 
     if (userId) {
       const projection = {
