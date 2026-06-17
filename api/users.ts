@@ -7,8 +7,8 @@ import sendEmail from './_utils/_sendEmail.js';
 import { escapeHtml } from './_utils/_lib.js';
 import { ReservationItem } from '../src/types.js';
 import { getMembersLimitForPlan } from '../src/planConfig.js';
-import { isReservationActive } from '../src/utils/utils.js';
 import { ClubNameDocument } from './_utils/_types.js';
+import { isReservationActive } from '../src/utils/reservations.js';
 
 function getStatusLabel(status: string) {
   return status === 'active' ? 'aktiv' : 'inaktiv';
@@ -41,7 +41,6 @@ function getRequestedUserIds(body: VercelRequest['body']): string[] {
 
   return requestedUserIds;
 }
-
 async function deleteActiveReservationsForUser(
   database: ReturnType<MongoClient['db']>,
   userId: string,

@@ -5,8 +5,8 @@ import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { DBUser, ReservationItem } from '../src/types.js';
 import sendEmail from './_utils/_sendEmail.js';
-import { isReservationActive } from '../src/utils/utils.js';
 import { AdminEmailDocument, ClubNameDocument } from './_utils/_types.js';
+import { isReservationActive } from '../src/utils/reservations.js';
 
 type SelectClubBody = {
   club_id?: string;
