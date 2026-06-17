@@ -4,6 +4,7 @@ import { Form } from '../components/form/Form';
 import signupFormJson from '../components/signup/signupForm.json';
 import signupClubFormJson from '../components/signupClub/signupClubForm.json';
 import { Field } from '../types';
+import { applyPlanConfigToFields } from '../planConfig';
 
 export default function RegisterClub() {
     const navigate = useNavigate();
@@ -22,11 +23,7 @@ export default function RegisterClub() {
         ...clubFields,
         ...(privacyField ? [privacyField] : [])
     ]));
-    fields.forEach(field => {
-        if (field.name === 'auto_renew') {
-            field.hidden = true;
-        }
-    });
+    const configuredFields = applyPlanConfigToFields(fields, 'free');
     const formAttributes = {
         ...signupFormJson.form,
         action: '/api/signup-club'
@@ -39,7 +36,7 @@ export default function RegisterClub() {
             <p>Mit der Registrierung eines Vereins werden Sie automatisch Administrator dieses Vereins und erhalten die Rechte, Spieler und alle Einstellungen Ihres Vereins zu verwalten.</p>
             <Form
                 classNames="signup"
-                initialData={fields}
+                initialData={configuredFields}
                 formAttributes={formAttributes}
                 label="Verein Registrieren"
                 pathSchema="/schema/signup-club.json"

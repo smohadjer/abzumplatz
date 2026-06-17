@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Club } from '../types';
+import { ClubWithBilling } from '../types';
 
 type ClubsState = {
-  value: Club[];
+  value: ClubWithBilling[];
 }
 
 export const clubsSlice = createSlice({

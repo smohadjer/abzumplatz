@@ -7,6 +7,7 @@ import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { ClubDocument, SignupClubBody } from './_utils/_types.js';
+import { createInitialBillingPeriod, BillingPeriodDocument } from './_utils/_billingPeriods.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -14,12 +15,6 @@ if (!database_uri || !database_name) {
 
 const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup-club.json', 'utf8'));
-
-const getPaidUntilOneYearFromNow = () => {
-    const paidUntil = new Date();
-    paidUntil.setFullYear(paidUntil.getFullYear() + 1);
-    return paidUntil.toISOString().slice(0, 10);
-};
 
 const sendNewClubNotification = async (body: SignupClubBody, clubId: string) => {
     await sendEmail({
@@ -38,7 +33,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             const errors = validator.errors;
             if (errors) {
                 errors.map(error => {
-                    // for custom error messages
                     const customErrorMessage = getCustomErrorMessage(error);
                     if (customErrorMessage) {
                         error.message = customErrorMessage;
@@ -55,6 +49,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             await client.connect();
             const database = client.db(database_name);
             const clubs = database.collection<ClubDocument>('clubs');
+            const billingPeriods = database.collection<BillingPeriodDocument>('billing_periods');
             const existingClub = await clubs.findOne({ name: body.name },{
                 collation: { locale: "en", strength: 2 }
             });
@@ -95,8 +90,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 postal_code: body.postal_code,
                 city: body.city,
                 country: body.country,
-                auto_renew: body.plan_type === 'paid',
-                paid_until: body.plan_type === 'paid' ? getPaidUntilOneYearFromNow() : undefined,
                 plan_type: body.plan_type,
                 start_hour: Number(body.start_hour),
                 end_hour: Number(body.end_hour),
@@ -107,6 +100,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             };
             const clubResponse = await clubs.insertOne(club);
             const club_id = clubResponse.insertedId.toString();
+
+            if (body.plan_type === 'paid') {
+                await createInitialBillingPeriod(billingPeriods, club_id, 'signup');
+            }
 
             await database.collection<DBUser>('users').updateOne(
                 {_id: new ObjectId(userResponse.insertedId)},

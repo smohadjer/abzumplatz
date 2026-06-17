@@ -3,10 +3,12 @@ import { database_uri, database_name } from './_utils/_config.js';
 import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
-import { DBUser, JwtPayload } from '../src/types.js';
+import { Club, DBUser, JwtPayload } from '../src/types.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { ClubDocument, ClubFormBody, CourtsFormBody } from './_utils/_types.js';
 import { updateCourts } from './_utils/_updateCourts.js';
+import { createInitialBillingPeriod, BillingPeriodDocument, resolveCurrentBillingPeriod } from './_utils/_billingPeriods.js';
+import { getPaidUntilFromPeriodEnd } from '../src/planConfig.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -20,19 +22,26 @@ const fetchClub = async (id: string, collection: Collection<ClubDocument>) => {
   return doc;
 };
 
-const getPaidUntilOneYearFromNow = () => {
-  const paidUntil = new Date();
-  paidUntil.setFullYear(paidUntil.getFullYear() + 1);
-  return paidUntil.toISOString().slice(0, 10);
-};
-
-const hasFuturePaidUntil = (paidUntil?: string) => {
-  if (!paidUntil) {
-    return false;
+const enrichClubWithBilling = async (
+  collection: Collection<ClubDocument>,
+  billingPeriodsCollection: Collection<BillingPeriodDocument>,
+  doc: ClubDocument | null
+) : Promise<Club | null> => {
+  if (!doc) {
+    return null;
   }
 
-  const endOfPaidDay = new Date(`${paidUntil}T23:59:59.999`);
-  return endOfPaidDay > new Date();
+  const currentBillingPeriod = await resolveCurrentBillingPeriod(
+    billingPeriodsCollection,
+    doc._id.toString(),
+    doc.plan_type
+  );
+
+  return {
+    ...doc,
+    _id: doc._id.toString(),
+    paid_until: getPaidUntilFromPeriodEnd(currentBillingPeriod?.period_end)
+  };
 };
 
 export default async (req: VercelRequest, res: VercelResponse) => {
@@ -40,6 +49,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     await client.connect();
     const database = client.db(database_name);
     const collection = database.collection<ClubDocument>('clubs');
+    const billingPeriodsCollection = database.collection<BillingPeriodDocument>('billing_periods');
     const userCollection = database.collection<DBUser>('users');
 
     if (req.method === 'GET') {
@@ -49,14 +59,14 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           return res.status(400).json({error: 'Club id is invalid'});
         }
 
-        const doc = await fetchClub(id, collection);
+        const doc = await enrichClubWithBilling(collection, billingPeriodsCollection, await fetchClub(id, collection));
         if (doc) {
           return res.json(doc);
         } else {
           return res.status(404).end();
         }
       } else {
-        const docs = await getAllClubs(collection);
+        const docs = await getAllClubs(collection, billingPeriodsCollection);
         return res.json(docs);
       }
     }
@@ -143,6 +153,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
 async function addClub(
   collection: Collection<ClubDocument>,
+  billingPeriodsCollection: Collection<BillingPeriodDocument>,
   res: VercelResponse,
   body: ClubFormBody,
   userCollection: Collection<DBUser>,
@@ -157,8 +168,6 @@ async function addClub(
   const end_hour = Number(body.end_hour);
   const timezone = body.timezone;
   const reservations_limit = body.reservations_limit !== undefined ? Number(body.reservations_limit) : null;
-  const auto_renew = body.auto_renew === true || body.auto_renew === 'true';
-  const paid_until = body.plan_type === 'paid' ? getPaidUntilOneYearFromNow() : undefined;
 
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: timezone });
@@ -169,7 +178,6 @@ async function addClub(
     throw error;
   }
 
-  // throw error if club with same name already exists
   const doc = await collection.findOne({ name: body.name },{
     collation: { locale: "en", strength: 2 }
   });
@@ -180,7 +188,6 @@ async function addClub(
     throw error;
   }
 
-  // add courts array to db
   const courts = [];
   for (let i=0; i < Number(body.courts_count); i++) {
     courts.push({
@@ -188,15 +195,12 @@ async function addClub(
     });
   }
 
-  // insert club
   const club = {
     name: body.name,
     address_line1: body.address_line1,
     postal_code: body.postal_code,
     city: body.city,
     country: body.country,
-    auto_renew,
-    paid_until,
     plan_type: body.plan_type,
     start_hour,
     end_hour,
@@ -208,16 +212,19 @@ async function addClub(
   const insertResponse = await collection.insertOne(club);
   const club_id = insertResponse.insertedId.toString();
 
-  // add club_id to user who posted the club
+  if (body.plan_type === 'paid') {
+    await createInitialBillingPeriod(billingPeriodsCollection, club_id, 'signup');
+  }
+
   if (club_id) {
     const query = {_id: ObjectId.createFromHexString(payload._id)};
-    const updateResonse = await userCollection.updateOne(
+    await userCollection.updateOne(
         query,
         {'$set' : {'club_id' : club_id}}
     );
   }
 
-  const docs = await getAllClubs(collection);
+  const docs = await getAllClubs(collection, billingPeriodsCollection);
   res.status(201).json({
     message: `Verein ${club.name} ist registeriert mit id ${club_id}`,
     data: {
@@ -227,9 +234,9 @@ async function addClub(
   });
 }
 
-
 async function updateClub(
   collection: Collection<ClubDocument>,
+  billingPeriodsCollection: Collection<BillingPeriodDocument>,
   res: VercelResponse,
   body: ClubFormBody,
   requester: WithId<DBUser>
@@ -253,20 +260,15 @@ async function updateClub(
     throw error;
   }
 
-  // updating courts array in db if user has changed courts_count
   const doc = await fetchClub(body._id, collection);
   if (!doc) {
     return res.status(404).json({error: 'Club not found'});
   }
-  const preserveExistingPaidCoverage = hasFuturePaidUntil(doc.paid_until);
-  const auto_renew = body.plan_type === 'paid'
-    ? body.auto_renew === true || body.auto_renew === 'true'
-    : doc.auto_renew;
-  const paid_until = body.plan_type === 'paid'
-    ? preserveExistingPaidCoverage
-      ? doc.paid_until
-      : getPaidUntilOneYearFromNow()
-    : doc.paid_until;
+  const currentBillingPeriod = await resolveCurrentBillingPeriod(
+    billingPeriodsCollection,
+    body._id,
+    doc.plan_type
+  );
 
   const courts = doc.courts;
   if (courts_count < courts.length) {
@@ -289,8 +291,6 @@ async function updateClub(
         postal_code: body.postal_code,
         city: body.city,
         country: body.country,
-        auto_renew,
-        paid_until,
         plan_type: body.plan_type,
         start_hour,
         end_hour,
@@ -299,15 +299,21 @@ async function updateClub(
         courts,
       },
       '$unset': {
-        members_limit: ''
+        members_limit: '',
+        auto_renew: '',
+        paid_until: ''
       }}
   );
+
+  if (body.plan_type === 'paid' && !currentBillingPeriod) {
+    await createInitialBillingPeriod(billingPeriodsCollection, body._id, 'manual');
+  }
 
   if (!updateResonse) {
     throw new Error(`Club ${body.name} couldn't be updated`);
   }
 
-  const docs = await getAllClubs(collection);
+  const docs = await getAllClubs(collection, billingPeriodsCollection);
   res.status(201).json({
     message: `Verein ${body.name} ist updated`,
     data: {
@@ -317,14 +323,16 @@ async function updateClub(
   });
 }
 
-async function getAllClubs(collection: Collection<ClubDocument>) {
+async function getAllClubs(
+  collection: Collection<ClubDocument>,
+  billingPeriodsCollection: Collection<BillingPeriodDocument>
+) {
     const docs = await collection.find({})
-    // using collation so sort is case insensitive
     .collation({
         locale: 'en',
-        strength: 2 /* case insensitive search */
+        strength: 2
     })
     .sort({ name: 1 })
     .toArray();
-    return docs;
+    return await Promise.all(docs.map(doc => enrichClubWithBilling(collection, billingPeriodsCollection, doc)));
 };

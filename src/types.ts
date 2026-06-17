@@ -55,14 +55,16 @@ export type Club = {
     postal_code?: string;
     city?: string;
     country?: string;
-    auto_renew?: boolean;
-    paid_until?: string;
     courts: Court[];
     reservations_limit?: number | null;
     start_hour: number;
     end_hour: number;
     timezone: string;
     plan_type?: 'free' | 'paid';
+}
+
+export type ClubWithBilling = Club & {
+    paid_until?: string;
 }
 
 export type ReservationItem = {

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { fetchClub, fetchUsers } from "../../utils/utils";
 import { Loader } from "../../components/loader/Loader";
-import { getMembersLimitForPlan } from "../../planConfig";
+import { getFreePlanName, getMembersLimitForPlan, getPaidPlanName, hasFuturePaidUntil } from "../../planConfig";
 
 export default function AdminHomePage() {
     const [loadingClub, setLoadingClub] = useState(false);
@@ -17,7 +17,8 @@ export default function AdminHomePage() {
     const activeMembersCount = usersData.loaded
         ? usersData.value.filter(member => member.status !== 'inactive').length
         : null;
-    const membersLimit = getMembersLimitForPlan(club.plan_type);
+    const hasPaidEntitlement = hasFuturePaidUntil(club.paid_until);
+    const membersLimit = hasPaidEntitlement ? null : getMembersLimitForPlan(club.plan_type);
     const remainingMembersCount = membersLimit != null && activeMembersCount != null
         ? Math.max(membersLimit - activeMembersCount, 0)
         : null;
@@ -25,19 +26,16 @@ export default function AdminHomePage() {
     const address = [club.address_line1, club.postal_code, club.city, club.country]
         .filter(Boolean)
         .join(', ');
-    const autoRenewLabel = club.auto_renew ? 'Ja' : 'Nein';
     const paidUntilLabel = club.paid_until
         ? new Date(club.paid_until).toLocaleDateString('de-DE')
         : '-';
-    const hasFuturePaidUntil = club.paid_until
-        ? new Date(`${club.paid_until}T23:59:59.999`) > new Date()
-        : false;
-    const paidUntilSuffix = hasFuturePaidUntil ? ` (ist bezahlt bis ${paidUntilLabel})` : '';
-    const planLabel = club.plan_type === 'paid'
-        ? `Bezahlplan${paidUntilSuffix}`
-        : hasFuturePaidUntil
-            ? `Free${paidUntilSuffix}`
-            : 'Free';
+    const planLabel = hasPaidEntitlement
+        ? club.plan_type === 'free'
+            ? `${getPaidPlanName()} (endet am ${paidUntilLabel}, danach ${getFreePlanName()})`
+            : `${getPaidPlanName()} (bezahlt bis ${paidUntilLabel})`
+        : club.plan_type === 'paid'
+            ? getPaidPlanName()
+            : getFreePlanName();
     const registeredAtLabel = club.timestamp
         ? new Date(club.timestamp).toLocaleDateString('de-DE')
         : '-';
@@ -112,8 +110,8 @@ export default function AdminHomePage() {
                             <td>{planLabel}</td>
                         </tr>
                         <tr>
-                            <th>Automatische Abo-Verlängerung</th>
-                            <td>{club.auto_renew === undefined ? '-' : autoRenewLabel}</td>
+                            <th>Bezahlt bis</th>
+                            <td>{paidUntilLabel}</td>
                         </tr>
                         <tr>
                             <th>Plätze</th>

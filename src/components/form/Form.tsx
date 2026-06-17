@@ -33,22 +33,13 @@ export function Form(props: Props) {
         const planType = fields.find(field => field.name === 'plan_type')?.value;
 
         return fields.map(field => {
-            const updatedField = field.hintByValue && typeof planType === 'string'
+            return field.hintByValue && typeof planType === 'string'
                 ? {
                     ...field,
                     hint: field.hintByValue[planType] ?? field.hint
                 }
                 : field;
-
-            if (updatedField.name !== 'auto_renew') {
-                return updatedField;
-            }
-
-            return {
-                ...updatedField,
-                hidden: planType !== 'paid'
-            };
-        });
+        })
     };
     const [formData, setFormData] = useState<Field[]>(() => applyConditionalVisibility(structuredClone(initialData)));
 

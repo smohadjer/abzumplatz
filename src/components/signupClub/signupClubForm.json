@@ -56,7 +56,7 @@
             "hint": "Nur 100 aktive Mitglieder zulässig",
             "hintByValue": {
                 "free": "Nur 100 aktive Mitglieder zulässig",
-                "paid": "Keine Einschränkungen. Eine Rechnung wird erstellt und per E-Mail an den Admin des Vereins gesendet. Bei einem späteren Wechsel zum Free Plan vor Ablauf des Jahresabos erfolgt keine Rückerstattung."
+                "paid": "Keine Einschränkungen"
             },
             "options": [
                 {
@@ -64,24 +64,8 @@
                     "value": "free"
                 },
                 {
-                    "label": "Bezahlplan (100€ jährlich)",
+                    "label": "Bezahlplan",
                     "value": "paid"
-                }
-            ]
-        },
-        {
-            "name": "auto_renew",
-            "label": "Automatische Verlängerung",
-            "type": "radio",
-            "value": "true",
-            "options": [
-                {
-                    "label": "Nein",
-                    "value": "false"
-                },
-                {
-                    "label": "Ja",
-                    "value": "true"
                 }
             ]
         },

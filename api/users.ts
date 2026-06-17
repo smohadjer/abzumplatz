@@ -8,7 +8,8 @@ import { escapeHtml } from './_utils/_lib.js';
 import { ReservationItem } from '../src/types.js';
 import { getMembersLimitForPlan } from '../src/planConfig.js';
 import { ClubNameDocument } from './_utils/_types.js';
-import { isReservationActive } from '../src/utils/utils.js';
+import { isReservationActive } from '../src/utils/reservations.js';
+import { BillingPeriodDocument, resolveCurrentBillingPeriod } from './_utils/_billingPeriods.js';
 
 function getStatusLabel(status: string) {
   return status === 'active' ? 'aktiv' : 'inaktiv';
@@ -16,15 +17,6 @@ function getStatusLabel(status: string) {
 
 function isActiveMember(status?: string | null) {
   return status !== 'inactive';
-}
-
-function hasFuturePaidUntil(paidUntil?: string) {
-  if (!paidUntil) {
-    return false;
-  }
-
-  const endOfPaidDay = new Date(`${paidUntil}T23:59:59.999`);
-  return endOfPaidDay > new Date();
 }
 
 function isString(value: unknown): value is string {
@@ -130,6 +122,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const database = client.db(database_name);
     const collection = database.collection('users');
     const clubCollection = database.collection<ClubNameDocument>('clubs');
+    const billingPeriodsCollection = database.collection<BillingPeriodDocument>('billing_periods');
 
     if (req.method === 'GET') {
       const payload = await getJwtPayload(req);
@@ -207,6 +200,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const club = requester.club_id ? await clubCollection.findOne({
         _id: ObjectId.createFromHexString(requester.club_id)
       }) : null;
+      const currentBillingPeriod = requester.club_id
+        ? await resolveCurrentBillingPeriod(billingPeriodsCollection, requester.club_id, club?.plan_type)
+        : null;
       const normalizedUserIds: string[] = [...new Set<string>(requestedUserIds)];
       const targetUsers = [];
 
@@ -233,10 +229,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         });
       }
 
-      const hasPaidCoverage = hasFuturePaidUntil(club?.paid_until);
       const membersLimit = getMembersLimitForPlan(club?.plan_type);
+      const hasPaidEntitlement = Boolean(currentBillingPeriod);
 
-      if (action === 'activate' && membersLimit != null && !hasPaidCoverage) {
+      if (action === 'activate' && membersLimit != null && !hasPaidEntitlement) {
         const activeMembersCount = await collection.countDocuments({
           club_id: requester.club_id,
           status: {$ne: 'inactive'}

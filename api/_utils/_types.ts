@@ -7,7 +7,6 @@ export type ClubDocument = Omit<Club, '_id'> & {
 export type ClubNameDocument = {
     name?: string;
     plan_type?: 'free' | 'paid';
-    paid_until?: string;
 }
 
 export type AdminEmailDocument = {
@@ -21,8 +20,6 @@ export type ClubFormBody = {
     postal_code?: string;
     city?: string;
     country?: string;
-    auto_renew?: boolean | string;
-    paid_until?: string;
     plan_type: 'free' | 'paid';
     courts_count: number | string;
     start_hour: number | string;
