@@ -7,7 +7,6 @@ import { DBUser, ReservationItem } from '../src/types.js';
 import sendEmail from './_utils/_sendEmail.js';
 import { AdminEmailDocument, ClubNameDocument } from './_utils/_types.js';
 import { isReservationActive } from '../src/utils/reservations.js';
-import sendEmail from './_utils/_sendEmail.js';
 
 type SelectClubBody = {
   club_id?: string;
