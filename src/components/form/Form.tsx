@@ -130,6 +130,7 @@ export function Form(props: Props) {
 
         const target = event.target as HTMLFormElement;
         const url = target.getAttribute('action')!;
+        const method = target.getAttribute('method') ?? target.method;
 
         // Type definition: values can be string OR string[]
         const data: Record<string, string | number | string[]> = {};
@@ -157,7 +158,7 @@ export function Form(props: Props) {
         // submit form data as json to server
         try {
             const response = await fetch(url, {
-                method: target.method,
+                method,
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'

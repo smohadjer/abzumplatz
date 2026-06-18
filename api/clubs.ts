@@ -5,7 +5,8 @@ import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { DBUser, JwtPayload } from '../src/types.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { ClubDocument, ClubFormBody } from './_utils/_types.js';
+import { ClubDocument, ClubFormBody, CourtsFormBody } from './_utils/_types.js';
+import { updateCourts } from './_utils/_updateCourts.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -104,6 +105,43 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       } else {
         await addClub(collection, res, body, userCollection, payload, requester);
       }
+    }
+
+    // Handle the admin workflow that only toggles active/inactive courts for an existing club.
+    if (req.method === 'PATCH') {
+      const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/courts.json', 'utf8'));
+      const validator = ajv.compile(schema);
+      const body = sanitize(req.body) as CourtsFormBody;
+      const valid = validator(body);
+
+      if (!valid) {
+        const errors = validator.errors ?? [];
+        errors.map(error => {
+          const customErrorMessage = getCustomErrorMessage(error);
+          if (customErrorMessage) {
+            error.message = customErrorMessage;
+          }
+          return error;
+        });
+        return res.json({error: errors});
+      }
+
+      const payload = await getJwtPayload(req);
+      if (!payload) {
+        return res.status(401).json({error: 'Authentication required'});
+      }
+
+      const requester = await userCollection.findOne({
+        _id: ObjectId.createFromHexString(payload._id)
+      });
+      if (!requester) {
+        return res.status(401).json({error: 'Authentication required'});
+      }
+      if (requester.role !== 'admin') {
+        return res.status(403).json({error: 'Only admins can update courts'});
+      }
+
+      return await updateCourts(collection, res, body, requester);
     }
   } catch (e) {
     console.error(e);
