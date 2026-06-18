@@ -25,8 +25,8 @@ export default async (request: VercelRequest, response: VercelResponse) => {
         }
         return response.json(doc);
     } else {
-        const error = 'No jwt token or invalid jwt token, redirecting to login page';
-        response.status(500).json({error})
+        const error = 'No jwt token or invalid jwt token';
+        response.status(401).json({error})
     }
 }
 
@@ -37,11 +37,14 @@ export const getJwtPayload = async (req: VercelRequest) : Promise<JwtPayload | u
     const token = hasBearerAuthHeader ? authHeader.split(' ')[1] : jwt;
     const secret = new TextEncoder().encode(jwtSecret);
 
+    if (typeof token !== 'string' || token.trim().length === 0) {
+        return;
+    }
+
     try {
         const jwtResponse = await jwtVerify<JwtPayload>(token, secret);
         return jwtResponse.payload;
     } catch(error) {
-        console.error(error);
         return;
     }
 }

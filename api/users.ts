@@ -8,7 +8,7 @@ import { escapeHtml } from './_utils/_lib.js';
 import { ReservationItem } from '../src/types.js';
 import { getMembersLimitForPlan } from '../src/planConfig.js';
 import { ClubNameDocument } from './_utils/_types.js';
-import { isReservationActive } from '../src/utils/reservations.js';
+import { isReservationActive } from '../src/utils/utils.js';
 import { BillingPeriodDocument, resolveCurrentBillingPeriod } from './_utils/_billingPeriods.js';
 
 function getStatusLabel(status: string) {

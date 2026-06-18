@@ -130,9 +130,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       if (body._id) {
-        return await updateClub(collection, res, body as ClubFormBody, requester);
+        return await updateClub(collection, billingPeriodsCollection, res, body as ClubFormBody, requester);
       } else {
-        return await addClub(collection, res, body as ClubFormBody, userCollection, payload, requester);
+        return await addClub(collection, billingPeriodsCollection, res, body as ClubFormBody, userCollection, payload, requester);
       }
     }
 
