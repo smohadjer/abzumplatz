@@ -5,7 +5,8 @@ import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { DBUser, JwtPayload } from '../src/types.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { ClubDocument, ClubFormBody } from './_utils/_types.js';
+import { ClubDocument, ClubFormBody, CourtsFormBody } from './_utils/_types.js';
+import { updateCourts } from './_utils/_updateCourts.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -61,28 +62,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     if (req.method === 'POST') {
-      // validate data
-      const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/club.json', 'utf8'));
-      const validator = ajv.compile(schema);
-      const body = sanitize(req.body) as ClubFormBody;
-      const valid = validator(body);
-
-      if (!valid) {
-          const errors = validator.errors;
-          if (errors) {
-            errors.map(error => {
-                // for custom error messages
-                const customErrorMessage = getCustomErrorMessage(error);
-                if (customErrorMessage) {
-                    error.message = customErrorMessage;
-                }
-                return error;
-            });
-            return res.status(500).json({error: errors});
-          } else {
-            return res.status(500).json({error: 'Ungültige Daten.'});   
-          }
-      }
+      const body = sanitize(req.body) as ClubFormBody | CourtsFormBody;
 
       const payload = await getJwtPayload(req);
       if (!payload) {
@@ -99,12 +79,54 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(403).json({error: 'Only admins can edit clubs'});
       }
 
+      if ('update_type' in body && body.update_type === 'courts') {
+        const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/courts.json', 'utf8'));
+        const validator = ajv.compile(schema);
+        const valid = validator(body);
+
+        if (!valid) {
+          const errors = validator.errors ?? [];
+          errors.map(error => {
+            const customErrorMessage = getCustomErrorMessage(error);
+            if (customErrorMessage) {
+              error.message = customErrorMessage;
+            }
+            return error;
+          });
+          return res.json({error: errors});
+        }
+
+        return await updateCourts(collection, res, body, requester);
+      }
+
+      const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/club.json', 'utf8'));
+      const validator = ajv.compile(schema);
+      const valid = validator(body);
+
+      if (!valid) {
+          const errors = validator.errors;
+          if (errors) {
+            errors.map(error => {
+                const customErrorMessage = getCustomErrorMessage(error);
+                if (customErrorMessage) {
+                    error.message = customErrorMessage;
+                }
+                return error;
+            });
+            return res.status(500).json({error: errors});
+          } else {
+            return res.status(500).json({error: 'Ungültige Daten.'});   
+          }
+      }
+
       if (body._id) {
-        await updateClub(collection, res, body, requester);
+        return await updateClub(collection, res, body as ClubFormBody, requester);
       } else {
-        await addClub(collection, res, body, userCollection, payload, requester);
+        return await addClub(collection, res, body as ClubFormBody, userCollection, payload, requester);
       }
     }
+
+    return res.status(405).json({error: 'Method not allowed'});
   } catch (e) {
     console.error(e);
     const errors = [

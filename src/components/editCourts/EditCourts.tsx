@@ -39,6 +39,13 @@ export function EditCourts(props: Props) {
     }, []);
 
     normalizedFields.push({
+        name: 'update_type',
+        value: 'courts',
+        label: 'Update Type',
+        type: 'hidden',
+    });
+
+    normalizedFields.push({
         name: 'courts',
         value: courtsValue,
         label: 'Plätze in der Benutzeroberfläche aktivieren/deaktivieren',

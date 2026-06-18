@@ -8,6 +8,7 @@ export const config = {
   matcher: [
     '/api/reservations',
     '/api/clubs',
+    '/api/users'
   ]
 };
 
@@ -17,7 +18,6 @@ if (typeof EdgeRuntime === 'string') {
 
 export default async function middleware(req) {
   const url = new URL(req.url);
-  // console.log('middleware: ', req.method, url.pathname);
 
   // only POST requests are restricted
   if (req.method === 'GET') {
@@ -40,7 +40,7 @@ export default async function middleware(req) {
         throw new Error('Only admins are allowed to register clubs');
       }
 
-      next();
+      return next();
     } catch(error) {
       return new Response(error, {
         status: 500

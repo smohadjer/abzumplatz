@@ -28,6 +28,7 @@ type Option = {
 export function Form(props: Props) {
     const { label, pathSchema, initialData, formAttributes} = props;
     const [disabled, setDisabled] = useState(false);
+    const submitMethod = formAttributes.method.toUpperCase();
     const applyConditionalVisibility = (fields: Field[]) => {
         const planType = fields.find(field => field.name === 'plan_type')?.value;
 
@@ -130,6 +131,7 @@ export function Form(props: Props) {
 
         const target = event.target as HTMLFormElement;
         const url = target.getAttribute('action')!;
+        const method = submitMethod;
 
         // Type definition: values can be string OR string[]
         const data: Record<string, string | number | string[]> = {};
@@ -157,7 +159,7 @@ export function Form(props: Props) {
         // submit form data as json to server
         try {
             const response = await fetch(url, {
-                method: target.method,
+                method,
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
@@ -322,7 +324,7 @@ export function Form(props: Props) {
     return (formAttributes && formData) ? (
         <form
             className={formClass}
-            method={formAttributes.method}
+            method={submitMethod}
             action={formAttributes.action}
             onSubmit={submitHandler}
             noValidate={formAttributes.disableBrowserValidation}>

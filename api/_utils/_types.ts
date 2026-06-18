@@ -31,6 +31,12 @@ export type ClubFormBody = {
     reservations_limit?: number | string;
 }
 
+export type CourtsFormBody = {
+    _id?: string;
+    update_type?: 'courts';
+    courts: string[];
+}
+
 export type SignupClubBody = {
     first_name: string;
     last_name: string;

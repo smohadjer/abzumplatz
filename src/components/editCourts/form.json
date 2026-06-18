@@ -1,7 +1,7 @@
 {
     "form": {
         "method": "POST",
-        "action": "/api/courts",
+        "action": "/api/clubs",
         "disableBrowserValidation": true,
         "disableClientSideValidation": false
     },
