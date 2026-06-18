@@ -62,28 +62,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     if (req.method === 'POST') {
-      // validate data
-      const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/club.json', 'utf8'));
-      const validator = ajv.compile(schema);
-      const body = sanitize(req.body) as ClubFormBody;
-      const valid = validator(body);
-
-      if (!valid) {
-          const errors = validator.errors;
-          if (errors) {
-            errors.map(error => {
-                // for custom error messages
-                const customErrorMessage = getCustomErrorMessage(error);
-                if (customErrorMessage) {
-                    error.message = customErrorMessage;
-                }
-                return error;
-            });
-            return res.status(500).json({error: errors});
-          } else {
-            return res.status(500).json({error: 'Ungültige Daten.'});   
-          }
-      }
+      const body = sanitize(req.body) as ClubFormBody | CourtsFormBody;
 
       const payload = await getJwtPayload(req);
       if (!payload) {
@@ -100,49 +79,54 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(403).json({error: 'Only admins can edit clubs'});
       }
 
-      if (body._id) {
-        await updateClub(collection, res, body, requester);
-      } else {
-        await addClub(collection, res, body, userCollection, payload, requester);
-      }
-    }
+      if ('update_type' in body && body.update_type === 'courts') {
+        const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/courts.json', 'utf8'));
+        const validator = ajv.compile(schema);
+        const valid = validator(body);
 
-    // Handle the admin workflow that only toggles active/inactive courts for an existing club.
-    if (req.method === 'PATCH') {
-      const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/courts.json', 'utf8'));
+        if (!valid) {
+          const errors = validator.errors ?? [];
+          errors.map(error => {
+            const customErrorMessage = getCustomErrorMessage(error);
+            if (customErrorMessage) {
+              error.message = customErrorMessage;
+            }
+            return error;
+          });
+          return res.json({error: errors});
+        }
+
+        return await updateCourts(collection, res, body, requester);
+      }
+
+      const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/club.json', 'utf8'));
       const validator = ajv.compile(schema);
-      const body = sanitize(req.body) as CourtsFormBody;
       const valid = validator(body);
 
       if (!valid) {
-        const errors = validator.errors ?? [];
-        errors.map(error => {
-          const customErrorMessage = getCustomErrorMessage(error);
-          if (customErrorMessage) {
-            error.message = customErrorMessage;
+          const errors = validator.errors;
+          if (errors) {
+            errors.map(error => {
+                const customErrorMessage = getCustomErrorMessage(error);
+                if (customErrorMessage) {
+                    error.message = customErrorMessage;
+                }
+                return error;
+            });
+            return res.status(500).json({error: errors});
+          } else {
+            return res.status(500).json({error: 'Ungültige Daten.'});   
           }
-          return error;
-        });
-        return res.json({error: errors});
       }
 
-      const payload = await getJwtPayload(req);
-      if (!payload) {
-        return res.status(401).json({error: 'Authentication required'});
+      if (body._id) {
+        return await updateClub(collection, res, body as ClubFormBody, requester);
+      } else {
+        return await addClub(collection, res, body as ClubFormBody, userCollection, payload, requester);
       }
-
-      const requester = await userCollection.findOne({
-        _id: ObjectId.createFromHexString(payload._id)
-      });
-      if (!requester) {
-        return res.status(401).json({error: 'Authentication required'});
-      }
-      if (requester.role !== 'admin') {
-        return res.status(403).json({error: 'Only admins can update courts'});
-      }
-
-      return await updateCourts(collection, res, body, requester);
     }
+
+    return res.status(405).json({error: 'Method not allowed'});
   } catch (e) {
     console.error(e);
     const errors = [

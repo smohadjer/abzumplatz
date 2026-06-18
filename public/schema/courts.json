@@ -4,6 +4,9 @@
         "_id": {
             "type": "string"
         },
+        "update_type": {
+            "type": "string"
+        },
         "courts": {
             "type": "array"
         }

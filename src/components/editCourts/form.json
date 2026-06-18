@@ -1,6 +1,6 @@
 {
     "form": {
-        "method": "PATCH",
+        "method": "POST",
         "action": "/api/clubs",
         "disableBrowserValidation": true,
         "disableClientSideValidation": false

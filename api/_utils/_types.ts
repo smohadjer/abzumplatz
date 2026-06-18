@@ -33,6 +33,7 @@ export type ClubFormBody = {
 
 export type CourtsFormBody = {
     _id?: string;
+    update_type?: 'courts';
     courts: string[];
 }
 
