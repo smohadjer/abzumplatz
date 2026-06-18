@@ -7,7 +7,7 @@ GET http://localhost:3000/api/clubs
 // only admins can register a club and new club's id is added to user in db after club is inserted and api returns id of the club
 POST http://localhost:3000/api/clubs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2OGVmNTE1MTQ5MTQwYjA2OTk0MTdkMTUiLCJmaXJzdF9uYW1lIjoidGVzdGFkbWluIiwibGFzdF9uYW1lIjoiYmxhaCIsImVtYWlsIjoiYWRtaW5AdGVzdC5kZSIsInJvbGUiOiJhZG1pbiIsImV4cCI6MTc2NzYxODExNH0.6_YzF97abzxld0jFkQ4YYIcSRw1csAcT7qe7UYhJoHw
+Authorization: Bearer <token>
 
 {
     "name": "Bike Club",
@@ -15,4 +15,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2OGVmNTE1MTQ5MTQwYjA2OTk0M
     "start_hour": 9,
     "end_hour": 21,
     "reservations_limit": 3
+}
+
+###
+
+// update active/inactive courts for an existing club
+POST http://localhost:3000/api/clubs
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+    "_id": "686f544e85081abe19f78156",
+    "update_type": "courts",
+    "courts": ["court_1", "court_2", "court_4"]
 }
