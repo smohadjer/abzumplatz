@@ -202,7 +202,6 @@ async function addClub(
     postal_code: body.postal_code,
     city: body.city,
     country: body.country,
-    plan_type: body.plan_type,
     access_plan_type: body.plan_type,
     next_plan_type: body.plan_type,
     start_hour,
@@ -299,11 +298,11 @@ async function updateClub(
 
   const query = {_id: ObjectId.createFromHexString(body._id)};
   const planUpdateFields: Partial<ClubDocument> = {
-    plan_type: currentPlanType,
     access_plan_type: currentAccessPlanType,
     next_plan_type: currentSelectedPlanType,
   };
   const unsetFields: Record<string, string> = {
+    plan_type: '',
     members_limit: '',
     auto_renew: '',
     paid_until: ''
@@ -312,7 +311,6 @@ async function updateClub(
   if (selectedPlanType === currentSelectedPlanType) {
     // Keep normalized plan state as-is.
   } else if (!isPaidPlanType(currentPlanType)) {
-    planUpdateFields.plan_type = selectedPlanType;
     planUpdateFields.access_plan_type = selectedPlanType;
     planUpdateFields.next_plan_type = selectedPlanType;
   } else if (isHigherPlan(selectedPlanType, currentAccessPlanType)) {
@@ -322,7 +320,6 @@ async function updateClub(
     if (hasPaidEntitlement) {
       planUpdateFields.next_plan_type = selectedPlanType;
     } else {
-      planUpdateFields.plan_type = selectedPlanType;
       planUpdateFields.access_plan_type = selectedPlanType;
       planUpdateFields.next_plan_type = selectedPlanType;
     }

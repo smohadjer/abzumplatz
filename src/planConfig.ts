@@ -176,11 +176,11 @@ export function getBasicPlanLabel() {
 }
 
 export function getBasicPlanHint(membersLimit = PLAN_CONFIG.basic.membersLimit ?? 0) {
-    return `Bis zu ${membersLimit} Mitglieder im Basic Plan zulässig`;
+    return `Bis zu ${membersLimit} aktive Mitglieder im Basic Plan zulässig`;
 }
 
 export function getProPlanHint(membersLimit = PLAN_CONFIG.pro.membersLimit ?? 0) {
-    return `Bis zu ${membersLimit} Mitglieder im Pro Plan zulässig`;
+    return `Bis zu ${membersLimit} aktive Mitglieder im Pro Plan zulässig`;
 }
 
 export function getElitePlanHint() {

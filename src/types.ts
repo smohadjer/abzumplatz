@@ -68,12 +68,12 @@ export type Club = {
     start_hour: number;
     end_hour: number;
     timezone: string;
-    plan_type?: PlanType;
     access_plan_type?: PlanType;
     next_plan_type: PlanType;
 }
 
 export type ClubWithBilling = Club & {
+    plan_type?: PlanType;
     paid_until?: string;
     downgrade_locked?: boolean;
 }

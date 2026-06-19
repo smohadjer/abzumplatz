@@ -20,8 +20,8 @@ export default function AdminHomePage() {
     const hasPaidEntitlement = hasFuturePaidUntil(club.paid_until);
     const accessPlanType = club.access_plan_type ?? club.plan_type;
     const membersLimit = getMembersLimitForPlan(accessPlanType);
-    const remainingMembersCount = membersLimit != null && membersCount != null
-        ? Math.max(membersLimit - membersCount, 0)
+    const remainingMembersCount = membersLimit != null && activeMembersCount != null
+        ? Math.max(membersLimit - activeMembersCount, 0)
         : null;
     const adminName = `${user.first_name} ${user.last_name}`.trim();
     const address = [club.address_line1, club.postal_code, club.city, club.country]
@@ -103,7 +103,7 @@ export default function AdminHomePage() {
                             <th>Mitgliederlimit</th>
                             <td>
                                 {membersLimit != null && remainingMembersCount != null
-                                    ? `${membersLimit} (noch ${remainingMembersCount} Mitglieder erlaubt)`
+                                    ? `${membersLimit} (noch ${remainingMembersCount} aktive Mitglieder erlaubt)`
                                     : membersLimit != null
                                         ? '...'
                                         : 'Kein Limit'}

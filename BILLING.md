@@ -99,22 +99,17 @@ If the same day does not exist in the next month, the last valid day of that mon
 
 ## Club Plan State
 
-Each club stores three plan-related fields:
+Each club stores two plan-related fields:
 
-- `plan_type`
 - `access_plan_type`
 - `next_plan_type`
 
 Meaning:
 
-`plan_type`
-
-- the plan billed for the current running billing period
-
 `access_plan_type`
 
 - the plan whose features are active right now
-- this can be higher than `plan_type` after an upgrade
+- this can be higher than the billed plan after an upgrade
 
 `next_plan_type`
 
@@ -122,18 +117,23 @@ Meaning:
 - this field is always stored on the club document
 - if no plan change is scheduled, it matches the plan that should continue next
 
+Billed plan:
+
+- the billed plan for the current running period is derived from the active billing period
+- if there is no active paid billing period, the billed plan is effectively `basic`
+
 In practice:
 
-- `plan_type` = billed plan of the current period
 - `access_plan_type` = active access plan now
 - `next_plan_type` = plan used at the next renewal
+- current billed plan = `billing_periods.active.plan_type`, otherwise `basic`
 
 ## Registration
 
 When a club is created:
 
-- if `plan_type = basic`, no billing period is created
-- if `plan_type = pro` or `plan_type = elite`, the first active billing period is created immediately
+- if the selected plan is `basic`, no billing period is created
+- if the selected plan is `pro` or `elite`, the first active billing period is created immediately
 
 ## Renewal
 
@@ -209,10 +209,17 @@ Rules:
 
 ## Member Limits
 
-Member limits apply to total club members, not only active members.
+Member limits apply only to active members.
 
 Current rules:
 
-- `basic`: up to 100 members
-- `pro`: up to 500 members
+- `basic`: up to 100 active members
+- `pro`: up to 500 active members
 - `elite`: no limit
+
+Enforcement:
+
+- new signups and club selection are still allowed even if a club already has many members
+- the hard cap is enforced when an admin activates inactive users
+- if a club is above the active-member cap after a downgrade, existing active members remain unchanged
+- in that case, the admin cannot activate additional inactive users until the number of active members falls below the plan limit

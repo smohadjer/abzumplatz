@@ -91,7 +91,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 postal_code: body.postal_code,
                 city: body.city,
                 country: body.country,
-                plan_type: body.plan_type,
                 access_plan_type: body.plan_type,
                 next_plan_type: body.plan_type,
                 start_hour: Number(body.start_hour),

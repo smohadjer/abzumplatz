@@ -228,10 +228,22 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       const membersLimit = getMembersLimitForPlan(resolvedClub ? getCurrentAccessPlanType(resolvedClub) : undefined);
-      const hasPaidEntitlement = Boolean(currentBillingPeriod);
-
       const updatedUsers: Array<{_id: string; status: string; club_id?: null}> = [];
       const removedUserIds: string[] = [];
+
+      if (action === 'activate' && membersLimit != null) {
+        const activeMembersCount = await collection.countDocuments({
+          club_id: requester.club_id,
+          status: {$ne: 'inactive'}
+        });
+        const activationCount = targetUsers.filter(({targetUser}) => targetUser.status === 'inactive').length;
+
+        if (activeMembersCount + activationCount > membersLimit) {
+          return res.status(400).json({
+            error: `In Ihrem Plan können höchstens ${membersLimit} aktive Mitglieder freigeschaltet werden.`
+          });
+        }
+      }
 
       for (const {userId, targetUser, query} of targetUsers) {
         if (action === 'remove') {

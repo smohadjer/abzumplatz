@@ -22,6 +22,16 @@ type ResolvedClubBillingState = {
     currentBillingPeriod: BillingPeriodDocument | null;
 }
 
+function withDerivedBilledPlan(
+    club: ClubDocument,
+    currentBillingPeriod: BillingPeriodDocument | null
+): ClubDocument {
+    return {
+        ...club,
+        plan_type: currentBillingPeriod?.plan_type ?? 'basic',
+    };
+}
+
 function getDateString(value: Date) {
     const year = value.getFullYear();
     const month = `${value.getMonth() + 1}`.padStart(2, '0');
@@ -122,21 +132,19 @@ async function updateClubPlanState(
 }
 
 export function getCurrentAccessPlanType(club: ClubDocument) {
-    return club.access_plan_type ?? club.plan_type;
+    return club.access_plan_type ?? club.next_plan_type ?? 'basic';
 }
 
 export function getSelectedPlanType(club: ClubDocument) {
-    return club.next_plan_type ?? getCurrentAccessPlanType(club) ?? club.plan_type ?? 'basic';
+    return club.next_plan_type ?? getCurrentAccessPlanType(club) ?? 'basic';
 }
 
 export function normalizeClubPlanState(club: ClubDocument): ClubDocument {
-    const plan_type = club.plan_type ?? 'basic';
-    const access_plan_type = club.access_plan_type ?? plan_type;
+    const access_plan_type = club.access_plan_type ?? club.next_plan_type ?? club.plan_type ?? 'basic';
     const next_plan_type = club.next_plan_type ?? access_plan_type;
 
     return {
         ...club,
-        plan_type,
         access_plan_type,
         next_plan_type,
     };
@@ -152,7 +160,7 @@ export function isDowngradeLocked(
 
     const normalizedClub = normalizeClubPlanState(club);
     const accessPlanType = getCurrentAccessPlanType(normalizedClub);
-    const billedPlanType = normalizedClub.plan_type;
+    const billedPlanType = currentBillingPeriod?.plan_type ?? 'basic';
     return getPlanLevel(accessPlanType) > getPlanLevel(billedPlanType);
 }
 
@@ -169,24 +177,6 @@ export async function createInitialBillingPeriod(
     );
 }
 
-export async function replaceActiveBillingPeriod(
-    collection: Collection<BillingPeriodDocument>,
-    clubId: string,
-    planType: PlanType,
-    source?: string,
-    startDate = new Date()
-) {
-    const activePeriod = await getActiveBillingPeriod(collection, clubId);
-
-    if (activePeriod?._id) {
-        await updateBillingPeriod(collection, activePeriod._id, {
-            status: 'canceled'
-        });
-    }
-
-    return createInitialBillingPeriod(collection, clubId, planType, source, startDate);
-}
-
 export async function resolveClubBillingState(
     clubsCollection: Collection<ClubDocument>,
     billingPeriodsCollection: Collection<BillingPeriodDocument>,
@@ -198,7 +188,7 @@ export async function resolveClubBillingState(
 
     if (!clubId) {
         return {
-            club: resolvedClub,
+            club: withDerivedBilledPlan(resolvedClub, null),
             currentBillingPeriod: null,
         };
     }
@@ -215,23 +205,24 @@ export async function resolveClubBillingState(
             clubsCollection,
             resolvedClub,
             {
-                plan_type: resolvedClub.next_plan_type,
                 access_plan_type: resolvedClub.next_plan_type,
                 next_plan_type: resolvedClub.next_plan_type,
             }
         );
     }
 
-    if (!isPaidPlanType(resolvedClub.plan_type)) {
+    const selectedPlanType = getSelectedPlanType(resolvedClub);
+
+    if (!isPaidPlanType(selectedPlanType)) {
         return {
-            club: resolvedClub,
+            club: withDerivedBilledPlan(resolvedClub, activePeriod),
             currentBillingPeriod: activePeriod,
         };
     }
 
     if (activePeriod) {
         return {
-            club: resolvedClub,
+            club: withDerivedBilledPlan(resolvedClub, activePeriod),
             currentBillingPeriod: activePeriod,
         };
     }
@@ -244,16 +235,17 @@ export async function resolveClubBillingState(
     while (true) {
         const nextPeriod = createBillingPeriodRecord(
             clubId,
-            resolvedClub.plan_type,
+            selectedPlanType,
             nextStartDate,
             'active',
             'renewal'
         );
 
         if (hasFutureBillingPeriodEnd(nextPeriod.period_end, now)) {
+            const insertedPeriod = await insertBillingPeriod(billingPeriodsCollection, nextPeriod);
             return {
-                club: resolvedClub,
-                currentBillingPeriod: await insertBillingPeriod(billingPeriodsCollection, nextPeriod),
+                club: withDerivedBilledPlan(resolvedClub, insertedPeriod),
+                currentBillingPeriod: insertedPeriod,
             };
         }
 

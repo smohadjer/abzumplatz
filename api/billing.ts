@@ -152,7 +152,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(404).json(validationError('/club_id', 'Verein nicht gefunden.'));
       }
 
-      const billingPlanType = plan_type ?? club.plan_type;
+      const billingPlanType = plan_type ?? club.next_plan_type ?? club.access_plan_type;
       if (!billingPlanType || !isPaidPlanType(billingPlanType)) {
         return res.status(400).json(validationError('/plan_type', 'Bitte geben Sie einen gültigen Bezahlplan an.'));
       }
@@ -178,6 +178,21 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       };
 
       const insertResult = await billingPeriods.insertOne(period);
+
+      if (status === 'active') {
+        await clubs.updateOne(
+          {_id: ObjectId.createFromHexString(club_id)},
+          {
+            $set: {
+              access_plan_type: billingPlanType,
+              next_plan_type: billingPlanType,
+            },
+            $unset: {
+              plan_type: '',
+            }
+          }
+        );
+      }
 
       return res.status(201).json({
         message: 'Billing period created.',

@@ -163,7 +163,7 @@ export default function AdminMembersPage() {
                 </div>
                 {hasMemberCap ? (
                     <p>
-                        Im {getBasicPlanName()} Plan sind maximal {membersLimit} Mitglieder erlaubt. Wechseln Sie zum{' '}
+                        Im {getBasicPlanName()} Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. Wechseln Sie zum{' '}
                         <Link to="/admin/club">{getProPlanName()} oder {getElitePlanName()}</Link>, um diese Einschränkung aufzuheben.
                     </p>
                 ) : null}
