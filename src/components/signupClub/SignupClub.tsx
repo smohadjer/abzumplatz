@@ -1,7 +1,7 @@
 import { Form } from '../form/Form';
 import formJson from './signupClubForm.json';
 import { Field } from '../../types';
-import { applyPlanConfigToFields } from '../../planConfig';
+import { applyPlanConfigToFields, getPlanLevel, getPlanName, normalizePlanType } from '../../planConfig';
 
 type Props = {
     label?: string;
@@ -11,17 +11,47 @@ type Props = {
 
 export function SignupClub(props: Props) {
     const { label, data, callback } = props;
-    const planType: 'free' | 'paid' = data?.plan_type === 'paid' ? 'paid' : 'free';
+    const selectedPlanType = data?.next_plan_type ?? data?.access_plan_type ?? data?.plan_type;
+    const accessPlanType = data?.access_plan_type ?? data?.plan_type;
+    const planType = normalizePlanType(selectedPlanType);
+    const downgradeLocked = Boolean(data?.downgrade_locked);
 
     const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
     const normalizedData = data ? structuredClone(data) : null;
     if (normalizedData) {
         normalizedData.courts_count = data.courts.length;
+        normalizedData.plan_type = selectedPlanType;
     }
 
     normalizedFields.forEach(field => {
         if (normalizedData && Object.prototype.hasOwnProperty.call(normalizedData, field.name)) {
             field.value = normalizedData[field.name];
+        }
+
+        if (data?._id && field.name === 'plan_type') {
+            if (downgradeLocked) {
+                field.options = field.options?.map(option => ({
+                    ...option,
+                    disabled: typeof option.value === 'string' && getPlanLevel(option.value as 'basic' | 'pro' | 'elite') < getPlanLevel(accessPlanType)
+                }));
+            }
+
+            const scheduledPlanChangeNotice = data?.paid_until && data?.next_plan_type !== accessPlanType
+                ? `${getPlanName(accessPlanType)} ist noch bis ${new Date(data.paid_until).toLocaleDateString('de-DE')} aktiv und wechselt danach zu ${getPlanName(data.next_plan_type)}.`
+                : null;
+            const upgradeBillingNotice = data?.paid_until && accessPlanType !== data?.plan_type
+                ? `${getPlanName(accessPlanType)} Zugriff ist bereits aktiv. Abgerechnet wird ${getPlanName(data.plan_type)} bis ${new Date(data.paid_until).toLocaleDateString('de-DE')}.`
+                : null;
+            const downgradeLockNotice = downgradeLocked
+                ? 'Nach einem Upgrade ist ein Downgrade erst ab der nächsten Verlängerung möglich.'
+                : null;
+
+            field.footnote = [
+                scheduledPlanChangeNotice,
+                upgradeBillingNotice,
+                downgradeLockNotice,
+                'Upgrades gelten sofort für den Zugriff, aber erst ab der nächsten Verlängerung für die Abrechnung. Nach einem Upgrade ist ein Downgrade erst in der nächsten Abrechnungsperiode möglich.'
+            ].filter(Boolean).join(' ');
         }
     });
 

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { fetchClub, fetchUsers } from "../../utils/utils";
 import { Loader } from "../../components/loader/Loader";
-import { getFreePlanName, getMembersLimitForPlan, getPaidPlanName, hasFuturePaidUntil } from "../../planConfig";
+import { getPlanName, getMembersLimitForPlan, hasFuturePaidUntil } from "../../planConfig";
 
 export default function AdminHomePage() {
     const [loadingClub, setLoadingClub] = useState(false);
@@ -18,9 +18,10 @@ export default function AdminHomePage() {
         ? usersData.value.filter(member => member.status !== 'inactive').length
         : null;
     const hasPaidEntitlement = hasFuturePaidUntil(club.paid_until);
-    const membersLimit = hasPaidEntitlement ? null : getMembersLimitForPlan(club.plan_type);
-    const remainingMembersCount = membersLimit != null && activeMembersCount != null
-        ? Math.max(membersLimit - activeMembersCount, 0)
+    const accessPlanType = club.access_plan_type ?? club.plan_type;
+    const membersLimit = getMembersLimitForPlan(accessPlanType);
+    const remainingMembersCount = membersLimit != null && membersCount != null
+        ? Math.max(membersLimit - membersCount, 0)
         : null;
     const adminName = `${user.first_name} ${user.last_name}`.trim();
     const address = [club.address_line1, club.postal_code, club.city, club.country]
@@ -29,13 +30,16 @@ export default function AdminHomePage() {
     const paidUntilLabel = club.paid_until
         ? new Date(club.paid_until).toLocaleDateString('de-DE')
         : '-';
+    const accessPlanName = getPlanName(accessPlanType);
+    const billedPlanName = getPlanName(club.plan_type);
+    const nextPlanName = getPlanName(club.next_plan_type);
     const planLabel = hasPaidEntitlement
-        ? club.plan_type === 'free'
-            ? `${getPaidPlanName()} (endet am ${paidUntilLabel}, danach ${getFreePlanName()})`
-            : `${getPaidPlanName()} (bezahlt bis ${paidUntilLabel})`
-        : club.plan_type === 'paid'
-            ? getPaidPlanName()
-            : getFreePlanName();
+        ? nextPlanName !== accessPlanName
+            ? `${accessPlanName} (bezahlt bis ${paidUntilLabel}, danach ${nextPlanName})`
+            : accessPlanName !== billedPlanName
+                ? `${accessPlanName} (Abrechnung als ${billedPlanName} bis ${paidUntilLabel})`
+                : `${accessPlanName} (bezahlt bis ${paidUntilLabel})`
+        : accessPlanName;
     const registeredAtLabel = club.timestamp
         ? new Date(club.timestamp).toLocaleDateString('de-DE')
         : '-';
@@ -99,7 +103,7 @@ export default function AdminHomePage() {
                             <th>Mitgliederlimit</th>
                             <td>
                                 {membersLimit != null && remainingMembersCount != null
-                                    ? `${membersLimit} (noch ${remainingMembersCount} aktive Mitglieder erlaubt)`
+                                    ? `${membersLimit} (noch ${remainingMembersCount} Mitglieder erlaubt)`
                                     : membersLimit != null
                                         ? '...'
                                         : 'Kein Limit'}

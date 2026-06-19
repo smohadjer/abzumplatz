@@ -239,6 +239,7 @@ export function Form(props: Props) {
                         <Radio item={item} handleChange={handleChange} />
                     </div>
                     <Hint text={item.hint} />
+                    {item.footnote ? <p className="hint hint-box">{item.footnote}</p> : null}
                     <Error error={item.error} />
                     </div>
                 </div>

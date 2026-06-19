@@ -1,8 +1,32 @@
-import { Field } from './types';
+import { Field, NormalizedPlanType, PlanType } from './types';
 
-export const FREE_PLAN_MEMBERS_LIMIT = 100;
-export const PAID_PLAN_DURATION_MONTHS: number = 1;
-export const PAID_PLAN_PRICE_EUR = 10;
+type PlanConfigItem = {
+    durationMonths: number;
+    label: string;
+    membersLimit: number | null;
+    price: number;
+}
+
+export const PLAN_CONFIG: Record<PlanType, PlanConfigItem> = {
+    basic: {
+        durationMonths: 1,
+        label: 'Basic',
+        membersLimit: 100,
+        price: 0,
+    },
+    pro: {
+        durationMonths: 1,
+        label: 'Pro',
+        membersLimit: 500,
+        price: 10,
+    },
+    elite: {
+        durationMonths: 1,
+        label: 'Elite',
+        membersLimit: null,
+        price: 25,
+    },
+};
 
 function getLocalDateString(value: Date) {
     const year = value.getFullYear();
@@ -28,16 +52,59 @@ function addMonthsKeepingDay(fromDate: Date, months: number) {
     return new Date(targetYear, normalizedTargetMonth, targetDay, 12, 0, 0, 0);
 }
 
-export function getMembersLimitForPlan(planType?: 'free' | 'paid') {
-    return planType === 'free' ? FREE_PLAN_MEMBERS_LIMIT : null;
+export function normalizePlanType(planType?: PlanType): NormalizedPlanType {
+    if (planType === 'elite') {
+        return 'elite';
+    }
+
+    if (planType === 'pro') {
+        return 'pro';
+    }
+
+    return 'basic';
 }
 
-export function getNextBillingPeriodStartForPlan(planType?: 'free' | 'paid', fromDate = new Date()) {
-    if (planType !== 'paid') {
+export function getPlanConfig(planType?: PlanType) {
+    return PLAN_CONFIG[normalizePlanType(planType)];
+}
+
+export function isPaidPlanType(planType?: PlanType) {
+    return getPlanConfig(planType).price > 0;
+}
+
+export function getPlanLevel(planType?: PlanType) {
+    const normalizedPlanType = normalizePlanType(planType);
+
+    if (normalizedPlanType === 'elite') {
+        return 2;
+    }
+
+    if (normalizedPlanType === 'pro') {
+        return 1;
+    }
+
+    return 0;
+}
+
+export function isHigherPlan(targetPlanType?: PlanType, currentPlanType?: PlanType) {
+    return getPlanLevel(targetPlanType) > getPlanLevel(currentPlanType);
+}
+
+export function isLowerPlan(targetPlanType?: PlanType, currentPlanType?: PlanType) {
+    return getPlanLevel(targetPlanType) < getPlanLevel(currentPlanType);
+}
+
+export function getMembersLimitForPlan(planType?: PlanType) {
+    return getPlanConfig(planType).membersLimit;
+}
+
+export function getNextBillingPeriodStartForPlan(planType?: PlanType, fromDate = new Date()) {
+    const config = getPlanConfig(planType);
+    if (config.price <= 0) {
         return undefined;
     }
 
-    const nextPeriodStart = addMonthsKeepingDay(fromDate, PAID_PLAN_DURATION_MONTHS);
+    const nextPeriodStart = addMonthsKeepingDay(fromDate, config.durationMonths);
     return getLocalDateString(nextPeriodStart);
 }
 
@@ -68,37 +135,68 @@ export function hasFutureBillingPeriodEnd(periodEnd?: string, now = new Date()) 
     return getLocalDate(periodEnd) > now;
 }
 
-export function getPaidPlanDurationLabel() {
-    return PAID_PLAN_DURATION_MONTHS === 1
-        ? 'monatlich'
-        : `für ${PAID_PLAN_DURATION_MONTHS} Monate`;
+export function getPaidPlanDurationLabel(planType?: PlanType) {
+    const durationMonths = getPlanConfig(planType).durationMonths;
+    return durationMonths === 1
+        ? '/m'
+        : `für ${durationMonths} Monate`;
 }
 
-export function getPaidPlanLabel() {
-    return `Bezahlplan (${PAID_PLAN_PRICE_EUR}€ ${getPaidPlanDurationLabel()})`;
+function getPaidPlanLabel(planType: PlanType) {
+    const config = getPlanConfig(planType);
+    if (config.price <= 0) {
+        return config.label;
+    }
+
+    return `${config.label} (${config.price} ${'\u20ac'}${getPaidPlanDurationLabel(planType)})`;
 }
 
-export function getPaidPlanName() {
-    return 'Bezahlplan';
+export function getProPlanLabel() {
+    return getPaidPlanLabel('pro');
 }
 
-export function getFreePlanName() {
-    return 'Free';
+export function getProPlanName() {
+    return PLAN_CONFIG.pro.label;
 }
 
-export function getFreePlanHint(membersLimit = FREE_PLAN_MEMBERS_LIMIT) {
-    return `Nur ${membersLimit} aktive Mitglieder zulässig`;
+export function getElitePlanLabel() {
+    return getPaidPlanLabel('elite');
 }
 
-export function getPaidPlanHint() {
-    return `Keine Einschränkungen. Eine Rechnung über ${PAID_PLAN_PRICE_EUR}€ ${getPaidPlanDurationLabel()} wird erstellt und per E-Mail an den Admin des Vereins gesendet. Ein Wechsel zum Free Plan ist jederzeit möglich.`;
+export function getElitePlanName() {
+    return PLAN_CONFIG.elite.label;
 }
 
-export function applyPlanConfigToFields(fields: Field[], planType: 'free' | 'paid') {
-    const membersLimit = getMembersLimitForPlan(planType) ?? FREE_PLAN_MEMBERS_LIMIT;
+export function getBasicPlanName() {
+    return PLAN_CONFIG.basic.label;
+}
+
+export function getBasicPlanLabel() {
+    return `${getBasicPlanName()} (${PLAN_CONFIG.basic.price} ${'\u20ac'}${getPaidPlanDurationLabel('basic')})`;
+}
+
+export function getBasicPlanHint(membersLimit = PLAN_CONFIG.basic.membersLimit ?? 0) {
+    return `Bis zu ${membersLimit} Mitglieder im Basic Plan zulässig`;
+}
+
+export function getProPlanHint(membersLimit = PLAN_CONFIG.pro.membersLimit ?? 0) {
+    return `Bis zu ${membersLimit} Mitglieder im Pro Plan zulässig`;
+}
+
+export function getElitePlanHint() {
+    return `Keine Begrenzung der Mitgliederzahl im Elite Plan`;
+}
+
+export function getPlanName(planType?: PlanType) {
+    return getPlanConfig(planType).label;
+}
+
+export function applyPlanConfigToFields(fields: Field[], planType: PlanType) {
+    const normalizedPlanType = normalizePlanType(planType);
     const hintByValue = {
-        free: getFreePlanHint(membersLimit),
-        paid: getPaidPlanHint()
+        basic: getBasicPlanHint(),
+        pro: getProPlanHint(),
+        elite: getElitePlanHint()
     };
 
     return fields.map(field => {
@@ -109,19 +207,26 @@ export function applyPlanConfigToFields(fields: Field[], planType: 'free' | 'pai
         return {
             ...field,
             hintByValue,
-            hint: hintByValue[planType],
+            hint: hintByValue[normalizedPlanType],
             options: field.options?.map(option => {
-                if (option.value === 'free') {
+                if (option.value === 'basic') {
                     return {
                         ...option,
-                        label: getFreePlanName()
+                        label: getBasicPlanLabel()
                     };
                 }
 
-                if (option.value === 'paid') {
+                if (option.value === 'pro') {
                     return {
                         ...option,
-                        label: getPaidPlanLabel()
+                        label: getProPlanLabel()
+                    };
+                }
+
+                if (option.value === 'elite') {
+                    return {
+                        ...option,
+                        label: getElitePlanLabel()
                     };
                 }
 

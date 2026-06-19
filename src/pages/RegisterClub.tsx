@@ -23,7 +23,7 @@ export default function RegisterClub() {
         ...clubFields,
         ...(privacyField ? [privacyField] : [])
     ]));
-    const configuredFields = applyPlanConfigToFields(fields, 'free');
+    const configuredFields = applyPlanConfigToFields(fields, 'basic');
     const formAttributes = {
         ...signupFormJson.form,
         action: '/api/signup-club'

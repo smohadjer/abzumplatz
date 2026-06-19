@@ -3,12 +3,14 @@ import { database_uri, database_name } from './_utils/_config.js';
 import { sanitize } from './_utils/_lib.js';
 import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { DBUser } from '../src/types.js';
+import { DBUser, PlanType } from '../src/types.js';
 import { ClubDocument } from './_utils/_types.js';
 import { BillingPeriodDocument, BillingPeriodStatus } from './_utils/_billingPeriods.js';
+import { isPaidPlanType } from '../src/planConfig.js';
 
 type BillingBody = {
   club_id?: string;
+  plan_type?: PlanType;
   period_start?: string;
   period_end?: string;
   status?: BillingPeriodStatus;
@@ -112,6 +114,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
       const body = sanitize(req.body) as BillingBody;
       const club_id = isString(body.club_id) ? body.club_id : undefined;
+      const plan_type = isString(body.plan_type) ? body.plan_type as PlanType : undefined;
       const period_start = isString(body.period_start) ? body.period_start : undefined;
       const period_end = isString(body.period_end) ? body.period_end : undefined;
       const status = body.status ?? 'active';
@@ -149,6 +152,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(404).json(validationError('/club_id', 'Verein nicht gefunden.'));
       }
 
+      const billingPlanType = plan_type ?? club.plan_type;
+      if (!billingPlanType || !isPaidPlanType(billingPlanType)) {
+        return res.status(400).json(validationError('/plan_type', 'Bitte geben Sie einen gültigen Bezahlplan an.'));
+      }
+
       if (status === 'active') {
         const existingActivePeriod = await billingPeriods.findOne({
           club_id,
@@ -161,6 +169,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
       const period: BillingPeriodDocument = {
         club_id,
+        plan_type: billingPlanType === 'elite' ? 'elite' : 'pro',
         period_start,
         period_end,
         status,

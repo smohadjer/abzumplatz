@@ -5,8 +5,10 @@ import { getJwtPayload } from './verifyAuth.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { DBUser, ReservationItem } from '../src/types.js';
 import sendEmail from './_utils/_sendEmail.js';
-import { AdminEmailDocument, ClubNameDocument } from './_utils/_types.js';
+import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';
 import { isReservationActive } from '../src/utils/utils.js';
+import { BillingPeriodDocument, getCurrentAccessPlanType, resolveClubBillingState } from './_utils/_billingPeriods.js';
+import { getMembersLimitForPlan } from '../src/planConfig.js';
 
 type SelectClubBody = {
   club_id?: string;
@@ -122,8 +124,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     await client.connect();
     const database = client.db(database_name);
     const userCollection = database.collection<DBUser>('users');
-    const clubCollection = database.collection<ClubNameDocument>('clubs');
+    const clubCollection = database.collection<ClubDocument>('clubs');
     const reservationsCollection = database.collection<ReservationItem>('reservations');
+    const billingPeriodsCollection = database.collection<BillingPeriodDocument>('billing_periods');
 
     if (req.method === 'POST') {
       const body = sanitize(req.body) as SelectClubBody;
@@ -201,6 +204,22 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
       if (requester.club_id === club_id) {
         return res.status(409).json(validationError('Sie sind diesem Verein bereits zugeordnet.'));
+      }
+
+      const { club: resolvedClub, currentBillingPeriod } = await resolveClubBillingState(
+        clubCollection,
+        billingPeriodsCollection,
+        club
+      );
+      const membersLimit = getMembersLimitForPlan(getCurrentAccessPlanType(resolvedClub));
+      const hasPaidEntitlement = Boolean(currentBillingPeriod);
+
+      if (membersLimit != null && !hasPaidEntitlement) {
+        const membersCount = await userCollection.countDocuments({club_id});
+
+        if (membersCount >= membersLimit) {
+          return res.status(400).json(validationError(`In diesem Plan sind höchstens ${membersLimit} Mitglieder erlaubt.`));
+        }
       }
 
       if (previousClubId && previousClubId !== club_id) {

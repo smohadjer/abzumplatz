@@ -1,12 +1,16 @@
-import { Club } from '../../src/types.js';
+import { ObjectId } from 'mongodb';
+import { Club, PlanType } from '../../src/types.js';
 
 export type ClubDocument = Omit<Club, '_id'> & {
+    _id?: ObjectId;
     timestamp?: Date;
 }
 
 export type ClubNameDocument = {
     name?: string;
-    plan_type?: 'free' | 'paid';
+    plan_type?: PlanType;
+    access_plan_type?: PlanType;
+    next_plan_type: PlanType;
 }
 
 export type AdminEmailDocument = {
@@ -20,7 +24,7 @@ export type ClubFormBody = {
     postal_code?: string;
     city?: string;
     country?: string;
-    plan_type: 'free' | 'paid';
+    plan_type: PlanType;
     courts_count: number | string;
     start_hour: number | string;
     end_hour: number | string;
@@ -44,7 +48,7 @@ export type SignupClubBody = {
     postal_code?: string;
     city?: string;
     country?: string;
-    plan_type: 'free' | 'paid';
+    plan_type: PlanType;
     courts_count: number | string;
     start_hour: number | string;
     end_hour: number | string;

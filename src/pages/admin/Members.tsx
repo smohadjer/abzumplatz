@@ -4,7 +4,7 @@ import { RootState } from './../../store';
 import { fetchClub, fetchUsers } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
 import { Link, useSearchParams } from 'react-router';
-import { getFreePlanName, getMembersLimitForPlan, getPaidPlanName, hasFuturePaidUntil } from '../../planConfig';
+import { getBasicPlanName, getElitePlanName, getMembersLimitForPlan, getProPlanName, hasFuturePaidUntil } from '../../planConfig';
 
 export default function AdminMembersPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -26,7 +26,7 @@ export default function AdminMembersPage() {
     const visibleUsers = users.filter(member => activeTab === 'active' ? isActiveUser(member) : !isActiveUser(member));
     const currentClubFromList = clubs.find(club => club._id === user.club_id);
     const club = currentClubFromList ?? (clubData.value._id === user.club_id ? clubData.value : null);
-    const membersLimit = getMembersLimitForPlan(club?.plan_type);
+    const membersLimit = getMembersLimitForPlan(club?.access_plan_type ?? club?.plan_type);
     const hasPaidEntitlement = hasFuturePaidUntil(club?.paid_until);
     const hasMemberCap = membersLimit != null && !hasPaidEntitlement;
 
@@ -163,8 +163,8 @@ export default function AdminMembersPage() {
                 </div>
                 {hasMemberCap ? (
                     <p>
-                        Im {getFreePlanName()} Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. Wechseln Sie zum{' '}
-                        <Link to="/admin/club">{getPaidPlanName()}</Link>, um diese Einschränkung aufzuheben.
+                        Im {getBasicPlanName()} Plan sind maximal {membersLimit} Mitglieder erlaubt. Wechseln Sie zum{' '}
+                        <Link to="/admin/club">{getProPlanName()} oder {getElitePlanName()}</Link>, um diese Einschränkung aufzuheben.
                     </p>
                 ) : null}
                 <form className="members-form" onSubmit={handleSubmit}>

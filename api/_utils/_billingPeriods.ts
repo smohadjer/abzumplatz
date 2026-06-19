@@ -1,16 +1,25 @@
 import { Collection, ObjectId } from 'mongodb';
-import { getNextBillingPeriodStartForPlan, hasFutureBillingPeriodEnd } from '../../src/planConfig.js';
+import { PlanType } from '../../src/types.js';
+import { getNextBillingPeriodStartForPlan, getPlanLevel, hasFutureBillingPeriodEnd, isPaidPlanType } from '../../src/planConfig.js';
+import { ClubDocument } from './_types.js';
 
 export type BillingPeriodStatus = 'active' | 'completed' | 'canceled';
+export type PaidPlanType = Exclude<PlanType, 'basic'>;
 
 export type BillingPeriodDocument = {
     _id?: ObjectId;
     club_id: string;
+    plan_type: PaidPlanType;
     period_start: string;
     period_end: string;
     status: BillingPeriodStatus;
     created_at: Date;
     source?: string;
+}
+
+type ResolvedClubBillingState = {
+    club: ClubDocument;
+    currentBillingPeriod: BillingPeriodDocument | null;
 }
 
 function getDateString(value: Date) {
@@ -20,16 +29,24 @@ function getDateString(value: Date) {
     return `${year}-${month}-${day}`;
 }
 
+function getPaidPlanType(planType?: PlanType): PaidPlanType {
+    return planType === 'elite' ? 'elite' : 'pro';
+}
+
 function createBillingPeriodRecord(
     clubId: string,
+    planType: PlanType,
     startDate: Date,
     status: BillingPeriodStatus,
     source?: string
 ): BillingPeriodDocument {
+    const paidPlanType = getPaidPlanType(planType);
+
     return {
         club_id: clubId,
+        plan_type: paidPlanType,
         period_start: getDateString(startDate),
-        period_end: getNextBillingPeriodStartForPlan('paid', startDate)!,
+        period_end: getNextBillingPeriodStartForPlan(paidPlanType, startDate)!,
         status,
         created_at: new Date(),
         ...(source ? {source} : {})
@@ -64,10 +81,10 @@ async function getActiveBillingPeriod(
     });
 }
 
-async function markBillingPeriodStatus(
+async function updateBillingPeriod(
     collection: Collection<BillingPeriodDocument>,
     periodId: ObjectId | undefined,
-    status: BillingPeriodStatus
+    fields: Partial<BillingPeriodDocument>
 ) {
     if (!periodId) {
         return;
@@ -75,44 +92,151 @@ async function markBillingPeriodStatus(
 
     await collection.updateOne(
         {_id: periodId},
-        {$set: {status}}
+        {$set: fields}
     );
+}
+
+async function updateClubPlanState(
+    clubsCollection: Collection<ClubDocument>,
+    club: ClubDocument,
+    fields: Partial<ClubDocument>
+) {
+    if (!club._id) {
+        return {
+            ...club,
+            ...fields,
+        };
+    }
+
+    await clubsCollection.updateOne(
+        {_id: club._id},
+        {
+            $set: fields,
+        }
+    );
+
+    return {
+        ...club,
+        ...fields,
+    };
+}
+
+export function getCurrentAccessPlanType(club: ClubDocument) {
+    return club.access_plan_type ?? club.plan_type;
+}
+
+export function getSelectedPlanType(club: ClubDocument) {
+    return club.next_plan_type ?? getCurrentAccessPlanType(club) ?? club.plan_type ?? 'basic';
+}
+
+export function normalizeClubPlanState(club: ClubDocument): ClubDocument {
+    const plan_type = club.plan_type ?? 'basic';
+    const access_plan_type = club.access_plan_type ?? plan_type;
+    const next_plan_type = club.next_plan_type ?? access_plan_type;
+
+    return {
+        ...club,
+        plan_type,
+        access_plan_type,
+        next_plan_type,
+    };
+}
+
+export function isDowngradeLocked(
+    club: ClubDocument,
+    currentBillingPeriod: BillingPeriodDocument | null
+) {
+    if (!currentBillingPeriod) {
+        return false;
+    }
+
+    const normalizedClub = normalizeClubPlanState(club);
+    const accessPlanType = getCurrentAccessPlanType(normalizedClub);
+    const billedPlanType = normalizedClub.plan_type;
+    return getPlanLevel(accessPlanType) > getPlanLevel(billedPlanType);
 }
 
 export async function createInitialBillingPeriod(
     collection: Collection<BillingPeriodDocument>,
     clubId: string,
+    planType: PlanType,
     source?: string,
     startDate = new Date()
 ) {
     return insertBillingPeriod(
         collection,
-        createBillingPeriodRecord(clubId, startDate, 'active', source)
+        createBillingPeriodRecord(clubId, planType, startDate, 'active', source)
     );
 }
 
-export async function resolveCurrentBillingPeriod(
+export async function replaceActiveBillingPeriod(
     collection: Collection<BillingPeriodDocument>,
     clubId: string,
-    planType?: 'free' | 'paid',
-    now = new Date()
+    planType: PlanType,
+    source?: string,
+    startDate = new Date()
 ) {
-    let activePeriod = await getActiveBillingPeriod(collection, clubId);
+    const activePeriod = await getActiveBillingPeriod(collection, clubId);
 
-    if (activePeriod && !hasFutureBillingPeriodEnd(activePeriod.period_end, now)) {
-        await markBillingPeriodStatus(collection, activePeriod._id, 'completed');
-        activePeriod = null;
+    if (activePeriod?._id) {
+        await updateBillingPeriod(collection, activePeriod._id, {
+            status: 'canceled'
+        });
     }
 
-    if (planType !== 'paid') {
-        return activePeriod;
+    return createInitialBillingPeriod(collection, clubId, planType, source, startDate);
+}
+
+export async function resolveClubBillingState(
+    clubsCollection: Collection<ClubDocument>,
+    billingPeriodsCollection: Collection<BillingPeriodDocument>,
+    club: ClubDocument,
+    now = new Date()
+): Promise<ResolvedClubBillingState> {
+    const clubId = club._id?.toString();
+    let resolvedClub = normalizeClubPlanState(club);
+
+    if (!clubId) {
+        return {
+            club: resolvedClub,
+            currentBillingPeriod: null,
+        };
+    }
+
+    let activePeriod = await getActiveBillingPeriod(billingPeriodsCollection, clubId);
+
+    if (activePeriod && !hasFutureBillingPeriodEnd(activePeriod.period_end, now)) {
+        await updateBillingPeriod(billingPeriodsCollection, activePeriod._id, {
+            status: 'completed'
+        });
+        activePeriod = null;
+
+        resolvedClub = await updateClubPlanState(
+            clubsCollection,
+            resolvedClub,
+            {
+                plan_type: resolvedClub.next_plan_type,
+                access_plan_type: resolvedClub.next_plan_type,
+                next_plan_type: resolvedClub.next_plan_type,
+            }
+        );
+    }
+
+    if (!isPaidPlanType(resolvedClub.plan_type)) {
+        return {
+            club: resolvedClub,
+            currentBillingPeriod: activePeriod,
+        };
     }
 
     if (activePeriod) {
-        return activePeriod;
+        return {
+            club: resolvedClub,
+            currentBillingPeriod: activePeriod,
+        };
     }
 
-    const latestPeriod = await getLatestBillingPeriod(collection, clubId);
+    const latestPeriod = await getLatestBillingPeriod(billingPeriodsCollection, clubId);
     let nextStartDate = latestPeriod?.period_end
         ? new Date(`${latestPeriod.period_end}T12:00:00`)
         : now;
@@ -120,16 +244,20 @@ export async function resolveCurrentBillingPeriod(
     while (true) {
         const nextPeriod = createBillingPeriodRecord(
             clubId,
+            resolvedClub.plan_type,
             nextStartDate,
             'active',
             'renewal'
         );
 
         if (hasFutureBillingPeriodEnd(nextPeriod.period_end, now)) {
-            return insertBillingPeriod(collection, nextPeriod);
+            return {
+                club: resolvedClub,
+                currentBillingPeriod: await insertBillingPeriod(billingPeriodsCollection, nextPeriod),
+            };
         }
 
-        await insertBillingPeriod(collection, {
+        await insertBillingPeriod(billingPeriodsCollection, {
             ...nextPeriod,
             status: 'completed'
         });

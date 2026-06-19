@@ -8,6 +8,7 @@ import { database_uri, database_name } from './_utils/_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { ClubDocument, SignupClubBody } from './_utils/_types.js';
 import { createInitialBillingPeriod, BillingPeriodDocument } from './_utils/_billingPeriods.js';
+import { isPaidPlanType } from '../src/planConfig.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -91,6 +92,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 city: body.city,
                 country: body.country,
                 plan_type: body.plan_type,
+                access_plan_type: body.plan_type,
+                next_plan_type: body.plan_type,
                 start_hour: Number(body.start_hour),
                 end_hour: Number(body.end_hour),
                 timezone: body.timezone,
@@ -101,8 +104,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             const clubResponse = await clubs.insertOne(club);
             const club_id = clubResponse.insertedId.toString();
 
-            if (body.plan_type === 'paid') {
-                await createInitialBillingPeriod(billingPeriods, club_id, 'signup');
+            if (isPaidPlanType(body.plan_type)) {
+                await createInitialBillingPeriod(billingPeriods, club_id, body.plan_type, 'signup');
             }
 
             await database.collection<DBUser>('users').updateOne(

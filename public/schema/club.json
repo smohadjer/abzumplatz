@@ -67,7 +67,7 @@
         },
         "plan_type": {
             "type": "string",
-            "enum": ["free", "paid"],
+            "enum": ["basic", "pro", "elite"],
             "errorMessage": {
                 "enum": "Bitte wählen Sie einen gültigen Plan aus."
             }

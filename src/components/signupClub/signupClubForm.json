@@ -52,20 +52,25 @@
             "label": "Plan",
             "type": "radio",
             "required": true,
-            "value": "free",
-            "hint": "Nur 100 aktive Mitglieder zulässig",
+            "value": "basic",
+            "hint": "Bis zu 100 Mitglieder zulässig",
             "hintByValue": {
-                "free": "Nur 100 aktive Mitglieder zulässig",
-                "paid": "Keine Einschränkungen"
+                "basic": "Bis zu 100 Mitglieder zulässig",
+                "pro": "Bis zu 500 Mitglieder zulässig",
+                "elite": "Keine Begrenzung der Mitgliederzahl"
             },
             "options": [
                 {
-                    "label": "Free",
-                    "value": "free"
+                    "label": "Basic",
+                    "value": "basic"
                 },
                 {
-                    "label": "Bezahlplan",
-                    "value": "paid"
+                    "label": "Pro",
+                    "value": "pro"
+                },
+                {
+                    "label": "Elite",
+                    "value": "elite"
                 }
             ]
         },

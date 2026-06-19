@@ -9,6 +9,8 @@ import { database_uri, database_name } from './_utils/_config.js';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createError, getErrorCause, getErrorMessage } from './_utils/_errors.js';
 import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';
+import { BillingPeriodDocument, getCurrentAccessPlanType, resolveClubBillingState } from './_utils/_billingPeriods.js';
+import { getMembersLimitForPlan } from '../src/planConfig.js';
 
 type SignupBody = {
     first_name: string;
@@ -175,6 +177,22 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     });
                     if (!club) {
                         throw createError('Der ausgewählte Verein existiert nicht.', 'club_id');
+                    }
+
+                    const { club: resolvedClub, currentBillingPeriod } = await resolveClubBillingState(
+                        database.collection<ClubDocument>('clubs'),
+                        database.collection<BillingPeriodDocument>('billing_periods'),
+                        club
+                    );
+                    const membersLimit = getMembersLimitForPlan(getCurrentAccessPlanType(resolvedClub));
+                    const hasPaidEntitlement = Boolean(currentBillingPeriod);
+
+                    if (membersLimit != null && !hasPaidEntitlement) {
+                        const membersCount = await database.collection<DBUser>('users').countDocuments({club_id});
+
+                        if (membersCount >= membersLimit) {
+                            throw createError(`In diesem Plan sind höchstens ${membersLimit} Mitglieder erlaubt.`, 'club_id');
+                        }
                     }
                 }
 

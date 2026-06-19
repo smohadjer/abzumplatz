@@ -1,184 +1,218 @@
 # Billing
 
-This document describes how billing and paid/free plan behavior works in the app.
+This document describes how billing works in the app today.
 
-## Current Plan Model
+## Plans
 
-The app currently has two plans:
+The app currently supports three plans:
 
-- `free`
-- `paid`
+- `basic`
+- `pro`
+- `elite`
 
-The central plan configuration lives in [src/planConfig.ts](/Users/sm/Documents/abzumplatz/src/planConfig.ts).
+Shared plan configuration lives in [src/planConfig.ts](/Users/sm/Documents/abzumplatz/src/planConfig.ts).
 
-Current shared plan rules:
+Relevant config entries:
 
-- `FREE_PLAN_MEMBERS_LIMIT`
-- `PAID_PLAN_PRICE_EUR`
+- `PLAN_CONFIG.basic`
+- `PLAN_CONFIG.pro`
+- `PLAN_CONFIG.elite`
 
-The paid plan is monthly.
+Plan behavior:
 
-Plan labels and user-facing hint text are also derived from that file.
+`basic`
 
-## Current Club Fields
+- free plan
+- limited to the configured `membersLimit`
 
-Relevant billing-related fields currently stored on a club:
+`pro`
 
-- `plan_type`
+- paid plan
+- costs the configured `price`
+- renews every configured `durationMonths`
+- limited to the configured `membersLimit`
 
-## Meaning Of Plan Fields
+`elite`
 
-`plan_type` is the renewal-state decision:
+- paid plan
+- costs the configured `price`
+- renews every configured `durationMonths`
+- no member limit
 
-- `paid` means renew when the current paid period ends
-- `free` means do not renew after the current paid period ends
+## Core Rules
 
-The end of the current paid period is derived from the active record in `billing_periods`.
-
-## Current Entitlement Rule
-
-A club behaves as `paid` while its current paid period is still active.
+The app keeps billing periods stable when a club changes plan.
 
 That means:
 
-- if there is an active billing period, the club behaves as paid
-- if there is no active billing period, the club no longer has paid entitlement unless a new paid period is created
+- the current billing period keeps its original `period_start`
+- the current billing period keeps its original `period_end`
+- plan changes do not create a new billing boundary in the middle of the current period
 
-So:
+For clubs on a paid plan:
 
-- `plan_type` controls future renewal behavior
-- the active billing period controls current paid entitlement
+- upgrades unlock better access immediately
+- upgrades during an existing paid period are billed from the next billing period
+- downgrades do not reduce access during an already paid period
 
-This matches the intended “subscription like Amazon Prime” behavior:
+## Billing Periods
 
-- switching from `paid` to `free` cancels renewal
-- but the club keeps paid behavior until the already-paid period ends
+The `billing_periods` collection is the source of truth for paid billing history.
 
-## Current Free / Paid Behavior
-
-### Free
-
-- member limit applies
-- current limit comes from `FREE_PLAN_MEMBERS_LIMIT`
-
-### Paid
-
-- no member limit
-- paid periods run from the same day of one month to the same day of the next month
-- paid price comes from `PAID_PLAN_PRICE_EUR`
-
-## Current Renewal Implementation
-
-At the moment, renewal can still be resolved lazily in code as an interim step.
-
-The intended long-term solution is a scheduled cron-based renewal process backed by `billing_periods`.
-
-## Planned Long-Term Model
-
-The app should introduce a separate `billing_periods` collection.
-
-This collection will become the source of truth for paid-period history.
-
-## Planned `billing_periods` Model
-
-Each paid period should be stored as a separate record.
-
-Suggested fields:
+Each billing period stores:
 
 - `club_id`
+- `plan_type`
 - `period_start`
 - `period_end`
 - `status`
 - `created_at`
 - optional `source`
 
-Suggested statuses:
+Rules:
 
-- `active`
-- `completed`
-- `canceled`
+- there is at most one active billing period per club
+- billing period dates stay fixed once the period has started
+- the billed plan for the running period stays attached to that billing period
 
-Important invariant:
+## Monthly Renewal Boundary
 
-- there should be at most one active billing period per club
+Paid billing periods are month-based and anchored to the same calendar day.
 
-## Planned Billing Lifecycle
+Rule:
 
-### 1. Club starts on Free
+- a billing period starts on a calendar day
+- the next billing period starts on the same day in the next month
+- `period_end` is the renewal boundary
 
-- no active billing period
-- app behaves as free
+Example:
 
-### 2. Club enters Paid
+- `period_start = 2026-06-19`
+- `period_end = 2026-07-19`
 
-- create a billing period
-- set:
-  - `period_start = today`
-  - `period_end = same day next month`
-  - `status = active`
-- app behaves as paid
+This means:
 
-### 3. Paid club renews
+- the current paid period runs through `2026-07-18`
+- the next billing period starts on `2026-07-19`
 
-When the current paid period ends:
+If the same day does not exist in the next month, the last valid day of that month is used.
 
-- if `plan_type === paid`
-  - mark current active billing period as `completed`
-  - create a new active billing period
+## Club Plan State
 
-### 4. Club switches from Paid to Free before period ends
+Each club stores three plan-related fields:
 
-- do not shorten the already-active paid period
-- do not create a future renewal period
-- app continues behaving as paid until the active billing period ends
-- after the period ends, app behaves as free
+- `plan_type`
+- `access_plan_type`
+- `next_plan_type`
 
-This is effectively:
+Meaning:
 
-- cancel renewal
-- keep access until period end
+`plan_type`
 
-### 5. Club switches from Free back to Paid
+- the plan billed for the current running billing period
 
-- if there is no active billing period
-  - create a new active billing period starting now
-- app behaves as paid again
+`access_plan_type`
 
-## Monthly Renewal Rule
+- the plan whose features are active right now
+- this can be higher than `plan_type` after an upgrade
 
-The paid subscription should behave like a normal monthly subscription:
+`next_plan_type`
 
-- if a club stays on `paid`, it renews automatically
-- each new billing period starts on the same calendar day stored as the previous period’s `period_end`
-- the new billing period ends on the same calendar day in the following month
+- the plan that should apply at the next renewal
+- this field is always stored on the club document
+- if no plan change is scheduled, it matches the plan that should continue next
 
-Examples:
+In practice:
 
-- `2026-06-17` to `2026-07-17`
-- `2026-07-17` to `2026-08-17`
+- `plan_type` = billed plan of the current period
+- `access_plan_type` = active access plan now
+- `next_plan_type` = plan used at the next renewal
 
-`period_end` is the next renewal boundary, while the user-facing “bezahlt bis” date is derived as the day before that boundary.
+## Registration
 
-This means the system should not model paid periods as a fixed number of days.
+When a club is created:
 
-## Planned Cron Workflow
+- if `plan_type = basic`, no billing period is created
+- if `plan_type = pro` or `plan_type = elite`, the first active billing period is created immediately
 
-The preferred long-term renewal mechanism is a Vercel cron job.
+## Renewal
 
-Cron should:
+At renewal time:
 
-- find clubs with `plan_type === paid`
-- renew them when their active paid period ends
-- create a new billing period for each new paid cycle
-For clubs with `plan_type === free`:
+- the current billing period ends
+- the next billing period starts on the same renewal boundary
+- the club switches to `next_plan_type`
 
-- do not create new billing periods
-- once the active paid period ends, renewal stops
+If `next_plan_type` is paid:
 
-## Relationship To Invoices
+- a new paid billing period is created
 
-Invoices are intentionally not implemented yet in this document.
+If `next_plan_type = basic`:
 
-But this billing model is designed so invoices can later be generated from `billing_periods`.
+- no new paid billing period is created
 
-That will be much more reliable than trying to infer invoice history from a denormalized field on the club document.
+## Upgrades
+
+If a club upgrades from `basic` to `pro` or `elite`, or from `pro` to `elite`:
+
+- upgraded access starts immediately
+- if the club comes from `basic`, the first paid billing period starts immediately
+- the current billing period boundary does not move
+- if the club upgrades during an existing paid period, the higher price is charged only from the next billing period
+- after an upgrade within an existing paid period, a downgrade to a cheaper plan is blocked until the next billing period starts
+
+Example:
+
+- current `Pro` period: `2026-06-19` to `2026-07-19`
+- on `2026-07-18` the club upgrades to `Elite`
+
+Result:
+
+- the club gets `Elite` access immediately on `2026-07-18`
+- the current billing period still ends on `2026-07-19`
+- the next billing period starting `2026-07-19` is billed as `Elite`
+- the club cannot switch back to `Pro` before `2026-07-19`
+
+## Downgrades
+
+If a club downgrades from `elite` to `pro`, or from a paid plan to `basic`:
+
+- the downgrade takes effect at period end
+- current paid access remains unchanged until the current billing period finishes
+- the next billing period uses the downgraded plan, or no paid plan if switching to `basic`
+
+Example:
+
+- current `Elite` period: `2026-06-19` to `2026-07-19`
+- on `2026-07-05` the club switches to `Pro`
+
+Result:
+
+- the club keeps `Elite` access until `2026-07-19`
+- the next billing period starting `2026-07-19` is billed as `Pro`
+
+If switching to `basic`:
+
+- the club keeps current paid access until the current paid period ends
+- after that, no new paid billing period is created
+
+## Invoicing
+
+Invoices are based on whole billing periods.
+
+Rules:
+
+- one invoice covers one full billing period
+- invoices are not split because of a mid-period plan change
+- the invoice for the current period is based on the plan billed for that period
+- the next invoice uses the plan that becomes effective at renewal
+
+## Member Limits
+
+Member limits apply to total club members, not only active members.
+
+Current rules:
+
+- `basic`: up to 100 members
+- `pro`: up to 500 members
+- `elite`: no limit

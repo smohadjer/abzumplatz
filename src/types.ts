@@ -12,11 +12,19 @@ export type Field = {
   placeholder?: string;
   hint?: string;
   hintByValue?: Record<string, string>;
-  options?: any[];
+  footnote?: string;
+  options?: {
+    disabled?: boolean;
+    label: string;
+    value: string | number;
+  }[];
   autocomplete?: string;
   hasStrengthIndicator?: boolean;
   hasDisplayToggle?: boolean;
 }
+
+export type PlanType = 'basic' | 'pro' | 'elite';
+export type NormalizedPlanType = 'basic' | 'pro' | 'elite';
 
 export type FormDataInterface = {
   form: FormAttributes;
@@ -60,11 +68,14 @@ export type Club = {
     start_hour: number;
     end_hour: number;
     timezone: string;
-    plan_type?: 'free' | 'paid';
+    plan_type?: PlanType;
+    access_plan_type?: PlanType;
+    next_plan_type: PlanType;
 }
 
 export type ClubWithBilling = Club & {
     paid_until?: string;
+    downgrade_locked?: boolean;
 }
 
 export type ReservationItem = {
