@@ -11,6 +11,7 @@ import { isPaidPlanType } from '../src/planConfig.js';
 type BillingBody = {
   club_id?: string;
   plan_type?: PlanType;
+  anchor_day?: number;
   period_start?: string;
   period_end?: string;
   status?: BillingPeriodStatus;
@@ -115,6 +116,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const body = sanitize(req.body) as BillingBody;
       const club_id = isString(body.club_id) ? body.club_id : undefined;
       const plan_type = isString(body.plan_type) ? body.plan_type as PlanType : undefined;
+      const anchor_day = typeof body.anchor_day === 'number' ? body.anchor_day : undefined;
       const period_start = isString(body.period_start) ? body.period_start : undefined;
       const period_end = isString(body.period_end) ? body.period_end : undefined;
       const status = body.status ?? 'active';
@@ -170,6 +172,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const period: BillingPeriodDocument = {
         club_id,
         plan_type: billingPlanType === 'elite' ? 'elite' : 'pro',
+        anchor_day: anchor_day ?? startDate.getDate(),
         period_start,
         period_end,
         status,

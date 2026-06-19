@@ -4,7 +4,7 @@ import { RootState } from './../../store';
 import { fetchClub, fetchUsers } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
 import { Link, useSearchParams } from 'react-router';
-import { getBasicPlanName, getElitePlanName, getMembersLimitForPlan, getProPlanName, hasFuturePaidUntil } from '../../planConfig';
+import { getBasicPlanName, getElitePlanName, getMembersLimitForPlan, getProPlanName } from '../../planConfig';
 
 export default function AdminMembersPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -27,8 +27,7 @@ export default function AdminMembersPage() {
     const currentClubFromList = clubs.find(club => club._id === user.club_id);
     const club = currentClubFromList ?? (clubData.value._id === user.club_id ? clubData.value : null);
     const membersLimit = getMembersLimitForPlan(club?.access_plan_type ?? club?.plan_type);
-    const hasPaidEntitlement = hasFuturePaidUntil(club?.paid_until);
-    const hasMemberCap = membersLimit != null && !hasPaidEntitlement;
+    const hasMemberCap = membersLimit != null;
 
     const setTab = (tab: 'active' | 'inactive') => {
         setActiveTab(tab);

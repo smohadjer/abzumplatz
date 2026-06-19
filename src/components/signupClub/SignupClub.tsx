@@ -1,7 +1,7 @@
 import { Form } from '../form/Form';
 import formJson from './signupClubForm.json';
 import { Field } from '../../types';
-import { applyPlanConfigToFields, getPlanLevel, getPlanName, normalizePlanType } from '../../planConfig';
+import { applyPlanConfigToFields, getCoveredUntilFromPeriodEnd, getPlanLevel, getPlanName, normalizePlanType } from '../../planConfig';
 
 type Props = {
     label?: string;
@@ -35,12 +35,15 @@ export function SignupClub(props: Props) {
                     disabled: typeof option.value === 'string' && getPlanLevel(option.value as 'basic' | 'pro' | 'elite') < getPlanLevel(accessPlanType)
                 }));
             }
-
-            const scheduledPlanChangeNotice = data?.paid_until && data?.next_plan_type !== accessPlanType
-                ? `${getPlanName(accessPlanType)} ist noch bis ${new Date(data.paid_until).toLocaleDateString('de-DE')} aktiv und wechselt danach zu ${getPlanName(data.next_plan_type)}.`
+            const coveredUntilLabel = data?.current_billing_period_end
+                ? new Date(getCoveredUntilFromPeriodEnd(data.current_billing_period_end) ?? data.current_billing_period_end).toLocaleDateString('de-DE')
                 : null;
-            const upgradeBillingNotice = data?.paid_until && accessPlanType !== data?.plan_type
-                ? `${getPlanName(accessPlanType)} Zugriff ist bereits aktiv. Abgerechnet wird ${getPlanName(data.plan_type)} bis ${new Date(data.paid_until).toLocaleDateString('de-DE')}.`
+
+            const scheduledPlanChangeNotice = coveredUntilLabel && data?.next_plan_type !== accessPlanType
+                ? `${getPlanName(accessPlanType)} ist noch bis ${coveredUntilLabel} aktiv und wechselt danach zu ${getPlanName(data.next_plan_type)}.`
+                : null;
+            const upgradeBillingNotice = coveredUntilLabel && accessPlanType !== data?.plan_type
+                ? `${getPlanName(accessPlanType)} Zugriff ist bereits aktiv. Abgerechnet wird ${getPlanName(data.plan_type)} bis ${coveredUntilLabel}.`
                 : null;
             const downgradeLockNotice = downgradeLocked
                 ? 'Nach einem Upgrade ist ein Downgrade erst ab der nächsten Verlängerung möglich.'

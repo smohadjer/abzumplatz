@@ -74,8 +74,20 @@ export type Club = {
 
 export type ClubWithBilling = Club & {
     plan_type?: PlanType;
-    paid_until?: string;
+    current_billing_period_end?: string;
     downgrade_locked?: boolean;
+}
+
+export type BillingPeriod = {
+    _id?: string;
+    club_id: string;
+    plan_type: Exclude<PlanType, 'basic'>;
+    anchor_day: number;
+    period_start: string;
+    period_end: string;
+    status: 'active' | 'completed' | 'canceled';
+    created_at: Date | string;
+    source?: string;
 }
 
 export type ReservationItem = {

@@ -54,6 +54,19 @@ For clubs on a paid plan:
 - upgrades unlock better access immediately
 - upgrades during an existing paid period are billed from the next billing period
 - downgrades do not reduce access during an already paid period
+- after an upgrade within an existing paid period, downgrading to a cheaper plan is blocked until the next billing period starts
+
+General billing state:
+
+- the billed plan for the current period is derived from the active billing period
+- if there is no active paid billing period, the billed plan is effectively `basic`
+- `basic -> pro` or `basic -> elite` starts the first paid billing period immediately
+
+Member caps:
+
+- member caps apply only to active members
+- signups and club selection are still allowed even if a club is already above a cap
+- the hard cap is enforced only when an admin activates inactive users
 
 ## Billing Periods
 
@@ -81,8 +94,8 @@ Paid billing periods are month-based and anchored to the same calendar day.
 
 Rule:
 
-- a billing period starts on a calendar day
-- the next billing period starts on the same day in the next month
+- a billing period has an anchor day based on the original billing day
+- the next billing period starts on that same anchor day in the next month when possible
 - `period_end` is the renewal boundary
 
 Example:
@@ -96,6 +109,13 @@ This means:
 - the next billing period starts on `2026-07-19`
 
 If the same day does not exist in the next month, the last valid day of that month is used.
+
+The anchor day is preserved across later months.
+
+Example:
+
+- `2026-01-31 -> 2026-02-28`
+- `2026-02-28 -> 2026-03-31`
 
 ## Club Plan State
 

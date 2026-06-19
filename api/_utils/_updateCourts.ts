@@ -2,16 +2,11 @@ import { Collection, ObjectId, WithId } from 'mongodb';
 import { VercelResponse } from '@vercel/node';
 import { DBUser } from '../../src/types.js';
 import { ClubDocument, CourtsFormBody } from './_types.js';
+import { fetchClub } from './_fetchClub.js';
 
 const projection = {
   timestamp: 0
-};
-
-const fetchClub = async (id: string, collection: Collection<ClubDocument>) => {
-  const query = {_id: ObjectId.createFromHexString(id)};
-  const doc = await collection.findOne(query, {projection});
-  return doc;
-};
+} as const;
 
 export async function updateCourts(
   collection: Collection<ClubDocument>,
@@ -27,7 +22,7 @@ export async function updateCourts(
     return res.status(403).json({error: 'Updating these courts is not allowed'});
   }
 
-  const doc = await fetchClub(body._id, collection);
+  const doc = await fetchClub(body._id, collection, {projection});
   if (!doc) {
     return res.status(404).json({error: 'Club not found'});
   }

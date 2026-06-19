@@ -8,19 +8,14 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { ClubDocument, ClubFormBody, CourtsFormBody } from './_utils/_types.js';
 import { updateCourts } from './_utils/_updateCourts.js';
 import { createInitialBillingPeriod, BillingPeriodDocument, getCurrentAccessPlanType, getSelectedPlanType, isDowngradeLocked, resolveClubBillingState } from './_utils/_billingPeriods.js';
-import { getPaidUntilFromPeriodEnd, isLowerPlan, isPaidPlanType } from '../src/planConfig.js';
+import { fetchClub } from './_utils/_fetchClub.js';
+import { isLowerPlan, isPaidPlanType } from '../src/planConfig.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
 }
 
 const client = new MongoClient(database_uri);
-
-const fetchClub = async (id: string, collection: Collection<ClubDocument>) => {
-  const query = {_id: ObjectId.createFromHexString(id)};
-  const doc = await collection.findOne(query);
-  return doc;
-};
 
 const enrichClubWithBilling = async (
   collection: Collection<ClubDocument>,
@@ -40,7 +35,7 @@ const enrichClubWithBilling = async (
   return {
     ...club,
     _id: club._id.toString(),
-    paid_until: getPaidUntilFromPeriodEnd(currentBillingPeriod?.period_end),
+    current_billing_period_end: currentBillingPeriod?.period_end,
     downgrade_locked: isDowngradeLocked(club, currentBillingPeriod),
   };
 };
@@ -305,7 +300,6 @@ async function updateClub(
     plan_type: '',
     members_limit: '',
     auto_renew: '',
-    paid_until: ''
   };
 
   if (selectedPlanType === currentSelectedPlanType) {

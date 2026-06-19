@@ -10,6 +10,7 @@ export type BillingPeriodDocument = {
     _id?: ObjectId;
     club_id: string;
     plan_type: PaidPlanType;
+    anchor_day: number;
     period_start: string;
     period_end: string;
     status: BillingPeriodStatus;
@@ -48,15 +49,17 @@ function createBillingPeriodRecord(
     planType: PlanType,
     startDate: Date,
     status: BillingPeriodStatus,
-    source?: string
+    source?: string,
+    anchorDay = startDate.getDate()
 ): BillingPeriodDocument {
     const paidPlanType = getPaidPlanType(planType);
 
     return {
         club_id: clubId,
         plan_type: paidPlanType,
+        anchor_day: anchorDay,
         period_start: getDateString(startDate),
-        period_end: getNextBillingPeriodStartForPlan(paidPlanType, startDate)!,
+        period_end: getNextBillingPeriodStartForPlan(paidPlanType, startDate, anchorDay)!,
         status,
         created_at: new Date(),
         ...(source ? {source} : {})
@@ -169,11 +172,12 @@ export async function createInitialBillingPeriod(
     clubId: string,
     planType: PlanType,
     source?: string,
-    startDate = new Date()
+    startDate = new Date(),
+    anchorDay = startDate.getDate()
 ) {
     return insertBillingPeriod(
         collection,
-        createBillingPeriodRecord(clubId, planType, startDate, 'active', source)
+        createBillingPeriodRecord(clubId, planType, startDate, 'active', source, anchorDay)
     );
 }
 
@@ -231,6 +235,10 @@ export async function resolveClubBillingState(
     let nextStartDate = latestPeriod?.period_end
         ? new Date(`${latestPeriod.period_end}T12:00:00`)
         : now;
+    const anchorDay = latestPeriod?.anchor_day
+        ?? (latestPeriod?.period_start
+            ? new Date(`${latestPeriod.period_start}T12:00:00`).getDate()
+            : nextStartDate.getDate());
 
     while (true) {
         const nextPeriod = createBillingPeriodRecord(
@@ -238,7 +246,8 @@ export async function resolveClubBillingState(
             selectedPlanType,
             nextStartDate,
             'active',
-            'renewal'
+            'renewal',
+            anchorDay
         );
 
         if (hasFutureBillingPeriodEnd(nextPeriod.period_end, now)) {

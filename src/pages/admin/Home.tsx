@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { fetchClub, fetchUsers } from "../../utils/utils";
 import { Loader } from "../../components/loader/Loader";
-import { getPlanName, getMembersLimitForPlan, hasFuturePaidUntil } from "../../planConfig";
+import { getCoveredUntilFromPeriodEnd, getPlanName, getMembersLimitForPlan, hasFutureBillingPeriodEnd } from "../../planConfig";
 
 export default function AdminHomePage() {
     const [loadingClub, setLoadingClub] = useState(false);
@@ -17,7 +17,7 @@ export default function AdminHomePage() {
     const activeMembersCount = usersData.loaded
         ? usersData.value.filter(member => member.status !== 'inactive').length
         : null;
-    const hasPaidEntitlement = hasFuturePaidUntil(club.paid_until);
+    const hasPaidEntitlement = hasFutureBillingPeriodEnd(club.current_billing_period_end);
     const accessPlanType = club.access_plan_type ?? club.plan_type;
     const membersLimit = getMembersLimitForPlan(accessPlanType);
     const remainingMembersCount = membersLimit != null && activeMembersCount != null
@@ -27,8 +27,8 @@ export default function AdminHomePage() {
     const address = [club.address_line1, club.postal_code, club.city, club.country]
         .filter(Boolean)
         .join(', ');
-    const paidUntilLabel = club.paid_until
-        ? new Date(club.paid_until).toLocaleDateString('de-DE')
+    const paidUntilLabel = club.current_billing_period_end
+        ? new Date(getCoveredUntilFromPeriodEnd(club.current_billing_period_end) ?? club.current_billing_period_end).toLocaleDateString('de-DE')
         : '-';
     const accessPlanName = getPlanName(accessPlanType);
     const billedPlanName = getPlanName(club.plan_type);
@@ -69,6 +69,7 @@ export default function AdminHomePage() {
                 <Link className="button-link" to="/admin/members">Mitglieder verwalten</Link>
                 <Link className="button-link" to="/admin/club">Verein editieren</Link>
                 <Link className="button-link" to="/admin/courts">Plätze verwalten</Link>
+                <Link className="button-link" to="/admin/billings">Abrechnungen</Link>
             </div>
             {loadingClub || !clubData.loaded ? (
                 <Loader size="small" text="Vereinsdaten werden geladen..." />

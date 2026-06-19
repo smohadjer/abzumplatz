@@ -39,15 +39,14 @@ function getLocalDate(dateString: string) {
     return new Date(`${dateString}T12:00:00`);
 }
 
-function addMonthsKeepingDay(fromDate: Date, months: number) {
+function addMonthsKeepingDay(fromDate: Date, months: number, preferredDay = fromDate.getDate()) {
     const year = fromDate.getFullYear();
     const month = fromDate.getMonth();
-    const day = fromDate.getDate();
     const targetMonthIndex = month + months;
     const targetYear = year + Math.floor(targetMonthIndex / 12);
     const normalizedTargetMonth = ((targetMonthIndex % 12) + 12) % 12;
     const lastDayOfTargetMonth = new Date(targetYear, normalizedTargetMonth + 1, 0).getDate();
-    const targetDay = Math.min(day, lastDayOfTargetMonth);
+    const targetDay = Math.min(preferredDay, lastDayOfTargetMonth);
 
     return new Date(targetYear, normalizedTargetMonth, targetDay, 12, 0, 0, 0);
 }
@@ -98,17 +97,17 @@ export function getMembersLimitForPlan(planType?: PlanType) {
     return getPlanConfig(planType).membersLimit;
 }
 
-export function getNextBillingPeriodStartForPlan(planType?: PlanType, fromDate = new Date()) {
+export function getNextBillingPeriodStartForPlan(planType?: PlanType, fromDate = new Date(), anchorDay = fromDate.getDate()) {
     const config = getPlanConfig(planType);
     if (config.price <= 0) {
         return undefined;
     }
 
-    const nextPeriodStart = addMonthsKeepingDay(fromDate, config.durationMonths);
+    const nextPeriodStart = addMonthsKeepingDay(fromDate, config.durationMonths, anchorDay);
     return getLocalDateString(nextPeriodStart);
 }
 
-export function getPaidUntilFromPeriodEnd(periodEnd?: string) {
+export function getCoveredUntilFromPeriodEnd(periodEnd?: string) {
     if (!periodEnd) {
         return undefined;
     }
@@ -116,15 +115,6 @@ export function getPaidUntilFromPeriodEnd(periodEnd?: string) {
     const paidUntil = getLocalDate(periodEnd);
     paidUntil.setDate(paidUntil.getDate() - 1);
     return getLocalDateString(paidUntil);
-}
-
-export function hasFuturePaidUntil(paidUntil?: string, now = new Date()) {
-    if (!paidUntil) {
-        return false;
-    }
-
-    const endOfPaidDay = new Date(`${paidUntil}T23:59:59.999`);
-    return endOfPaidDay > now;
 }
 
 export function hasFutureBillingPeriodEnd(periodEnd?: string, now = new Date()) {
