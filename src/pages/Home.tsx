@@ -1,9 +1,46 @@
 import { Link } from 'react-router';
 import Header from '../components/header/Header';
+import { PLAN_CONFIG, getPaidPlanDurationLabel } from '../planConfig';
 // import { Slider } from '../components/slider/slider';
 import './home.css';
 
 export default function Home() {
+    const planCards = [
+        {
+            key: 'basic',
+            title: PLAN_CONFIG.basic.label,
+            price: `${PLAN_CONFIG.basic.price} €${getPaidPlanDurationLabel('basic')}`,
+            members: `Bis zu ${PLAN_CONFIG.basic.membersLimit} aktive Mitglieder`,
+            notes: [
+                'Online-Reservierungen für Ihren Verein',
+                'Mitglieder selbst freischalten',
+                'Ideal für kleinere Vereine',
+            ]
+        },
+        {
+            key: 'pro',
+            title: PLAN_CONFIG.pro.label,
+            price: `${PLAN_CONFIG.pro.price} €${getPaidPlanDurationLabel('pro')}`,
+            members: `Bis zu ${PLAN_CONFIG.pro.membersLimit} aktive Mitglieder`,
+            notes: [
+                'Mehr Mitglieder im laufenden Betrieb',
+                'Alle Funktionen des Basic Plans',
+                'Monatlich kündbar',
+            ]
+        },
+        {
+            key: 'elite',
+            title: PLAN_CONFIG.elite.label,
+            price: `${PLAN_CONFIG.elite.price} €${getPaidPlanDurationLabel('elite')}`,
+            members: 'Keine Begrenzung der aktiven Mitglieder',
+            notes: [
+                'Für große Vereine ohne Limit',
+                'Alle Funktionen des Pro Plans',
+                'Monatlich kündbar',
+            ]
+        }
+    ];
+
     // const slides = [
     //     {url: '/assets/1-min.jpg', text: 'Registrieren Sie sich als Vereinsadmin' },
     //     {url: '/assets/2-min.jpg', text: 'Nach dem Einloggen wird Ihnen die Club-Registrierungsseite angezeigt'},
@@ -18,6 +55,24 @@ export default function Home() {
                 <p>Neuer Spieler? <Link className="navbar-text-link" to="/register/player">Jetzt registrieren</Link></p>
             </div>
             <p className="intro">Abzumplatz ermöglicht es Tennisvereinen, ihren Mitgliedern kostenlose Online-Reservierungen ihrer Tennisplätze anzubieten. <Link className="button" to="/register/club">Registrieren Sie Ihren Verein</Link> und teilen Sie den Link mit Ihren Vereinsmitgliedern.</p>
+            <section className="plan-section" aria-labelledby="plan-section-title">
+                <div className="plan-section-heading">
+                    <h2 id="plan-section-title">Pläne im Überblick</h2>
+                    <p>Wählen Sie den Plan, der zur Größe Ihres Vereins passt.</p>
+                </div>
+                <div className="plan-grid">
+                    {planCards.map(plan => (
+                        <article key={plan.key} className={`plan-card plan-card--${plan.key}`}>
+                            <p className="plan-card-name">{plan.title}</p>
+                            <p className="plan-card-price">{plan.price}</p>
+                            <p className="plan-card-members">{plan.members}</p>
+                            <ul className="plan-card-list">
+                                {plan.notes.map(note => <li key={note}>{note}</li>)}
+                            </ul>
+                        </article>
+                    ))}
+                </div>
+            </section>
             <div className="home-feature-layout">
                 <img className="hero-image" src="/assets/1.png" alt="screenshot" />
                 {/* <Slider slides={slides} /> */}

@@ -47,6 +47,73 @@
     margin: 1em 0;
 }
 
+.plan-section {
+    margin: 1.5rem 0 2rem;
+    padding: 1.25rem 1rem;
+    background: linear-gradient(180deg, #f7f9fd 0%, #eef3fb 100%);
+    border: 1px solid #d7e1f2;
+    border-radius: 1rem;
+}
+
+.plan-section-heading p {
+    margin-top: 0.4rem;
+    color: #4d628b;
+}
+
+.plan-grid {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1rem;
+}
+
+.plan-card {
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #d9e3f5;
+    border-radius: 0.9rem;
+    box-shadow: 0 10px 24px rgba(50, 100, 200, 0.08);
+}
+
+.plan-card--pro {
+    border-color: #bfcff1;
+}
+
+.plan-card--elite {
+    border-color: #f2c6b2;
+}
+
+.plan-card-name,
+.plan-card-price,
+.plan-card-members {
+    margin-top: 0;
+}
+
+.plan-card-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.plan-card-price {
+    margin-top: 0.35rem;
+    color: #234b96;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.plan-card-members {
+    margin-top: 0.5rem;
+    color: #4f5f7d;
+}
+
+.plan-card-list {
+    margin: 0.85rem 0 0;
+    padding-left: 1.1rem;
+}
+
+.plan-card-list li {
+    margin-bottom: 0.35rem;
+}
+
 .club-register {
     text-align: center;
     margin-top: 1em;
@@ -82,6 +149,10 @@
 }
 
 @media (min-width: 768px) {
+    .plan-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .content {
         flex: 1 1 auto;
         margin: 0;
