@@ -45,13 +45,13 @@ export function SignupClub(props: Props) {
             const downgradeLockNotice = downgradeLocked
                 ? 'Nach einem Upgrade ist ein Downgrade erst ab der nächsten Verlängerung möglich.'
                 : null;
-
-            field.footnote = [
+            const specificPlanNotice = [
                 scheduledPlanChangeNotice,
                 upgradeBillingNotice,
                 downgradeLockNotice,
-                'Upgrades gelten sofort für den Zugriff, aber erst ab der nächsten Verlängerung für die Abrechnung. Nach einem Upgrade ist ein Downgrade erst in der nächsten Abrechnungsperiode möglich.'
             ].filter(Boolean).join(' ');
+
+            field.footnote = specificPlanNotice || 'Upgrades gelten sofort für den Zugriff, aber erst ab der nächsten Verlängerung für die Abrechnung.';
         }
     });
 

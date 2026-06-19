@@ -114,10 +114,6 @@ export default function AdminHomePage() {
                             <td>{planLabel}</td>
                         </tr>
                         <tr>
-                            <th>Bezahlt bis</th>
-                            <td>{paidUntilLabel}</td>
-                        </tr>
-                        <tr>
                             <th>Plätze</th>
                             <td>{club.courts.length}</td>
                         </tr>
