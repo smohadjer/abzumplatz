@@ -201,14 +201,6 @@ ul {
         }
     }
 
-    .user-list-item--inactive {
-        color: #888;
-
-        a {
-            color: inherit;
-        }
-    }
-
     .user-list-item--selected {
         background: #eef4ff;
     }
@@ -220,6 +212,15 @@ ul {
     gap: 0.5rem;
     margin: 1rem 0;
     flex-wrap: wrap;
+}
+
+.members-warning-box {
+    background: #fff4d6;
+    border: 1px solid #e0c36c;
+    color: #222;
+    padding: 0.75em 0.9em;
+    margin-top: 0.75em;
+    border-radius: 0.25em;
 }
 
 .members-form {

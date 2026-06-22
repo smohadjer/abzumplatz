@@ -10,6 +10,7 @@ import { updateCourts } from './_utils/_updateCourts.js';
 import { createInitialBillingPeriod, BillingPeriodDocument, getCurrentAccessPlanType, getSelectedPlanType, isDowngradeLocked, resolveClubBillingState } from './_utils/_billingPeriods.js';
 import { fetchClub } from './_utils/_fetchClub.js';
 import { isLowerPlan, isPaidPlanType } from '../src/planConfig.js';
+import { getEffectiveMembersLimitForPlan, hasMembersLimitOverride } from './_utils/_planLimits.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -37,6 +38,8 @@ const enrichClubWithBilling = async (
     _id: club._id.toString(),
     current_billing_period_end: currentBillingPeriod?.period_end,
     downgrade_locked: isDowngradeLocked(club, currentBillingPeriod),
+    effective_members_limit: getEffectiveMembersLimitForPlan(getCurrentAccessPlanType(club)),
+    members_limit_override_active: hasMembersLimitOverride(),
   };
 };
 

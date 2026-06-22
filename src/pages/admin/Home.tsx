@@ -19,7 +19,7 @@ export default function AdminHomePage() {
         : null;
     const hasPaidEntitlement = hasFutureBillingPeriodEnd(club.current_billing_period_end);
     const accessPlanType = club.access_plan_type ?? club.plan_type;
-    const membersLimit = getMembersLimitForPlan(accessPlanType);
+    const membersLimit = club.effective_members_limit ?? getMembersLimitForPlan(accessPlanType);
     const remainingMembersCount = membersLimit != null && activeMembersCount != null
         ? Math.max(membersLimit - activeMembersCount, 0)
         : null;

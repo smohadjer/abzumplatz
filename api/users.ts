@@ -6,10 +6,10 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import sendEmail from './_utils/_sendEmail.js';
 import { escapeHtml } from './_utils/_lib.js';
 import { ReservationItem } from '../src/types.js';
-import { getMembersLimitForPlan } from '../src/planConfig.js';
 import { ClubDocument } from './_utils/_types.js';
 import { isReservationActive } from '../src/utils/utils.js';
 import { BillingPeriodDocument, getCurrentAccessPlanType, resolveClubBillingState } from './_utils/_billingPeriods.js';
+import { getEffectiveMembersLimitForPlan } from './_utils/_planLimits.js';
 
 function getStatusLabel(status: string) {
   return status === 'active' ? 'aktiv' : 'inaktiv';
@@ -227,7 +227,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         });
       }
 
-      const membersLimit = getMembersLimitForPlan(resolvedClub ? getCurrentAccessPlanType(resolvedClub) : undefined);
+      const membersLimit = getEffectiveMembersLimitForPlan(resolvedClub ? getCurrentAccessPlanType(resolvedClub) : undefined);
       const updatedUsers: Array<{_id: string; status: string; club_id?: null}> = [];
       const removedUserIds: string[] = [];
 

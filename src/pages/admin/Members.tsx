@@ -4,7 +4,7 @@ import { RootState } from './../../store';
 import { fetchClub, fetchUsers } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
 import { Link, useSearchParams } from 'react-router';
-import { getMembersLimitForPlan, PLAN_CONFIG } from '../../planConfig';
+import { getMembersLimitForPlan, getPlanName, PLAN_CONFIG } from '../../planConfig';
 
 export default function AdminMembersPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -26,8 +26,25 @@ export default function AdminMembersPage() {
     const visibleUsers = users.filter(member => activeTab === 'active' ? isActiveUser(member) : !isActiveUser(member));
     const currentClubFromList = clubs.find(club => club._id === user.club_id);
     const club = currentClubFromList ?? (clubData.value._id === user.club_id ? clubData.value : null);
-    const membersLimit = getMembersLimitForPlan(club?.access_plan_type ?? club?.plan_type);
+    const currentPlanType = club?.access_plan_type ?? club?.plan_type;
+    const membersLimit = club?.effective_members_limit ?? getMembersLimitForPlan(currentPlanType);
     const hasMemberCap = membersLimit != null;
+    const hasReachedMembersLimit = membersLimit != null && activeUsersCount >= membersLimit;
+    const currentPlanName = getPlanName(currentPlanType);
+    const hasMembersLimitOverride = Boolean(club?.members_limit_override_active);
+    const planUpgradeText = currentPlanType === 'basic'
+        ? (
+            <>
+                Wechseln Sie zum <Link to="/admin/club">{PLAN_CONFIG.pro.label} oder {PLAN_CONFIG.elite.label}</Link>, um diese Einschränkung aufzuheben.
+            </>
+        )
+        : currentPlanType === 'pro'
+            ? (
+                <>
+                    Wechseln Sie zum <Link to="/admin/club">{PLAN_CONFIG.elite.label}</Link>, um diese Einschränkung aufzuheben.
+                </>
+            )
+            : null;
 
     const setTab = (tab: 'active' | 'inactive') => {
         setActiveTab(tab);
@@ -161,10 +178,22 @@ export default function AdminMembersPage() {
                     </button>
                 </div>
                 {hasMemberCap ? (
-                    <p>
-                        Im {PLAN_CONFIG.basic.label} Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. Wechseln Sie zum{' '}
-                        <Link to="/admin/club">{PLAN_CONFIG.pro.label} oder {PLAN_CONFIG.elite.label}</Link>, um diese Einschränkung aufzuheben.
-                    </p>
+                    <>
+                        {hasReachedMembersLimit ? (
+                            <p className="hint hint-box members-warning-box">
+                                Achtung: Das aktuelle Mitgliederlimit von {membersLimit} aktiven Mitgliedern ist erreicht.
+                            </p>
+                        ) : null}
+                        {hasMembersLimitOverride ? (
+                            <p className="hint hint-box members-warning-box">
+                                Achtung: Das Mitgliederlimit wird aktuell zentral auf {membersLimit} aktive Mitglieder erzwungen. Diese Grenze gilt unabhängig vom gewählten Plan.
+                            </p>
+                        ) : (
+                            <p>
+                                Im {currentPlanName} Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. {planUpgradeText}
+                            </p>
+                        )}
+                    </>
                 ) : null}
                 <form className="members-form" onSubmit={handleSubmit}>
                     {selectableUsers.length > 0 ? (
@@ -223,7 +252,6 @@ export default function AdminMembersPage() {
                         {visibleUsers.map(user => {
                             const classNames = [
                                 user.role === 'admin' ? 'user-list-item--admin' : '',
-                                isActiveUser(user) ? '' : 'user-list-item--inactive',
                                 selectedUserIds.includes(user._id) ? 'user-list-item--selected' : '',
                             ].filter(Boolean).join(' ');
 

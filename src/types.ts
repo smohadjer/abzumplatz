@@ -76,6 +76,8 @@ export type ClubWithBilling = Club & {
     plan_type?: PlanType;
     current_billing_period_end?: string;
     downgrade_locked?: boolean;
+    effective_members_limit?: number | null;
+    members_limit_override_active?: boolean;
 }
 
 export type BillingPeriod = {
