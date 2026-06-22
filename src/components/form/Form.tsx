@@ -18,6 +18,8 @@ type Props = {
     classNames?: string;
     formAttributes: FormAttributes;
     callback?: Function;
+    formData?: Field[];
+    onFormDataChange?: (fields: Field[]) => void;
 }
 
 type Option = {
@@ -26,31 +28,33 @@ type Option = {
 }
 
 export function Form(props: Props) {
-    const { label, pathSchema, initialData, formAttributes} = props;
+    const { label, pathSchema, initialData, formAttributes, formData: controlledFormData, onFormDataChange } = props;
     const [disabled, setDisabled] = useState(false);
     const submitMethod = formAttributes.method.toUpperCase();
     const applyConditionalVisibility = (fields: Field[]) => {
         const planType = fields.find(field => field.name === 'plan_type')?.value;
 
         return fields.map(field => {
-            const updatedField = field.hintByValue && typeof planType === 'string'
+            return field.hintByValue && typeof planType === 'string'
                 ? {
                     ...field,
                     hint: field.hintByValue[planType] ?? field.hint
                 }
                 : field;
-
-            if (updatedField.name !== 'auto_renew') {
-                return updatedField;
-            }
-
-            return {
-                ...updatedField,
-                hidden: planType !== 'paid'
-            };
-        });
+        })
     };
-    const [formData, setFormData] = useState<Field[]>(() => applyConditionalVisibility(structuredClone(initialData)));
+    const [internalFormData, setInternalFormData] = useState<Field[]>(() => applyConditionalVisibility(structuredClone(initialData)));
+    const formData = controlledFormData ?? internalFormData;
+
+    const setManagedFormData = (fields: Field[]) => {
+        const normalizedFields = applyConditionalVisibility(fields);
+        if (onFormDataChange) {
+            onFormDataChange(normalizedFields);
+            return;
+        }
+
+        setInternalFormData(normalizedFields);
+    };
 
     const getFallbackErrorField = () => {
         const emailField = formData.find(field => field.name === 'email');
@@ -82,7 +86,7 @@ export function Form(props: Props) {
                 });
             });
 
-            setFormData(data);
+            setManagedFormData(data);
         }
     }
 
@@ -96,7 +100,7 @@ export function Form(props: Props) {
             //     return field;
             //   }
             // });
-            setFormData(data);
+            setManagedFormData(data);
         }
     }
 
@@ -121,7 +125,7 @@ export function Form(props: Props) {
         }
         return item;
         })
-        setFormData(applyConditionalVisibility(updatedData));
+        setManagedFormData(updatedData);
     }
 
     async function submitHandler(event: FormEvent) {
@@ -248,6 +252,7 @@ export function Form(props: Props) {
                         <Radio item={item} handleChange={handleChange} />
                     </div>
                     <Hint text={item.hint} />
+                    {item.footnote ? <p className="hint hint-box">{item.footnote}</p> : null}
                     <Error error={item.error} />
                     </div>
                 </div>

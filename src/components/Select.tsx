@@ -2,8 +2,9 @@ import { Field } from '../types';
 import { ChangeEventHandler } from 'react';
 
 type Option = {
+  disabled?: boolean;
   label: string;
-  value: string;
+  value: string | number;
 }
 
 type Props = {
@@ -22,6 +23,7 @@ export default function Select(props: Props) {
         {item.options?.map((option: Option, index: number) =>
           <option
             key={index}
+            disabled={option.disabled}
             value={option.value}>
             {option.label}
           </option>

@@ -2,8 +2,9 @@ import { Field } from '../types'
 import { ChangeEventHandler } from 'react';
 
 type Option = {
+  disabled?: boolean;
   label: string;
-  value: string;
+  value: string | number;
 }
 
 type Props = {
@@ -19,20 +20,19 @@ export default function Radio(props: Props) {
       <span key={index} className="nowrap">
         <input
           type="radio"
-          id={option.value}
+          id={String(option.value)}
           name={item.name}
           value={option.value}
           checked={item.value === option.value}
+          disabled={option.disabled}
           onChange={handleChange}
         />
         <label
           className="label--radio"
-          htmlFor={option.value}>
+          htmlFor={String(option.value)}>
             {option.label}
         </label>
       </span>
     )
   )
 }
-
-

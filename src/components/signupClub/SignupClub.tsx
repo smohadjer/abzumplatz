@@ -1,7 +1,7 @@
 import { Form } from '../form/Form';
 import formJson from './signupClubForm.json';
 import { Field } from '../../types';
-import { FREE_PLAN_MEMBERS_LIMIT, getMembersLimitForPlan } from '../../planConfig';
+import { applyPlanConfigToFields, getCoveredUntilFromPeriodEnd, getPlanLevel, getPlanName, normalizePlanType } from '../../planConfig';
 
 type Props = {
     label?: string;
@@ -11,43 +11,59 @@ type Props = {
 
 export function SignupClub(props: Props) {
     const { label, data, callback } = props;
-    const planType: 'free' | 'paid' = data?.plan_type === 'paid' ? 'paid' : 'free';
-    const memberLimit = getMembersLimitForPlan(planType) ?? FREE_PLAN_MEMBERS_LIMIT;
-    const planHints = {
-        free: `Nur ${memberLimit} aktive Mitglieder zulässig`,
-        paid: 'Keine Einschränkungen. Eine Rechnung wird erstellt und per E-Mail an den Admin des Vereins gesendet. Bei einem späteren Wechsel zum Free Plan vor Ablauf des Jahresabos erfolgt keine Rückerstattung.'
-    };
+    const selectedPlanType = data?.next_plan_type ?? data?.access_plan_type ?? data?.plan_type;
+    const accessPlanType = data?.access_plan_type ?? data?.plan_type;
+    const planType = normalizePlanType(selectedPlanType);
+    const downgradeLocked = Boolean(data?.downgrade_locked);
 
-    // normalize form fields
     const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
     const normalizedData = data ? structuredClone(data) : null;
     if (normalizedData) {
         normalizedData.courts_count = data.courts.length;
+        normalizedData.plan_type = selectedPlanType;
     }
 
-    normalizedFields.map(field => {
-        if (normalizedData && normalizedData.hasOwnProperty(field.name)) {
-            field.value = field.name === 'auto_renew'
-                ? String(Boolean(normalizedData[field.name]))
-                : normalizedData[field.name];
+    normalizedFields.forEach(field => {
+        if (normalizedData && Object.prototype.hasOwnProperty.call(normalizedData, field.name)) {
+            field.value = normalizedData[field.name];
         }
 
-        if (field.name === 'plan_type') {
-            field.hintByValue = planHints;
-            field.hint = planHints[planType];
-        }
+        if (data?._id && field.name === 'plan_type') {
+            if (downgradeLocked) {
+                field.options = field.options?.map(option => ({
+                    ...option,
+                    disabled: typeof option.value === 'string' && getPlanLevel(option.value as 'basic' | 'pro' | 'elite') < getPlanLevel(accessPlanType)
+                }));
+            }
+            const coveredUntilLabel = data?.current_billing_period_end
+                ? new Date(getCoveredUntilFromPeriodEnd(data.current_billing_period_end) ?? data.current_billing_period_end).toLocaleDateString('de-DE')
+                : null;
 
-        if (field.name === 'auto_renew' && !data) {
-            field.hidden = true;
-        }
+            const scheduledPlanChangeNotice = coveredUntilLabel && data?.next_plan_type !== accessPlanType
+                ? `${getPlanName(accessPlanType)} ist noch bis ${coveredUntilLabel} aktiv und wechselt danach zu ${getPlanName(data.next_plan_type)}.`
+                : null;
+            const upgradeBillingNotice = coveredUntilLabel && accessPlanType !== data?.plan_type
+                ? `${getPlanName(accessPlanType)} Zugriff ist bereits aktiv. Abgerechnet wird ${getPlanName(data.plan_type)} bis ${coveredUntilLabel}.`
+                : null;
+            const downgradeLockNotice = downgradeLocked
+                ? 'Nach einem Upgrade ist ein Downgrade erst ab der nächsten Verlängerung möglich.'
+                : null;
+            const specificPlanNotice = [
+                scheduledPlanChangeNotice,
+                upgradeBillingNotice,
+                downgradeLockNotice,
+            ].filter(Boolean).join(' ');
 
-        return field;
+            field.footnote = specificPlanNotice || 'Upgrades gelten sofort für den Zugriff, aber erst ab der nächsten Verlängerung für die Abrechnung.';
+        }
     });
+
+    const configuredFields = applyPlanConfigToFields(normalizedFields, planType);
 
     return (
         <Form
             classNames="signup"
-            initialData={normalizedFields}
+            initialData={configuredFields}
             formAttributes={formJson.form}
             label={label ?? 'Absenden'}
             pathSchema="/schema/club.json"

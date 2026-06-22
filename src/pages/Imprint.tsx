@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './../store';
-import { fetchUsers, getClub } from '../utils/utils';
+import { fetchUsers } from '../utils/utils';
 
 type AdminContact = {
     first_name: string;
@@ -13,7 +13,6 @@ export default function Imprint() {
     const dispatch = useDispatch();
     const auth = useSelector((state: RootState) => state.auth);
     const usersData = useSelector((state: RootState) => state.users);
-    const club = getClub();
     const adminContact = usersData.value.find((user): user is AdminContact & { role: string; status: string; _id: string } => {
         return user.role === 'admin' && Boolean(user.email);
     });
@@ -29,7 +28,6 @@ export default function Imprint() {
     return (
         <div>
             <h1>Impressum</h1>
-            {club && <p>Verein: {club.name}</p>}
             {adminContact ? (
                 <p>
                     Anfragen zur Platzreservierung: {' '}

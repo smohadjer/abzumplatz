@@ -1,26 +1,23 @@
 import { Link } from 'react-router';
-import Header from '../components/header/Header';
-// import { Slider } from '../components/slider/slider';
 import './home.css';
 
 export default function Home() {
-    // const slides = [
-    //     {url: '/assets/1-min.jpg', text: 'Registrieren Sie sich als Vereinsadmin' },
-    //     {url: '/assets/2-min.jpg', text: 'Nach dem Einloggen wird Ihnen die Club-Registrierungsseite angezeigt'},
-    //     {url: '/assets/3-min.jpg', text: 'Sie und Ihre Vereinsmitglieder können jetzt Plätze buchen.'}
-    // ];
-
     return (
         <>
-            <Header />
-            <div className="navbar">
-                <p><Link className="button" to="/login">Anmelden</Link></p>
-                <p>Neuer Spieler? <Link className="navbar-text-link" to="/register/player">Jetzt registrieren</Link></p>
+            <div className="home-intro">
+                <div className="home-intro-card">
+                    <h2 className="home-intro-label">Für Spieler</h2>
+                    <p className="home-intro-text">Sie möchten einem bestehenden Verein beitreten und Tennisplätze online reservieren.</p>
+                    <p><Link className="button-link" to="/register/player">Als Spieler registrieren</Link></p>
+                </div>
+                <div className="home-intro-card intro">
+                    <h2 className="home-intro-label">Für Vereine</h2>
+                    <p className="home-intro-text">Sie möchten Ihren Verein auf abzumplatz anlegen und die Platzreservierung für Ihre Mitglieder bereitstellen.</p>
+                    <p><Link className="button-link" to="/register/club">Verein registrieren</Link></p>
+                </div>
             </div>
-            <p className="intro">Abzumplatz ermöglicht es Tennisvereinen, ihren Mitgliedern kostenlose Online-Reservierungen ihrer Tennisplätze anzubieten. <Link className="button" to="/register/club">Registrieren Sie Ihren Verein</Link> und teilen Sie den Link mit Ihren Vereinsmitgliedern.</p>
             <div className="home-feature-layout">
                 <img className="hero-image" src="/assets/1.png" alt="screenshot" />
-                {/* <Slider slides={slides} /> */}
                 <div className="content">
                     <h2>Was abzumplatz Ihnen bietet:</h2>
                     <ul>

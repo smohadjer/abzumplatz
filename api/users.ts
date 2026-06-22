@@ -6,25 +6,13 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import sendEmail from './_utils/_sendEmail.js';
 import { escapeHtml } from './_utils/_lib.js';
 import { ReservationItem } from '../src/types.js';
-import { getMembersLimitForPlan } from '../src/planConfig.js';
-import { ClubNameDocument } from './_utils/_types.js';
+import { ClubDocument } from './_utils/_types.js';
 import { isReservationActive } from '../src/utils/utils.js';
+import { BillingPeriodDocument, getCurrentAccessPlanType, resolveClubBillingState } from './_utils/_billingPeriods.js';
+import { getEffectiveMembersLimitForPlan } from './_utils/_planLimits.js';
 
 function getStatusLabel(status: string) {
   return status === 'active' ? 'aktiv' : 'inaktiv';
-}
-
-function isActiveMember(status?: string | null) {
-  return status !== 'inactive';
-}
-
-function hasFuturePaidUntil(paidUntil?: string) {
-  if (!paidUntil) {
-    return false;
-  }
-
-  const endOfPaidDay = new Date(`${paidUntil}T23:59:59.999`);
-  return endOfPaidDay > new Date();
 }
 
 function isString(value: unknown): value is string {
@@ -129,7 +117,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     await client.connect();
     const database = client.db(database_name);
     const collection = database.collection('users');
-    const clubCollection = database.collection<ClubNameDocument>('clubs');
+    const clubCollection = database.collection<ClubDocument>('clubs');
+    const billingPeriodsCollection = database.collection<BillingPeriodDocument>('billing_periods');
 
     if (req.method === 'GET') {
       const payload = await getJwtPayload(req);
@@ -207,6 +196,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const club = requester.club_id ? await clubCollection.findOne({
         _id: ObjectId.createFromHexString(requester.club_id)
       }) : null;
+      const billingState = requester.club_id && club
+        ? await resolveClubBillingState(clubCollection, billingPeriodsCollection, club)
+        : null;
+      const resolvedClub = billingState?.club ?? club;
+      const currentBillingPeriod = billingState?.currentBillingPeriod ?? null;
       const normalizedUserIds: string[] = [...new Set<string>(requestedUserIds)];
       const targetUsers = [];
 
@@ -233,15 +227,16 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         });
       }
 
-      const hasPaidCoverage = hasFuturePaidUntil(club?.paid_until);
-      const membersLimit = getMembersLimitForPlan(club?.plan_type);
+      const membersLimit = getEffectiveMembersLimitForPlan(resolvedClub ? getCurrentAccessPlanType(resolvedClub) : undefined);
+      const updatedUsers: Array<{_id: string; status: string; club_id?: null}> = [];
+      const removedUserIds: string[] = [];
 
-      if (action === 'activate' && membersLimit != null && !hasPaidCoverage) {
+      if (action === 'activate' && membersLimit != null) {
         const activeMembersCount = await collection.countDocuments({
           club_id: requester.club_id,
           status: {$ne: 'inactive'}
         });
-        const activationCount = targetUsers.filter(({targetUser}) => !isActiveMember(targetUser.status)).length;
+        const activationCount = targetUsers.filter(({targetUser}) => targetUser.status === 'inactive').length;
 
         if (activeMembersCount + activationCount > membersLimit) {
           return res.status(400).json({
@@ -249,9 +244,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           });
         }
       }
-
-      const updatedUsers: Array<{_id: string; status: string; club_id?: null}> = [];
-      const removedUserIds: string[] = [];
 
       for (const {userId, targetUser, query} of targetUsers) {
         if (action === 'remove') {

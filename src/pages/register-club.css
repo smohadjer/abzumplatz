@@ -1,0 +1,88 @@
+.register-club-plan-picker {
+    margin: 1.25rem 0 1.75rem;
+}
+
+.register-club-plan-grid {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1rem;
+}
+
+.register-club-plan-card {
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #d9e3f5;
+    border-radius: 0.9rem;
+    box-shadow: 0 10px 24px rgba(50, 100, 200, 0.08);
+}
+
+.register-club-plan-name,
+.register-club-plan-price,
+.register-club-plan-members {
+    margin-top: 0;
+}
+
+.register-club-plan-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.register-club-plan-price {
+    margin-top: 0.35rem;
+    color: #333;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.register-club-plan-price-suffix {
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.register-club-plan-members {
+    margin-top: 0.5rem;
+    color: #333;
+}
+
+.register-club-plan-action {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.register-club-plan-action .register-club-plan-select-button {
+    display: block;
+    width: 100%;
+    margin-top: 0;
+    border-radius: 999px;
+}
+
+.register-club-form-intro {
+    margin: 0.5rem 0 0.75rem;
+}
+
+.register-club-plan-limit-note {
+    margin-top: 1rem;
+}
+
+.register-club-form-section--hidden {
+    display: none;
+}
+
+.register-club-selected-plan {
+    margin: 1.25rem 0 0;
+}
+
+.register-club-back-button {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .register-club-plan-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

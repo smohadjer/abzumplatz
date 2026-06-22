@@ -287,3 +287,39 @@ export const fetchReservations = async (clubId: string, dispatch: AppDispatch) =
         }
     });
 };
+
+export const onLogout = (dispatch: AppDispatch) => {
+    console.log('Logging out');
+
+    fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then((response) => response.json())
+    .then(() => {
+        // reset all state
+        dispatch({type: 'auth/logout', payload: {}});
+        dispatch({type: 'reservations/fetch', payload: {
+            value: [],
+            loaded: false
+        }});
+        dispatch({type: 'users/fetch', payload: {
+            value: [],
+            loaded: false
+        }});
+        dispatch({type: 'club/fetch', payload: {
+            value: {
+                _id: '',
+                name: '',
+                courts: [],
+                reservations_limit: null,
+                start_hour: 0,
+                end_hour: 0,
+            },
+            loaded: false
+        }});
+    });
+}
