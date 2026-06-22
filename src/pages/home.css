@@ -1,168 +1,103 @@
-.navbar {
-    margin: 2em auto;
-    text-align: center;
-
-    p {
-        margin: 1.5em 0;
-    }
-
-    a.button {
-        padding: 0.7em 1.5em;
-        box-sizing: border-box;
-        background: var(--blue);
-        margin: 0;
-        color: #fff;
-        min-height: 2.25em;
-        border-radius: 0.25em;
-        white-space: nowrap;
-        text-decoration: none;
-        font-size: 1.1em;
-    }
-
-    .navbar-text-link {
-        background: transparent;
-        color: var(--blue);
-        min-height: 0;
-        padding: 0;
-        margin: 0.75em 0 0;
-        text-decoration: underline;
-    }
-
-}
-
 .content {
     margin-left: 0.5em;
     margin-right: 0.5em;
 }
 
+.home-intro {
+    display: flex;
+    gap: 1rem;
+    align-items: stretch;
+    margin: 1.75rem 0 1.75rem;
+}
+
+.home-intro > * {
+    flex: 1 1 0;
+    width: 50%;
+}
+
+.home-intro-card {
+    margin: 0;
+    padding: 1.25rem 1rem;
+    min-height: 8.5rem;
+    text-align: center;
+    background: linear-gradient(180deg, #f8fbff 0%, #edf3fd 100%);
+    border: 1px solid #d6e1f4;
+    border-radius: 1rem;
+    box-sizing: border-box;
+}
+
+.home-intro-card .button-link {
+    display: block;
+    width: 100%;
+    margin-top: 0;
+    border-radius: 999px;
+}
+
+.home-intro-label,
+.home-intro-text {
+    margin: 0;
+}
+
+.home-intro-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.home-intro-text {
+    max-width: 28rem;
+    color: #333;
+}
+
 .home-feature-layout {
+    max-width: 52rem;
+    margin: 0 auto;
+
     @media (min-width: 768px) {
         display: flex;
         align-items: flex-start;
+        justify-content: center;
         gap: 2rem;
     }
 }
 
-.intro {
-    margin: 1em 0;
-}
-
-.plan-section {
-    margin: 1.5rem 0 2rem;
-    padding: 1.25rem 1rem;
-    background: linear-gradient(180deg, #f7f9fd 0%, #eef3fb 100%);
-    border: 1px solid #d7e1f2;
-    border-radius: 1rem;
-}
-
-.plan-section-heading p {
-    margin-top: 0.4rem;
-    color: #4d628b;
-}
-
-.plan-grid {
-    display: grid;
-    gap: 0.9rem;
-    margin-top: 1rem;
-}
-
-.plan-card {
-    padding: 1rem;
-    background: #fff;
-    border: 1px solid #d9e3f5;
-    border-radius: 0.9rem;
-    box-shadow: 0 10px 24px rgba(50, 100, 200, 0.08);
-}
-
-.plan-card--pro {
-    border-color: #bfcff1;
-}
-
-.plan-card--elite {
-    border-color: #f2c6b2;
-}
-
-.plan-card-name,
-.plan-card-price,
-.plan-card-members {
-    margin-top: 0;
-}
-
-.plan-card-name {
-    font-size: 1.1rem;
-    font-weight: 700;
-}
-
-.plan-card-price {
-    margin-top: 0.35rem;
-    color: #234b96;
-    font-size: 1.15rem;
-    font-weight: 700;
-}
-
-.plan-card-members {
-    margin-top: 0.5rem;
-    color: #4f5f7d;
-}
-
-.plan-card-list {
-    margin: 0.85rem 0 0;
-    padding-left: 1.1rem;
-}
-
-.plan-card-list li {
-    margin-bottom: 0.35rem;
-}
-
-.club-register {
-    text-align: center;
-    margin-top: 1em;
-
-    a {
-        padding: 0.7em 1em;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        box-sizing: border-box;
-        background: var(--blue);
-        color: #fff;
-        text-align: center;
-        font-size: 1.125rem;
-        text-decoration: none;
-        min-height: 2.25em;
-        border-radius: 0.25em;
-        white-space: nowrap;
-    }
-}
-
 .hero-image {
-    width: 40%;
+    width: 50vw;
     max-width: 300px;
     display: block;
     margin: 1.5em auto 1.5em;
 
     @media (min-width: 768px) {
-        width: 32%;
-        flex: 0 0 32%;
+        width: 20%;
+        flex: 0 0 20%;
         margin: 1.25rem 0 0;
     }
 }
 
 @media (min-width: 768px) {
-    .plan-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    .home-intro-card {
+        min-height: 10rem;
+        font-size: 1.05rem;
     }
 
     .content {
-        flex: 1 1 auto;
         margin: 0;
     }
 }
 
+@media (max-width: 767px) {
+    .home-intro {
+        display: block;
+        margin-top: 1rem;
+    }
 
-.tagline {
-    color: #666;
-    margin: 3em 0 1.5em;
-    text-align: center;
-    font-size: 14px;
+    .home-intro > * {
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .home-intro > *:first-child {
+        margin-top: 0;
+    }
 }

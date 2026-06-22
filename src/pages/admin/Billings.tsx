@@ -39,8 +39,8 @@ export default function AdminBillingsPage() {
             </div>
         ) : (
             <>
-                <h1>Abrechnungen</h1>
                 <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
+                <h1>Abrechnungen</h1>
                 {error ? <p>{error}</p> : null}
                 {!error && !billings.length ? (
                     <p>Keine Abrechnungszeiträume vorhanden.</p>

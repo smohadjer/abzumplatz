@@ -28,6 +28,9 @@ export const PLAN_CONFIG: Record<PlanType, PlanConfigItem> = {
     },
 };
 
+export const PAID_PLAN_DURATION_LABEL = ' / Monat';
+export const FORM_PLAN_DURATION_LABEL = ' / M';
+
 function getLocalDateString(value: Date) {
     const year = value.getFullYear();
     const month = `${value.getMonth() + 1}`.padStart(2, '0');
@@ -125,44 +128,25 @@ export function hasFutureBillingPeriodEnd(periodEnd?: string, now = new Date()) 
     return getLocalDate(periodEnd) > now;
 }
 
-export function getPaidPlanDurationLabel(planType?: PlanType) {
-    const durationMonths = getPlanConfig(planType).durationMonths;
-    return durationMonths === 1
-        ? '/m'
-        : `für ${durationMonths} Monate`;
-}
-
 function getPaidPlanLabel(planType: PlanType) {
     const config = getPlanConfig(planType);
     if (config.price <= 0) {
         return config.label;
     }
 
-    return `${config.label} (${config.price} ${'\u20ac'}${getPaidPlanDurationLabel(planType)})`;
+    return `${config.label} (${config.price} ${'\u20ac'}${FORM_PLAN_DURATION_LABEL})`;
 }
 
 export function getProPlanLabel() {
     return getPaidPlanLabel('pro');
 }
 
-export function getProPlanName() {
-    return PLAN_CONFIG.pro.label;
-}
-
 export function getElitePlanLabel() {
     return getPaidPlanLabel('elite');
 }
 
-export function getElitePlanName() {
-    return PLAN_CONFIG.elite.label;
-}
-
-export function getBasicPlanName() {
-    return PLAN_CONFIG.basic.label;
-}
-
 export function getBasicPlanLabel() {
-    return `${getBasicPlanName()} (${PLAN_CONFIG.basic.price} ${'\u20ac'}${getPaidPlanDurationLabel('basic')})`;
+    return `${PLAN_CONFIG.basic.label} (${PLAN_CONFIG.basic.price} ${'\u20ac'}${FORM_PLAN_DURATION_LABEL})`;
 }
 
 export function getBasicPlanHint(membersLimit = PLAN_CONFIG.basic.membersLimit ?? 0) {

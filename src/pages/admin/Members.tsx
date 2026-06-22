@@ -4,7 +4,7 @@ import { RootState } from './../../store';
 import { fetchClub, fetchUsers } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
 import { Link, useSearchParams } from 'react-router';
-import { getBasicPlanName, getElitePlanName, getMembersLimitForPlan, getProPlanName } from '../../planConfig';
+import { getMembersLimitForPlan, PLAN_CONFIG } from '../../planConfig';
 
 export default function AdminMembersPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -136,8 +136,8 @@ export default function AdminMembersPage() {
             </div>
         ) : (
             <>
-                <h1>Mitglieder verwalten</h1>
                 <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
+                <h1>Mitglieder verwalten</h1>
                 <div className="members-tabs" role="tablist" aria-label="Mitgliederstatus">
                     <button
                         type="button"
@@ -162,8 +162,8 @@ export default function AdminMembersPage() {
                 </div>
                 {hasMemberCap ? (
                     <p>
-                        Im {getBasicPlanName()} Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. Wechseln Sie zum{' '}
-                        <Link to="/admin/club">{getProPlanName()} oder {getElitePlanName()}</Link>, um diese Einschränkung aufzuheben.
+                        Im {PLAN_CONFIG.basic.label} Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. Wechseln Sie zum{' '}
+                        <Link to="/admin/club">{PLAN_CONFIG.pro.label} oder {PLAN_CONFIG.elite.label}</Link>, um diese Einschränkung aufzuheben.
                     </p>
                 ) : null}
                 <form className="members-form" onSubmit={handleSubmit}>
