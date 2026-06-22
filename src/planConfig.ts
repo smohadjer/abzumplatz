@@ -1,4 +1,5 @@
 import { Field, NormalizedPlanType, PlanType } from './types';
+import { plan_limit } from '../api/_utils/_config.js';
 
 type PlanConfigItem = {
     durationMonths: number;
@@ -7,23 +8,28 @@ type PlanConfigItem = {
     price: number;
 }
 
+const parsedPlanLimit = Number(plan_limit);
+const membersLimitOverride = Number.isFinite(parsedPlanLimit) && parsedPlanLimit >= 0
+    ? parsedPlanLimit
+    : null;
+
 export const PLAN_CONFIG: Record<PlanType, PlanConfigItem> = {
     basic: {
         durationMonths: 1,
         label: 'Basic',
-        membersLimit: 100,
+        membersLimit: membersLimitOverride ?? 100,
         price: 0,
     },
     pro: {
         durationMonths: 1,
         label: 'Pro',
-        membersLimit: 500,
+        membersLimit: membersLimitOverride ?? 500,
         price: 10,
     },
     elite: {
         durationMonths: 1,
         label: 'Elite',
-        membersLimit: null,
+        membersLimit: membersLimitOverride,
         price: 25,
     },
 };
