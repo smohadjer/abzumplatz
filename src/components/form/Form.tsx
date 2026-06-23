@@ -1,4 +1,5 @@
-import { useState, FormEvent } from 'react'
+import { useState } from 'react'
+import type { ChangeEvent, SyntheticEvent } from 'react'
 import { fetchJson } from '../../utils/utils.js';
 import { validateData } from '../../utils/validate.js';
 import Hint from '../Hint.js';
@@ -104,7 +105,7 @@ export function Form(props: Props) {
         }
     }
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const updatedData = formData?.map(item => {
         if (item.name === e.target.name) {
             if (Array.isArray(item.value)) {
@@ -128,7 +129,7 @@ export function Form(props: Props) {
         setManagedFormData(updatedData);
     }
 
-    async function submitHandler(event: FormEvent) {
+    async function submitHandler(event: SyntheticEvent<HTMLFormElement>) {
         event.preventDefault();
         setDisabled(true);
         removeErrors();

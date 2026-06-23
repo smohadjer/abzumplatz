@@ -1,4 +1,5 @@
-import { FormEvent, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import type { SyntheticEvent } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './../../store';
 import { fetchClub, fetchUsers } from '../../utils/utils';
@@ -110,7 +111,7 @@ export default function AdminMembersPage() {
         ? `${submitLabelBase} (${selectedUserIds.length})`
         : submitLabelBase;
 
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (!selectedUserIds.length) {

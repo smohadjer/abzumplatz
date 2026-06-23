@@ -2,6 +2,8 @@ import { useDispatch } from 'react-redux'
 import { isToday, fetchAppData } from '../../utils/utils';
 import { AuthenticatedUser } from '../../types.js';
 
+import './calendar.css';
+
 type Props = {
     reservationDate: Date;
     setReservationDate: Function;

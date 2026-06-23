@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { RootState, AppDispatch } from './../store';
-import { FormEvent } from "react";
+import type { SyntheticEvent } from "react";
 import * as mongoDB from "mongodb";
 import { ReservationItem, StateUser } from './../types';
 
@@ -103,7 +103,7 @@ export const getLocalDate = (date: string | undefined) => {
 };
 
 export const editReservation = (
-    event: FormEvent,
+    event: SyntheticEvent<HTMLFormElement>,
     successCallback: Function): Promise<boolean> => {
     event.preventDefault();
 
@@ -174,7 +174,7 @@ const getReservationPayload = (formData: FormData, reservationData?: any) => {
 };
 
 export const makeReservation = (
-    event: FormEvent,
+    event: SyntheticEvent<HTMLFormElement>,
     successCallback: Function,
     reservationData: any): Promise<boolean> => {
     event.preventDefault();
