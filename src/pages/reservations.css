@@ -44,106 +44,75 @@ h2 {
         font-family: monospace;
     }
 
+    .reservations-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        align-items: center;
+        margin: 0 0 0.9rem;
+        font-size: 0.8em;
+        color: #333;
+    }
+
+    @media (min-width: 768px) {
+        .reservations-legend {
+            font-size: 0.95em;
+            gap: 0.9rem;
+        }
+    }
+
+    .reservations-legend__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        white-space: nowrap;
+    }
+
+    .reservations-legend__swatch {
+        display: inline-block;
+        width: 0.8rem;
+        height: 0.8rem;
+        border: 1px solid rgba(0, 0, 0, 0.18);
+        border-radius: 2px;
+        box-sizing: border-box;
+    }
+
+    .reservations-legend__swatch--available {
+        background: #c4f6c1;
+    }
+
+    .reservations-legend__swatch--reserved {
+        background: #faaeae;
+    }
+
+    .reservations-legend__swatch--recurring {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-color: #000;
+    }
+
+    .reservations-legend__marker {
+        font-size: 0.6rem;
+        font-weight: 500;
+        line-height: 1;
+        color: #333;
+    }
+
+    .reservations-legend__swatch--past {
+        background: #ccc;
+    }
+
+    .reservations-legend__swatch--disabled {
+        background: #ccc;
+        background-size: 7px 7px;
+        background-image: repeating-linear-gradient(-45deg, #777 0, #777 0.7px, #ccc 0, #ccc 50%);
+    }
+
     /* input, button {
         -webkit-appearance: none;
     } */
-
-    .header {
-        text-align: center;
-        padding: 10px;
-        margin-bottom: 0.5em;
-
-        .icon--reload {
-            background-size: 22px;
-            height: 22px;
-            line-height: 22px;
-            padding-left: 25px;
-            margin-right: 0.75em;
-            vertical-align: middle;
-            font-size: 17px;
-            color: var(--blue);
-            cursor: pointer;
-            border-right: solid 1px #999;
-            padding-right: 0.75em;
-        }
-    }
-
-    .date-picker {
-        margin: 0 0.5em;
-        font-size: 1.3em;
-        line-height: 2;
-        padding: 0 0.5em ;
-        background: var(--blue);
-        color: white;
-        height: 40px;
-        box-sizing: border-box;
-        font-family: monospace;
-
-        .shortday {
-            /* color: var(--blue); */
-            vertical-align: middle;
-            line-height: 40px;
-            font-size: inherit;
-            font-family: inherit;
-        }
-
-        input {
-            font-family: inherit;
-            background: none;
-            border: none;
-            border-radius: 0;
-            color: inherit;
-            font-size: inherit;
-            vertical-align: middle;
-            line-height: normal;
-            margin-left: 0.5em;
-            padding-bottom: 0;
-            padding: 0;
-            text-align: center;
-
-            &::-webkit-calendar-picker-indicator {
-                display: none;
-            }
-        }
-    }
-
-    .today {
-        font-size: 1.2em;
-        font-family: monospace;
-        font-weight: 700;
-        line-height: normal;
-        color: var(--blue);
-        background: none;
-        padding: 0;
-        border: 0;
-        vertical-align: middle;
-        cursor: pointer;
-
-        &[disabled] {
-            color: #ccc;
-            text-decoration: none;
-        }
-    }
-
-    .prev, .next {
-        font-size: 2em;
-        font-weight: bold;
-        line-height: 1;
-        padding: 0 0.5em;
-        vertical-align: middle;
-        background: #3264c8;
-        color: white;
-        border: none;
-        border-radius: 0;
-        height: 40px;
-        box-sizing: border-box;
-        font-family: inherit;
-    }
-
-    .next {
-        background-size: 28px;
-
-    }
 
     .main {
         display: flex;
@@ -168,9 +137,11 @@ h2 {
 
         .slots {
             overflow-x: auto;
+            width: 100%;
 
             .courts__header {
-                white-space: nowrap;
+                display: flex;
+                min-width: 100%;
 
                 .cell {
                     background: #666;
@@ -236,29 +207,28 @@ h2 {
 
                     &.disabled {
                         background-size: 7px 7px;
-                        background-image: repeating-linear-gradient(-45deg, #aaa 0, #aaa 0.7000000000000001px, #ccc 0, #ccc 50%);
+                        background-image: repeating-linear-gradient(-45deg, #777 0, #777 0.7000000000000001px, #ccc 0, #ccc 50%);
                     }
 
                 }
             }
 
             .courts__rowSlots {
-                white-space: nowrap;
+                display: flex;
+                min-width: 100%;
             }
 
             .cell {
+                flex: 1 0 5.5rem;
+                min-width: 5.5rem;
                 text-align: center;
                 font-size: 0.9em;
                 padding: 8px 5px 0px;
                 overflow: hidden;
-                width: 100px;
                 height: 35px;
-                display: inline-block;
                 border-right: solid 1px white;
                 vertical-align: top;
                 box-sizing: border-box;
-
-
             }
         }
     }

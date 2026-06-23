@@ -1,0 +1,19 @@
+// insert an active billing period
+POST http://localhost:3000/api/billing
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+    "club_id": "686f544e85081abe19f78156",
+    "period_start": "2026-06-17",
+    "period_end": "2026-07-17",
+    "status": "active",
+    "source": "manual-stage-insert"
+}
+
+###
+
+// note:
+// - period_end is the next renewal boundary
+// - the derived user-facing "bezahlt bis" date for this example would be 2026-07-16
+// - make sure there is no other active billing period for the same club before inserting

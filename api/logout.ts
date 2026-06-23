@@ -1,4 +1,4 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 
 export default async (req: VercelRequest, res: VercelResponse) => {
     // console.log('Redirecting to login page');

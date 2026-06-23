@@ -1,0 +1,96 @@
+.calendar {
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 0.5em;
+
+    .icon--reload {
+        background-size: 22px;
+        height: 22px;
+        line-height: 22px;
+        padding-left: 25px;
+        margin-right: 0.75em;
+        vertical-align: middle;
+        font-size: 17px;
+        color: var(--blue);
+        cursor: pointer;
+        border-right: solid 1px #999;
+        padding-right: 0.75em;
+    }
+
+    .date-picker {
+        margin: 0 0.5em;
+        font-size: 1.3em;
+        line-height: 2;
+        padding: 0 0.5em ;
+        background: var(--blue);
+        color: white;
+        height: 40px;
+        box-sizing: border-box;
+        font-family: monospace;
+
+        .shortday {
+            /* color: var(--blue); */
+            vertical-align: middle;
+            line-height: 40px;
+            font-size: inherit;
+            font-family: inherit;
+        }
+
+        input {
+            font-family: inherit;
+            background: none;
+            border: none;
+            border-radius: 0;
+            color: inherit;
+            font-size: inherit;
+            vertical-align: middle;
+            line-height: normal;
+            margin-left: 0.5em;
+            padding-bottom: 0;
+            padding: 0;
+            text-align: center;
+
+            &::-webkit-calendar-picker-indicator {
+                display: none;
+            }
+        }
+    }
+
+    .today {
+        font-size: 1.2em;
+        font-family: monospace;
+        font-weight: 700;
+        line-height: normal;
+        color: var(--blue);
+        background: none;
+        padding: 0;
+        border: 0;
+        vertical-align: middle;
+        cursor: pointer;
+
+        &[disabled] {
+            color: #ccc;
+            text-decoration: none;
+        }
+    }
+
+    .prev, .next {
+        font-size: 2em;
+        font-weight: bold;
+        line-height: 1;
+        padding: 0 0.5em;
+        vertical-align: middle;
+        background: #3264c8;
+        color: white;
+        border: none;
+        border-radius: 0;
+        height: 40px;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    .next {
+        background-size: 28px;
+
+    }
+}

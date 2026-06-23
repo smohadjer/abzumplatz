@@ -14,6 +14,7 @@ import AdminHomePage from './pages/admin/Home';
 import AdminMembersPage from './pages/admin/Members'
 import AdminClubPage from './pages/admin/Club';
 import AdminCourtsPage from './pages/admin/Courts';
+import AdminBillingsPage from './pages/admin/Billings';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import RegisterPlayer from './pages/RegisterPlayer';
@@ -105,6 +106,11 @@ export default function App() {
                 <Route path="/admin/courts" element={
                     <ProtectedRoute>
                         <AdminCourtsPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/billings" element={
+                    <ProtectedRoute>
+                        <AdminBillingsPage />
                     </ProtectedRoute>
                 }/>
                 <Route path="/register/club" element={

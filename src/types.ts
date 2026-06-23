@@ -12,11 +12,19 @@ export type Field = {
   placeholder?: string;
   hint?: string;
   hintByValue?: Record<string, string>;
-  options?: any[];
+  footnote?: string;
+  options?: {
+    disabled?: boolean;
+    label: string;
+    value: string | number;
+  }[];
   autocomplete?: string;
   hasStrengthIndicator?: boolean;
   hasDisplayToggle?: boolean;
 }
+
+export type PlanType = 'basic' | 'pro' | 'elite';
+export type NormalizedPlanType = 'basic' | 'pro' | 'elite';
 
 export type FormDataInterface = {
   form: FormAttributes;
@@ -55,14 +63,33 @@ export type Club = {
     postal_code?: string;
     city?: string;
     country?: string;
-    auto_renew?: boolean;
-    paid_until?: string;
     courts: Court[];
     reservations_limit?: number | null;
     start_hour: number;
     end_hour: number;
     timezone: string;
-    plan_type?: 'free' | 'paid';
+    access_plan_type?: PlanType;
+    next_plan_type: PlanType;
+}
+
+export type ClubWithBilling = Club & {
+    plan_type?: PlanType;
+    current_billing_period_end?: string;
+    downgrade_locked?: boolean;
+    effective_members_limit?: number | null;
+    members_limit_override_active?: boolean;
+}
+
+export type BillingPeriod = {
+    _id?: string;
+    club_id: string;
+    plan_type: Exclude<PlanType, 'basic'>;
+    anchor_day: number;
+    period_start: string;
+    period_end: string;
+    status: 'active' | 'completed' | 'canceled';
+    created_at: Date | string;
+    source?: string;
 }
 
 export type ReservationItem = {

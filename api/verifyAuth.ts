@@ -4,7 +4,7 @@ import { JwtPayload } from '../src/types.js';
 import { fetchUsers } from './_utils/_fetchUsers.js';
 import { database_uri, database_name } from './_utils/_config.js';
 import { MongoClient } from 'mongodb';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -25,8 +25,8 @@ export default async (request: VercelRequest, response: VercelResponse) => {
         }
         return response.json(doc);
     } else {
-        const error = 'No jwt token or invalid jwt token, redirecting to login page';
-        response.status(500).json({error})
+        const error = 'No jwt token or invalid jwt token';
+        response.status(401).json({error})
     }
 }
 
@@ -37,11 +37,14 @@ export const getJwtPayload = async (req: VercelRequest) : Promise<JwtPayload | u
     const token = hasBearerAuthHeader ? authHeader.split(' ')[1] : jwt;
     const secret = new TextEncoder().encode(jwtSecret);
 
+    if (typeof token !== 'string' || token.trim().length === 0) {
+        return;
+    }
+
     try {
         const jwtResponse = await jwtVerify<JwtPayload>(token, secret);
         return jwtResponse.payload;
     } catch(error) {
-        console.error(error);
         return;
     }
 }

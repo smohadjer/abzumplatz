@@ -14,7 +14,7 @@ import {
   validateReservationOverlap
 } from './_reservationValidation.js';
 import { DBUser, ReservationItem } from '../../src/types.js';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_apiTypes.js';
 
 type ReservationClub = {
   start_hour: number;

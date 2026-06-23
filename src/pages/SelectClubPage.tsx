@@ -16,8 +16,8 @@ export default function SelectClubPage(props: Props) {
 
     return (
         <>
-            <h1>{isChangingClub ? 'Verein wechseln' : 'Verein auswählen'}</h1>
             <p><Link className="icon icon--back" to="/profile">Zurück</Link></p>
+            <h1>{isChangingClub ? 'Verein wechseln' : 'Verein auswählen'}</h1>
             {isChangingClub ? <p>Aktueller Verein: <strong>{club?.name ?? '-'}</strong></p> : null}
             <p>{isChangingClub
                 ? 'Sie können Ihren Verein wechseln, solange Sie in Ihrem aktuellen Verein keine aktiven Reservierungen mehr haben.'

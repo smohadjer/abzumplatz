@@ -191,6 +191,30 @@ export default function Reservations() {
                         user={user}
                         setLoading={setLoading}
                     />
+                    <div className="reservations-legend" aria-label="Legende für Platzstatus">
+                        <span className="reservations-legend__item">
+                            <span className="reservations-legend__swatch reservations-legend__swatch--available" aria-hidden="true"></span>
+                            Frei
+                        </span>
+                        <span className="reservations-legend__item">
+                            <span className="reservations-legend__swatch reservations-legend__swatch--reserved" aria-hidden="true"></span>
+                            Reserviert
+                        </span>
+                        <span className="reservations-legend__item">
+                            <span className="reservations-legend__swatch reservations-legend__swatch--reserved reservations-legend__swatch--recurring" aria-hidden="true">
+                                <span className="reservations-legend__marker">W</span>
+                            </span>
+                            Wöchentlich
+                        </span>
+                        <span className="reservations-legend__item">
+                            <span className="reservations-legend__swatch reservations-legend__swatch--past" aria-hidden="true"></span>
+                            Vergangen
+                        </span>
+                        <span className="reservations-legend__item">
+                            <span className="reservations-legend__swatch reservations-legend__swatch--disabled" aria-hidden="true"></span>
+                            Deaktiviert
+                        </span>
+                    </div>
                     <div className="main">
                         <div className="hours">
                             {clubHours.map(hour => <div className="hour" key={hour}>{hour < 10 ? '0' + hour : hour}:00</div>)}

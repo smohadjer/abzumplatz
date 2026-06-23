@@ -1,13 +1,16 @@
-import { Club } from '../../src/types.js';
+import { ObjectId } from 'mongodb';
+import { ClubWithBilling, PlanType } from '../../src/types.js';
 
-export type ClubDocument = Omit<Club, '_id'> & {
+export type ClubDocument = Omit<ClubWithBilling, '_id' | 'current_billing_period_end' | 'downgrade_locked'> & {
+    _id?: ObjectId;
     timestamp?: Date;
 }
 
 export type ClubNameDocument = {
     name?: string;
-    plan_type?: 'free' | 'paid';
-    paid_until?: string;
+    plan_type?: PlanType;
+    access_plan_type?: PlanType;
+    next_plan_type: PlanType;
 }
 
 export type AdminEmailDocument = {
@@ -21,9 +24,7 @@ export type ClubFormBody = {
     postal_code?: string;
     city?: string;
     country?: string;
-    auto_renew?: boolean | string;
-    paid_until?: string;
-    plan_type: 'free' | 'paid';
+    plan_type: PlanType;
     courts_count: number | string;
     start_hour: number | string;
     end_hour: number | string;
@@ -47,7 +48,7 @@ export type SignupClubBody = {
     postal_code?: string;
     city?: string;
     country?: string;
-    plan_type: 'free' | 'paid';
+    plan_type: PlanType;
     courts_count: number | string;
     start_hour: number | string;
     end_hour: number | string;

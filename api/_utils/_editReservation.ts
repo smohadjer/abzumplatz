@@ -1,6 +1,6 @@
 import { ObjectId, Collection } from 'mongodb';
 import { sanitize } from './_lib.js';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_apiTypes.js';
 import { DBUser, ReservationItem } from '../../src/types.js';
 import { getJwtPayload } from '../verifyAuth.js';
 import {

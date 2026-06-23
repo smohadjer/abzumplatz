@@ -2,6 +2,8 @@ import { useDispatch } from 'react-redux'
 import { isToday, fetchAppData } from '../../utils/utils';
 import { AuthenticatedUser } from '../../types.js';
 
+import './calendar.css';
+
 type Props = {
     reservationDate: Date;
     setReservationDate: Function;
@@ -35,7 +37,7 @@ export function Calendar(props: Props) {
     const disabled = isToday(reservationDate);
 
     return (
-        <div className="header">
+        <div className="calendar">
             <div className="header_refresh">
                 <span onClick={reload} className="icon icon--inline icon--reload">Neu laden</span>
                 <button

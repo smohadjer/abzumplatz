@@ -5,7 +5,7 @@ import { jwtSecret, environment, database_uri, database_name } from './_utils/_c
 import bcrypt from 'bcrypt';
 import { SignJWT } from 'jose';
 import { DBUser, JwtPayload } from '../src/types.js';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { getErrorMessage } from './_utils/_errors.js';
 
 type LoginBody = {
