@@ -44,6 +44,66 @@ h2 {
         font-family: monospace;
     }
 
+    .reservations-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        justify-content: center;
+        align-items: center;
+        margin: 0 0 0.9rem;
+        font-size: 0.95em;
+        color: #333;
+    }
+
+    .reservations-legend__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        white-space: nowrap;
+    }
+
+    .reservations-legend__swatch {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 1px solid rgba(0, 0, 0, 0.18);
+        border-radius: 2px;
+        box-sizing: border-box;
+    }
+
+    .reservations-legend__swatch--available {
+        background: #c4f6c1;
+    }
+
+    .reservations-legend__swatch--reserved {
+        background: #faaeae;
+    }
+
+    .reservations-legend__swatch--recurring {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-color: #000;
+    }
+
+    .reservations-legend__marker {
+        font-size: 0.7rem;
+        font-weight: 400;
+        line-height: 1;
+        color: #333;
+        transform: translateY(1px);
+    }
+
+    .reservations-legend__swatch--past {
+        background: #ccc;
+    }
+
+    .reservations-legend__swatch--disabled {
+        background: #ccc;
+        background-size: 7px 7px;
+        background-image: repeating-linear-gradient(-45deg, #777 0, #777 0.7px, #ccc 0, #ccc 50%);
+    }
+
     /* input, button {
         -webkit-appearance: none;
     } */
@@ -74,8 +134,8 @@ h2 {
             width: 100%;
 
             .courts__header {
-                /* white-space: nowrap; */
                 display: flex;
+                min-width: 100%;
 
                 .cell {
                     background: #666;
@@ -141,32 +201,28 @@ h2 {
 
                     &.disabled {
                         background-size: 7px 7px;
-                        background-image: repeating-linear-gradient(-45deg, #aaa 0, #aaa 0.7000000000000001px, #ccc 0, #ccc 50%);
+                        background-image: repeating-linear-gradient(-45deg, #777 0, #777 0.7000000000000001px, #ccc 0, #ccc 50%);
                     }
 
                 }
             }
 
             .courts__rowSlots {
-                /* white-space: nowrap; */
                 display: flex;
+                min-width: 100%;
             }
 
             .cell {
-                flex: 1 1 0;
-                min-width: 0;
+                flex: 1 0 5.5rem;
+                min-width: 5.5rem;
                 text-align: center;
                 font-size: 0.9em;
                 padding: 8px 5px 0px;
                 overflow: hidden;
-                /* width: 100px; */
                 height: 35px;
-                /* display: inline-block; */
                 border-right: solid 1px white;
                 vertical-align: top;
                 box-sizing: border-box;
-
-
             }
         }
     }
