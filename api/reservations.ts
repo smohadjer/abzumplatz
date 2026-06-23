@@ -7,7 +7,7 @@ import { setReservation } from './_utils/_setReservation.js';
 import { editReservation } from './_utils/_editReservation.js';
 import { ReservationValidationError } from './_utils/_reservationValidation.js';
 import { getJwtPayload } from './verifyAuth.js';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { getErrorMessage } from './_utils/_errors.js';
 
 type ReservationClub = {

@@ -1,5 +1,5 @@
 import { Collection, ObjectId, WithId } from 'mongodb';
-import { VercelResponse } from '@vercel/node';
+import type { VercelResponse } from './_apiTypes.js';
 import { DBUser } from '../../src/types.js';
 import { ClubDocument, CourtsFormBody } from './_types.js';
 import { fetchClub } from './_fetchClub.js';

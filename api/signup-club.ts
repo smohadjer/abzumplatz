@@ -5,7 +5,7 @@ import sendEmail from './_utils/_sendEmail.js';
 import { DBUser } from '../src/types.js';
 import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, SignupClubBody } from './_utils/_types.js';
 import { createInitialBillingPeriod, BillingPeriodDocument } from './_utils/_billingPeriods.js';
 import { isPaidPlanType } from '../src/planConfig.js';

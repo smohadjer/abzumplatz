@@ -4,7 +4,7 @@ import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { Club, DBUser, JwtPayload } from '../src/types.js';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, ClubFormBody, CourtsFormBody } from './_utils/_types.js';
 import { updateCourts } from './_utils/_updateCourts.js';
 import { createInitialBillingPeriod, BillingPeriodDocument, getCurrentAccessPlanType, getSelectedPlanType, isDowngradeLocked, resolveClubBillingState } from './_utils/_billingPeriods.js';

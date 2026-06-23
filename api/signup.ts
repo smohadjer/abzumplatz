@@ -6,7 +6,7 @@ import type { DBUser } from '../src/types.js';
 import type { Db } from 'mongodb';
 import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { createError, getErrorCause, getErrorMessage } from './_utils/_errors.js';
 import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';
 import { BillingPeriodDocument, resolveClubBillingState } from './_utils/_billingPeriods.js';

@@ -3,7 +3,7 @@ import { DBUser, JwtPayload, ReservationItem } from '../../src/types.js';
 import { isInPast } from '../../src/utils/utils.js';
 import { getJwtPayload } from '../verifyAuth.js';
 import { getAllReservations } from '../../src/utils/utils.js';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_apiTypes.js';
 
 const getWeeklyOccurrenceDatesBefore = (startDate: string, endDate: string) => {
   const dates: string[] = [];

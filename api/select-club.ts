@@ -2,7 +2,7 @@ import { Collection, Db, MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
 import { sanitize, escapeHtml } from './_utils/_lib.js';
 import { getJwtPayload } from './verifyAuth.js';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { DBUser, ReservationItem } from '../src/types.js';
 import sendEmail from './_utils/_sendEmail.js';
 import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';

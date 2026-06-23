@@ -4,7 +4,7 @@ import { JwtPayload } from '../src/types.js';
 import { fetchUsers } from './_utils/_fetchUsers.js';
 import { database_uri, database_name } from './_utils/_config.js';
 import { MongoClient } from 'mongodb';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');

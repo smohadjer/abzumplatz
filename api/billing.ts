@@ -2,7 +2,7 @@ import { Collection, MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
 import { sanitize } from './_utils/_lib.js';
 import { getJwtPayload } from './verifyAuth.js';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { DBUser, PlanType } from '../src/types.js';
 import { ClubDocument } from './_utils/_types.js';
 import { BillingPeriodDocument, BillingPeriodStatus } from './_utils/_billingPeriods.js';

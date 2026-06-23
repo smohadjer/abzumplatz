@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { getErrorMessage } from './_utils/_errors.js';
 
 type ResetPasswordBody = {
