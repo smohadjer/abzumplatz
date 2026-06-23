@@ -55,6 +55,13 @@ h2 {
         color: #333;
     }
 
+    @media (min-width: 768px) {
+        .reservations-legend {
+            font-size: 0.95em;
+            gap: 0.9rem;
+        }
+    }
+
     .reservations-legend__item {
         display: inline-flex;
         align-items: center;
