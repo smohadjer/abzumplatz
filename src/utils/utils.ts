@@ -68,6 +68,11 @@ export const getIsoDateString = (date: Date) => {
     return `${year}-${month}-${day}`;
 };
 
+const getLocalDateFromIso = (isoDate: string) => {
+    const [year, month, day] = isoDate.split('-').map(Number);
+    return new Date(year, month - 1, day);
+};
+
 export const getClub = () => {
     const auth = useSelector((state: RootState) => state.auth);
     const clubs = useSelector((state: RootState) => state.clubs);
@@ -97,7 +102,7 @@ export const getNextActiveRecurringReservationDate = (
     }
 
     const deletedDates = new Set(reservation.deleted_dates ?? []);
-    const startDate = new Date(reservation.date);
+    const startDate = getLocalDateFromIso(reservation.date);
     const candidate = new Date(startDate);
     const today = new Date(now);
     today.setHours(0, 0, 0, 0);
@@ -108,7 +113,7 @@ export const getNextActiveRecurringReservationDate = (
 
     if (candidate.getTime() === today.getTime()) {
         const candidateDateTime = new Date(candidate);
-        candidateDateTime.setHours(reservation.end_time, 0, 0, 0);
+        candidateDateTime.setHours(reservation.start_time, 0, 0, 0);
         if (candidateDateTime < now) {
             candidate.setDate(candidate.getDate() + 7);
         }

@@ -29,6 +29,7 @@ type Props = {
 export function ReservationForm(props: Props) {
     const user = useSelector((state: RootState) => state.auth);
     const [deleteReservationChecked, setDeleteReservationChecked] = useState(false);
+    const [formError, setFormError] = useState('');
     const capitalizeName = (value: string | undefined) => {
         if (!value) {
             return '';
@@ -59,9 +60,8 @@ export function ReservationForm(props: Props) {
     const submitHandler: SubmitEventHandler<HTMLFormElement> = (event) => {
         const form = event.currentTarget;
         const courtCheckbox = form.querySelector<HTMLInputElement>('input[name="court_nums"]');
-        const durationSelect = form.querySelector<HTMLSelectElement>('select[name="duration"]');
+        setFormError('');
         courtCheckbox?.setCustomValidity('');
-        durationSelect?.setCustomValidity('');
 
         if (!new FormData(form).getAll('court_nums').length) {
             event.preventDefault();
@@ -74,20 +74,23 @@ export function ReservationForm(props: Props) {
         const startTime = Number(formData.get('start_time') ?? props.startHour);
         const duration = Number(formData.get('duration') ?? 1);
         const dateValue = String(formData.get('date') ?? props.date);
+        const editFromDateValue = formData.get('edit_from_date');
+        const isRecurringEdit = Boolean(editFromDateValue);
         const reservationTime = new Date(dateValue);
         reservationTime.setHours(startTime, 0, 0, 0);
 
-        if (!(props.reservationId && props.recurring) && reservationTime < new Date()) {
+        // Skip this frontend past-time check for recurring edits.
+        // The backend decides the first occurrence in the series whose start time
+        // has not passed yet and uses that as the recurring edit boundary.
+        if (!isRecurringEdit && reservationTime < new Date()) {
             event.preventDefault();
-            durationSelect?.setCustomValidity('Eine Reservierung in der Vergangenheit ist nicht möglich.');
-            durationSelect?.reportValidity();
+            setFormError('Eine Reservierung in der Vergangenheit ist nicht möglich.');
             return;
         }
 
         if ((startTime + duration) > props.clubEndHour) {
             event.preventDefault();
-            durationSelect?.setCustomValidity('Die Reservierung endet nach der erlaubten Reservierungszeit des Vereins.');
-            durationSelect?.reportValidity();
+            setFormError('Die Reservierung endet nach der erlaubten Reservierungszeit des Vereins.');
             return;
         }
 
@@ -217,6 +220,7 @@ export function ReservationForm(props: Props) {
                         </div>
                     }
                 </div>}
+            {formError && <p>{formError}</p>}
             {props.reservationId ?
                 <div className="form-actions">
                     <button type="submit" disabled={props.disabled}>{props.submitLabel ?? 'Speichern'}</button>

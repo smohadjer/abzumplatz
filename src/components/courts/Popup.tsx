@@ -184,9 +184,9 @@ export function Popup(props: {
                         ))}
                     </p>
                     {slot.recurring && (
-                        <p>
-                            Hinweis: Beim Bearbeiten dieser wiederkehrenden Reservierung werden alle noch nicht begonnenen Termine dieser Serie aktualisiert.
-                        </p>
+                        <div className="recurring-edit-notice">
+                            Beim Bearbeiten dieser wiederkehrenden Reservierung werden alle noch nicht begonnenen Termine dieser Serie aktualisiert.
+                        </div>
                     )}
 
                     <ReservationForm

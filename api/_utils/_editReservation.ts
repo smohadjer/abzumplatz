@@ -50,7 +50,7 @@ const validateEditAccess = (
   editFromReservationDate: string
 ) => {
   const passed = isInPast(new Date(reservation.date), reservation.start_time);
-  const passedOccurrence = isInPast(new Date(editFromReservationDate), reservation.end_time);
+  const passedOccurrence = isInPast(new Date(editFromReservationDate), reservation.start_time);
 
   if (reservation.club_id !== clubId) {
     return getAppErrorResponse('RESERVATION_EDIT_OWN_CLUB_ONLY');
