@@ -9,11 +9,15 @@ import {
 } from '../../src/utils/utils.js';
 import {
   validateReservationBody,
+} from './_reservationValidation.js';
+import {
   validateNonAdminReservationRules,
   validateReservationNotInPast,
   validateReservationWithinClubHours,
   validateReservationOverlap
 } from './_reservationValidation.js';
+import { createAppError, getAppErrorResponse } from './_errors.js';
+import type { AppErrorCode } from './_errors.js';
 
 type ReservationClub = {
   start_hour: number;
@@ -21,72 +25,64 @@ type ReservationClub = {
   reservations_limit: number;
 }
 
-export const editReservation = async (
-  req: VercelRequest,
-  res: VercelResponse,
-  reservations: Collection<ReservationItem>,
-  clubs: Collection<ReservationClub>,
-  users: Collection<DBUser>
-) => {
-  const body = sanitize(req.body);
-  const reservation_id = body?.reservation_id;
-  if (!reservation_id || typeof reservation_id !== 'string') {
-    return res.status(400).json({error: 'Reservation id is required'});
-  }
-
-  const query = {
-    _id: ObjectId.createFromHexString(reservation_id)
+type ValidatedEditRequest = {
+  assignToMyself: boolean;
+  courtNums: string[];
+  recurring: boolean;
+  startTime: number;
+  endTime: number;
+  updates: {
+    date: string;
+    label: string;
+    court_nums: string[];
+    start_time: number;
+    end_time: number;
+    recurring: boolean;
   };
-  const reservation = await reservations.findOne(query);
+};
 
-  if (!reservation) {
-    return res.status(404).json({error: 'Reservation not found'});
+const validateEditAccess = (
+  reservation: ReservationItem,
+  clubId: string,
+  payloadUserId: string,
+  userRole: string,
+  editFromReservationDate: string
+) => {
+  const time = reservation.start_time;
+  const passed = isInPast(new Date(reservation.date), time);
+  const passedOccurrence = isInPast(new Date(editFromReservationDate), time);
+
+  if (reservation.club_id !== clubId) {
+    return getAppErrorResponse('RESERVATION_EDIT_OWN_CLUB_ONLY');
   }
 
-  const payload = await getJwtPayload(req);
-  if (!payload) {
-    return res.status(401).json({ error: 'Authentication required'});
+  if (passed && !reservation.recurring) {
+    throw createAppError('RESERVATION_EDIT_PAST_NOT_ALLOWED');
   }
 
-  const user = await users.findOne({
-    _id: ObjectId.createFromHexString(payload._id)
-  });
-
-  if (!user) {
-    return res.status(404).json({error: 'User not found'});
+  if (reservation.user_id !== payloadUserId && userRole !== 'admin') {
+    return getAppErrorResponse('RESERVATION_EDIT_OWN_OR_ADMIN_ONLY');
   }
 
-  const club_id = user.club_id;
-  if (!club_id) {
-    throw new Error('User does not belong to a club');
+  if (reservation.recurring && userRole !== 'admin') {
+    return getAppErrorResponse('RESERVATION_EDIT_RECURRING_ADMIN_ONLY');
   }
 
-  const club = await clubs.findOne({
-    _id: ObjectId.createFromHexString(club_id)
-  });
-  if (!club) {
-    throw new Error('Club not found');
+  if (reservation.recurring && passedOccurrence) {
+    throw createAppError('RESERVATION_EDIT_PAST_NOT_ALLOWED');
   }
 
-  if (reservation.club_id !== club_id) {
-    return res.status(403).json({error: 'Editing this reservation is not allowed'});
-  }
+  return null;
+};
 
-  if (isInPast(new Date(reservation.date), reservation.start_time) && !reservation.recurring) {
-    throw new Error('Vergangene Reservierungen können nicht bearbeitet werden');
-  }
-
-  if (reservation.user_id !== payload._id && user.role !== 'admin') {
-    return res.status(403).json({error: 'Editing this reservation is not allowed'});
-  }
-
-  if (reservation.recurring && user.role !== 'admin') {
-    return res.status(403).json({error: 'Editing recurring reservations is not allowed'});
-  }
-
+const validateEditRequest = (
+  body: Record<string, unknown>,
+  userRole: string,
+  club: ReservationClub
+): ValidatedEditRequest | { error: unknown } | { status: 403; body: { error: string } } => {
   const {
     reservation_id: _reservationId,
-    user_id,
+    assign_to_myself: assignToMyselfValue,
     date,
     start_time: startTimeValue,
     end_time: endTimeValue,
@@ -94,6 +90,7 @@ export const editReservation = async (
     court_nums,
     recurring: recurringValue
   } = body;
+
   const validatedBody = {
     date,
     label,
@@ -104,34 +101,169 @@ export const editReservation = async (
   };
   const validatedReservation = validateReservationBody(validatedBody);
   if ('errors' in validatedReservation) {
-    return res.json({error: validatedReservation.errors});
+    return { error: validatedReservation.errors };
   }
+
+  const assignToMyself = assignToMyselfValue === true || assignToMyselfValue === 'true';
+  if (assignToMyself && userRole !== 'admin') {
+    return getAppErrorResponse('RESERVATION_ASSIGN_ADMIN_ONLY');
+  }
+
   const { body: normalizedBody, courtNums, startTime, endTime, recurring } = validatedReservation;
   const updates = {
     ...normalizedBody,
     court_nums: courtNums,
     start_time: startTime,
     end_time: endTime,
-    recurring,
-    ...(user_id ? {user_id} : {})
+    recurring
   };
 
   if (!Object.keys(updates).length) {
-    return res.status(400).json({error: 'No reservation fields to update'});
+    return { error: 'RESERVATION_EDIT_NO_FIELDS' as AppErrorCode };
   }
 
-  if (user_id && user.role !== 'admin') {
-    return res.status(403).json({error: 'Only admins can assign reservations'});
-  }
-
-  if (user.role !== 'admin') {
+  if (userRole !== 'admin') {
     validateNonAdminReservationRules(courtNums, recurring, startTime, endTime);
   }
 
   validateReservationNotInPast(updates.date, startTime);
   validateReservationWithinClubHours(startTime, endTime, club.start_hour, club.end_hour);
 
+  return {
+    assignToMyself,
+    courtNums,
+    recurring,
+    startTime,
+    endTime,
+    updates
+  };
+};
+
+export const editReservation = async (
+  req: VercelRequest,
+  res: VercelResponse,
+  reservations: Collection<ReservationItem>,
+  clubs: Collection<ReservationClub>,
+  users: Collection<DBUser>
+) => {
+  const body = sanitize(req.body);
+  const editFromDate = typeof body?.edit_from_date === 'string' ? body.edit_from_date : undefined;
+  const reservation_id = body?.reservation_id;
+  if (!reservation_id || typeof reservation_id !== 'string') {
+    const { status, body } = getAppErrorResponse('RESERVATION_ID_REQUIRED');
+    return res.status(status).json(body);
+  }
+
+  const query = {
+    _id: ObjectId.createFromHexString(reservation_id)
+  };
+  const reservation = await reservations.findOne(query);
+
+  if (!reservation) {
+    const { status, body } = getAppErrorResponse('RESERVATION_NOT_FOUND');
+    return res.status(status).json(body);
+  }
+
+  const payload = await getJwtPayload(req);
+  if (!payload) {
+    const { status, body } = getAppErrorResponse('AUTHENTICATION_REQUIRED');
+    return res.status(status).json(body);
+  }
+
+  const user = await users.findOne({
+    _id: ObjectId.createFromHexString(payload._id)
+  });
+
+  if (!user) {
+    const { status, body } = getAppErrorResponse('USER_NOT_FOUND');
+    return res.status(status).json(body);
+  }
+
+  if (user.status !== 'active') {
+    throw createAppError('USER_INACTIVE');
+  }
+
+  const club_id = user.club_id;
+  if (!club_id) {
+    throw createAppError('USER_HAS_NO_CLUB');
+  }
+
+  const club = await clubs.findOne({
+    _id: ObjectId.createFromHexString(club_id)
+  });
+  if (!club) {
+    throw createAppError('CLUB_NOT_FOUND');
+  }
+
+  if (reservation.recurring && !editFromDate) {
+    const { status, body } = getAppErrorResponse('RESERVATION_EDIT_FROM_DATE_REQUIRED');
+    return res.status(status).json(body);
+  }
+
+  const editFromReservationDate = reservation.recurring ? editFromDate! : reservation.date;
+  const accessError = validateEditAccess(reservation, club_id, payload._id, user.role, editFromReservationDate);
+  if (accessError) {
+    return res.status(accessError.status).json(accessError.body);
+  }
+
+  const validatedRequest = validateEditRequest(body, user.role, club);
+  if ('status' in validatedRequest) {
+    return res.status(validatedRequest.status).json(validatedRequest.body);
+  }
+  if ('error' in validatedRequest) {
+    if (typeof validatedRequest.error === 'string') {
+      const { status, body } = getAppErrorResponse(validatedRequest.error as AppErrorCode);
+      return res.status(status).json(body);
+    }
+    return res.status(200).json({error: validatedRequest.error});
+  }
+
+  const {
+    assignToMyself,
+    courtNums,
+    recurring,
+    startTime,
+    endTime,
+    updates
+  } = validatedRequest;
+
+  if (reservation.recurring && editFromReservationDate > reservation.date) {
+    if (updates.date < editFromReservationDate) {
+      throw createAppError('RESERVATION_EDIT_START_BEFORE_SELECTED');
+    }
+
+    await validateReservationOverlap(reservations, club_id, courtNums, updates.date, startTime, endTime, recurring, query._id);
+
+    await reservations.updateOne(query, {
+      '$set': {
+        end_date: editFromReservationDate
+      }
+    });
+
+    await reservations.insertOne({
+      club_id,
+      user_id: assignToMyself ? payload._id : reservation.user_id,
+      court_nums: courtNums,
+      date: updates.date,
+      start_time: startTime,
+      end_time: endTime,
+      label: updates.label,
+      recurring,
+      timestamp: new Date()
+    });
+
+    const docs = await getAllReservations(reservations, club_id);
+    return res.status(200).json({
+      message: `Reservation with id ${reservation_id} was edited.`,
+      data: docs
+    });
+  }
+
   await validateReservationOverlap(reservations, club_id, courtNums, updates.date, startTime, endTime, recurring, query._id);
+
+  if (assignToMyself) {
+    updates.user_id = payload._id;
+  }
 
   await reservations.updateOne(query, {
     '$set': updates

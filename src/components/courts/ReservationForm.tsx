@@ -10,6 +10,7 @@ type Props = {
     courts: Court[];
     selectedCourtNumber: string;
     date: string;
+    editFromDate?: string;
     deleteDate?: string;
     startHour: number;
     clubStartHour: number;
@@ -73,8 +74,18 @@ export function ReservationForm(props: Props) {
         const startTime = Number(formData.get('start_time') ?? props.startHour);
         const duration = Number(formData.get('duration') ?? 1);
         const dateValue = String(formData.get('date') ?? props.date);
+        const editFromDateValue = String(formData.get('edit_from_date') ?? dateValue);
+        const editFromReservationTime = new Date(editFromDateValue);
+        editFromReservationTime.setHours(props.startHour, 0, 0, 0);
         const reservationTime = new Date(dateValue);
         reservationTime.setHours(startTime, 0, 0, 0);
+
+        if (props.reservationId && props.recurring && editFromReservationTime < new Date()) {
+            event.preventDefault();
+            durationSelect?.setCustomValidity('Vergangene Reservierungen können nicht bearbeitet werden.');
+            durationSelect?.reportValidity();
+            return;
+        }
 
         if (reservationTime < new Date()) {
             event.preventDefault();
@@ -100,6 +111,7 @@ export function ReservationForm(props: Props) {
             action="/api/reservations"
             onSubmit={submitHandler}>
             {props.reservationId && <input type="hidden" name="reservation_id" value={props.reservationId} />}
+            {props.reservationId && props.editFromDate && <input type="hidden" name="edit_from_date" value={props.editFromDate} />}
             {!props.reservationId && user.role !== 'admin' && <input type="hidden" name="label" value={labelDefaultValue} />}
             <div className="reservation-field">
                 <label>Datum:</label>
@@ -184,9 +196,9 @@ export function ReservationForm(props: Props) {
                 <label className="checkbox-label">
                     <input
                         disabled={props.disabled}
-                        name="user_id"
+                        name="assign_to_myself"
                         type="checkbox"
-                        value={user._id}
+                        value="true"
                     />
                     <span>Reservierung mir zuweisen</span>
                 </label>}

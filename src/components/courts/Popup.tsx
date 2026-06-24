@@ -66,6 +66,7 @@ export function Popup(props: {
     const courtNums = props.slot.court_nums ?? [props.slot.court_number];
     const courtsLabel = courtNums.length === 1 ? 'Platz' : 'Plätze';
     const reservationDate = props.slot.reservation_date ?? props.slot.date;
+    const editDate = props.slot.recurring ? props.slot.date : reservationDate;
     const clubTimeZone = club?.timezone ?? 'Europe/Berlin';
     const getReservationSummary = (reservation: ReservationSuccess) => `Platz ${reservation.courtNumbers.join(', ')} reserviert`;
     const getReservationLabel = (reservation: ReservationSuccess) => reservation.courtNumbers.length === 1 ? 'Platz' : 'Plätze';
@@ -179,7 +180,8 @@ export function Popup(props: {
                         courts={club?.courts ?? []}
                         selectedCourtNumber={slot.court_number}
                         selectedCourtNumbers={courtNums}
-                        date={reservationDate}
+                        date={editDate}
+                        editFromDate={slot.date}
                         deleteDate={slot.date}
                         startHour={slot.hour}
                         duration={slot.end_time ? slot.end_time - slot.hour : 1}
