@@ -1,6 +1,6 @@
 import { ObjectId, Collection } from 'mongodb';
 import { DBUser, JwtPayload, ReservationItem } from '../../src/types.js';
-import { isInPast } from '../../src/utils/utils.js';
+import { getIsoDateString, isInPast } from '../../src/utils/utils.js';
 import { getJwtPayload } from '../verifyAuth.js';
 import { getAllReservations } from '../../src/utils/utils.js';
 import type { VercelRequest, VercelResponse } from './_apiTypes.js';
@@ -12,7 +12,7 @@ const getWeeklyOccurrenceDatesBefore = (startDate: string, endDate: string) => {
   const end = new Date(endDate);
 
   while (current < end) {
-    dates.push(current.toISOString().split('T')[0]);
+    dates.push(getIsoDateString(current));
     current.setDate(current.getDate() + 7);
   }
 

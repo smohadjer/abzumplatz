@@ -113,7 +113,7 @@ Edit a non-recurring reservation:
 }
 ```
 
-Edit a recurring reservation from a selected occurrence onward:
+Edit a recurring reservation for all occurrences that are not yet in the past:
 
 ```json
 {
@@ -163,25 +163,32 @@ Reassign a reservation to the current admin without changing the schedule:
 ### Recurring Reservation Edit Behavior
 
 Recurring reservation edits are applied only to future occurrences of the
-series. Once the selected occurrence's start time has passed, it is treated as
-past and can no longer be used as the edit boundary.
+series. Once an occurrence's start time has passed, it is treated as past and
+can no longer be changed.
 
 Past occurrences are not modified.
 
-When an admin edits a recurring reservation from a selected occurrence:
+When an admin edits a recurring reservation:
 
-- the selected occurrence must be sent as `edit_from_date`
-- the selected occurrence must not have started yet
-- the existing recurring series is ended at that occurrence
-- a new reservation/series is created for the edited version going forward
+- `edit_from_date` identifies the recurring edit action
+- the backend applies the edit starting from the first occurrence in the series that has not started yet
+- if the series already has past occurrences, the existing recurring series is ended at that occurrence and a new reservation/series is created for the edited version going forward
+- if the series has not started yet, the existing reservation is updated in place and no new reservation is created
 
-This means the edit affects future occurrences only, while current or
+This means the edit affects all occurrences that are not yet in the past, while
 historical occurrences remain unchanged.
+
+### Recurring Edit Edge Cases
+
+- Editing a later future occurrence can still update earlier future occurrences in the same series, as long as those earlier occurrences have not started yet.
+- Clicking a future occurrence in the calendar does not guarantee that the edit starts from that exact date. The backend uses the first occurrence in the series that has not started yet as the effective edit boundary.
+- If a recurring series has already started, the edit preserves history by splitting the series into an old unchanged part and a new edited part.
+- If a recurring series has not started yet, there is no historical part to preserve, so the reservation is edited in place.
 
 ### Important Fields
 
 - `reservation_id`: identifies the reservation to edit
-- `edit_from_date`: required for recurring reservation edits; the clicked occurrence date, provided that the occurrence has not started yet
+- `edit_from_date`: required for recurring reservation edits; the backend will still use the first occurrence in the series that has not started yet as the effective edit boundary
 - `date`: the start date of the edited reservation or new recurring segment
 - `court_nums`: selected court numbers
 - `start_time`: reservation start hour
@@ -256,6 +263,12 @@ Implementation details:
 - `once` stores the selected date in `deleted_dates`
 - `once_and_future` sets `end_date` to the selected date
 - `all` removes the reservation document entirely
+
+### Recurring Delete Edge Cases
+
+- `once` removes only the selected occurrence and keeps the rest of the series active.
+- `once_and_future` removes the selected occurrence and every later occurrence in the series.
+- If `once_and_future` is used and all earlier occurrences in the same series were already deleted, the backend removes the whole reservation document instead of only setting `end_date`.
 
 ### Important Fields
 

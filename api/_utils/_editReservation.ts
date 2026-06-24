@@ -5,6 +5,7 @@ import { DBUser, ReservationItem } from '../../src/types.js';
 import { getJwtPayload } from '../verifyAuth.js';
 import {
   getAllReservations,
+  getNextActiveRecurringReservationDate,
   isInPast
 } from '../../src/utils/utils.js';
 import {
@@ -139,6 +140,8 @@ const validateEditRequest = (
   };
 };
 
+const getWeekday = (date: string) => new Date(date).getDay();
+
 export const editReservation = async (
   req: VercelRequest,
   res: VercelResponse,
@@ -200,7 +203,12 @@ export const editReservation = async (
     return res.status(status).json(body);
   }
 
-  const editFromReservationDate = reservation.recurring ? editFromDate! : reservation.date;
+  const editFromReservationDate = reservation.recurring
+    ? getNextActiveRecurringReservationDate(reservation)
+    : reservation.date;
+  if (reservation.recurring && !editFromReservationDate) {
+    throw createAppError('RESERVATION_EDIT_PAST_NOT_ALLOWED');
+  }
   const accessError = validateEditAccess(reservation, club_id, payload._id, user.role, editFromReservationDate);
   if (accessError) {
     return res.status(accessError.status).json(accessError.body);
@@ -228,11 +236,26 @@ export const editReservation = async (
   } = validatedRequest;
 
   if (reservation.recurring && editFromReservationDate > reservation.date) {
-    if (updates.date < editFromReservationDate) {
+    const normalizedRecurringStartDate =
+      updates.date > editFromReservationDate &&
+      getWeekday(updates.date) === getWeekday(reservation.date)
+        ? editFromReservationDate
+        : updates.date;
+
+    if (normalizedRecurringStartDate < editFromReservationDate) {
       throw createAppError('RESERVATION_EDIT_START_BEFORE_SELECTED');
     }
 
-    await validateReservationOverlap(reservations, club_id, courtNums, updates.date, startTime, endTime, recurring, query._id);
+    await validateReservationOverlap(
+      reservations,
+      club_id,
+      courtNums,
+      normalizedRecurringStartDate,
+      startTime,
+      endTime,
+      recurring,
+      query._id
+    );
 
     await reservations.updateOne(query, {
       '$set': {
@@ -244,7 +267,7 @@ export const editReservation = async (
       club_id,
       user_id: assignToMyself ? payload._id : reservation.user_id,
       court_nums: courtNums,
-      date: updates.date,
+      date: normalizedRecurringStartDate,
       start_time: startTime,
       end_time: endTime,
       label: updates.label,
