@@ -74,18 +74,8 @@ export function ReservationForm(props: Props) {
         const startTime = Number(formData.get('start_time') ?? props.startHour);
         const duration = Number(formData.get('duration') ?? 1);
         const dateValue = String(formData.get('date') ?? props.date);
-        const editFromDateValue = String(formData.get('edit_from_date') ?? dateValue);
-        const editFromReservationTime = new Date(editFromDateValue);
-        editFromReservationTime.setHours(props.startHour, 0, 0, 0);
         const reservationTime = new Date(dateValue);
         reservationTime.setHours(startTime, 0, 0, 0);
-
-        if (props.reservationId && props.recurring && editFromReservationTime < new Date()) {
-            event.preventDefault();
-            durationSelect?.setCustomValidity('Vergangene Reservierungen können nicht bearbeitet werden.');
-            durationSelect?.reportValidity();
-            return;
-        }
 
         if (reservationTime < new Date()) {
             event.preventDefault();
