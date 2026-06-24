@@ -4,6 +4,7 @@ import { isInPast } from '../../src/utils/utils.js';
 import { getJwtPayload } from '../verifyAuth.js';
 import { getAllReservations } from '../../src/utils/utils.js';
 import type { VercelRequest, VercelResponse } from './_apiTypes.js';
+import { createAppError, getAppErrorResponse } from './_errors.js';
 
 const getWeeklyOccurrenceDatesBefore = (startDate: string, endDate: string) => {
   const dates: string[] = [];
@@ -29,7 +30,8 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
   users: Collection<DBUser>) => {
     const reservation_id = req.body?.reservation_id;
     if (!reservation_id || typeof reservation_id !== 'string') {
-      return res.status(400).json({error: 'Reservation id is required'});
+      const { status, body } = getAppErrorResponse('RESERVATION_ID_REQUIRED');
+      return res.status(status).json(body);
     }
 
     // console.log(`Deleting reserveration with id ${reservation_id}`);
@@ -38,31 +40,34 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
     };
     const reservation = await reservations.findOne(query);
     if (!reservation) {
-      return res.status(404).json({error: 'Reservation not found'});
+      const { status, body } = getAppErrorResponse('RESERVATION_NOT_FOUND');
+      return res.status(status).json(body);
     }
 
     // reservations in the past that do not recurr can not be deleted
     const reservationIsInPast = isInPast(new Date(reservation.date), reservation.start_time);
     const reservationIsRecurring = reservation.recurring;
     if (reservationIsInPast && !reservationIsRecurring) {
-      throw new Error('Vergangene Reservierungen können nicht gelöscht werden');
+      throw createAppError('RESERVATION_DELETE_PAST_NOT_ALLOWED');
     }
 
     const payload = await getJwtPayload(req);
     if (!payload) {
-      return res.status(401).json({error: 'Authentication required'});
+      const { status, body } = getAppErrorResponse('AUTHENTICATION_REQUIRED');
+      return res.status(status).json(body);
     }
 
     const user = await users.findOne({
       _id: ObjectId.createFromHexString(payload._id)
     });
     if (!user) {
-      return res.status(401).json({error: 'Authentication required'});
+      const { status, body } = getAppErrorResponse('AUTHENTICATION_REQUIRED');
+      return res.status(status).json(body);
     }
 
     const club_id = user.club_id;
     if (!club_id) {
-      throw new Error('User does not belong to a club');
+      throw createAppError('USER_HAS_NO_CLUB');
     }
 
     const returnResponse = async () => {
@@ -75,11 +80,13 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
 
     // only owner of a reservation and admin can delete the reservation
     if (reservation.user_id !== payload._id && user.role !== 'admin') {
-      return res.status(403).json({error: 'Deleting this reservation is not allowed'});
+      const { status, body } = getAppErrorResponse('RESERVATION_DELETE_OWN_OR_ADMIN_ONLY');
+      return res.status(status).json(body);
     }
 
     if (reservation.club_id !== club_id) {
-      return res.status(403).json({error: 'Deleting this reservation is not allowed'});
+      const { status, body } = getAppErrorResponse('RESERVATION_DELETE_OWN_CLUB_ONLY');
+      return res.status(status).json(body);
     }
 
     // delete reservation from db
@@ -88,7 +95,8 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
       if (result.deletedCount > 0) {
         await returnResponse();
       } else {
-        return res.json({error: 'Delete failed!'});
+        const { body } = getAppErrorResponse('RESERVATION_DELETE_FAILED');
+        return res.status(500).json(body);
       }
     // add req.body.date to deleted_dates array of reservation doc in db
     } else if (req.body.delete_type === 'once') {
@@ -106,7 +114,8 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
         if (result.deletedCount > 0) {
           await returnResponse();
         } else {
-          return res.json({error: 'Delete failed!'});
+          const { body } = getAppErrorResponse('RESERVATION_DELETE_FAILED');
+          return res.status(500).json(body);
         }
         return;
       }

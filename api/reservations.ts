@@ -8,7 +8,7 @@ import { editReservation } from './_utils/_editReservation.js';
 import { ReservationValidationError } from './_utils/_reservationValidation.js';
 import { getJwtPayload } from './verifyAuth.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
-import { getErrorMessage } from './_utils/_errors.js';
+import { getErrorMessage, isAppError } from './_utils/_errors.js';
 
 type ReservationClub = {
   start_hour: number;
@@ -77,6 +77,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
   } catch (e) {
     if (e instanceof ReservationValidationError) {
       return res.status(e.statusCode).json({error: e.message});
+    }
+
+    if (isAppError(e)) {
+      return res.status(e.statusCode).json({
+        code: e.code,
+        error: e.message
+      });
     }
 
     const message = getErrorMessage(e);

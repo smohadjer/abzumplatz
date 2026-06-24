@@ -4,6 +4,7 @@ import { RootState } from '../store';
 import {
     isInPast,
     getClub,
+    getIsoDateString,
     reservationIsOnSameDay,
     getUserReservations,
     fetchAppData,
@@ -62,7 +63,7 @@ export default function Reservations() {
         length: club.end_hour - club.start_hour
     }, (_, i) => i + club.start_hour);
     const [reservationDate, setReservationDate] = useState(new Date());
-    const isoDate = reservationDate.toISOString().split('T')[0];
+    const isoDate = getIsoDateString(reservationDate);
     const reservationFilter = (reservationItem: ReservationItem) => {
         return reservationIsOnSameDay(reservationItem, isoDate);
     };
@@ -108,7 +109,8 @@ export default function Reservations() {
             }
 
             // users can delete their own reservations
-            // admin can delete any reservation
+            // admins can delete other users' reservations for their club,
+            // subject to backend restrictions such as past one-time bookings
             if (slot.classList.contains('my-reservation') ||
                 (reservedByOthers && user.role === 'admin')) {
                 setPopupType('deleteReservation');
