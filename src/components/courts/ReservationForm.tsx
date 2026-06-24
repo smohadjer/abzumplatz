@@ -77,7 +77,7 @@ export function ReservationForm(props: Props) {
         const reservationTime = new Date(dateValue);
         reservationTime.setHours(startTime, 0, 0, 0);
 
-        if (reservationTime < new Date()) {
+        if (!(props.reservationId && props.recurring) && reservationTime < new Date()) {
             event.preventDefault();
             durationSelect?.setCustomValidity('Eine Reservierung in der Vergangenheit ist nicht möglich.');
             durationSelect?.reportValidity();
