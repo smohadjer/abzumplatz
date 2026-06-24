@@ -1,5 +1,8 @@
 import { ReservationItem } from '../../types';
-import { getClub } from './../../utils/utils';
+import {
+    getClub,
+    getNextActiveRecurringReservationDate
+} from './../../utils/utils';
 import './myReservations.css';
 
 export function MyReservations(props: {
@@ -20,7 +23,8 @@ export function MyReservations(props: {
             {reservations.length ?
                 <ul>
                 {reservations.map(item => {
-                    const day = new Date(item.date);
+                    const activeDate = item.recurring ? getNextActiveRecurringReservationDate(item) : item.date;
+                    const day = new Date(activeDate ?? item.date);
                     const isoDate = day.toLocaleDateString('de-DE');
                     const weekday = day.toLocaleDateString('de-DE', {weekday: 'short'});
                     const key = item._id!.toString();
@@ -42,7 +46,8 @@ export function MyReservations(props: {
                                 data-club_id={item.club_id}
                                 data-hour={item.start_time}
                                 data-end_time={item.end_time}
-                                data-date={item.date}
+                                data-date={activeDate ?? item.date}
+                                data-reservation_date={item.date}
                                 data-reservation_id={item._id}
                                 data-user_id={item.user_id}
                                 data-label={item.label}

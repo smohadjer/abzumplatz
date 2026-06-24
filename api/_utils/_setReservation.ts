@@ -15,6 +15,7 @@ import {
 } from './_reservationValidation.js';
 import { DBUser, ReservationItem } from '../../src/types.js';
 import type { VercelRequest, VercelResponse } from './_apiTypes.js';
+import { createAppError } from './_errors.js';
 
 type ReservationClub = {
   start_hour: number;
@@ -65,7 +66,7 @@ export const setReservation = async (
 
     // throw error if user is inactive
     if (user.status !== 'active') {
-      throw new Error('Ihr Konto ist derzeit inaktiv. Bitte wenden Sie sich an den Support.');
+      throw createAppError('USER_INACTIVE');
     }
 
     const club_id = user.club_id;

@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux'
-import { isToday, fetchAppData } from '../../utils/utils';
+import { isToday, fetchAppData, getIsoDateString } from '../../utils/utils';
 import { AuthenticatedUser } from '../../types.js';
 
 import './calendar.css';
@@ -14,7 +14,7 @@ type Props = {
 export function Calendar(props: Props) {
     const dispatch = useDispatch();
     const { reservationDate, setReservationDate, user } = props;
-    const isoDate = reservationDate.toISOString().split('T')[0];
+    const isoDate = getIsoDateString(reservationDate);
 
     const nextDay = () => {
         const next = reservationDate.setDate(reservationDate.getDate() + 1);

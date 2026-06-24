@@ -66,6 +66,7 @@ export function Popup(props: {
     const courtNums = props.slot.court_nums ?? [props.slot.court_number];
     const courtsLabel = courtNums.length === 1 ? 'Platz' : 'Plätze';
     const reservationDate = props.slot.reservation_date ?? props.slot.date;
+    const editDate = props.slot.recurring ? props.slot.date : reservationDate;
     const clubTimeZone = club?.timezone ?? 'Europe/Berlin';
     const getReservationSummary = (reservation: ReservationSuccess) => `Platz ${reservation.courtNumbers.join(', ')} reserviert`;
     const getReservationLabel = (reservation: ReservationSuccess) => reservation.courtNumbers.length === 1 ? 'Platz' : 'Plätze';
@@ -165,6 +166,11 @@ export function Popup(props: {
                             <span key={label}>{label === 'Reserviert von' ? `${label} ${value}` : `${label}: ${value}`}<br /></span>
                         ))}
                     </p>
+                    {slot.recurring && (
+                        <div className="recurring-edit-notice">
+                            Beim Bearbeiten dieser wiederkehrenden Reservierung werden alle noch nicht begonnenen Termine dieser Serie aktualisiert.
+                        </div>
+                    )}
 
                     <ReservationForm
                         submitHandler={async (event) => {
@@ -179,7 +185,8 @@ export function Popup(props: {
                         courts={club?.courts ?? []}
                         selectedCourtNumber={slot.court_number}
                         selectedCourtNumbers={courtNums}
-                        date={reservationDate}
+                        date={editDate}
+                        occurrenceDate={props.slot.recurring ? slot.date : undefined}
                         deleteDate={slot.date}
                         startHour={slot.hour}
                         duration={slot.end_time ? slot.end_time - slot.hour : 1}

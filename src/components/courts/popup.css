@@ -62,8 +62,22 @@
         margin-top: 1em;
     }
 
+    .recurring-edit-notice {
+        margin-top: 1em;
+        padding: 0.85em 1em;
+        border-left: 4px solid #d08b00;
+        background: #fff4d6;
+        color: #5f4300;
+        border-radius: 0.25em;
+    }
+
     form {
         margin-top: 1.5em;
+
+        .form-error-message {
+            margin: 1em 0 0;
+            color: #b42318;
+        }
 
         fieldset {
             border: 0;

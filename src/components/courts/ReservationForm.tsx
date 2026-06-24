@@ -10,6 +10,7 @@ type Props = {
     courts: Court[];
     selectedCourtNumber: string;
     date: string;
+    occurrenceDate?: string;
     deleteDate?: string;
     startHour: number;
     clubStartHour: number;
@@ -28,6 +29,7 @@ type Props = {
 export function ReservationForm(props: Props) {
     const user = useSelector((state: RootState) => state.auth);
     const [deleteReservationChecked, setDeleteReservationChecked] = useState(false);
+    const [formError, setFormError] = useState('');
     const capitalizeName = (value: string | undefined) => {
         if (!value) {
             return '';
@@ -58,9 +60,8 @@ export function ReservationForm(props: Props) {
     const submitHandler: SubmitEventHandler<HTMLFormElement> = (event) => {
         const form = event.currentTarget;
         const courtCheckbox = form.querySelector<HTMLInputElement>('input[name="court_nums"]');
-        const durationSelect = form.querySelector<HTMLSelectElement>('select[name="duration"]');
+        setFormError('');
         courtCheckbox?.setCustomValidity('');
-        durationSelect?.setCustomValidity('');
 
         if (!new FormData(form).getAll('court_nums').length) {
             event.preventDefault();
@@ -76,17 +77,18 @@ export function ReservationForm(props: Props) {
         const reservationTime = new Date(dateValue);
         reservationTime.setHours(startTime, 0, 0, 0);
 
-        if (reservationTime < new Date()) {
+        // Skip this frontend past-time check for recurring edits.
+        // The backend decides the effective recurring edit boundary from the
+        // clicked occurrence date and the current series state.
+        if (!props.recurring && reservationTime < new Date()) {
             event.preventDefault();
-            durationSelect?.setCustomValidity('Eine Reservierung in der Vergangenheit ist nicht möglich.');
-            durationSelect?.reportValidity();
+            setFormError('Eine Reservierung in der Vergangenheit ist nicht möglich.');
             return;
         }
 
         if ((startTime + duration) > props.clubEndHour) {
             event.preventDefault();
-            durationSelect?.setCustomValidity('Die Reservierung endet nach der erlaubten Reservierungszeit des Vereins.');
-            durationSelect?.reportValidity();
+            setFormError('Die Reservierung endet nach der erlaubten Reservierungszeit des Vereins.');
             return;
         }
 
@@ -100,6 +102,7 @@ export function ReservationForm(props: Props) {
             action="/api/reservations"
             onSubmit={submitHandler}>
             {props.reservationId && <input type="hidden" name="reservation_id" value={props.reservationId} />}
+            {props.reservationId && props.occurrenceDate && <input type="hidden" name="occurrence_date" value={props.occurrenceDate} />}
             {!props.reservationId && user.role !== 'admin' && <input type="hidden" name="label" value={labelDefaultValue} />}
             <div className="reservation-field">
                 <label>Datum:</label>
@@ -184,9 +187,9 @@ export function ReservationForm(props: Props) {
                 <label className="checkbox-label">
                     <input
                         disabled={props.disabled}
-                        name="user_id"
+                        name="assign_to_myself"
                         type="checkbox"
-                        value={user._id}
+                        value="true"
                     />
                     <span>Reservierung mir zuweisen</span>
                 </label>}
@@ -215,6 +218,7 @@ export function ReservationForm(props: Props) {
                         </div>
                     }
                 </div>}
+            {formError && <p className="form-error-message">{formError}</p>}
             {props.reservationId ?
                 <div className="form-actions">
                     <button type="submit" disabled={props.disabled}>{props.submitLabel ?? 'Speichern'}</button>
