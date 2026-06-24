@@ -108,7 +108,7 @@ export const getNextActiveRecurringReservationDate = (
 
     if (candidate.getTime() === today.getTime()) {
         const candidateDateTime = new Date(candidate);
-        candidateDateTime.setHours(reservation.start_time, 0, 0, 0);
+        candidateDateTime.setHours(reservation.end_time, 0, 0, 0);
         if (candidateDateTime < now) {
             candidate.setDate(candidate.getDate() + 7);
         }
