@@ -1,8 +1,17 @@
-# API Documentation
+# Documentation
 
-This document is the starting point for documenting the application's APIs.
+This document is the starting point for documenting the application's APIs and
+important behavior decisions.
+
 For now it covers reservation editing and deletion behavior. Additional API
-endpoints can be added here over time.
+endpoints, workflows, and logic decisions can be added here over time.
+
+## Table of Contents
+
+- [Reservations API](#reservations-api)
+- [Adding Reservations](#adding-reservations)
+- [Editing Reservations](#editing-reservations)
+- [Deleting Reservations](#deleting-reservations)
 
 ## Reservations API
 
@@ -14,6 +23,76 @@ The reservations endpoint supports:
 - `POST` for creating reservations
 - `POST` with `reservation_id` for editing reservations
 - `POST` with `delete=true` for deleting reservations
+
+### General POST Rules
+
+These rules apply to all `POST` operations on `/api/reservations`:
+
+- Authentication is required.
+- The authenticated user must exist.
+- The authenticated user must belong to a club.
+- The club must exist.
+- Inactive users cannot send `POST` requests to reservation API endpoints.
+
+## Adding Reservations
+
+Create requests are handled when the request body does not contain
+`reservation_id` and does not contain `delete=true`.
+
+### Example POST
+
+Create a non-recurring reservation:
+
+```json
+{
+  "date": "2026-06-30",
+  "court_nums": ["1"],
+  "start_time": 18,
+  "end_time": 19,
+  "label": "Freies Spiel"
+}
+```
+
+Create a recurring reservation:
+
+```json
+{
+  "date": "2026-06-30",
+  "court_nums": ["1", "2"],
+  "start_time": 18,
+  "end_time": 20,
+  "label": "Training Herren 40",
+  "recurring": true
+}
+```
+
+### General Rules
+
+- Reservations cannot be created in the past.
+- Reservations must stay within the club's configured reservation hours.
+- Reservations must not overlap with existing reservations on the selected courts.
+
+### Non-Admin Users
+
+- Can only reserve according to the non-admin reservation rules.
+- Are limited by the club's `reservations_limit` when one is configured.
+- Cannot reserve multiple courts at the same time.
+- Cannot create recurring reservations.
+
+### Admin Users
+
+- Are not restricted by the normal user reservation limit.
+- Can reserve multiple courts.
+- Can create recurring reservations.
+
+### Important Fields
+
+- `date`: reservation date or recurring series start date
+- `court_nums`: selected court numbers
+- `start_time`: reservation start hour
+- `end_time`: reservation end hour
+- `label`: reservation label
+- `recurring`: whether the reservation repeats weekly
 
 ## Editing Reservations
 
@@ -65,9 +144,7 @@ Reassign a reservation to the current admin without changing the schedule:
 
 ### General Rules
 
-- Authentication is required.
 - The reservation must exist.
-- The reservation must belong to the same club as the authenticated user.
 - Past non-recurring reservations cannot be edited.
 - Edits must still pass normal validation such as club hours and overlap checks.
 
@@ -154,9 +231,7 @@ Delete an entire reservation or recurring series:
 
 ### General Rules
 
-- Authentication is required.
 - The reservation must exist.
-- The reservation must belong to the same club as the authenticated user.
 - Past non-recurring reservations cannot be deleted.
 
 ### Non-Admin Users

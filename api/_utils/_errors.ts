@@ -5,6 +5,7 @@ type ErrorWithCause = Error & {
 export type AppErrorCode =
     | 'AUTHENTICATION_REQUIRED'
     | 'USER_NOT_FOUND'
+    | 'USER_INACTIVE'
     | 'USER_HAS_NO_CLUB'
     | 'CLUB_NOT_FOUND'
     | 'RESERVATION_ID_REQUIRED'
@@ -35,6 +36,10 @@ const APP_ERRORS: Record<AppErrorCode, AppErrorDefinition> = {
     USER_NOT_FOUND: {
         message: 'Benutzer nicht gefunden',
         status: 404
+    },
+    USER_INACTIVE: {
+        message: 'Ihr Konto ist derzeit inaktiv. Bitte wenden Sie sich an den Support.',
+        status: 403
     },
     USER_HAS_NO_CLUB: {
         message: 'Der Benutzer gehört keinem Verein an',

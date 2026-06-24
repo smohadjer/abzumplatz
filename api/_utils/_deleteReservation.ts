@@ -65,6 +65,10 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
       return res.status(status).json(body);
     }
 
+    if (user.status !== 'active') {
+      throw createAppError('USER_INACTIVE');
+    }
+
     const club_id = user.club_id;
     if (!club_id) {
       throw createAppError('USER_HAS_NO_CLUB');
