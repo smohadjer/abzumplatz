@@ -177,7 +177,7 @@ export const editReservation = (
             } :
             {
                 reservation_id: formData.get('reservation_id'),
-                ...(formData.get('edit_from_date') ? {edit_from_date: formData.get('edit_from_date')} : {}),
+                ...(formData.get('occurrence_date') ? {occurrence_date: formData.get('occurrence_date')} : {}),
                 ...getReservationPayload(formData),
                 ...(formData.get('assign_to_myself') === 'true' ? {assign_to_myself: true} : {})
             };

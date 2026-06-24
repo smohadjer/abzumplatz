@@ -15,7 +15,7 @@ export type AppErrorCode =
     | 'RESERVATION_EDIT_RECURRING_ADMIN_ONLY'
     | 'RESERVATION_ASSIGN_ADMIN_ONLY'
     | 'RESERVATION_EDIT_NO_FIELDS'
-    | 'RESERVATION_EDIT_FROM_DATE_REQUIRED'
+    | 'RESERVATION_EDIT_OCCURRENCE_DATE_REQUIRED'
     | 'RESERVATION_EDIT_PAST_NOT_ALLOWED'
     | 'RESERVATION_EDIT_START_BEFORE_SELECTED'
     | 'RESERVATION_DELETE_OWN_OR_ADMIN_ONLY'
@@ -77,8 +77,8 @@ const APP_ERRORS: Record<AppErrorCode, AppErrorDefinition> = {
         message: 'Es wurden keine Reservierungsfelder zum Aktualisieren übermittelt',
         status: 400
     },
-    RESERVATION_EDIT_FROM_DATE_REQUIRED: {
-        message: 'edit_from_date ist für die Bearbeitung wiederkehrender Reservierungen erforderlich',
+    RESERVATION_EDIT_OCCURRENCE_DATE_REQUIRED: {
+        message: 'occurrence_date ist für die Bearbeitung wiederkehrender Reservierungen erforderlich',
         status: 400
     },
     RESERVATION_EDIT_PAST_NOT_ALLOWED: {

@@ -47,10 +47,10 @@ const validateEditAccess = (
   clubId: string,
   payloadUserId: string,
   userRole: string,
-  editFromReservationDate: string
+  occurrenceDate: string
 ) => {
   const passed = isInPast(new Date(reservation.date), reservation.start_time);
-  const passedOccurrence = isInPast(new Date(editFromReservationDate), reservation.start_time);
+  const passedOccurrence = isInPast(new Date(occurrenceDate), reservation.start_time);
 
   if (reservation.club_id !== clubId) {
     return getAppErrorResponse('RESERVATION_EDIT_OWN_CLUB_ONLY');
@@ -149,7 +149,7 @@ export const editReservation = async (
   users: Collection<DBUser>
 ) => {
   const body = sanitize(req.body);
-  const editFromDate = typeof body?.edit_from_date === 'string' ? body.edit_from_date : undefined;
+  const occurrenceDate = typeof body?.occurrence_date === 'string' ? body.occurrence_date : undefined;
   const reservation_id = body?.reservation_id;
   if (!reservation_id || typeof reservation_id !== 'string') {
     const { status, body } = getAppErrorResponse('RESERVATION_ID_REQUIRED');
@@ -197,9 +197,16 @@ export const editReservation = async (
     throw createAppError('CLUB_NOT_FOUND');
   }
 
-  if (reservation.recurring && !editFromDate) {
-    const { status, body } = getAppErrorResponse('RESERVATION_EDIT_FROM_DATE_REQUIRED');
+  if (reservation.recurring && !occurrenceDate) {
+    const { status, body } = getAppErrorResponse('RESERVATION_EDIT_OCCURRENCE_DATE_REQUIRED');
     return res.status(status).json(body);
+  }
+
+  if (reservation.recurring && occurrenceDate) {
+    const accessError = validateEditAccess(reservation, club_id, payload._id, user.role, occurrenceDate);
+    if (accessError) {
+      return res.status(accessError.status).json(accessError.body);
+    }
   }
 
   const editFromReservationDate = reservation.recurring
@@ -208,9 +215,11 @@ export const editReservation = async (
   if (reservation.recurring && !editFromReservationDate) {
     throw createAppError('RESERVATION_EDIT_PAST_NOT_ALLOWED');
   }
-  const accessError = validateEditAccess(reservation, club_id, payload._id, user.role, editFromReservationDate);
-  if (accessError) {
-    return res.status(accessError.status).json(accessError.body);
+  if (!reservation.recurring) {
+    const accessError = validateEditAccess(reservation, club_id, payload._id, user.role, editFromReservationDate);
+    if (accessError) {
+      return res.status(accessError.status).json(accessError.body);
+    }
   }
 
   const validatedRequest = validateEditRequest(body, user.role, club);

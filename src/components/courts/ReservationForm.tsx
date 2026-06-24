@@ -10,7 +10,7 @@ type Props = {
     courts: Court[];
     selectedCourtNumber: string;
     date: string;
-    editFromDate?: string;
+    occurrenceDate?: string;
     deleteDate?: string;
     startHour: number;
     clubStartHour: number;
@@ -74,15 +74,13 @@ export function ReservationForm(props: Props) {
         const startTime = Number(formData.get('start_time') ?? props.startHour);
         const duration = Number(formData.get('duration') ?? 1);
         const dateValue = String(formData.get('date') ?? props.date);
-        const editFromDateValue = formData.get('edit_from_date');
-        const isRecurringEdit = Boolean(editFromDateValue);
         const reservationTime = new Date(dateValue);
         reservationTime.setHours(startTime, 0, 0, 0);
 
         // Skip this frontend past-time check for recurring edits.
-        // The backend decides the first occurrence in the series whose start time
-        // has not passed yet and uses that as the recurring edit boundary.
-        if (!isRecurringEdit && reservationTime < new Date()) {
+        // The backend decides the effective recurring edit boundary from the
+        // clicked occurrence date and the current series state.
+        if (!props.recurring && reservationTime < new Date()) {
             event.preventDefault();
             setFormError('Eine Reservierung in der Vergangenheit ist nicht möglich.');
             return;
@@ -104,7 +102,7 @@ export function ReservationForm(props: Props) {
             action="/api/reservations"
             onSubmit={submitHandler}>
             {props.reservationId && <input type="hidden" name="reservation_id" value={props.reservationId} />}
-            {props.reservationId && props.editFromDate && <input type="hidden" name="edit_from_date" value={props.editFromDate} />}
+            {props.reservationId && props.occurrenceDate && <input type="hidden" name="occurrence_date" value={props.occurrenceDate} />}
             {!props.reservationId && user.role !== 'admin' && <input type="hidden" name="label" value={labelDefaultValue} />}
             <div className="reservation-field">
                 <label>Datum:</label>
@@ -220,7 +218,7 @@ export function ReservationForm(props: Props) {
                         </div>
                     }
                 </div>}
-            {formError && <p>{formError}</p>}
+            {formError && <p className="form-error-message">{formError}</p>}
             {props.reservationId ?
                 <div className="form-actions">
                     <button type="submit" disabled={props.disabled}>{props.submitLabel ?? 'Speichern'}</button>

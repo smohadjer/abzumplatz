@@ -1,6 +1,5 @@
 import {
     getLocalDate,
-    getNextActiveRecurringReservationDate,
     editReservation,
     makeReservation,
     getClub
@@ -67,23 +66,7 @@ export function Popup(props: {
     const courtNums = props.slot.court_nums ?? [props.slot.court_number];
     const courtsLabel = courtNums.length === 1 ? 'Platz' : 'Plätze';
     const reservationDate = props.slot.reservation_date ?? props.slot.date;
-    const reservationItem = {
-        club_id: props.slot.club_id ?? '',
-        user_id: props.slot.user_id ?? '',
-        date: reservationDate,
-        court_nums: courtNums,
-        start_time: props.slot.hour,
-        end_time: props.slot.end_time ?? props.slot.hour + 1,
-        label: props.slot.label ?? '',
-        recurring: true,
-        deleted_dates: props.slot.deleted_dates,
-        end_date: props.slot.end_date
-    }
-    const firstEditableRecurringDate = props.slot.recurring 
-        ? getNextActiveRecurringReservationDate(reservationItem) 
-        : undefined;
-    const recurringEditDate = firstEditableRecurringDate ?? props.slot.date;
-    const editDate = props.slot.recurring ? recurringEditDate : reservationDate;
+    const editDate = props.slot.recurring ? props.slot.date : reservationDate;
     const clubTimeZone = club?.timezone ?? 'Europe/Berlin';
     const getReservationSummary = (reservation: ReservationSuccess) => `Platz ${reservation.courtNumbers.join(', ')} reserviert`;
     const getReservationLabel = (reservation: ReservationSuccess) => reservation.courtNumbers.length === 1 ? 'Platz' : 'Plätze';
@@ -203,7 +186,7 @@ export function Popup(props: {
                         selectedCourtNumber={slot.court_number}
                         selectedCourtNumbers={courtNums}
                         date={editDate}
-                        editFromDate={props.slot.recurring ? recurringEditDate : slot.date}
+                        occurrenceDate={props.slot.recurring ? slot.date : undefined}
                         deleteDate={slot.date}
                         startHour={slot.hour}
                         duration={slot.end_time ? slot.end_time - slot.hour : 1}

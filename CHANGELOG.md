@@ -13,7 +13,7 @@ All notable changes to this project should be documented in this file.
 ### Changed
 
 - Changed admin editing of already-started recurring reservations to end the original series at the selected occurrence and insert a new reservation with updated values, preserving past occurrences.
-- Added `edit_from_date` to recurring reservation edit requests.
+- Added `occurrence_date` to recurring reservation edit requests.
 - Added centralized reservation API error handling with shared error codes and German error messages.
 
 ### Added

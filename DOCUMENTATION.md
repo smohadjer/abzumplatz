@@ -118,7 +118,7 @@ Edit a recurring reservation for all occurrences that are not yet in the past:
 ```json
 {
   "reservation_id": "6876f2a8d3d8fd0a4d0f1001",
-  "edit_from_date": "2026-06-30",
+  "occurrence_date": "2026-07-14",
   "date": "2026-06-30",
   "court_nums": ["1", "2"],
   "start_time": 18,
@@ -170,7 +170,7 @@ Past occurrences are not modified.
 
 When an admin edits a recurring reservation:
 
-- `edit_from_date` identifies the recurring edit action
+- `occurrence_date` identifies the clicked occurrence in the recurring series
 - the backend applies the edit starting from the first occurrence in the series that has not started yet
 - if the series already has past occurrences, the existing recurring series is ended at that occurrence and a new reservation/series is created for the edited version going forward
 - if the series has not started yet, the existing reservation is updated in place and no new reservation is created
@@ -181,15 +181,21 @@ historical occurrences remain unchanged.
 ### Recurring Edit Edge Cases
 
 - Editing a later future occurrence can still update earlier future occurrences in the same series, as long as those earlier occurrences have not started yet.
-- Clicking a future occurrence in the calendar does not guarantee that the edit starts from that exact date. The backend uses the first occurrence in the series that has not started yet as the effective edit boundary.
+- Clicking a future occurrence in the calendar does not guarantee that the edit starts from that exact date. The backend uses `occurrence_date` as the clicked occurrence, then derives the first occurrence in the series that has not started yet as the effective edit boundary.
+- If today's occurrence has already started, it is treated as past and the edit boundary moves to the next occurrence in the series that has not started yet.
 - If a recurring series has already started, the edit preserves history by splitting the series into an old unchanged part and a new edited part.
 - If a recurring series has not started yet, there is no historical part to preserve, so the reservation is edited in place.
+
+### Edit UI Notes
+
+- When editing a recurring reservation in the popup, the app shows a highlighted message that all occurrences in the series that have not started yet will be updated.
+- Reservation-level validation errors in the popup are shown as form-level error messages instead of being attached to a specific field.
 
 ### Important Fields
 
 - `reservation_id`: identifies the reservation to edit
-- `edit_from_date`: required for recurring reservation edits; the backend will still use the first occurrence in the series that has not started yet as the effective edit boundary
-- `date`: the start date of the edited reservation or new recurring segment
+- `occurrence_date`: required for recurring reservation edits; the clicked occurrence in the recurring series
+- `date`: the requested edited reservation date; for recurring edits the backend may normalize the new recurring segment to the first occurrence in the series that has not started yet
 - `court_nums`: selected court numbers
 - `start_time`: reservation start hour
 - `end_time`: reservation end hour
