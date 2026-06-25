@@ -4,6 +4,7 @@ import './home.css';
 export default function Home() {
     return (
         <>
+            <p className="home-tagline">Online Platzreservierung für Tennisvereine</p>
             <div className="home-intro">
                 <div className="home-intro-card">
                     <h2 className="home-intro-label">Für Spieler (kostenlos)</h2>

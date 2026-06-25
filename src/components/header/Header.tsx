@@ -1,8 +1,7 @@
 import { getClub, onLogout } from '../../utils/utils';
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../../store';
-import { Link } from 'react-router';
-// import { useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import './header.css';
 
 export default function Header() {
@@ -10,15 +9,22 @@ export default function Header() {
     const auth = useSelector((state: RootState) => state.auth);
     const isLoggedin = auth.value;
     const club = getClub();
-    // const location = useLocation();
+    const location = useLocation();
 
-    // console.log(location.pathname);
+    const handleLogoClick = () => {
+        if (location.pathname === '/') {
+            document.querySelector('main')?.scrollTo({ top: 0, behavior: 'auto' });
+        }
+    };
 
     return (
         <header className="header">
             <div className="header-top-row">
                 {/* <h1>{isLoggedin && club ? club.name : 'abzumplatz'}</h1> */}
-                <img width="250" src="/assets/logo.png" alt="abzumplatz logo" className="header-logo" />
+                <Link to="/" className="header-logo-link" onClick={handleLogoClick}>
+                    <img width="250" src="/assets/logo.png" alt="abzumplatz logo" className="header-logo" />
+                </Link>
+                {club ? <p className="header-club-name">{club.name}</p> : null}
                 {isLoggedin ? 
                     <div className="header-login-link">
                         <a href="#" onClick={(e) => {
@@ -38,7 +44,6 @@ export default function Header() {
                     </div>
                 )}
             </div>
-            <p className="header-subtitle">{club ? club.name : 'Online Platzreservierung für Tennisvereine'}</p>
         </header>
     )
   }

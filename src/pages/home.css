@@ -3,6 +3,12 @@
     margin-right: 0.5em;
 }
 
+.home-tagline {
+    margin: 0;
+    text-align: center;
+    font-size: 1.1em;
+}
+
 .home-intro {
     display: flex;
     gap: 1rem;
