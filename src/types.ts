@@ -128,8 +128,6 @@ export type JwtPayload = StateUser & {
     club_id: string;
     email: string;
     role: string;
-    status?: string;
-    error?: string;
 }
 
 export type DBUser = {
@@ -151,5 +149,10 @@ export type AuthenticatedUser = {
     _id: string;
     club_id: string;
     role: string;
+    // Display-only client cache; it is not the backend authorization source of truth.
     status?: string;
+}
+
+export type AuthenticatedUserResponse = Omit<AuthenticatedUser, 'value'> & {
+    error?: string;
 }
