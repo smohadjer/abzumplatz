@@ -30,7 +30,7 @@ import { Loader } from './components/loader/Loader';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 
-import { Club, JwtPayload } from './types';
+import { AuthenticatedUserResponse, Club } from './types';
 import './app.css';
 
 export default function App() {
@@ -52,7 +52,7 @@ export default function App() {
             });
 
             // fetch logged-in user and save it to store
-            const authenticated: JwtPayload | null = await isAuthenticated();
+            const authenticated: AuthenticatedUserResponse | null = await isAuthenticated();
             if (!authenticated || authenticated.error) {
                 // console.log('Not logged-in!');
             } else {

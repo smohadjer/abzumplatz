@@ -6,9 +6,14 @@ important behavior decisions.
 For now it covers reservation editing and deletion behavior. Additional API
 endpoints, workflows, and logic decisions can be added here over time.
 
+Application assumptions should be documented here as well, especially when they
+affect authorization, status handling, data defaults, or other business rules
+that could otherwise remain implicit in code.
+
 ## Table of Contents
 
 - [Reservations API](#reservations-api)
+- [User Status Authority](#user-status-authority)
 - [Adding Reservations](#adding-reservations)
 - [Editing Reservations](#editing-reservations)
 - [Deleting Reservations](#deleting-reservations)
@@ -23,6 +28,20 @@ The reservations endpoint supports:
 - `POST` for creating reservations
 - `POST` with `reservation_id` for editing reservations
 - `POST` with `delete=true` for deleting reservations
+
+## User Status Authority
+
+User status has different roles depending on where it appears:
+
+- The database `users` record is the source of truth for authorization decisions.
+- The JWT does not carry `status`; it contains identity/session fields only.
+- Redux `auth.status` is client display state and may also become stale until the client refreshes or logs in again.
+- Login and `/api/verifyAuth` responses may include `status` for UI display, but that response value is still not the authorization source of truth.
+- If a user record has no stored status, the UI-facing auth responses treat that user as `inactive` by default.
+
+For that reason, reservation authorization does not trust Redux status or prior client-cached status values.
+All reservation `POST` handlers load the current user from the database and apply
+the active-user rule from that record.
 
 ### General POST Rules
 

@@ -1,10 +1,10 @@
 import { ObjectId, Collection } from 'mongodb';
-import { DBUser, JwtPayload, ReservationItem } from '../../src/types.js';
+import { DBUser, ReservationItem } from '../../src/types.js';
 import { getIsoDateString, isInPast } from '../../src/utils/utils.js';
-import { getJwtPayload } from '../verifyAuth.js';
 import { getAllReservations } from '../../src/utils/utils.js';
 import type { VercelRequest, VercelResponse } from './_apiTypes.js';
 import { createAppError, getAppErrorResponse } from './_errors.js';
+import { getAuthenticatedUserContext } from './_authenticatedUser.js';
 
 const getWeeklyOccurrenceDatesBefore = (startDate: string, endDate: string) => {
   const dates: string[] = [];
@@ -51,23 +51,9 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
       throw createAppError('RESERVATION_DELETE_PAST_NOT_ALLOWED');
     }
 
-    const payload = await getJwtPayload(req);
-    if (!payload) {
-      const { status, body } = getAppErrorResponse('AUTHENTICATION_REQUIRED');
-      return res.status(status).json(body);
-    }
-
-    const user = await users.findOne({
-      _id: ObjectId.createFromHexString(payload._id)
+    const { payload, user } = await getAuthenticatedUserContext(req, users, {
+      requireActive: true
     });
-    if (!user) {
-      const { status, body } = getAppErrorResponse('AUTHENTICATION_REQUIRED');
-      return res.status(status).json(body);
-    }
-
-    if (user.status !== 'active') {
-      throw createAppError('USER_INACTIVE');
-    }
 
     const club_id = user.club_id;
     if (!club_id) {

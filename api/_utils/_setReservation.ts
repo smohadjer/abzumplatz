@@ -1,6 +1,5 @@
 import { ObjectId, Collection } from 'mongodb';
 import { sanitize } from './_lib.js';
-import { getJwtPayload } from '../verifyAuth.js';
 import {
   getAllReservations,
   isReservationActive
@@ -15,7 +14,7 @@ import {
 } from './_reservationValidation.js';
 import { DBUser, ReservationItem } from '../../src/types.js';
 import type { VercelRequest, VercelResponse } from './_apiTypes.js';
-import { createAppError } from './_errors.js';
+import { getAuthenticatedUserContext } from './_authenticatedUser.js';
 
 type ReservationClub = {
   start_hour: number;
@@ -52,22 +51,9 @@ export const setReservation = async (
     const { body: validatedBody, courtNums, startTime, endTime, recurring } = validatedReservation;
     const { date, label } = validatedBody;
 
-    const payload = await getJwtPayload(req);
-    if (!payload) {
-      return res.status(401).json({error: 'Unauthorized'});
-    }
-    const user = await users.findOne({
-      _id: ObjectId.createFromHexString(payload._id)
+    const { user } = await getAuthenticatedUserContext(req, users, {
+      requireActive: true
     });
-
-    if (!user)  {
-      return res.status(404).json({error: 'User not found!'});
-    }
-
-    // throw error if user is inactive
-    if (user.status !== 'active') {
-      throw createAppError('USER_INACTIVE');
-    }
 
     const club_id = user.club_id;
     if (!club_id) {

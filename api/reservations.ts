@@ -53,6 +53,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         if (!user) {
           return res.status(401).json({error: 'Authentication required'});
         }
+
         if (user.club_id !== club_id) {
           return res.status(403).json({error: 'Reading these reservations is not allowed'});
         }

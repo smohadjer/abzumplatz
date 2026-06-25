@@ -2,6 +2,23 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.13
+
+### Fixed
+
+- Centralized reservation write authorization so authenticated user status is consistently reloaded from MongoDB before create, edit, or delete actions.
+- Removed `status` from the JWT payload to avoid treating token data as the source of truth for authorization-sensitive status checks.
+- Changed login and `/api/verifyAuth` responses to treat missing user status as `inactive` by default, matching the rule that users remain inactive until an admin activates them.
+
+### Changed
+
+- Clarified in code and documentation that the database user record is authoritative for status decisions, while frontend auth status is UI-facing cached state.
+- Added a shared authenticated-user helper for reservation write flows that resolves the JWT identity and then reloads the current user record from MongoDB.
+
+### Added
+
+- Documented that application assumptions, especially around authorization and default business rules, should be captured in `DOCUMENTATION.md`.
+
 ## 0.0.12
 
 ### Fixed

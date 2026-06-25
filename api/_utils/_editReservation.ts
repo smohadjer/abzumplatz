@@ -2,7 +2,6 @@ import { ObjectId, Collection } from 'mongodb';
 import { sanitize } from './_lib.js';
 import type { VercelRequest, VercelResponse } from './_apiTypes.js';
 import { DBUser, ReservationItem } from '../../src/types.js';
-import { getJwtPayload } from '../verifyAuth.js';
 import {
   getAllReservations,
   getNextActiveRecurringReservationDate,
@@ -19,6 +18,7 @@ import {
 } from './_reservationValidation.js';
 import { createAppError, getAppErrorResponse } from './_errors.js';
 import type { AppErrorCode } from './_errors.js';
+import { getAuthenticatedUserContext } from './_authenticatedUser.js';
 
 type ReservationClub = {
   start_hour: number;
@@ -166,24 +166,9 @@ export const editReservation = async (
     return res.status(status).json(body);
   }
 
-  const payload = await getJwtPayload(req);
-  if (!payload) {
-    const { status, body } = getAppErrorResponse('AUTHENTICATION_REQUIRED');
-    return res.status(status).json(body);
-  }
-
-  const user = await users.findOne({
-    _id: ObjectId.createFromHexString(payload._id)
+  const { payload, user } = await getAuthenticatedUserContext(req, users, {
+    requireActive: true
   });
-
-  if (!user) {
-    const { status, body } = getAppErrorResponse('USER_NOT_FOUND');
-    return res.status(status).json(body);
-  }
-
-  if (user.status !== 'active') {
-    throw createAppError('USER_INACTIVE');
-  }
 
   const club_id = user.club_id;
   if (!club_id) {

@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb';
 import { jwtSecret, environment, database_uri, database_name } from './_utils/_config.js';
 import bcrypt from 'bcrypt';
 import { SignJWT } from 'jose';
-import { DBUser, JwtPayload } from '../src/types.js';
+import { AuthenticatedUserResponse, DBUser, JwtPayload } from '../src/types.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { getErrorMessage } from './_utils/_errors.js';
 
@@ -77,7 +77,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                       club_id: user.club_id ?? '',
                       email: user.email,
                       role,
-                      status: user.status ?? 'active',
+                    };
+                    const responsePayload: AuthenticatedUserResponse = {
+                      ...payload,
+                      status: user.status ?? 'inactive',
                     };
                     const token = await new SignJWT(payload)
                       .setProtectedHeader({ alg })
@@ -87,7 +90,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     setCookieServerless(res, token);
 
                     // login form is submitted via ajax, redirect happens on client
-                    return res.json(payload);
+                    return res.json(responsePayload);
 
                     // login form is submitted without ajax, redirect happens on server
                     // res.setHeader('Location', '/admin');
