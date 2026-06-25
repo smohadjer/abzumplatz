@@ -13,25 +13,26 @@ export default function Home() {
                 </div>
                 <div className="home-intro-card intro">
                     <h2 className="home-intro-label">Für Vereine</h2>
-                    <p className="home-intro-text">Sie möchten Ihren Verein auf abzumplatz anlegen und die Platzreservierung für Ihre Mitglieder bereitstellen.</p>
+                    <p className="home-intro-text">Sie möchten Ihren Verein anlegen und Plätze für Ihre Mitglieder online reservierbar machen.</p>
                     <p><Link className="button-link" to="/register/club">Plan auswählen</Link></p>
                 </div>
             </div>
             <div className="home-feature-layout">
                 <img className="hero-image" src="/assets/1.png" alt="screenshot" />
                 <div className="content">
-                    <h2>Was abzumplatz Ihnen bietet:</h2>
+                    <h2>Was abzumplatz Vereinen bietet:</h2>
                     <ul>
-                    <li>Tennisplätze online reservieren in wenigen Sekunden</li>
-                    <li>Klarer Tageskalender für freie und belegte Plätze</li>
-                    <li>Buchungen selbst verwalten und schnell ändern</li>
-                    <li>Neue Mitglieder einfach registrieren und freischalten</li>
-                    <li>Trainings, Turniere und Serienbuchungen mit wenig Aufwand planen</li>
-                    <li>Flexible Regeln für Plätze, Zeiten und Buchungslimits</li>
-                    <li>Direkt im Browser ohne App</li>
+                    <li>Auf jedem Gerät über den Browser nutzbar – ohne App-Installation</li>
+                    <li>Kostenlos für Tennisspieler und Vereine mit weniger als 100 aktiven Nutzern</li>
+                    <li>Reservieren Sie mehrere Plätze für mehrere Stunden in einer einzigen Buchung, zum Beispiel für Mannschaftsspiele</li>
+                    <li>Wiederkehrende Reservierungen, zum Beispiel für wöchentliches Teamtraining</li>
+                    <li>Reservierungslimits für Spieler festlegen sowie Reservierungen neu zuweisen, entfernen oder ändern</li>
+                    <li>Spieler in deinem Club aktivieren, deaktivieren oder entfernen</li>
+                    <li>Sowie viele weitere Funktionen, wie etwa die Möglichkeit, bestimmte Tennisplätze zu sperren, die Öffnungszeiten zu ändern usw.</li>
                     </ul>
                 </div>
             </div>
+            <p className="home-support-box">Haben Sie Fragen? Senden Sie Ihre Fragen oder Anliegen gerne an <a href="mailto:support@abzumplatz.de">support@abzumplatz.de</a>.</p>
         </>
     )
 }

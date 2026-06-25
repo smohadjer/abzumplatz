@@ -52,7 +52,6 @@
 }
 
 .home-intro-text {
-    max-width: 28rem;
     color: #333;
 }
 
@@ -66,6 +65,16 @@
         justify-content: center;
         gap: 2rem;
     }
+}
+
+.home-support-box {
+    max-width: 52rem;
+    margin: 1.25rem auto 0;
+    padding: 0.9rem 1rem;
+    background: #f7f9fc;
+    border: 1px solid #d6e1f4;
+    border-radius: 0.75rem;
+    box-sizing: border-box;
 }
 
 .hero-image {

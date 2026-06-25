@@ -18,7 +18,7 @@
 
 .register-club-plan-name,
 .register-club-plan-price,
-.register-club-plan-members {
+.register-club-plan-features {
     margin-top: 0;
 }
 
@@ -40,9 +40,15 @@
     font-weight: 400;
 }
 
-.register-club-plan-members {
-    margin-top: 0.5rem;
+.register-club-plan-features {
+    margin: 0.75rem 0 0;
+    padding-left: 0;
+    list-style-position: inside;
     color: #333;
+}
+
+.register-club-plan-features li + li {
+    margin-top: 0.35rem;
 }
 
 .register-club-plan-action {
@@ -55,6 +61,14 @@
     width: 100%;
     margin-top: 0;
     border-radius: 999px;
+}
+
+.register-club-plan-footnote {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    text-align: center;
+    color: #4b5567;
 }
 
 .register-club-form-intro {

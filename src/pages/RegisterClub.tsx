@@ -67,21 +67,30 @@ export default function RegisterClub() {
             title: PLAN_CONFIG.basic.label,
             price: `${PLAN_CONFIG.basic.price} €`,
             priceSuffix: PAID_PLAN_DURATION_LABEL,
-            members: `Bis zu ${PLAN_CONFIG.basic.membersLimit} aktive Mitglieder`,
+            features: [
+                `Bis zu ${PLAN_CONFIG.basic.membersLimit} aktive Mitglieder`,
+                'E-Mail-Support',
+            ],
         },
         {
             key: 'pro',
             title: PLAN_CONFIG.pro.label,
             price: `${PLAN_CONFIG.pro.price} €`,
             priceSuffix: PAID_PLAN_DURATION_LABEL,
-            members: `Bis zu ${PLAN_CONFIG.pro.membersLimit} aktive Mitglieder`,
+            features: [
+                `Bis zu ${PLAN_CONFIG.pro.membersLimit} aktive Mitglieder`,
+                'E-Mail-Support',
+            ],
         },
         {
             key: 'elite',
             title: PLAN_CONFIG.elite.label,
             price: `${PLAN_CONFIG.elite.price} €`,
             priceSuffix: PAID_PLAN_DURATION_LABEL,
-            members: 'Keine Begrenzung der aktiven Mitglieder',
+            features: [
+                'Keine Begrenzung der aktiven Mitglieder',
+                'E-Mail- und Telefonsupport',
+            ],
         }
     ];
 
@@ -112,7 +121,11 @@ export default function RegisterClub() {
                                     {plan.price}
                                     <span className="register-club-plan-price-suffix">{plan.priceSuffix}</span>
                                 </p>
-                                <p className="register-club-plan-members">{plan.members}</p>
+                                <ul className="register-club-plan-features">
+                                    {plan.features.map(feature => (
+                                        <li key={feature}>{feature}</li>
+                                    ))}
+                                </ul>
                                 <p className="register-club-plan-action">
                                     <button
                                         className="button-link register-club-plan-select-button"
@@ -127,6 +140,7 @@ export default function RegisterClub() {
                                         Plan auswählen
                                     </button>
                                 </p>
+                                <p className="register-club-plan-footnote">Monatliche Zahlung per Rechnung. Kündigung jederzeit möglich.</p>
                             </article>
                         ))}
                     </div>
