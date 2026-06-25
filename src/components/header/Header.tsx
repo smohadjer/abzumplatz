@@ -16,10 +16,9 @@ export default function Header() {
 
     return (
         <header className="header">
-            <>
+            <div className="header-top-row">
                 {/* <h1>{isLoggedin && club ? club.name : 'abzumplatz'}</h1> */}
                 <img width="250" src="/assets/logo.png" alt="abzumplatz logo" className="header-logo" />
-                <p>{club ? club.name : 'Online Platzreservierung für Tennisvereine'}</p>
                 {isLoggedin ? 
                     <div className="header-login-link">
                         <a href="#" onClick={(e) => {
@@ -38,7 +37,8 @@ export default function Header() {
                         </Link>
                     </div>
                 )}
-            </>
+            </div>
+            <p className="header-subtitle">{club ? club.name : 'Online Platzreservierung für Tennisvereine'}</p>
         </header>
     )
   }

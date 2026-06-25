@@ -6,14 +6,14 @@ export default function Home() {
         <>
             <div className="home-intro">
                 <div className="home-intro-card">
-                    <h2 className="home-intro-label">Für Spieler</h2>
+                    <h2 className="home-intro-label">Für Spieler (kostenlos)</h2>
                     <p className="home-intro-text">Sie möchten einem bestehenden Verein beitreten und Tennisplätze online reservieren.</p>
                     <p><Link className="button-link" to="/register/player">Als Spieler registrieren</Link></p>
                 </div>
                 <div className="home-intro-card intro">
                     <h2 className="home-intro-label">Für Vereine</h2>
                     <p className="home-intro-text">Sie möchten Ihren Verein auf abzumplatz anlegen und die Platzreservierung für Ihre Mitglieder bereitstellen.</p>
-                    <p><Link className="button-link" to="/register/club">Verein registrieren</Link></p>
+                    <p><Link className="button-link" to="/register/club">Plan auswählen</Link></p>
                 </div>
             </div>
             <div className="home-feature-layout">
