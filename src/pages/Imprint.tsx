@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './../store';
 import { fetchUsers } from '../utils/utils';
+import packageJson from '../../package.json';
 
 type AdminContact = {
     first_name: string;
@@ -16,6 +17,7 @@ export default function Imprint() {
     const adminContact = usersData.value.find((user): user is AdminContact & { role: string; status: string; _id: string } => {
         return user.role === 'admin' && Boolean(user.email);
     });
+    const appVersion = packageJson.version;
     const subject = `abzumplatz: Feedback von ${auth.first_name} ${auth.last_name}`;
     const reservationRequestSubject = 'abzumplatz: Anfrage zur Platzreservierung';
 
@@ -44,6 +46,7 @@ export default function Imprint() {
                 Deutschland</p>
             <p><a href={`mailto:support@abzumplatz.de?subject=${subject}`}>support@abzumplatz.de</a></p>
             <p>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV: Saeid Mohadjer (Anschrift wie oben)</p>
+            <p>App-Version: {appVersion}</p>
         </div>
     )
 }
