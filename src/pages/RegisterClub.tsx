@@ -34,25 +34,32 @@ export default function RegisterClub() {
         action: '/api/signup-club'
     };
 
-    const buildConfiguredFields = (planType: PlanType, sourceFields = fields) => applyPlanConfigToFields(
-        sourceFields.map(field => field.name === 'plan_type'
+    const buildConfiguredFields = (planType: PlanType, sourceFields = fields) => {
+        const configuredFields = applyPlanConfigToFields(
+            sourceFields.map(field => field.name === 'plan_type'
+                ? {
+                    ...field,
+                    hint: '',
+                    hintByValue: undefined,
+                    type: 'hidden',
+                    value: planType
+                }
+                : field),
+            planType
+        ).map(field => field.name === 'plan_type'
             ? {
                 ...field,
                 hint: '',
-                hintByValue: undefined,
-                type: 'hidden',
-                value: planType
+                hintByValue: undefined
             }
-            : field),
-        planType
-    ).map(field => field.name === 'plan_type'
-        ? {
-            ...field,
-            hint: '',
-            hintByValue: undefined
-        }
-        : field
-    );
+            : field
+        );
+
+        const hiddenPlanField = configuredFields.find(field => field.name === 'plan_type');
+        const otherFields = configuredFields.filter(field => field.name !== 'plan_type');
+
+        return hiddenPlanField ? [hiddenPlanField, ...otherFields] : otherFields;
+    };
 
     const planCards = [
         {
