@@ -10,6 +10,7 @@ export default function Header() {
     const isLoggedin = auth.value;
     const club = getClub();
     const location = useLocation();
+    const showClubNameAsBrand = isLoggedin && Boolean(club?.name);
 
     const handleLogoClick = () => {
         if (location.pathname === '/') {
@@ -20,11 +21,13 @@ export default function Header() {
     return (
         <header className="header">
             <div className="header-top-row">
-                {/* <h1>{isLoggedin && club ? club.name : 'abzumplatz'}</h1> */}
                 <Link to="/" className="header-logo-link" onClick={handleLogoClick}>
-                    <img width="250" src="/assets/logo.png" alt="abzumplatz logo" className="header-logo" />
+                    {showClubNameAsBrand ? (
+                        <span className="header-brand-name">{club?.name}</span>
+                    ) : (
+                        <img width="250" src="/assets/logo.png" alt="abzumplatz logo" className="header-logo" />
+                    )}
                 </Link>
-                {club ? <p className="header-club-name">{club.name}</p> : null}
                 {isLoggedin ? 
                     <div className="header-login-link">
                         <a href="#" onClick={(e) => {
