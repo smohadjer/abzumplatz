@@ -71,6 +71,7 @@ export default function RegisterClub() {
                 `Bis zu ${PLAN_CONFIG.basic.membersLimit} aktive Mitglieder`,
                 'E-Mail-Support',
             ],
+            footnote: 'Upgrade auf den Pro- oder Elite-Plan jederzeit möglich',
         },
         {
             key: 'pro',
@@ -81,6 +82,7 @@ export default function RegisterClub() {
                 `Bis zu ${PLAN_CONFIG.pro.membersLimit} aktive Mitglieder`,
                 'E-Mail-Support',
             ],
+            footnote: 'Monatliche Zahlung per Rechnung. Kündigung jederzeit möglich.',
         },
         {
             key: 'elite',
@@ -91,6 +93,7 @@ export default function RegisterClub() {
                 'Keine Begrenzung der aktiven Mitglieder',
                 'E-Mail- und Telefonsupport',
             ],
+            footnote: 'Monatliche Zahlung per Rechnung. Kündigung jederzeit möglich.',
         }
     ];
 
@@ -140,7 +143,7 @@ export default function RegisterClub() {
                                         Plan auswählen
                                     </button>
                                 </p>
-                                <p className="register-club-plan-footnote">Monatliche Zahlung per Rechnung. Kündigung jederzeit möglich.</p>
+                                <p className="register-club-plan-footnote">{plan.footnote}</p>
                             </article>
                         ))}
                     </div>
