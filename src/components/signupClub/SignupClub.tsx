@@ -54,7 +54,7 @@ export function SignupClub(props: Props) {
                 downgradeLockNotice,
             ].filter(Boolean).join(' ');
 
-            field.footnote = specificPlanNotice || 'Upgrades gelten sofort für den Zugriff, aber erst ab der nächsten Verlängerung für die Abrechnung.';
+            field.footnote = specificPlanNotice || 'Upgrade auf den Pro- oder Elite-Plan jederzeit möglich';
         }
     });
 
