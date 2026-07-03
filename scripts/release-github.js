@@ -122,7 +122,7 @@ async function main() {
   const tagRef = `refs/tags/${version}`;
 
   try {
-    runGitCommand(['rev-parse', '--verify', tagRef]);
+    runGitCommand(['rev-parse', '--verify', '--quiet', tagRef]);
     console.log(`Tag ${version} already exists locally.`);
   } catch {
     runGitCommand(['tag', version]);
