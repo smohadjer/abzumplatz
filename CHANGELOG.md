@@ -2,6 +2,25 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.14
+
+### Added
+
+- Added an `npm run export:db` command to export MongoDB collections as Extended JSON backup files.
+- Added a MongoDB export script that reads `db_uri`, writes per-collection backup files, and generates a manifest in a timestamped backup folder.
+- Added a support contact box to the homepage.
+
+### Changed
+
+- Added `backups/` to `.gitignore` so generated database exports stay out of version control.
+- Refreshed the homepage copy to better explain browser-based usage, free usage for smaller clubs, multi-court and recurring bookings, and club administration features.
+- Changed logged-in header branding to show the club name as the primary brand label instead of rendering the default logo alongside a separate club-name line.
+- Updated the club plan selection cards to show feature lists and plan-specific support and billing footnotes.
+
+### Fixed
+
+- Improved the reservation legend marker layout on smaller screens so marker content stays centered and readable.
+
 ## 0.0.13
 
 ### Fixed
