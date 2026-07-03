@@ -2,6 +2,19 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.15
+
+### Added
+
+- Added an `npm run release:github` script to create a GitHub release for the current `package.json` version.
+- Added a release automation script that reads the matching changelog section, creates and pushes the git tag, and creates the GitHub release.
+- Added README documentation for the GitHub release workflow.
+
+### Changed
+
+- Changed the release script to load `GITHUB_TOKEN` from `.env` in addition to supporting the shell environment.
+- Documented that the release workflow uses a GitHub personal access token rather than a deploy key, and that a fine-grained token with `Contents: write` is sufficient for the GitHub Releases API call.
+
 ## 0.0.14
 
 ### Added

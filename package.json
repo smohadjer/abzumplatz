@@ -1,14 +1,15 @@
 {
   "name": "abzumplatz",
   "private": true,
-  "version": "0.0.14",
+  "version": "0.0.15",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "export:db": "node scripts/export-mongodb.js"
+    "export:db": "node scripts/export-mongodb.js",
+    "release:github": "node scripts/release-github.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.7.0",
