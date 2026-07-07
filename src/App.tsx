@@ -54,7 +54,7 @@ export default function App() {
             // fetch logged-in user and save it to store
             const authenticated: AuthenticatedUserResponse | null = await isAuthenticated();
             if (!authenticated || authenticated.error) {
-                // console.log('Not logged-in!');
+                dispatch({type: 'auth/setAuthChecked'});
             } else {
                 // console.log('User is logged-in', authenticated)
                 dispatch({type: 'auth/login', payload: {

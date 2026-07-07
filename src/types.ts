@@ -142,6 +142,7 @@ export type DBUser = {
 }
 
 export type AuthenticatedUser = {
+    authChecked?: boolean;
     value: boolean;
     first_name: string;
     last_name: string;

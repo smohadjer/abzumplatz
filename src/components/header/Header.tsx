@@ -7,6 +7,7 @@ import './header.css';
 export default function Header() {
     const dispatch = useDispatch();
     const auth = useSelector((state: RootState) => state.auth);
+    const isAuthChecked = auth.authChecked;
     const isLoggedin = auth.value;
     const club = getClub();
     const location = useLocation();
@@ -28,7 +29,7 @@ export default function Header() {
                         <img width="250" src="/assets/logo.png" alt="abzumplatz logo" className="header-logo" />
                     )}
                 </Link>
-                {isLoggedin ? 
+                {isLoggedin ? (
                     <div className="header-login-link">
                         <a href="#" onClick={(e) => {
                             e.preventDefault();
@@ -38,13 +39,15 @@ export default function Header() {
                             <span className="icon icon--logout" aria-hidden="true"></span>
                         </a>
                     </div>
-                : (
+                ) : isAuthChecked ? (
                     <div className="header-login-link">
                         <Link to="/login">
                             <span>Anmelden</span>
                             <span className="icon icon--login" aria-hidden="true"></span>
                         </Link>
                     </div>
+                ) : (
+                    <div className="header-login-link header-login-link--placeholder" aria-hidden="true"></div>
                 )}
             </div>
         </header>
