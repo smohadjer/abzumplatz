@@ -2,6 +2,27 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.16
+
+### Added
+
+- Added `PLANS.md` to document the unified plan model, billing-period lifecycle, renewal rules, upgrade and downgrade behavior, and member-limit enforcement.
+
+### Changed
+
+- Changed plan and billing handling so all plans, including `basic`, use billing periods and the same renewal model.
+- Changed billing periods to keep a stable start and end boundary across mid-period plan changes instead of resetting billing boundaries when a club changes plan.
+- Changed club plan state handling to separate current access (`access_plan_type`) from the next renewal plan (`next_plan_type`), so upgrades can apply immediately while downgrades wait for renewal.
+- Changed billing-state resolution to advance expired periods lazily when billing-aware data is loaded, creating the next active period automatically from the prior renewal boundary.
+- Changed the admin billing and club views to show the current billed period and upcoming plan changes more clearly.
+- Changed member-limit enforcement to use the resolved active access plan and current billing state when admins activate members.
+- Changed frontend auth initialization to track an explicit `authChecked` state so components can distinguish "not logged in" from "auth check still in progress."
+
+### Fixed
+
+- Fixed billing period typing and API handling so `basic` plan periods are tracked consistently instead of treating billing periods as paid-plan-only records.
+- Fixed the header auth action so logged-in users no longer briefly see the `Anmelden` button while the app verifies the existing session during startup.
+
 ## 0.0.15
 
 ### Added
