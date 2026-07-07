@@ -3,13 +3,14 @@ import { database_uri, database_name } from './_utils/_config.js';
 import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
-import { Club, DBUser, JwtPayload } from '../src/types.js';
+import { ClubWithBilling, DBUser, JwtPayload } from '../src/types.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, ClubFormBody, CourtsFormBody } from './_utils/_types.js';
 import { updateCourts } from './_utils/_updateCourts.js';
-import { createInitialBillingPeriod, BillingPeriodDocument, getCurrentAccessPlanType, getSelectedPlanType, isDowngradeLocked, resolveClubBillingState } from './_utils/_billingPeriods.js';
+import { createInitialBillingPeriod, BillingPeriodDocument, isDowngradeLocked, resolveClubBillingState } from './_utils/_billingPeriods.js';
+import { getClubPlanState, getPlanChangeUpdate } from './_utils/_planTransitions.js';
 import { fetchClub } from './_utils/_fetchClub.js';
-import { isLowerPlan, isPaidPlanType } from '../src/planConfig.js';
+import { isLowerPlan } from '../src/planConfig.js';
 import { getEffectiveMembersLimitForPlan, hasMembersLimitOverride } from './_utils/_planLimits.js';
 
 if (!database_uri || !database_name) {
@@ -22,7 +23,7 @@ const enrichClubWithBilling = async (
   collection: Collection<ClubDocument>,
   billingPeriodsCollection: Collection<BillingPeriodDocument>,
   doc: ClubDocument | null
-) : Promise<Club | null> => {
+) : Promise<ClubWithBilling | null> => {
   if (!doc) {
     return null;
   }
@@ -36,9 +37,10 @@ const enrichClubWithBilling = async (
   return {
     ...club,
     _id: club._id.toString(),
+    current_billing_plan_type: currentBillingPeriod?.plan_type,
     current_billing_period_end: currentBillingPeriod?.period_end,
     downgrade_locked: isDowngradeLocked(club, currentBillingPeriod),
-    effective_members_limit: getEffectiveMembersLimitForPlan(getCurrentAccessPlanType(club)),
+    effective_members_limit: getEffectiveMembersLimitForPlan(club.access_plan_type),
     members_limit_override_active: hasMembersLimitOverride(),
   };
 };
@@ -212,9 +214,7 @@ async function addClub(
   const insertResponse = await collection.insertOne(club);
   const club_id = insertResponse.insertedId.toString();
 
-  if (isPaidPlanType(body.plan_type)) {
-    await createInitialBillingPeriod(billingPeriodsCollection, club_id, body.plan_type, 'signup');
-  }
+  await createInitialBillingPeriod(billingPeriodsCollection, club_id, body.plan_type, 'signup');
 
   if (club_id) {
     const query = {_id: ObjectId.createFromHexString(payload._id)};
@@ -269,11 +269,9 @@ async function updateClub(
     billingPeriodsCollection,
     doc
   );
-  const currentPlanType = resolvedClub.plan_type ?? 'basic';
-  const currentAccessPlanType = getCurrentAccessPlanType(resolvedClub) ?? 'basic';
-  const currentSelectedPlanType = getSelectedPlanType(resolvedClub);
+  const currentAccessPlanType = resolvedClub.access_plan_type;
+  const currentPlanState = getClubPlanState(resolvedClub);
   const selectedPlanType = body.plan_type;
-  const hasPaidEntitlement = Boolean(currentBillingPeriod);
   const downgradeLocked = isDowngradeLocked(resolvedClub, currentBillingPeriod);
 
   if (downgradeLocked && isLowerPlan(selectedPlanType, currentAccessPlanType)) {
@@ -295,34 +293,12 @@ async function updateClub(
   }
 
   const query = {_id: ObjectId.createFromHexString(body._id)};
-  const planUpdateFields: Partial<ClubDocument> = {
-    access_plan_type: currentAccessPlanType,
-    next_plan_type: currentSelectedPlanType,
-  };
+  const planUpdateFields: Partial<ClubDocument> = getPlanChangeUpdate(currentPlanState, selectedPlanType);
   const unsetFields: Record<string, string> = {
     plan_type: '',
     members_limit: '',
     auto_renew: '',
   };
-
-  if (selectedPlanType === currentSelectedPlanType) {
-    // Keep normalized plan state as-is.
-  } else if (!isPaidPlanType(currentPlanType)) {
-    planUpdateFields.access_plan_type = selectedPlanType;
-    planUpdateFields.next_plan_type = selectedPlanType;
-  } else if (isHigherPlan(selectedPlanType, currentAccessPlanType)) {
-    planUpdateFields.access_plan_type = selectedPlanType;
-    planUpdateFields.next_plan_type = selectedPlanType;
-  } else if (isLowerPlan(selectedPlanType, currentAccessPlanType)) {
-    if (hasPaidEntitlement) {
-      planUpdateFields.next_plan_type = selectedPlanType;
-    } else {
-      planUpdateFields.access_plan_type = selectedPlanType;
-      planUpdateFields.next_plan_type = selectedPlanType;
-    }
-  } else {
-    planUpdateFields.next_plan_type = selectedPlanType;
-  }
 
   const updateResonse = await collection.updateOne(
       query,
@@ -341,10 +317,6 @@ async function updateClub(
       },
       '$unset': unsetFields}
   );
-
-  if (isPaidPlanType(selectedPlanType) && !hasPaidEntitlement && !isPaidPlanType(currentPlanType)) {
-    await createInitialBillingPeriod(billingPeriodsCollection, body._id, selectedPlanType, 'manual');
-  }
 
   if (!updateResonse) {
     throw new Error(`Club ${body.name} couldn't be updated`);

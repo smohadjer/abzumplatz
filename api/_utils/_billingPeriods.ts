@@ -1,15 +1,18 @@
 import { Collection, ObjectId } from 'mongodb';
 import { PlanType } from '../../src/types.js';
-import { getNextBillingPeriodStartForPlan, getPlanLevel, hasFutureBillingPeriodEnd, isPaidPlanType } from '../../src/planConfig.js';
+import { getNextBillingPeriodStartForPlan, hasFutureBillingPeriodEnd } from '../../src/planConfig.js';
 import { ClubDocument } from './_types.js';
+import {
+    getPlanStateAtRenewal,
+} from './_planTransitions.js';
+import { getPlanLevel } from '../../src/planConfig.js';
 
 export type BillingPeriodStatus = 'active' | 'completed' | 'canceled';
-export type PaidPlanType = Exclude<PlanType, 'basic'>;
 
 export type BillingPeriodDocument = {
     _id?: ObjectId;
     club_id: string;
-    plan_type: PaidPlanType;
+    plan_type: PlanType;
     anchor_day: number;
     period_start: string;
     period_end: string;
@@ -23,25 +26,11 @@ type ResolvedClubBillingState = {
     currentBillingPeriod: BillingPeriodDocument | null;
 }
 
-function withDerivedBilledPlan(
-    club: ClubDocument,
-    currentBillingPeriod: BillingPeriodDocument | null
-): ClubDocument {
-    return {
-        ...club,
-        plan_type: currentBillingPeriod?.plan_type ?? 'basic',
-    };
-}
-
 function getDateString(value: Date) {
     const year = value.getFullYear();
     const month = `${value.getMonth() + 1}`.padStart(2, '0');
     const day = `${value.getDate()}`.padStart(2, '0');
     return `${year}-${month}-${day}`;
-}
-
-function getPaidPlanType(planType?: PlanType): PaidPlanType {
-    return planType === 'elite' ? 'elite' : 'pro';
 }
 
 function createBillingPeriodRecord(
@@ -52,14 +41,12 @@ function createBillingPeriodRecord(
     source?: string,
     anchorDay = startDate.getDate()
 ): BillingPeriodDocument {
-    const paidPlanType = getPaidPlanType(planType);
-
     return {
         club_id: clubId,
-        plan_type: paidPlanType,
+        plan_type: planType,
         anchor_day: anchorDay,
         period_start: getDateString(startDate),
-        period_end: getNextBillingPeriodStartForPlan(paidPlanType, startDate, anchorDay)!,
+        period_end: getNextBillingPeriodStartForPlan(planType, startDate, anchorDay)!,
         status,
         created_at: new Date(),
         ...(source ? {source} : {})
@@ -134,25 +121,6 @@ async function updateClubPlanState(
     };
 }
 
-export function getCurrentAccessPlanType(club: ClubDocument) {
-    return club.access_plan_type ?? club.next_plan_type ?? 'basic';
-}
-
-export function getSelectedPlanType(club: ClubDocument) {
-    return club.next_plan_type ?? getCurrentAccessPlanType(club) ?? 'basic';
-}
-
-export function normalizeClubPlanState(club: ClubDocument): ClubDocument {
-    const access_plan_type = club.access_plan_type ?? club.next_plan_type ?? club.plan_type ?? 'basic';
-    const next_plan_type = club.next_plan_type ?? access_plan_type;
-
-    return {
-        ...club,
-        access_plan_type,
-        next_plan_type,
-    };
-}
-
 export function isDowngradeLocked(
     club: ClubDocument,
     currentBillingPeriod: BillingPeriodDocument | null
@@ -161,10 +129,7 @@ export function isDowngradeLocked(
         return false;
     }
 
-    const normalizedClub = normalizeClubPlanState(club);
-    const accessPlanType = getCurrentAccessPlanType(normalizedClub);
-    const billedPlanType = currentBillingPeriod?.plan_type ?? 'basic';
-    return getPlanLevel(accessPlanType) > getPlanLevel(billedPlanType);
+    return getPlanLevel(club.access_plan_type) > getPlanLevel(currentBillingPeriod.plan_type);
 }
 
 export async function createInitialBillingPeriod(
@@ -181,6 +146,9 @@ export async function createInitialBillingPeriod(
     );
 }
 
+// Resolves the club's current billing state and lazily advances renewals by
+// completing expired periods, updating the club plan state, and creating the
+// next active billing period when needed.
 export async function resolveClubBillingState(
     clubsCollection: Collection<ClubDocument>,
     billingPeriodsCollection: Collection<BillingPeriodDocument>,
@@ -188,11 +156,11 @@ export async function resolveClubBillingState(
     now = new Date()
 ): Promise<ResolvedClubBillingState> {
     const clubId = club._id?.toString();
-    let resolvedClub = normalizeClubPlanState(club);
+    let resolvedClub = club;
 
     if (!clubId) {
         return {
-            club: withDerivedBilledPlan(resolvedClub, null),
+            club: resolvedClub,
             currentBillingPeriod: null,
         };
     }
@@ -208,25 +176,13 @@ export async function resolveClubBillingState(
         resolvedClub = await updateClubPlanState(
             clubsCollection,
             resolvedClub,
-            {
-                access_plan_type: resolvedClub.next_plan_type,
-                next_plan_type: resolvedClub.next_plan_type,
-            }
+            getPlanStateAtRenewal(resolvedClub.next_plan_type)
         );
-    }
-
-    const selectedPlanType = getSelectedPlanType(resolvedClub);
-
-    if (!isPaidPlanType(selectedPlanType)) {
-        return {
-            club: withDerivedBilledPlan(resolvedClub, activePeriod),
-            currentBillingPeriod: activePeriod,
-        };
     }
 
     if (activePeriod) {
         return {
-            club: withDerivedBilledPlan(resolvedClub, activePeriod),
+            club: resolvedClub,
             currentBillingPeriod: activePeriod,
         };
     }
@@ -243,7 +199,7 @@ export async function resolveClubBillingState(
     while (true) {
         const nextPeriod = createBillingPeriodRecord(
             clubId,
-            selectedPlanType,
+            resolvedClub.next_plan_type,
             nextStartDate,
             'active',
             'renewal',
@@ -253,7 +209,7 @@ export async function resolveClubBillingState(
         if (hasFutureBillingPeriodEnd(nextPeriod.period_end, now)) {
             const insertedPeriod = await insertBillingPeriod(billingPeriodsCollection, nextPeriod);
             return {
-                club: withDerivedBilledPlan(resolvedClub, insertedPeriod),
+                club: resolvedClub,
                 currentBillingPeriod: insertedPeriod,
             };
         }

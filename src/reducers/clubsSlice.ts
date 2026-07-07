@@ -17,8 +17,7 @@ export const clubsSlice = createSlice({
         start_hour: 0,
         end_hour: 0,
         timezone: 'Europe/Berlin',
-        plan_type: undefined,
-        access_plan_type: undefined,
+        access_plan_type: 'basic',
         next_plan_type: 'basic',
       }
     ]

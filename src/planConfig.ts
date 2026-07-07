@@ -70,10 +70,6 @@ export function getPlanConfig(planType?: PlanType) {
     return PLAN_CONFIG[normalizePlanType(planType)];
 }
 
-export function isPaidPlanType(planType?: PlanType) {
-    return getPlanConfig(planType).price > 0;
-}
-
 export function getPlanLevel(planType?: PlanType) {
     const normalizedPlanType = normalizePlanType(planType);
 
@@ -102,10 +98,6 @@ export function getMembersLimitForPlan(planType?: PlanType) {
 
 export function getNextBillingPeriodStartForPlan(planType?: PlanType, fromDate = new Date(), anchorDay = fromDate.getDate()) {
     const config = getPlanConfig(planType);
-    if (config.price <= 0) {
-        return undefined;
-    }
-
     const nextPeriodStart = addMonthsKeepingDay(fromDate, config.durationMonths, anchorDay);
     return getLocalDateString(nextPeriodStart);
 }
