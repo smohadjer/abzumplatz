@@ -12,15 +12,14 @@ export const clubSlice = createSlice({
     value: {
       _id: '',
       name: '',
-      courts: [],
-      reservations_limit: null,
-      start_hour: 0,
-      end_hour: 0,
-      timezone: 'Europe/Berlin',
-      plan_type: undefined,
-      access_plan_type: undefined,
-      next_plan_type: 'basic',
-    },
+        courts: [],
+        reservations_limit: null,
+        start_hour: 0,
+        end_hour: 0,
+        timezone: 'Europe/Berlin',
+        access_plan_type: 'basic',
+        next_plan_type: 'basic',
+      },
     loaded: false
   } as ClubState,
   reducers: {

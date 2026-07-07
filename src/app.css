@@ -310,7 +310,6 @@ ul {
 
 .profile-table {
     width: 100%;
-    max-width: 36rem;
     border-collapse: collapse;
     margin: 1rem 0;
 }
@@ -344,4 +343,8 @@ ul {
     gap: 1rem;
     margin-top: 1rem;
     flex-wrap: wrap;
+}
+
+.billings-table .billings-table__period {
+    padding-right: 1.25rem;
 }

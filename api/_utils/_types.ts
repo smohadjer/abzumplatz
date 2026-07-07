@@ -1,15 +1,14 @@
 import { ObjectId } from 'mongodb';
-import { ClubWithBilling, PlanType } from '../../src/types.js';
+import { Club, PlanType } from '../../src/types.js';
 
-export type ClubDocument = Omit<ClubWithBilling, '_id' | 'current_billing_period_end' | 'downgrade_locked'> & {
+export type ClubDocument = Omit<Club, '_id' | 'timestamp'> & {
     _id?: ObjectId;
     timestamp?: Date;
 }
 
 export type ClubNameDocument = {
     name?: string;
-    plan_type?: PlanType;
-    access_plan_type?: PlanType;
+    access_plan_type: PlanType;
     next_plan_type: PlanType;
 }
 

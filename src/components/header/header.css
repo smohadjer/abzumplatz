@@ -45,6 +45,11 @@
   justify-self: end;
 }
 
+.header-login-link--placeholder {
+  min-width: 5.5rem;
+  min-height: 20px;
+}
+
 .header-login-link a {
   background: transparent;
   color: var(--blue);

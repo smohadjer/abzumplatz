@@ -11,8 +11,8 @@ type Props = {
 
 export function SignupClub(props: Props) {
     const { label, data, callback } = props;
-    const selectedPlanType = data?.next_plan_type ?? data?.access_plan_type ?? data?.plan_type;
-    const accessPlanType = data?.access_plan_type ?? data?.plan_type;
+    const selectedPlanType = data?.next_plan_type ?? data?.access_plan_type ?? 'basic';
+    const accessPlanType = data?.access_plan_type ?? selectedPlanType;
     const planType = normalizePlanType(selectedPlanType);
     const downgradeLocked = Boolean(data?.downgrade_locked);
 
@@ -42,8 +42,8 @@ export function SignupClub(props: Props) {
             const scheduledPlanChangeNotice = coveredUntilLabel && data?.next_plan_type !== accessPlanType
                 ? `${getPlanName(accessPlanType)} ist noch bis ${coveredUntilLabel} aktiv und wechselt danach zu ${getPlanName(data.next_plan_type)}.`
                 : null;
-            const upgradeBillingNotice = coveredUntilLabel && accessPlanType !== data?.plan_type
-                ? `${getPlanName(accessPlanType)} Zugriff ist bereits aktiv. Abgerechnet wird ${getPlanName(data.plan_type)} bis ${coveredUntilLabel}.`
+            const upgradeBillingNotice = coveredUntilLabel && accessPlanType !== data?.current_billing_plan_type
+                ? `${getPlanName(accessPlanType)} Zugriff ist bereits aktiv. Der bisherige Zeitraum endet am ${coveredUntilLabel}.`
                 : null;
             const downgradeLockNotice = downgradeLocked
                 ? 'Nach einem Upgrade ist ein Downgrade erst ab der nächsten Verlängerung möglich.'
@@ -54,7 +54,7 @@ export function SignupClub(props: Props) {
                 downgradeLockNotice,
             ].filter(Boolean).join(' ');
 
-            field.footnote = specificPlanNotice || 'Upgrades gelten sofort für den Zugriff, aber erst ab der nächsten Verlängerung für die Abrechnung.';
+            field.footnote = specificPlanNotice || 'Upgrades gelten sofort für den Zugriff, aber erst ab der nächsten Verlängerung für den nächsten Abrechnungszeitraum.';
         }
     });
 

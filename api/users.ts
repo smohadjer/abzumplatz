@@ -8,12 +8,8 @@ import { escapeHtml } from './_utils/_lib.js';
 import { ReservationItem } from '../src/types.js';
 import { ClubDocument } from './_utils/_types.js';
 import { isReservationActive } from '../src/utils/utils.js';
-import { BillingPeriodDocument, getCurrentAccessPlanType, resolveClubBillingState } from './_utils/_billingPeriods.js';
+import { BillingPeriodDocument, resolveClubBillingState } from './_utils/_billingPeriods.js';
 import { getEffectiveMembersLimitForPlan } from './_utils/_planLimits.js';
-
-function getStatusLabel(status: string) {
-  return status === 'active' ? 'aktiv' : 'inaktiv';
-}
 
 function isString(value: unknown): value is string {
   return typeof value === 'string';
@@ -61,7 +57,7 @@ function buildStatusChangedEmail(
   adminContact?: { first_name?: string; last_name?: string; email?: string }
 ) {
   const fullName = `${targetUser.first_name ?? ''} ${targetUser.last_name ?? ''}`.trim();
-  const statusLabel = getStatusLabel(targetUser.status ?? 'inactive');
+  const statusLabel = targetUser.status === 'active' ? 'aktiv' : 'inaktiv';
   const adminName = `${adminContact?.first_name ?? ''} ${adminContact?.last_name ?? ''}`.trim();
 
   return `
@@ -227,7 +223,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         });
       }
 
-      const membersLimit = getEffectiveMembersLimitForPlan(resolvedClub ? getCurrentAccessPlanType(resolvedClub) : undefined);
+      const membersLimit = getEffectiveMembersLimitForPlan(resolvedClub?.access_plan_type);
       const updatedUsers: Array<{_id: string; status: string; club_id?: null}> = [];
       const removedUserIds: string[] = [];
 

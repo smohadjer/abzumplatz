@@ -4,6 +4,10 @@ import { Loader } from "../../components/loader/Loader";
 import { BillingPeriod } from "../../types";
 import { getCoveredUntilFromPeriodEnd, getPlanName } from "../../planConfig";
 
+function parseLocalDate(dateString: string) {
+    return new Date(`${dateString}T12:00:00`);
+}
+
 export default function AdminBillingsPage() {
     const [loading, setLoading] = useState(false);
     const [billings, setBillings] = useState<BillingPeriod[]>([]);
@@ -46,30 +50,32 @@ export default function AdminBillingsPage() {
                     <p>Keine Abrechnungszeiträume vorhanden.</p>
                 ) : null}
                 {!error && billings.length ? (
-                    <table className="profile-table">
+                    <table className="profile-table billings-table">
                         <thead>
                             <tr>
                                 <th>Plan</th>
-                                <th>Zeitraum</th>
-                                <th>Bezahlt bis</th>
+                                <th className="billings-table__period">Zeitraum</th>
                                 <th>Status</th>
-                                <th>Erstellt am</th>
+                                <th className="billings-table__date">Erstellt am</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {billings.map(period => (
-                                <tr key={period._id ?? `${period.period_start}-${period.period_end}`}>
-                                    <td>{getPlanName(period.plan_type)}</td>
-                                    <td>
-                                        {new Date(period.period_start).toLocaleDateString('de-DE')}
-                                        {' - '}
-                                        {new Date(period.period_end).toLocaleDateString('de-DE')}
-                                    </td>
-                                    <td>{new Date(getCoveredUntilFromPeriodEnd(period.period_end) ?? period.period_end).toLocaleDateString('de-DE')}</td>
-                                    <td>{period.status}</td>
-                                    <td>{new Date(period.created_at).toLocaleDateString('de-DE')}</td>
-                                </tr>
-                            ))}
+                            {billings.map(period => {
+                                const coveredUntil = getCoveredUntilFromPeriodEnd(period.period_end) ?? period.period_end;
+
+                                return (
+                                    <tr key={period._id ?? `${period.period_start}-${period.period_end}`}>
+                                        <td>{getPlanName(period.plan_type)}</td>
+                                        <td className="billings-table__period">
+                                            {parseLocalDate(period.period_start).toLocaleDateString('de-DE')}
+                                            {' - '}
+                                            {parseLocalDate(coveredUntil).toLocaleDateString('de-DE')}
+                                        </td>
+                                        <td>{period.status}</td>
+                                        <td className="billings-table__date">{new Date(period.created_at).toLocaleDateString('de-DE')}</td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 ) : null}

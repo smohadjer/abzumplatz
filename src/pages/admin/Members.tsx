@@ -27,7 +27,7 @@ export default function AdminMembersPage() {
     const visibleUsers = users.filter(member => activeTab === 'active' ? isActiveUser(member) : !isActiveUser(member));
     const currentClubFromList = clubs.find(club => club._id === user.club_id);
     const club = currentClubFromList ?? (clubData.value._id === user.club_id ? clubData.value : null);
-    const currentPlanType = club?.access_plan_type ?? club?.plan_type;
+    const currentPlanType = club?.access_plan_type;
     const membersLimit = club?.effective_members_limit ?? getMembersLimitForPlan(currentPlanType);
     const hasMemberCap = membersLimit != null;
     const hasReachedMembersLimit = membersLimit != null && activeUsersCount >= membersLimit;
