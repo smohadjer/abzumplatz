@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { fetchClub, fetchUsers } from "../../utils/utils";
 import { Loader } from "../../components/loader/Loader";
-import { getCoveredUntilFromPeriodEnd, getPlanName, getMembersLimitForPlan, hasFutureBillingPeriodEnd } from "../../planConfig";
+import { getPlanName } from "../../planConfig";
 
 export default function AdminHomePage() {
     const [loadingClub, setLoadingClub] = useState(false);
@@ -17,28 +17,18 @@ export default function AdminHomePage() {
     const activeMembersCount = usersData.loaded
         ? usersData.value.filter(member => member.status !== 'inactive').length
         : null;
-    const hasPaidEntitlement = hasFutureBillingPeriodEnd(club.current_billing_period_end);
-    const accessPlanType = club.access_plan_type ?? club.plan_type;
-    const membersLimit = club.effective_members_limit ?? getMembersLimitForPlan(accessPlanType);
-    const remainingMembersCount = membersLimit != null && activeMembersCount != null
-        ? Math.max(membersLimit - activeMembersCount, 0)
-        : null;
+    const accessPlanType = club.access_plan_type;
     const adminName = `${user.first_name} ${user.last_name}`.trim();
     const address = [club.address_line1, club.postal_code, club.city, club.country]
         .filter(Boolean)
         .join(', ');
-    const paidUntilLabel = club.current_billing_period_end
-        ? new Date(getCoveredUntilFromPeriodEnd(club.current_billing_period_end) ?? club.current_billing_period_end).toLocaleDateString('de-DE')
-        : '-';
     const accessPlanName = getPlanName(accessPlanType);
-    const billedPlanName = getPlanName(club.plan_type);
     const nextPlanName = getPlanName(club.next_plan_type);
-    const planLabel = hasPaidEntitlement
-        ? nextPlanName !== accessPlanName
-            ? `${accessPlanName} (bezahlt bis ${paidUntilLabel}, danach ${nextPlanName})`
-            : accessPlanName !== billedPlanName
-                ? `${accessPlanName} (Abrechnung als ${billedPlanName} bis ${paidUntilLabel})`
-                : `${accessPlanName} (bezahlt bis ${paidUntilLabel})`
+    const nextPlanChangeLabel = club.current_billing_period_end
+        ? new Date(`${club.current_billing_period_end}T12:00:00`).toLocaleDateString('de-DE')
+        : null;
+    const planLabel = club.next_plan_type !== accessPlanType && nextPlanChangeLabel
+        ? `${accessPlanName} (ab ${nextPlanChangeLabel}: ${nextPlanName})`
         : accessPlanName;
     const registeredAtLabel = club.timestamp
         ? new Date(club.timestamp).toLocaleDateString('de-DE')
@@ -78,14 +68,14 @@ export default function AdminHomePage() {
                     <tbody>
                         <tr>
                             <th>Verein</th>
-                            <td>{club.name}</td>
+                            <td>{registeredAtLabel !== '-' ? `${club.name} (Registriert am ${registeredAtLabel})` : club.name}</td>
                         </tr>
                         <tr>
-                            <th>Registriert am</th>
-                            <td>{registeredAtLabel}</td>
+                            <th>Plan</th>
+                            <td>{planLabel}</td>
                         </tr>
                         <tr>
-                            <th>Adresse</th>
+                            <th>Vereinsadresse</th>
                             <td>{address}</td>
                         </tr>
                         <tr>
@@ -93,7 +83,7 @@ export default function AdminHomePage() {
                             <td>{adminName}</td>
                         </tr>
                         <tr>
-                            <th>Mitglieder</th>
+                            <th>Mitgliederzahl</th>
                             <td>
                                 {membersCount === null || activeMembersCount === null
                                     ? '...'
@@ -101,25 +91,11 @@ export default function AdminHomePage() {
                             </td>
                         </tr>
                         <tr>
-                            <th>Mitgliederlimit</th>
-                            <td>
-                                {membersLimit != null && remainingMembersCount != null
-                                    ? `${membersLimit} (noch ${remainingMembersCount} aktive Mitglieder erlaubt)`
-                                    : membersLimit != null
-                                        ? '...'
-                                        : 'Kein Limit'}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Plan</th>
-                            <td>{planLabel}</td>
-                        </tr>
-                        <tr>
-                            <th>Plätze</th>
+                            <th>Tennisplätze</th>
                             <td>{club.courts.length}</td>
                         </tr>
                         <tr>
-                            <th>Zeiten</th>
+                            <th>Reservierungszeiten</th>
                             <td>{club.start_hour}:00 - {club.end_hour}:00 Uhr</td>
                         </tr>
                     </tbody>

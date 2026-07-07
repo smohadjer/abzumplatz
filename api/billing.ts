@@ -5,8 +5,8 @@ import { getJwtPayload } from './verifyAuth.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { DBUser, PlanType } from '../src/types.js';
 import { ClubDocument } from './_utils/_types.js';
-import { BillingPeriodDocument, BillingPeriodStatus } from './_utils/_billingPeriods.js';
-import { isPaidPlanType } from '../src/planConfig.js';
+import { BillingPeriodDocument, BillingPeriodStatus, resolveClubBillingState } from './_utils/_billingPeriods.js';
+import { getPlanStateAtRenewal } from './_utils/_planTransitions.js';
 
 type BillingBody = {
   club_id?: string;
@@ -102,6 +102,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(403).json({error: 'Reading billing periods for another club is not allowed'});
       }
 
+      const club = await clubs.findOne({
+        _id: ObjectId.createFromHexString(requestedClubId)
+      });
+      if (club) {
+        await resolveClubBillingState(clubs, billingPeriods, club);
+      }
+
       const periods = await billingPeriods.find({
         club_id: requestedClubId
       }).sort({
@@ -154,10 +161,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(404).json(validationError('/club_id', 'Verein nicht gefunden.'));
       }
 
-      const billingPlanType = plan_type ?? club.next_plan_type ?? club.access_plan_type;
-      if (!billingPlanType || !isPaidPlanType(billingPlanType)) {
-        return res.status(400).json(validationError('/plan_type', 'Bitte geben Sie einen gültigen Bezahlplan an.'));
-      }
+      const { club: resolvedClub } = await resolveClubBillingState(clubs, billingPeriods, club);
+
+      const billingPlanType = plan_type ?? resolvedClub.next_plan_type;
 
       if (status === 'active') {
         const existingActivePeriod = await billingPeriods.findOne({
@@ -171,7 +177,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
       const period: BillingPeriodDocument = {
         club_id,
-        plan_type: billingPlanType === 'elite' ? 'elite' : 'pro',
+        plan_type: billingPlanType,
         anchor_day: anchor_day ?? startDate.getDate(),
         period_start,
         period_end,
@@ -186,10 +192,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         await clubs.updateOne(
           {_id: ObjectId.createFromHexString(club_id)},
           {
-            $set: {
-              access_plan_type: billingPlanType,
-              next_plan_type: billingPlanType,
-            },
+            $set: getPlanStateAtRenewal(billingPlanType),
             $unset: {
               plan_type: '',
             }
