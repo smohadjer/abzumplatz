@@ -348,3 +348,13 @@ ul {
 .billings-table .billings-table__period {
     padding-right: 1.25rem;
 }
+
+.billings-table th,
+.billings-table td {
+    vertical-align: middle;
+}
+
+.billings-table button {
+    margin-top: 0;
+    padding: 0;
+}

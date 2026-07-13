@@ -1,6 +1,6 @@
 import { Collection, ObjectId } from 'mongodb';
 import { PlanType } from '../../src/types.js';
-import { getNextBillingPeriodStartForPlan, hasFutureBillingPeriodEnd } from '../../src/planConfig.js';
+import { getNextBillingPeriodStartForPlan, getPlanPrice, hasFutureBillingPeriodEnd } from '../../src/planConfig.js';
 import { ClubDocument } from './_types.js';
 import {
     getPlanStateAtRenewal,
@@ -13,6 +13,7 @@ export type BillingPeriodDocument = {
     _id?: ObjectId;
     club_id: string;
     plan_type: PlanType;
+    price: number;
     anchor_day: number;
     period_start: string;
     period_end: string;
@@ -71,6 +72,7 @@ function createBillingPeriodRecord(
     return {
         club_id: clubId,
         plan_type: planType,
+        price: getPlanPrice(planType),
         anchor_day: anchorDay,
         period_start: getDateString(startDate),
         period_end: getNextBillingPeriodStartForPlan(planType, startDate, anchorDay)!,
@@ -84,7 +86,8 @@ async function insertBillingPeriod(
     collection: Collection<BillingPeriodDocument>,
     period: BillingPeriodDocument
 ) {
-    await collection.insertOne(period);
+    const result = await collection.insertOne(period);
+    period._id = result.insertedId;
     return period;
 }
 

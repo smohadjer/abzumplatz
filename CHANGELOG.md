@@ -2,6 +2,21 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.18
+
+### Added
+
+- Added invoice-style admin email content for billing periods, including VAT display, club address details, bank transfer instructions, and stable invoice references.
+- Added an admin action to resend the invoice email for a billing period from the billing list in the admin UI.
+- Added a backfill script for billing-period prices so older billing documents can be migrated to the new price snapshot model.
+
+### Changed
+
+- Changed billing periods to store a required `price` snapshot that is used as the invoice source of truth.
+- Changed the admin billing list to show billing-period prices and clearer invoice resend status messages.
+- Changed invoice delivery handling so API responses clearly distinguish between a created billing period and a failed invoice email delivery.
+- Changed `api/billing.ts` to delegate invoice rendering and delivery work to a dedicated billing-invoice helper, keeping the endpoint logic smaller and easier to maintain.
+
 ## 0.0.17
 
 ### Added
@@ -15,6 +30,8 @@ All notable changes to this project should be documented in this file.
 - Changed billing helpers to separate read-only billing state lookup from renewal processing, making billing reads predictable and side-effect free.
 - Changed renewal processing to catch up clubs across multiple missed billing periods and create one admin notification email per created billing period.
 - Changed the billing endpoint documentation and code comments to clarify why renewal uses `GET /api/billing` with the cron secret in both local and Vercel environments.
+- Changed billing period price handling so `price` is now required in the shared billing types and invoice generation fails loudly if a malformed billing record is missing its stored price.
+- Changed billing invoice delivery to report failures back to the caller instead of silently swallowing admin email delivery errors.
 
 ## 0.0.16
 

@@ -1,15 +1,18 @@
-import { Collection, MongoClient, ObjectId } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { cron_secret, database_uri, database_name } from './_utils/_config.js';
-import { sanitize, escapeHtml } from './_utils/_lib.js';
+import { sanitize } from './_utils/_lib.js';
 import { getJwtPayload } from './verifyAuth.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { DBUser, PlanType } from '../src/types.js';
-import sendEmail from './_utils/_sendEmail.js';
-import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';
+import { ClubDocument } from './_utils/_types.js';
 import { BillingPeriodDocument, BillingPeriodStatus, processBillingRenewals, processClubBillingRenewal } from './_utils/_billingPeriods.js';
 import { getPlanStateAtRenewal } from './_utils/_planTransitions.js';
+import { getPlanPrice } from '../src/planConfig.js';
+import { getRequiredBillingPrice, sendBillingPeriodInvoiceEmail } from './_utils/_billingInvoices.js';
 
 type BillingBody = {
+  action?: 'create_period' | 'send_invoice';
+  billing_period_id?: string;
   club_id?: string;
   plan_type?: PlanType;
   anchor_day?: number;
@@ -58,63 +61,9 @@ function isValidDateOnlyString(value: string) {
 function normalizeBillingPeriod(period: BillingPeriodDocument) {
   return {
     ...period,
+    price: getRequiredBillingPrice(period),
     _id: period._id?.toString(),
   };
-}
-
-function buildBillingPeriodNotificationEmail(
-  club: Pick<ClubDocument, 'name'>,
-  period: BillingPeriodDocument,
-  notificationType: 'manual' | 'renewal'
-) {
-  const intro = notificationType === 'renewal'
-    ? `Der Abrechnungszeitraum von ${escapeHtml(club.name ?? 'Ihrem Verein')} wurde automatisch verlängert.`
-    : `Für ${escapeHtml(club.name ?? 'Ihren Verein')} wurde ein neuer Abrechnungszeitraum manuell angelegt.`;
-
-  return `
-    <p>${intro}</p>
-    <div style="padding: 10px; background: #f2f2f2;">
-      <table cellspacing="0" style="border-collapse: collapse;">
-        <tbody>
-          <tr><td style="padding: 6px 6px 6px 0;"><strong>Verein</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(club.name ?? '-')}</td></tr>
-          <tr><td style="padding: 6px 6px 6px 0;"><strong>Plan</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(period.plan_type)}</td></tr>
-          <tr><td style="padding: 6px 6px 6px 0;"><strong>Zeitraum</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(period.period_start)} bis ${escapeHtml(period.period_end)}</td></tr>
-          <tr><td style="padding: 6px 6px 6px 0;"><strong>Status</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(period.status)}</td></tr>
-          <tr><td style="padding: 6px 6px 6px 0;"><strong>Quelle</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(period.source ?? notificationType)}</td></tr>
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-async function notifyClubAdminsOfBillingPeriod(
-  database: ReturnType<MongoClient['db']>,
-  clubId: string,
-  subject: string,
-  html: string
-) {
-  const admins = await database.collection<AdminEmailDocument>('users').find({
-    club_id: clubId,
-    role: 'admin',
-    status: 'active',
-  }, {
-    projection: {
-      email: 1,
-    }
-  }).toArray();
-  const adminEmails = admins
-    .map(admin => admin.email?.toLowerCase())
-    .filter((email): email is string => Boolean(email));
-
-  if (!adminEmails.length) {
-    return;
-  }
-
-  await Promise.allSettled(adminEmails.map(email => sendEmail({
-    email,
-    subject,
-    html,
-  })));
 }
 
 // Renewal intentionally lives on GET /api/billing instead of a dedicated route:
@@ -145,25 +94,35 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
     if (isAuthorizedRenewalRequest(req)) {
       const { summary, renewedClubs } = await processBillingRenewals(clubs, billingPeriods);
-      await Promise.allSettled(renewedClubs.flatMap(({club, createdPeriods}) => createdPeriods.map(async (period) => {
+      const invoiceDeliveries = await Promise.allSettled(renewedClubs.flatMap(({club, createdPeriods}) => createdPeriods.map(async (period) => {
         if (!club._id) {
           return;
         }
 
-        const subject = `Abrechnungszeitraum automatisch verlängert: ${club.name ?? 'Verein'} (${period.period_start} bis ${period.period_end})`;
-        const html = buildBillingPeriodNotificationEmail(
+        await sendBillingPeriodInvoiceEmail(
+          database,
           club,
           period,
           'renewal'
         );
-
-        await notifyClubAdminsOfBillingPeriod(
-          database,
-          club._id.toString(),
-          subject,
-          html
-        );
       })));
+
+      const failedInvoiceDeliveries = invoiceDeliveries.filter((result) => result.status === 'rejected');
+      if (failedInvoiceDeliveries.length) {
+        failedInvoiceDeliveries.forEach((result) => {
+          if (result.status === 'rejected') {
+            console.error('Failed to send renewal invoice email', result.reason);
+          }
+        });
+
+        return res.status(502).json({
+          error: 'Billing renewals were processed, but one or more invoice emails could not be delivered.',
+          data: {
+            ...summary,
+            failed_invoice_deliveries: failedInvoiceDeliveries.length,
+          },
+        });
+      }
 
       return res.status(200).json({
         message: 'Billing renewals processed.',
@@ -210,6 +169,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
     if (req.method === 'POST') {
       const body = sanitize(req.body) as BillingBody;
+      const action = body.action ?? 'create_period';
+      const billing_period_id = isString(body.billing_period_id) ? body.billing_period_id : undefined;
       const club_id = isString(body.club_id) ? body.club_id : undefined;
       const plan_type = isString(body.plan_type) ? body.plan_type as PlanType : undefined;
       const anchor_day = typeof body.anchor_day === 'number' ? body.anchor_day : undefined;
@@ -217,6 +178,60 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const period_end = isString(body.period_end) ? body.period_end : undefined;
       const status = body.status ?? 'active';
       const source = isString(body.source) ? body.source : undefined;
+
+      if (action === 'send_invoice') {
+        if (!billing_period_id) {
+          return res.status(400).json(validationError('/billing_period_id', 'Bitte geben Sie eine Abrechnungs-ID an.'));
+        }
+        if (!isObjectIdString(billing_period_id)) {
+          return res.status(400).json(validationError('/billing_period_id', 'Bitte geben Sie eine gültige Abrechnungs-ID an.'));
+        }
+
+        const period = await billingPeriods.findOne({
+          _id: ObjectId.createFromHexString(billing_period_id),
+        });
+        if (!period) {
+          return res.status(404).json(validationError('/billing_period_id', 'Abrechnungszeitraum nicht gefunden.'));
+        }
+        if (period.club_id !== requester.club_id) {
+          return res.status(403).json({error: 'Reading billing periods for another club is not allowed'});
+        }
+
+        const club = await clubs.findOne({
+          _id: ObjectId.createFromHexString(period.club_id),
+        });
+        if (!club) {
+          return res.status(404).json({error: 'Club not found for billing period'});
+        }
+
+        try {
+          await sendBillingPeriodInvoiceEmail(
+            database,
+            club,
+            period,
+            'resend'
+          );
+        } catch (emailError) {
+          console.error('Failed to resend invoice email', emailError);
+          const detail = emailError instanceof Error
+            ? ` ${emailError.message}`
+            : '';
+          return res.status(502).json({
+            error: `Die Rechnung wurde bereits erstellt, aber die E-Mail konnte nicht zugestellt werden.${detail}`,
+            data: {
+              _id: period._id?.toString(),
+              club_id: period.club_id,
+              period_start: period.period_start,
+              period_end: period.period_end,
+            },
+          });
+        }
+
+        return res.status(200).json({
+          message: 'Invoice email sent.',
+          data: normalizeBillingPeriod(period),
+        });
+      }
 
       if (!club_id) {
         return res.status(400).json(validationError('/club_id', 'Bitte geben Sie eine Vereins-ID an.'));
@@ -267,6 +282,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const period: BillingPeriodDocument = {
         club_id,
         plan_type: billingPlanType,
+        price: getPlanPrice(billingPlanType),
         anchor_day: anchor_day ?? startDate.getDate(),
         period_start,
         period_end,
@@ -276,6 +292,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       };
 
       const insertResult = await billingPeriods.insertOne(period);
+      period._id = insertResult.insertedId;
 
       if (status === 'active') {
         await clubs.updateOne(
@@ -290,21 +307,21 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       try {
-        const subject = `Neuer Abrechnungszeitraum angelegt: ${club.name ?? 'Verein'} (${period.period_start} bis ${period.period_end})`;
-        const html = buildBillingPeriodNotificationEmail(
+        await sendBillingPeriodInvoiceEmail(
+          database,
           club,
           period,
           'manual'
         );
-
-        await notifyClubAdminsOfBillingPeriod(
-          database,
-          club_id,
-          subject,
-          html
-        );
       } catch (emailError) {
-        console.error('Failed to notify club admins about billing period creation', emailError);
+        console.error('Failed to send invoice email for manually created billing period', emailError);
+        const detail = emailError instanceof Error
+          ? ` ${emailError.message}`
+          : '';
+        return res.status(502).json({
+          error: `Der Abrechnungszeitraum wurde angelegt, aber die Rechnungs-E-Mail konnte nicht zugestellt werden.${detail}`,
+          data: normalizeBillingPeriod(period),
+        });
       }
 
       return res.status(201).json({
@@ -312,7 +329,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         data: {
           ...normalizeBillingPeriod({
             ...period,
-            _id: insertResult.insertedId,
           })
         }
       });
