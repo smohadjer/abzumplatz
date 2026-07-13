@@ -2,6 +2,20 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.17
+
+### Added
+
+- Added admin email notifications when a billing period is created manually and when renewal creates new billing periods automatically.
+- Added billing REST examples for listing billing periods, manually creating a billing period, and triggering the cron-style renewal flow.
+
+### Changed
+
+- Changed billing renewal from lazy read-time state mutation to an explicit renewal process that runs through the shared `/api/billing` endpoint.
+- Changed billing helpers to separate read-only billing state lookup from renewal processing, making billing reads predictable and side-effect free.
+- Changed renewal processing to catch up clubs across multiple missed billing periods and create one admin notification email per created billing period.
+- Changed the billing endpoint documentation and code comments to clarify why renewal uses `GET /api/billing` with the cron secret in both local and Vercel environments.
+
 ## 0.0.16
 
 ### Added
