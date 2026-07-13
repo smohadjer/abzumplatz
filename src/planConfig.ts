@@ -96,6 +96,10 @@ export function getMembersLimitForPlan(planType?: PlanType) {
     return getPlanConfig(planType).membersLimit;
 }
 
+export function getPlanPrice(planType?: PlanType) {
+    return getPlanConfig(planType).price;
+}
+
 export function getNextBillingPeriodStartForPlan(planType?: PlanType, fromDate = new Date(), anchorDay = fromDate.getDate()) {
     const config = getPlanConfig(planType);
     const nextPeriodStart = addMonthsKeepingDay(fromDate, config.durationMonths, anchorDay);

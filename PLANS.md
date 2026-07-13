@@ -48,6 +48,7 @@ Each billing period stores:
 
 - `club_id`
 - `plan_type`
+- `price`
 - `period_start`
 - `period_end`
 - `status`
@@ -177,7 +178,8 @@ Invoices are based on whole billing periods.
 
 - one invoice covers one full billing period
 - invoices are not split because of a mid-period plan change
-- the invoice for the current period is based on that period’s plan
+- the invoice for the current period is based on that billing period document
+- each billing period stores the plan price snapshot that applied when that period was created
 - the next invoice uses the plan that becomes effective at renewal
 
 ## Member Limits

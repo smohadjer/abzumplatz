@@ -84,6 +84,7 @@ export type BillingPeriod = {
     _id?: string;
     club_id: string;
     plan_type: PlanType;
+    price: number;
     anchor_day: number;
     period_start: string;
     period_end: string;
