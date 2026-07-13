@@ -203,7 +203,8 @@ export async function sendBillingPeriodInvoiceEmail(
   notificationType: BillingInvoiceNotificationType
 ) {
   const clubId = club._id?.toString() ?? period.club_id;
-  const subject = `Rechnung ${getBillingInvoiceReference(clubId, period)} für ${club.name ?? 'Verein'}`;
+  const coveredUntil = getCoveredUntilFromPeriodEnd(period.period_end) ?? period.period_end;
+  const subject = `Rechnung für ${club.name ?? 'Verein'} (${formatDate(period.period_start)} - ${formatDate(coveredUntil)})`;
   const html = buildBillingPeriodNotificationEmail(
     club,
     period,
