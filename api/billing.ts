@@ -5,7 +5,7 @@ import { getJwtPayload } from './verifyAuth.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { DBUser, PlanType } from '../src/types.js';
 import { ClubDocument } from './_utils/_types.js';
-import { BillingPeriodDocument, BillingPeriodStatus, processBillingRenewals, processClubBillingRenewal } from './_utils/_billingPeriods.js';
+import { BillingPeriodDocument, BillingPeriodStatus, createInitialBillingPeriod, processBillingRenewals, processClubBillingRenewal } from './_utils/_billingPeriods.js';
 import { getPlanStateAtRenewal } from './_utils/_planTransitions.js';
 import { getPlanPrice } from '../src/planConfig.js';
 import { getRequiredBillingPrice, sendBillingPeriodInvoiceEmail } from './_utils/_billingInvoices.js';
@@ -163,6 +163,42 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         period_start: -1,
         created_at: -1
       }).toArray();
+
+      if (!periods.length) {
+        const club = await clubs.findOne({
+          _id: ObjectId.createFromHexString(requestedClubId)
+        });
+        if (!club) {
+          return res.status(404).json({error: 'Club not found'});
+        }
+
+        const createdPeriod = await createInitialBillingPeriod(
+          billingPeriods,
+          requestedClubId,
+          club.next_plan_type ?? club.access_plan_type,
+          'lazy_repair'
+        );
+
+        try {
+          await sendBillingPeriodInvoiceEmail(
+            database,
+            club,
+            createdPeriod,
+            'repair'
+          );
+        } catch (emailError) {
+          console.error('Failed to send invoice email for lazily repaired billing period', emailError);
+          const detail = emailError instanceof Error
+            ? ` ${emailError.message}`
+            : '';
+          return res.status(502).json({
+            error: `Der fehlende Abrechnungszeitraum wurde angelegt, aber die Rechnungs-E-Mail konnte nicht zugestellt werden.${detail}`,
+            data: normalizeBillingPeriod(createdPeriod),
+          });
+        }
+
+        periods.push(createdPeriod);
+      }
 
       return res.json(periods.map(normalizeBillingPeriod));
     }

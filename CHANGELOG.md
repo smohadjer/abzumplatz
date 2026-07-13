@@ -16,6 +16,7 @@ All notable changes to this project should be documented in this file.
 - Changed the admin billing list to show billing-period prices and clearer invoice resend status messages.
 - Changed invoice delivery handling so API responses clearly distinguish between a created billing period and a failed invoice email delivery.
 - Changed `api/billing.ts` to delegate invoice rendering and delivery work to a dedicated billing-invoice helper, keeping the endpoint logic smaller and easier to maintain.
+- Changed the admin billing list endpoint to recreate a missing initial billing period as a lazy fallback when a club has no billing periods at all, and to issue the invoice email for that repair-created period immediately.
 
 ## 0.0.17
 
