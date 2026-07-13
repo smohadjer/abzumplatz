@@ -115,17 +115,21 @@ At renewal time:
 
 ## When Billing State Is Refreshed
 
-The app currently updates billing state lazily when billing-aware data is loaded.
+Billing renewal is now processed explicitly instead of being triggered by reads.
 
-- club loading calls billing-state resolution before returning club billing data
-- `GET /api/billing` also resolves billing state before returning billing periods
-- if the active period has already ended, it is marked as completed at that time
-- the next active period is then created immediately from the previous renewal boundary
+- `GET /api/billing` advances due billing periods for requests authorized with `CRON_SECRET`
+- the renewal trigger intentionally shares the billing endpoint because Vercel cron uses `GET` and the free tier has a tight endpoint limit
+- localhost and production both use the same `GET /api/billing` renewal flow
+- the Vercel cron schedule calls that endpoint once per day with `GET`
+- the endpoint expects `Authorization: Bearer ${CRON_SECRET}`
+- write workflows that depend on current billing state run the renewal processor before applying plan-sensitive changes
+- read endpoints no longer mutate billing state as a side effect
 
-This means there is no separate scheduled billing job today.
+Renewal still keeps the original billing anchor day.
 
-- renewal is applied the next time the relevant club billing state is read
-- period boundaries still stay aligned to their original renewal day
+- expired active periods are marked as completed
+- the next active period is created from the previous renewal boundary
+- missed periods are backfilled in order if processing runs after multiple renewal boundaries
 
 ## Upgrades
 

@@ -26,6 +26,33 @@ type ResolvedClubBillingState = {
     currentBillingPeriod: BillingPeriodDocument | null;
 }
 
+export type ProcessedClubBillingRenewal = ResolvedClubBillingState & {
+    renewalApplied: boolean;
+    completedPeriodsCount: number;
+    createdPeriodsCount: number;
+    createdPeriods: BillingPeriodDocument[];
+}
+
+export type ProcessedBillingRenewalsSummary = {
+    totalClubsChecked: number;
+    clubsRenewed: number;
+    completedPeriodsCount: number;
+    createdPeriodsCount: number;
+}
+
+export type ProcessedBillingRenewalClub = {
+    club: ClubDocument;
+    currentBillingPeriod: BillingPeriodDocument | null;
+    completedPeriodsCount: number;
+    createdPeriodsCount: number;
+    createdPeriods: BillingPeriodDocument[];
+}
+
+export type ProcessedBillingRenewalsResult = {
+    summary: ProcessedBillingRenewalsSummary;
+    renewedClubs: ProcessedBillingRenewalClub[];
+}
+
 function getDateString(value: Date) {
     const year = value.getFullYear();
     const month = `${value.getMonth() + 1}`.padStart(2, '0');
@@ -146,28 +173,59 @@ export async function createInitialBillingPeriod(
     );
 }
 
-// Resolves the club's current billing state and lazily advances renewals by
-// completing expired periods, updating the club plan state, and creating the
-// next active billing period when needed.
-export async function resolveClubBillingState(
-    clubsCollection: Collection<ClubDocument>,
+export async function getClubBillingState(
     billingPeriodsCollection: Collection<BillingPeriodDocument>,
     club: ClubDocument,
     now = new Date()
 ): Promise<ResolvedClubBillingState> {
     const clubId = club._id?.toString();
+    if (!clubId) {
+        return {
+            club,
+            currentBillingPeriod: null,
+        };
+    }
+
+    const activePeriod = await getActiveBillingPeriod(billingPeriodsCollection, clubId);
+    const currentBillingPeriod = activePeriod && hasFutureBillingPeriodEnd(activePeriod.period_end, now)
+        ? activePeriod
+        : null;
+
+    return {
+        club,
+        currentBillingPeriod,
+    };
+}
+
+export async function processClubBillingRenewal(
+    clubsCollection: Collection<ClubDocument>,
+    billingPeriodsCollection: Collection<BillingPeriodDocument>,
+    club: ClubDocument,
+    now = new Date()
+): Promise<ProcessedClubBillingRenewal> {
+    const clubId = club._id?.toString();
     let resolvedClub = club;
+    let renewalApplied = false;
+    let completedPeriodsCount = 0;
+    let createdPeriodsCount = 0;
+    const createdPeriods: BillingPeriodDocument[] = [];
 
     if (!clubId) {
         return {
             club: resolvedClub,
             currentBillingPeriod: null,
+            renewalApplied,
+            completedPeriodsCount,
+            createdPeriodsCount,
+            createdPeriods,
         };
     }
 
     let activePeriod = await getActiveBillingPeriod(billingPeriodsCollection, clubId);
 
     if (activePeriod && !hasFutureBillingPeriodEnd(activePeriod.period_end, now)) {
+        renewalApplied = true;
+        completedPeriodsCount += 1;
         await updateBillingPeriod(billingPeriodsCollection, activePeriod._id, {
             status: 'completed'
         });
@@ -184,10 +242,25 @@ export async function resolveClubBillingState(
         return {
             club: resolvedClub,
             currentBillingPeriod: activePeriod,
+            renewalApplied,
+            completedPeriodsCount,
+            createdPeriodsCount,
+            createdPeriods,
         };
     }
 
     const latestPeriod = await getLatestBillingPeriod(billingPeriodsCollection, clubId);
+    if (!latestPeriod) {
+        return {
+            club: resolvedClub,
+            currentBillingPeriod: null,
+            renewalApplied,
+            completedPeriodsCount,
+            createdPeriodsCount,
+            createdPeriods,
+        };
+    }
+
     let nextStartDate = latestPeriod?.period_end
         ? new Date(`${latestPeriod.period_end}T12:00:00`)
         : now;
@@ -207,17 +280,72 @@ export async function resolveClubBillingState(
         );
 
         if (hasFutureBillingPeriodEnd(nextPeriod.period_end, now)) {
+            renewalApplied = true;
+            createdPeriodsCount += 1;
             const insertedPeriod = await insertBillingPeriod(billingPeriodsCollection, nextPeriod);
+            createdPeriods.push(insertedPeriod);
             return {
                 club: resolvedClub,
                 currentBillingPeriod: insertedPeriod,
+                renewalApplied,
+                completedPeriodsCount,
+                createdPeriodsCount,
+                createdPeriods,
             };
         }
 
-        await insertBillingPeriod(billingPeriodsCollection, {
+        renewalApplied = true;
+        completedPeriodsCount += 1;
+        createdPeriodsCount += 1;
+        const insertedCompletedPeriod = await insertBillingPeriod(billingPeriodsCollection, {
             ...nextPeriod,
             status: 'completed'
         });
+        createdPeriods.push(insertedCompletedPeriod);
         nextStartDate = new Date(`${nextPeriod.period_end}T12:00:00`);
     }
+}
+
+export async function processBillingRenewals(
+    clubsCollection: Collection<ClubDocument>,
+    billingPeriodsCollection: Collection<BillingPeriodDocument>,
+    now = new Date()
+): Promise<ProcessedBillingRenewalsResult> {
+    const clubs = await clubsCollection.find({}).toArray();
+    const summary: ProcessedBillingRenewalsSummary = {
+        totalClubsChecked: clubs.length,
+        clubsRenewed: 0,
+        completedPeriodsCount: 0,
+        createdPeriodsCount: 0,
+    };
+    const renewedClubs: ProcessedBillingRenewalClub[] = [];
+
+    for (const club of clubs) {
+        const result = await processClubBillingRenewal(
+            clubsCollection,
+            billingPeriodsCollection,
+            club,
+            now
+        );
+
+        if (!result.renewalApplied) {
+            continue;
+        }
+
+        summary.clubsRenewed += 1;
+        summary.completedPeriodsCount += result.completedPeriodsCount;
+        summary.createdPeriodsCount += result.createdPeriodsCount;
+        renewedClubs.push({
+            club: result.club,
+            currentBillingPeriod: result.currentBillingPeriod,
+            completedPeriodsCount: result.completedPeriodsCount,
+            createdPeriodsCount: result.createdPeriodsCount,
+            createdPeriods: result.createdPeriods,
+        });
+    }
+
+    return {
+        summary,
+        renewedClubs,
+    };
 }

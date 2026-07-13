@@ -1,11 +1,12 @@
 import { Collection, MongoClient, ObjectId } from 'mongodb';
-import { database_uri, database_name } from './_utils/_config.js';
-import { sanitize } from './_utils/_lib.js';
+import { cron_secret, database_uri, database_name } from './_utils/_config.js';
+import { sanitize, escapeHtml } from './_utils/_lib.js';
 import { getJwtPayload } from './verifyAuth.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { DBUser, PlanType } from '../src/types.js';
-import { ClubDocument } from './_utils/_types.js';
-import { BillingPeriodDocument, BillingPeriodStatus, resolveClubBillingState } from './_utils/_billingPeriods.js';
+import sendEmail from './_utils/_sendEmail.js';
+import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';
+import { BillingPeriodDocument, BillingPeriodStatus, processBillingRenewals, processClubBillingRenewal } from './_utils/_billingPeriods.js';
 import { getPlanStateAtRenewal } from './_utils/_planTransitions.js';
 
 type BillingBody = {
@@ -61,6 +62,73 @@ function normalizeBillingPeriod(period: BillingPeriodDocument) {
   };
 }
 
+function buildBillingPeriodNotificationEmail(
+  club: Pick<ClubDocument, 'name'>,
+  period: BillingPeriodDocument,
+  notificationType: 'manual' | 'renewal'
+) {
+  const intro = notificationType === 'renewal'
+    ? `Der Abrechnungszeitraum von ${escapeHtml(club.name ?? 'Ihrem Verein')} wurde automatisch verlängert.`
+    : `Für ${escapeHtml(club.name ?? 'Ihren Verein')} wurde ein neuer Abrechnungszeitraum manuell angelegt.`;
+
+  return `
+    <p>${intro}</p>
+    <div style="padding: 10px; background: #f2f2f2;">
+      <table cellspacing="0" style="border-collapse: collapse;">
+        <tbody>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Verein</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(club.name ?? '-')}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Plan</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(period.plan_type)}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Zeitraum</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(period.period_start)} bis ${escapeHtml(period.period_end)}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Status</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(period.status)}</td></tr>
+          <tr><td style="padding: 6px 6px 6px 0;"><strong>Quelle</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(period.source ?? notificationType)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function notifyClubAdminsOfBillingPeriod(
+  database: ReturnType<MongoClient['db']>,
+  clubId: string,
+  subject: string,
+  html: string
+) {
+  const admins = await database.collection<AdminEmailDocument>('users').find({
+    club_id: clubId,
+    role: 'admin',
+    status: 'active',
+  }, {
+    projection: {
+      email: 1,
+    }
+  }).toArray();
+  const adminEmails = admins
+    .map(admin => admin.email?.toLowerCase())
+    .filter((email): email is string => Boolean(email));
+
+  if (!adminEmails.length) {
+    return;
+  }
+
+  await Promise.allSettled(adminEmails.map(email => sendEmail({
+    email,
+    subject,
+    html,
+  })));
+}
+
+// Renewal intentionally lives on GET /api/billing instead of a dedicated route:
+// - Vercel Cron invokes scheduled functions with GET requests
+// - the Vercel free tier endpoint limit makes an extra renewal route expensive
+// - using the same GET branch locally and in production keeps behavior consistent
+function isAuthorizedRenewalRequest(req: VercelRequest) {
+  if (!cron_secret) {
+    return false;
+  }
+
+  return req.method === 'GET' && req.headers.authorization === `Bearer ${cron_secret}`;
+}
+
 if (!database_uri || !database_name) {
   throw new Error('Database configuration is missing');
 }
@@ -74,6 +142,34 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const users = database.collection<DBUser>('users');
     const clubs = database.collection<ClubDocument>('clubs');
     const billingPeriods = database.collection<BillingPeriodDocument>('billing_periods');
+
+    if (isAuthorizedRenewalRequest(req)) {
+      const { summary, renewedClubs } = await processBillingRenewals(clubs, billingPeriods);
+      await Promise.allSettled(renewedClubs.flatMap(({club, createdPeriods}) => createdPeriods.map(async (period) => {
+        if (!club._id) {
+          return;
+        }
+
+        const subject = `Abrechnungszeitraum automatisch verlängert: ${club.name ?? 'Verein'} (${period.period_start} bis ${period.period_end})`;
+        const html = buildBillingPeriodNotificationEmail(
+          club,
+          period,
+          'renewal'
+        );
+
+        await notifyClubAdminsOfBillingPeriod(
+          database,
+          club._id.toString(),
+          subject,
+          html
+        );
+      })));
+
+      return res.status(200).json({
+        message: 'Billing renewals processed.',
+        data: summary,
+      });
+    }
 
     const payload = await getJwtPayload(req);
     if (!payload) {
@@ -100,13 +196,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
       if (requestedClubId !== requester.club_id) {
         return res.status(403).json({error: 'Reading billing periods for another club is not allowed'});
-      }
-
-      const club = await clubs.findOne({
-        _id: ObjectId.createFromHexString(requestedClubId)
-      });
-      if (club) {
-        await resolveClubBillingState(clubs, billingPeriods, club);
       }
 
       const periods = await billingPeriods.find({
@@ -161,7 +250,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(404).json(validationError('/club_id', 'Verein nicht gefunden.'));
       }
 
-      const { club: resolvedClub } = await resolveClubBillingState(clubs, billingPeriods, club);
+      const { club: resolvedClub } = await processClubBillingRenewal(clubs, billingPeriods, club);
 
       const billingPlanType = plan_type ?? resolvedClub.next_plan_type;
 
@@ -198,6 +287,24 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             }
           }
         );
+      }
+
+      try {
+        const subject = `Neuer Abrechnungszeitraum angelegt: ${club.name ?? 'Verein'} (${period.period_start} bis ${period.period_end})`;
+        const html = buildBillingPeriodNotificationEmail(
+          club,
+          period,
+          'manual'
+        );
+
+        await notifyClubAdminsOfBillingPeriod(
+          database,
+          club_id,
+          subject,
+          html
+        );
+      } catch (emailError) {
+        console.error('Failed to notify club admins about billing period creation', emailError);
       }
 
       return res.status(201).json({

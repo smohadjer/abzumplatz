@@ -1,9 +1,13 @@
 {
+    "crons": [
+        {"path": "/api/billing", "schedule": "0 3 * * *"}
+    ],
     "rewrites": [
         {"source": "/admin", "destination": "/"},
         {"source": "/admin/members", "destination": "/"},
         {"source": "/admin/club", "destination": "/"},
         {"source": "/admin/courts", "destination": "/"},
+        {"source": "/admin/billings", "destination": "/"},
         {"source": "/register/club", "destination": "/"},
         {"source": "/register/player", "destination": "/"},
         {"source": "/login", "destination": "/"},

@@ -7,7 +7,7 @@ import { ClubWithBilling, DBUser, JwtPayload } from '../src/types.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, ClubFormBody, CourtsFormBody } from './_utils/_types.js';
 import { updateCourts } from './_utils/_updateCourts.js';
-import { createInitialBillingPeriod, BillingPeriodDocument, isDowngradeLocked, resolveClubBillingState } from './_utils/_billingPeriods.js';
+import { createInitialBillingPeriod, BillingPeriodDocument, getClubBillingState, isDowngradeLocked, processClubBillingRenewal } from './_utils/_billingPeriods.js';
 import { getClubPlanState, getPlanChangeUpdate } from './_utils/_planTransitions.js';
 import { fetchClub } from './_utils/_fetchClub.js';
 import { isLowerPlan } from '../src/planConfig.js';
@@ -28,19 +28,18 @@ const enrichClubWithBilling = async (
     return null;
   }
 
-  const { club, currentBillingPeriod } = await resolveClubBillingState(
-    collection,
+  const { currentBillingPeriod } = await getClubBillingState(
     billingPeriodsCollection,
     doc
   );
 
   return {
-    ...club,
-    _id: club._id.toString(),
+    ...doc,
+    _id: doc._id.toString(),
     current_billing_plan_type: currentBillingPeriod?.plan_type,
     current_billing_period_end: currentBillingPeriod?.period_end,
-    downgrade_locked: isDowngradeLocked(club, currentBillingPeriod),
-    effective_members_limit: getEffectiveMembersLimitForPlan(club.access_plan_type),
+    downgrade_locked: isDowngradeLocked(doc, currentBillingPeriod),
+    effective_members_limit: getEffectiveMembersLimitForPlan(doc.access_plan_type),
     members_limit_override_active: hasMembersLimitOverride(),
   };
 };
@@ -264,7 +263,7 @@ async function updateClub(
   if (!doc) {
     return res.status(404).json({error: 'Club not found'});
   }
-  const { club: resolvedClub, currentBillingPeriod } = await resolveClubBillingState(
+  const { club: resolvedClub, currentBillingPeriod } = await processClubBillingRenewal(
     collection,
     billingPeriodsCollection,
     doc

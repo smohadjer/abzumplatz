@@ -9,7 +9,6 @@ import { database_uri, database_name } from './_utils/_config.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { createError, getErrorCause, getErrorMessage } from './_utils/_errors.js';
 import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';
-import { BillingPeriodDocument, resolveClubBillingState } from './_utils/_billingPeriods.js';
 
 type SignupBody = {
     first_name: string;
@@ -177,12 +176,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                     if (!club) {
                         throw createError('Der ausgewählte Verein existiert nicht.', 'club_id');
                     }
-
-                    await resolveClubBillingState(
-                        database.collection<ClubDocument>('clubs'),
-                        database.collection<BillingPeriodDocument>('billing_periods'),
-                        club
-                    );
                 }
 
                 await addUser(database, user);

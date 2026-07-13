@@ -1,3 +1,15 @@
+// list billing periods for the logged-in admin's club
+GET http://localhost:3000/api/billing
+Authorization: Bearer <token>
+
+###
+
+// notes:
+// - with a normal admin JWT, GET /api/billing returns billing periods
+// - you can optionally add ?club_id=<club-id>, but only for the same admin club
+
+###
+
 // insert an active billing period
 POST http://localhost:3000/api/billing
 Content-Type: application/json
@@ -17,3 +29,30 @@ Authorization: Bearer <token>
 // - period_end is the next renewal boundary
 // - the derived user-facing "bezahlt bis" date for this example would be 2026-07-16
 // - make sure there is no other active billing period for the same club before inserting
+
+###
+
+// trigger billing renewals with the cron secret
+// this uses GET on purpose because Vercel cron invokes functions with GET
+// and we keep it on /api/billing to avoid spending an extra endpoint on free tier
+GET http://localhost:3000/api/billing
+Authorization: Bearer <cron-secret>
+
+###
+
+// expected response shape for the renewal trigger:
+// {
+//   "message": "Billing renewals processed.",
+//   "data": {
+//     "totalClubsChecked": 1,
+//     "clubsRenewed": 0,
+//     "completedPeriodsCount": 0,
+//     "createdPeriodsCount": 0
+//   }
+// }
+//
+// notes:
+// - use CRON_SECRET here, not the normal admin JWT
+// - with CRON_SECRET, GET /api/billing runs the renewal job instead of returning billing periods
+// - without CRON_SECRET, GET /api/billing behaves as the normal admin billing list endpoint
+// - this only creates a new billing period if a club's active period is already due
