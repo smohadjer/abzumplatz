@@ -288,7 +288,8 @@ export const fetchAppData = async (clubId: string, dispatch: AppDispatch) => {
             type: 'users/fetch',
             payload: {
                 value: usersJson,
-                loaded: true
+                loaded: true,
+                clubId
             }
         });
         dispatch({
@@ -325,7 +326,8 @@ export const fetchUsers = async (clubId: string, dispatch: AppDispatch) => {
         type: 'users/fetch',
         payload: {
             value: users,
-            loaded: true
+            loaded: true,
+            clubId
         }
     });
 };
@@ -363,7 +365,8 @@ export const onLogout = (dispatch: AppDispatch) => {
         }});
         dispatch({type: 'users/fetch', payload: {
             value: [],
-            loaded: false
+            loaded: false,
+            clubId: ''
         }});
         dispatch({type: 'club/fetch', payload: {
             value: {

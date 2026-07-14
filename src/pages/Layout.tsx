@@ -3,6 +3,7 @@ import { Outlet } from "react-router";
 import { useLocation } from "react-router";
 import Header from '../components/header/Header';
 import Footer from '../components/footer/Footer';
+import InactiveStatusWarning from '../components/InactiveStatusWarning';
 
 export default function Layout() {
   const location = useLocation();
@@ -19,6 +20,7 @@ export default function Layout() {
     <>
       <Header />
       <main>
+        <InactiveStatusWarning />
         <Outlet />
       </main>
       <Footer />
