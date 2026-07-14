@@ -1,5 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+type UsersState = {
+  value: Array<{
+    first_name: string;
+    last_name: string;
+    email: string;
+    status: string;
+    role: string;
+    _id: string;
+  }>;
+  loaded: boolean;
+  clubId: string;
+};
+
 export const usersSlice = createSlice({
   name: 'users',
   initialState: {
@@ -13,8 +26,9 @@ export const usersSlice = createSlice({
         _id: '',
       }
     ],
-    loaded: false
-  },
+    loaded: false,
+    clubId: ''
+  } as UsersState,
   reducers: {
     fetch: (state, action) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
@@ -23,6 +37,7 @@ export const usersSlice = createSlice({
       // immutable state based off those changes
       state.value = action.payload.value;
       state.loaded = action.payload.loaded;
+      state.clubId = action.payload.clubId ?? '';
     },
   }
 })

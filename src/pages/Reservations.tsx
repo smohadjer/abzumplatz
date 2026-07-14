@@ -11,6 +11,7 @@ import {
     fetchUsers,
     fetchReservations,
 } from '../utils/utils';
+import { getInactiveUserMessage } from '../messages';
 import { ReservationItem, NormalizedReservationItem, StateUser } from '../types';
 import { Rows } from '../components/courts/Rows';
 import { Header } from '../components/courts/Header';
@@ -50,6 +51,12 @@ export default function Reservations() {
     const club = getClub();
     const users = usersData.value;
     const reservations = reservationsData.value;
+    const adminName = usersData.loaded && usersData.clubId === user.club_id
+        ? (() => {
+            const adminUser = users.find(member => member.role === 'admin');
+            return adminUser ? `${adminUser.first_name} ${adminUser.last_name}`.trim() : '';
+        })()
+        : '';
 
     if (club === undefined) {
         return (
@@ -131,6 +138,11 @@ export default function Reservations() {
                     end_date: slot.dataset.end_date,
                     timestamp: slot.dataset.timestamp
                 });
+                return;
+            }
+
+            if (user.role !== 'admin' && user.status === 'inactive') {
+                alert(getInactiveUserMessage(adminName));
                 return;
             }
 

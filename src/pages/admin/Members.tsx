@@ -87,7 +87,8 @@ export default function AdminMembersPage() {
             type: 'users/fetch',
             payload: {
                 value: remainingUsers,
-                loaded: true
+                loaded: true,
+                clubId: user.club_id
             }
         });
     };

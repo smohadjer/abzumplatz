@@ -2,6 +2,19 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.19
+
+### Added
+
+- Added a persistent inactive-user warning in the logged-in app shell with a prefilled email link to the current club admin.
+
+### Changed
+
+- Changed inactive-user messaging to use one shared source across frontend alerts, the in-app warning, and backend reservation authorization errors.
+- Changed the inactive-user warning to include the current club admin's name when available and to make only that name the email link target.
+- Changed the users store to track which club its loaded members belong to, so admin contact details are only reused when they match the current club.
+- Changed reservation creation UX so inactive users are blocked immediately in the frontend before a reservation request is sent.
+
 ## 0.0.18
 
 ### Added

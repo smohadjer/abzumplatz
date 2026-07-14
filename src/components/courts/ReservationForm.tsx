@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 import { RootState } from './../../store';
+import { getInactiveUserMessage } from './../../messages';
 import { SubmitEventHandler, useState } from "react";
 import { Loader } from './../loader/Loader';
 import { Court } from '../../types';
@@ -28,8 +29,15 @@ type Props = {
 
 export function ReservationForm(props: Props) {
     const user = useSelector((state: RootState) => state.auth);
+    const users = useSelector((state: RootState) => state.users);
     const [deleteReservationChecked, setDeleteReservationChecked] = useState(false);
     const [formError, setFormError] = useState('');
+    const adminName = users.loaded && users.clubId === user.club_id
+        ? (() => {
+            const adminUser = users.value.find(member => member.role === 'admin');
+            return adminUser ? `${adminUser.first_name} ${adminUser.last_name}`.trim() : '';
+        })()
+        : '';
     const capitalizeName = (value: string | undefined) => {
         if (!value) {
             return '';
@@ -62,6 +70,12 @@ export function ReservationForm(props: Props) {
         const courtCheckbox = form.querySelector<HTMLInputElement>('input[name="court_nums"]');
         setFormError('');
         courtCheckbox?.setCustomValidity('');
+
+        if (user.role !== 'admin' && user.status === 'inactive') {
+            event.preventDefault();
+            alert(getInactiveUserMessage(adminName));
+            return;
+        }
 
         if (!new FormData(form).getAll('court_nums').length) {
             event.preventDefault();

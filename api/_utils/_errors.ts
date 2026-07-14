@@ -2,6 +2,8 @@ type ErrorWithCause = Error & {
     cause?: unknown;
 }
 
+import { getInactiveUserMessage } from '../../src/messages.js';
+
 export type AppErrorCode =
     | 'AUTHENTICATION_REQUIRED'
     | 'USER_NOT_FOUND'
@@ -38,7 +40,7 @@ const APP_ERRORS: Record<AppErrorCode, AppErrorDefinition> = {
         status: 404
     },
     USER_INACTIVE: {
-        message: 'Ihr Konto ist derzeit inaktiv. Bitte wenden Sie sich an den Support.',
+        message: getInactiveUserMessage(),
         status: 403
     },
     USER_HAS_NO_CLUB: {

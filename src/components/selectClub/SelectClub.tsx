@@ -46,7 +46,8 @@ export function SelectClub(props: Props) {
             type: 'users/fetch',
             payload: {
                 value: [],
-                loaded: false
+                loaded: false,
+                clubId: ''
             }
         });
         dispatch({
