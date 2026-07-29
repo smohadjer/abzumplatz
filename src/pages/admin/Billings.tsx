@@ -106,7 +106,7 @@ export default function AdminBillingsPage() {
                                 <th>Preis</th>
                                 <th className="billings-table__period">Zeitraum</th>
                                 <th>Status</th>
-                                <th>Rechnungsnummer</th>
+                                <th>Rechnungsnr.</th>
                                 <th>Aktion</th>
                             </tr>
                         </thead>
