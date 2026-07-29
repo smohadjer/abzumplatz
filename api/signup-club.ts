@@ -16,11 +16,11 @@ if (!database_uri || !database_name) {
 const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup-club.json', 'utf8'));
 
-const sendNewClubNotification = async (body: SignupClubBody, clubId: string) => {
+const sendNewClubNotification = async (body: SignupClubBody) => {
     await sendEmail({
         email: 'info@abzumplatz@de',
         subject: `New club registration: ${body.name}`,
-        text: `A new club has been registered on Abzumplatz.\n\nClub: ${body.name}\nClub ID: ${clubId}\nPlan: ${body.plan_type}\nAdmin: ${body.first_name} ${body.last_name}\nAdmin email: ${body.email}\nCourts: ${body.courts_count}`,
+        text: `A new club has been registered on Abzumplatz.\n\nClub: ${body.name}\nPlan: ${body.plan_type}\nAdmin: ${body.first_name} ${body.last_name}\nAdmin email: ${body.email}\nCourts: ${body.courts_count}`,
     });
 };
 
@@ -110,7 +110,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             );
 
             try {
-                await sendNewClubNotification(body, club_id);
+                await sendNewClubNotification(body);
             } catch (emailError) {
                 console.error('Failed to send new club registration email', emailError);
             }

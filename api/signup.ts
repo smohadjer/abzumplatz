@@ -26,6 +26,19 @@ const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup.json', 'utf8'));
 const objectIdPattern = /^[0-9a-fA-F]{24}$/;
 
+const roleLabels: Record<string, string> = {
+    admin: 'Administrator',
+    player: 'Spieler',
+};
+
+const statusLabels: Record<string, string> = {
+    active: 'Aktiv',
+    inactive: 'Inaktiv',
+};
+
+const getRoleLabel = (role?: string) => roleLabels[role ?? ''] ?? role ?? '-';
+const getStatusLabel = (status?: string) => statusLabels[status ?? 'inactive'] ?? status ?? 'Inaktiv';
+
 const getAppOrigin = (req: VercelRequest) => {
     const protocol = req.headers['x-forwarded-proto'] ?? 'https';
     const host = req.headers.host;
@@ -34,11 +47,19 @@ const getAppOrigin = (req: VercelRequest) => {
 
 function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument, membersUrl: string) {
     const fullName = `${user.first_name} ${user.last_name}`;
-    const registeredAt = new Date().toLocaleString('de-DE', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
+    const registrationDate = new Date();
+    const registeredAtDate = registrationDate.toLocaleDateString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
         timeZone: 'Europe/Berlin',
     });
+    const registeredAtTime = registrationDate.toLocaleTimeString('de-DE', {
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Europe/Berlin',
+    });
+    const registeredAt = `${registeredAtDate} um ${registeredAtTime} Uhr`;
 
     return `
         <p>Ein neuer Benutzer hat sich bei ${escapeHtml(club.name ?? 'Ihrem Verein')} registriert und wartet auf Freischaltung.</p>
@@ -47,10 +68,9 @@ function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument, members
                 <tbody>
                     <tr><td style="padding: 6px 6px 6px 0;"><strong>Name</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(fullName)}</td></tr>
                     <tr><td style="padding: 6px 6px 6px 0;"><strong>E-Mail</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.email)}</td></tr>
-                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Rolle</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.role)}</td></tr>
-                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Status</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.status ?? 'inactive')}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Rolle</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(getRoleLabel(user.role))}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Status</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(getStatusLabel(user.status))}</td></tr>
                     <tr><td style="padding: 6px 6px 6px 0;"><strong>Verein</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(club.name)}</td></tr>
-                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Vereins-ID</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.club_id ?? '-')}</td></tr>
                     <tr><td style="padding: 6px 6px 6px 0;"><strong>Registriert am</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(registeredAt)}</td></tr>
                 </tbody>
             </table>
@@ -73,7 +93,7 @@ function buildWelcomeEmail(user: DBUser, club?: ClubDocument) {
                     <tr><td style="padding: 6px 6px 6px 0;"><strong>Name</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(`${user.first_name} ${user.last_name}`)}</td></tr>
                     <tr><td style="padding: 6px 6px 6px 0;"><strong>E-Mail</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.email)}</td></tr>
                     <tr><td style="padding: 6px 6px 6px 0;"><strong>Verein</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(hasClub ? club?.name : '-')}</td></tr>
-                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Status</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(user.status ?? 'inactive')}</td></tr>
+                    <tr><td style="padding: 6px 6px 6px 0;"><strong>Status</strong></td><td style="padding: 6px 6px 6px 0;">${escapeHtml(getStatusLabel(user.status))}</td></tr>
                 </tbody>
             </table>
         </div>
