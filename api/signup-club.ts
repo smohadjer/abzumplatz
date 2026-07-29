@@ -7,7 +7,8 @@ import { MongoClient, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, SignupClubBody } from './_utils/_types.js';
-import { createInitialBillingPeriod, BillingPeriodDocument } from './_utils/_billingPeriods.js';
+import { BillingPeriodDocument, InvoiceCounterDocument } from './_utils/_billingPeriods.js';
+import { BillingPeriodInvoiceDeliveryError, createInitialBillingPeriodAndSendInvoice } from './_utils/_billingService.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -50,6 +51,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             const database = client.db(database_name);
             const clubs = database.collection<ClubDocument>('clubs');
             const billingPeriods = database.collection<BillingPeriodDocument>('billing_periods');
+            const invoiceCounters = database.collection<InvoiceCounterDocument>('invoice_counters');
             const existingClub = await clubs.findOne({ name: body.name },{
                 collation: { locale: "en", strength: 2 }
             });
@@ -102,12 +104,32 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             const clubResponse = await clubs.insertOne(club);
             const club_id = clubResponse.insertedId.toString();
 
-            await createInitialBillingPeriod(billingPeriods, club_id, body.plan_type, 'signup');
-
             await database.collection<DBUser>('users').updateOne(
                 {_id: new ObjectId(userResponse.insertedId)},
                 {'$set' : {'club_id' : club_id}}
             );
+
+            let invoiceEmailError: string | undefined;
+            try {
+                await createInitialBillingPeriodAndSendInvoice(
+                    database,
+                    billingPeriods,
+                    invoiceCounters,
+                    {
+                        ...club,
+                        _id: clubResponse.insertedId,
+                    },
+                    club_id,
+                    body.plan_type,
+                    'signup'
+                );
+            } catch (error) {
+                if (!(error instanceof BillingPeriodInvoiceDeliveryError)) {
+                    throw error;
+                }
+                console.error('Failed to send invoice email for newly registered club', error);
+                invoiceEmailError = error.message;
+            }
 
             try {
                 await sendNewClubNotification(body);
@@ -117,6 +139,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
             res.status(201).json({
                 message: `Verein ${club.name} ist registeriert mit id ${club_id}`,
+                ...(invoiceEmailError ? {invoice_email_error: invoiceEmailError} : {}),
             });
         } catch (e) {
             console.error(e);

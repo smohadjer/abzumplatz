@@ -1,15 +1,16 @@
 {
   "name": "abzumplatz",
   "private": true,
-  "version": "0.0.19",
+  "version": "0.0.20",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && tsc -p tsconfig.api.json && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "export:db": "node scripts/export-mongodb.js",
     "backfill:billing-prices": "node scripts/backfill-billing-period-prices.js",
+    "backfill:invoice-numbers": "node scripts/backfill-billing-period-invoice-numbers.js",
     "release:github": "node scripts/release-github.js"
   },
   "dependencies": {

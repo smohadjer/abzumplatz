@@ -83,7 +83,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                         resetTokenHash: '',
                         resetTokenExpiry: ''
                     }
-                };
+                } as const;
                 await collection.updateOne(filter, updateDoc);
                 // console.log(
                 //     `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,

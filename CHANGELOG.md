@@ -2,6 +2,22 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.20
+
+### Added
+
+- Added a reusable invoice-number backfill script for billing periods without a persisted `invoice_number`.
+- Added a dedicated TypeScript configuration for API code and included it in the production build.
+
+### Changed
+
+- Removed club IDs from new-member and new-club registration emails when the club name already identifies the club.
+- Changed role and status values in registration emails to use German labels such as `Spieler`, `Administrator`, `Aktiv`, and `Inaktiv`.
+- Changed registration timestamps in admin emails to the format `DD.MM.YYYY um HH:MM Uhr` using the `Europe/Berlin` timezone.
+- Changed billing periods to require persisted, application-wide yearly invoice numbers such as `AZP20260001`, without club-ID fragments, separators, or legacy reference generation.
+- Changed billing-period creation to always attempt invoice delivery through one centralized service, including registration, scheduled and fallback renewal, manual creation, and repair.
+- Expanded `PLANS.md` with invoice-email triggers, recipients, delivery behavior, contents, resend behavior, and invoice-number rules.
+
 ## 0.0.19
 
 ### Added

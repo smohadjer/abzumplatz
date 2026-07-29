@@ -47,6 +47,7 @@ The `billing_periods` collection is the source of truth for plan-period history.
 Each billing period stores:
 
 - `club_id`
+- `invoice_number`
 - `plan_type`
 - `price`
 - `period_start`
@@ -181,6 +182,46 @@ Invoices are based on whole billing periods.
 - the invoice for the current period is based on that billing period document
 - each billing period stores the plan price snapshot that applied when that period was created
 - the next invoice uses the plan that becomes effective at renewal
+
+### Invoice Email Delivery
+
+Invoice emails are sent to every active administrator assigned to the club.
+
+An invoice email is sent:
+
+- immediately after the initial billing period is created during club registration
+- automatically for every billing period created by the scheduled renewal process
+- automatically for every billing period created by fallback renewal in another write workflow
+- immediately after an administrator manually creates a billing period
+- immediately after `GET /api/billing` repairs a club that has no billing periods by creating a missing initial period
+- when an administrator uses the resend action for an existing billing period
+
+If renewal processing catches up multiple missed periods, one invoice email is sent for each newly created period.
+
+Invoice emails include:
+
+- the club name and address
+- the invoiced plan and billing period
+- the stored price snapshot, including net amount and VAT
+- a stable invoice reference
+- bank-transfer instructions when the required bank details are configured
+
+New billing periods receive a persisted invoice number in the format `AZPYYYYNNNN`, for example `AZP20260001`.
+
+- `YYYY` is the invoice year in the `Europe/Berlin` timezone
+- `NNNN` is an application-wide sequence that starts at `0001` each year
+- the sequence is allocated atomically from the `invoice_counters` collection
+- the number contains no club ID and is not changed when an invoice is resent
+- invoice delivery fails clearly if a billing period does not have a persisted `invoice_number`
+
+Delivery behavior:
+
+- billing-period creation and its initial invoice-delivery attempt are coordinated by one billing service
+- invoice delivery uses the email transport configured by the application
+- a manually created or repair-created billing period remains stored if email delivery fails
+- the API reports the delivery failure separately from the successful billing-period creation
+- renewal processing reports failed invoice deliveries after completing the billing-period renewals
+- resending an invoice does not create a new billing period or change the existing one
 
 ## Member Limits
 
