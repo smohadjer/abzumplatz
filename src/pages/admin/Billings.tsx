@@ -106,7 +106,7 @@ export default function AdminBillingsPage() {
                                 <th>Preis</th>
                                 <th className="billings-table__period">Zeitraum</th>
                                 <th>Status</th>
-                                <th className="billings-table__date">Erstellt am</th>
+                                <th>Rechnungsnr.</th>
                                 <th>Aktion</th>
                             </tr>
                         </thead>
@@ -124,7 +124,7 @@ export default function AdminBillingsPage() {
                                             {parseLocalDate(coveredUntil).toLocaleDateString('de-DE')}
                                         </td>
                                         <td>{period.status}</td>
-                                        <td className="billings-table__date">{new Date(period.created_at).toLocaleDateString('de-DE')}</td>
+                                        <td>{period.invoice_number}</td>
                                         <td>
                                             <button
                                                 type="button"

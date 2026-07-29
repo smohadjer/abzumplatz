@@ -1,4 +1,4 @@
-import { Collection, MongoClient, ObjectId, WithId } from 'mongodb';
+import { Collection, Db, MongoClient, ObjectId, WithId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
 import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
@@ -7,7 +7,8 @@ import { ClubWithBilling, DBUser, JwtPayload } from '../src/types.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, ClubFormBody, CourtsFormBody } from './_utils/_types.js';
 import { updateCourts } from './_utils/_updateCourts.js';
-import { createInitialBillingPeriod, BillingPeriodDocument, getClubBillingState, isDowngradeLocked, processClubBillingRenewal } from './_utils/_billingPeriods.js';
+import { BillingPeriodDocument, getClubBillingState, InvoiceCounterDocument, isDowngradeLocked } from './_utils/_billingPeriods.js';
+import { BillingPeriodInvoiceDeliveryError, createInitialBillingPeriodAndSendInvoice, processClubBillingRenewalAndSendInvoices } from './_utils/_billingService.js';
 import { getClubPlanState, getPlanChangeUpdate } from './_utils/_planTransitions.js';
 import { fetchClub } from './_utils/_fetchClub.js';
 import { isLowerPlan } from '../src/planConfig.js';
@@ -50,6 +51,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const database = client.db(database_name);
     const collection = database.collection<ClubDocument>('clubs');
     const billingPeriodsCollection = database.collection<BillingPeriodDocument>('billing_periods');
+    const invoiceCountersCollection = database.collection<InvoiceCounterDocument>('invoice_counters');
     const userCollection = database.collection<DBUser>('users');
 
     if (req.method === 'GET') {
@@ -130,9 +132,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       if (body._id) {
-        return await updateClub(collection, billingPeriodsCollection, res, body as ClubFormBody, requester);
+        return await updateClub(database, collection, billingPeriodsCollection, invoiceCountersCollection, res, body as ClubFormBody, requester);
       } else {
-        return await addClub(collection, billingPeriodsCollection, res, body as ClubFormBody, userCollection, payload, requester);
+        return await addClub(database, collection, billingPeriodsCollection, invoiceCountersCollection, res, body as ClubFormBody, userCollection, payload, requester);
       }
     }
 
@@ -152,8 +154,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 }
 
 async function addClub(
+  database: Db,
   collection: Collection<ClubDocument>,
   billingPeriodsCollection: Collection<BillingPeriodDocument>,
+  invoiceCountersCollection: Collection<InvoiceCounterDocument>,
   res: VercelResponse,
   body: ClubFormBody,
   userCollection: Collection<DBUser>,
@@ -213,8 +217,6 @@ async function addClub(
   const insertResponse = await collection.insertOne(club);
   const club_id = insertResponse.insertedId.toString();
 
-  await createInitialBillingPeriod(billingPeriodsCollection, club_id, body.plan_type, 'signup');
-
   if (club_id) {
     const query = {_id: ObjectId.createFromHexString(payload._id)};
     await userCollection.updateOne(
@@ -223,19 +225,44 @@ async function addClub(
     );
   }
 
+  let invoiceEmailError: string | undefined;
+  try {
+    await createInitialBillingPeriodAndSendInvoice(
+      database,
+      billingPeriodsCollection,
+      invoiceCountersCollection,
+      {
+        ...club,
+        _id: insertResponse.insertedId,
+      },
+      club_id,
+      body.plan_type,
+      'signup'
+    );
+  } catch (error) {
+    if (!(error instanceof BillingPeriodInvoiceDeliveryError)) {
+      throw error;
+    }
+    console.error('Failed to send invoice email for newly created club', error);
+    invoiceEmailError = error.message;
+  }
+
   const docs = await getAllClubs(collection, billingPeriodsCollection);
   res.status(201).json({
     message: `Verein ${club.name} ist registeriert mit id ${club_id}`,
     data: {
       club_id,
-      clubs: docs
+      clubs: docs,
+      ...(invoiceEmailError ? {invoice_email_error: invoiceEmailError} : {}),
     }
   });
 }
 
 async function updateClub(
+  database: Db,
   collection: Collection<ClubDocument>,
   billingPeriodsCollection: Collection<BillingPeriodDocument>,
+  invoiceCountersCollection: Collection<InvoiceCounterDocument>,
   res: VercelResponse,
   body: ClubFormBody,
   requester: WithId<DBUser>
@@ -263,9 +290,11 @@ async function updateClub(
   if (!doc) {
     return res.status(404).json({error: 'Club not found'});
   }
-  const { club: resolvedClub, currentBillingPeriod } = await processClubBillingRenewal(
+  const { club: resolvedClub, currentBillingPeriod } = await processClubBillingRenewalAndSendInvoices(
+    database,
     collection,
     billingPeriodsCollection,
+    invoiceCountersCollection,
     doc
   );
   const currentAccessPlanType = resolvedClub.access_plan_type;
@@ -293,7 +322,7 @@ async function updateClub(
 
   const query = {_id: ObjectId.createFromHexString(body._id)};
   const planUpdateFields: Partial<ClubDocument> = getPlanChangeUpdate(currentPlanState, selectedPlanType);
-  const unsetFields: Record<string, string> = {
+  const unsetFields: Record<string, ''> = {
     plan_type: '',
     members_limit: '',
     auto_renew: '',

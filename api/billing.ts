@@ -5,10 +5,17 @@ import { getJwtPayload } from './verifyAuth.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { DBUser, PlanType } from '../src/types.js';
 import { ClubDocument } from './_utils/_types.js';
-import { BillingPeriodDocument, BillingPeriodStatus, createInitialBillingPeriod, processBillingRenewals, processClubBillingRenewal } from './_utils/_billingPeriods.js';
+import { BillingPeriodDocument, BillingPeriodStatus, InvoiceCounterDocument, NewBillingPeriodDocument } from './_utils/_billingPeriods.js';
 import { getPlanStateAtRenewal } from './_utils/_planTransitions.js';
 import { getPlanPrice } from '../src/planConfig.js';
 import { getRequiredBillingPrice, sendBillingPeriodInvoiceEmail } from './_utils/_billingInvoices.js';
+import {
+  BillingPeriodInvoiceDeliveryError,
+  createInitialBillingPeriodAndSendInvoice,
+  createManualBillingPeriodAndSendInvoice,
+  processBillingRenewalsAndSendInvoices,
+  processClubBillingRenewalAndSendInvoices,
+} from './_utils/_billingService.js';
 
 type BillingBody = {
   action?: 'create_period' | 'send_invoice';
@@ -91,23 +98,15 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const users = database.collection<DBUser>('users');
     const clubs = database.collection<ClubDocument>('clubs');
     const billingPeriods = database.collection<BillingPeriodDocument>('billing_periods');
+    const invoiceCounters = database.collection<InvoiceCounterDocument>('invoice_counters');
 
     if (isAuthorizedRenewalRequest(req)) {
-      const { summary, renewedClubs } = await processBillingRenewals(clubs, billingPeriods);
-      const invoiceDeliveries = await Promise.allSettled(renewedClubs.flatMap(({club, createdPeriods}) => createdPeriods.map(async (period) => {
-        if (!club._id) {
-          return;
-        }
-
-        await sendBillingPeriodInvoiceEmail(
-          database,
-          club,
-          period,
-          'renewal'
-        );
-      })));
-
-      const failedInvoiceDeliveries = invoiceDeliveries.filter((result) => result.status === 'rejected');
+      const { summary, failedInvoiceDeliveries } = await processBillingRenewalsAndSendInvoices(
+        database,
+        clubs,
+        billingPeriods,
+        invoiceCounters
+      );
       if (failedInvoiceDeliveries.length) {
         failedInvoiceDeliveries.forEach((result) => {
           if (result.status === 'rejected') {
@@ -157,7 +156,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(403).json({error: 'Reading billing periods for another club is not allowed'});
       }
 
-      const periods = await billingPeriods.find({
+      const periods: BillingPeriodDocument[] = await billingPeriods.find({
         club_id: requestedClubId
       }).sort({
         period_start: -1,
@@ -172,20 +171,20 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           return res.status(404).json({error: 'Club not found'});
         }
 
-        const createdPeriod = await createInitialBillingPeriod(
-          billingPeriods,
-          requestedClubId,
-          club.next_plan_type ?? club.access_plan_type,
-          'lazy_repair'
-        );
-
         try {
-          await sendBillingPeriodInvoiceEmail(
+          const createdPeriod = await createInitialBillingPeriodAndSendInvoice(
             database,
+            billingPeriods,
+            invoiceCounters,
             club,
-            createdPeriod,
+            requestedClubId,
+            club.next_plan_type ?? club.access_plan_type,
+            'lazy_repair',
+            new Date(),
+            new Date().getDate(),
             'repair'
           );
+          periods.push(createdPeriod);
         } catch (emailError) {
           console.error('Failed to send invoice email for lazily repaired billing period', emailError);
           const detail = emailError instanceof Error
@@ -193,11 +192,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             : '';
           return res.status(502).json({
             error: `Der fehlende Abrechnungszeitraum wurde angelegt, aber die Rechnungs-E-Mail konnte nicht zugestellt werden.${detail}`,
-            data: normalizeBillingPeriod(createdPeriod),
+            ...(emailError instanceof BillingPeriodInvoiceDeliveryError
+              ? {data: normalizeBillingPeriod(emailError.period)}
+              : {}),
           });
         }
-
-        periods.push(createdPeriod);
       }
 
       return res.json(periods.map(normalizeBillingPeriod));
@@ -301,7 +300,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(404).json(validationError('/club_id', 'Verein nicht gefunden.'));
       }
 
-      const { club: resolvedClub } = await processClubBillingRenewal(clubs, billingPeriods, club);
+      const { club: resolvedClub } = await processClubBillingRenewalAndSendInvoices(
+        database,
+        clubs,
+        billingPeriods,
+        invoiceCounters,
+        club
+      );
 
       const billingPlanType = plan_type ?? resolvedClub.next_plan_type;
 
@@ -315,7 +320,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         }
       }
 
-      const period: BillingPeriodDocument = {
+      const period: NewBillingPeriodDocument = {
         club_id,
         plan_type: billingPlanType,
         price: getPlanPrice(billingPlanType),
@@ -327,47 +332,54 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         ...(source ? {source} : {})
       };
 
-      const insertResult = await billingPeriods.insertOne(period);
-      period._id = insertResult.insertedId;
-
-      if (status === 'active') {
-        await clubs.updateOne(
-          {_id: ObjectId.createFromHexString(club_id)},
-          {
-            $set: getPlanStateAtRenewal(billingPlanType),
-            $unset: {
-              plan_type: '',
-            }
-          }
-        );
-      }
-
       try {
-        await sendBillingPeriodInvoiceEmail(
+        const insertedPeriod = await createManualBillingPeriodAndSendInvoice(
           database,
+          billingPeriods,
+          invoiceCounters,
           club,
-          period,
-          'manual'
+          period
         );
+
+        if (status === 'active') {
+          await clubs.updateOne(
+            {_id: ObjectId.createFromHexString(club_id)},
+            {
+              $set: getPlanStateAtRenewal(billingPlanType),
+              $unset: {
+                plan_type: '',
+              }
+            }
+          );
+        }
+
+        return res.status(201).json({
+          message: 'Billing period created.',
+          data: normalizeBillingPeriod(insertedPeriod),
+        });
       } catch (emailError) {
         console.error('Failed to send invoice email for manually created billing period', emailError);
+        if (status === 'active' && emailError instanceof BillingPeriodInvoiceDeliveryError) {
+          await clubs.updateOne(
+            {_id: ObjectId.createFromHexString(club_id)},
+            {
+              $set: getPlanStateAtRenewal(billingPlanType),
+              $unset: {
+                plan_type: '',
+              }
+            }
+          );
+        }
         const detail = emailError instanceof Error
           ? ` ${emailError.message}`
           : '';
         return res.status(502).json({
           error: `Der Abrechnungszeitraum wurde angelegt, aber die Rechnungs-E-Mail konnte nicht zugestellt werden.${detail}`,
-          data: normalizeBillingPeriod(period),
+          ...(emailError instanceof BillingPeriodInvoiceDeliveryError
+            ? {data: normalizeBillingPeriod(emailError.period)}
+            : {}),
         });
       }
-
-      return res.status(201).json({
-        message: 'Billing period created.',
-        data: {
-          ...normalizeBillingPeriod({
-            ...period,
-          })
-        }
-      });
     }
 
     return res.status(405).json({error: 'Method not allowed'});

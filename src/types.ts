@@ -82,6 +82,7 @@ export type ClubWithBilling = Club & {
 
 export type BillingPeriod = {
     _id?: string;
+    invoice_number: string;
     club_id: string;
     plan_type: PlanType;
     price: number;
