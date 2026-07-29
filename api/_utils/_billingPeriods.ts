@@ -11,6 +11,7 @@ export type BillingPeriodStatus = 'active' | 'completed' | 'canceled';
 
 export type BillingPeriodDocument = {
     _id?: ObjectId;
+    invoice_number: string;
     club_id: string;
     plan_type: PlanType;
     price: number;
@@ -20,6 +21,13 @@ export type BillingPeriodDocument = {
     status: BillingPeriodStatus;
     created_at: Date;
     source?: string;
+}
+
+export type NewBillingPeriodDocument = Omit<BillingPeriodDocument, '_id' | 'invoice_number'>;
+
+export type InvoiceCounterDocument = {
+    _id: string;
+    sequence: number;
 }
 
 type ResolvedClubBillingState = {
@@ -68,7 +76,7 @@ function createBillingPeriodRecord(
     status: BillingPeriodStatus,
     source?: string,
     anchorDay = startDate.getDate()
-): BillingPeriodDocument {
+): NewBillingPeriodDocument {
     return {
         club_id: clubId,
         plan_type: planType,
@@ -82,13 +90,49 @@ function createBillingPeriodRecord(
     };
 }
 
-async function insertBillingPeriod(
-    collection: Collection<BillingPeriodDocument>,
-    period: BillingPeriodDocument
+function getInvoiceYear(value: Date) {
+    return new Intl.DateTimeFormat('en', {
+        year: 'numeric',
+        timeZone: 'Europe/Berlin',
+    }).format(value);
+}
+
+async function getNextInvoiceNumber(
+    invoiceCountersCollection: Collection<InvoiceCounterDocument>,
+    issueDate: Date
 ) {
-    const result = await collection.insertOne(period);
-    period._id = result.insertedId;
-    return period;
+    const year = getInvoiceYear(issueDate);
+    const counter = await invoiceCountersCollection.findOneAndUpdate(
+        {_id: `invoice:${year}`},
+        {$inc: {sequence: 1}},
+        {
+            upsert: true,
+            returnDocument: 'after',
+        }
+    );
+
+    if (!counter) {
+        throw new Error(`Could not allocate an invoice number for ${year}.`);
+    }
+
+    return `AZP${year}${counter.sequence.toString().padStart(4, '0')}`;
+}
+
+export async function insertBillingPeriod(
+    collection: Collection<BillingPeriodDocument>,
+    invoiceCountersCollection: Collection<InvoiceCounterDocument>,
+    period: NewBillingPeriodDocument
+) {
+    const document: BillingPeriodDocument = {
+        ...period,
+        invoice_number: await getNextInvoiceNumber(
+            invoiceCountersCollection,
+            period.created_at
+        ),
+    };
+    const result = await collection.insertOne(document);
+    document._id = result.insertedId;
+    return document;
 }
 
 async function getLatestBillingPeriod(
@@ -164,6 +208,7 @@ export function isDowngradeLocked(
 
 export async function createInitialBillingPeriod(
     collection: Collection<BillingPeriodDocument>,
+    invoiceCountersCollection: Collection<InvoiceCounterDocument>,
     clubId: string,
     planType: PlanType,
     source?: string,
@@ -172,6 +217,7 @@ export async function createInitialBillingPeriod(
 ) {
     return insertBillingPeriod(
         collection,
+        invoiceCountersCollection,
         createBillingPeriodRecord(clubId, planType, startDate, 'active', source, anchorDay)
     );
 }
@@ -203,6 +249,7 @@ export async function getClubBillingState(
 export async function processClubBillingRenewal(
     clubsCollection: Collection<ClubDocument>,
     billingPeriodsCollection: Collection<BillingPeriodDocument>,
+    invoiceCountersCollection: Collection<InvoiceCounterDocument>,
     club: ClubDocument,
     now = new Date()
 ): Promise<ProcessedClubBillingRenewal> {
@@ -285,7 +332,11 @@ export async function processClubBillingRenewal(
         if (hasFutureBillingPeriodEnd(nextPeriod.period_end, now)) {
             renewalApplied = true;
             createdPeriodsCount += 1;
-            const insertedPeriod = await insertBillingPeriod(billingPeriodsCollection, nextPeriod);
+            const insertedPeriod = await insertBillingPeriod(
+                billingPeriodsCollection,
+                invoiceCountersCollection,
+                nextPeriod
+            );
             createdPeriods.push(insertedPeriod);
             return {
                 club: resolvedClub,
@@ -300,10 +351,14 @@ export async function processClubBillingRenewal(
         renewalApplied = true;
         completedPeriodsCount += 1;
         createdPeriodsCount += 1;
-        const insertedCompletedPeriod = await insertBillingPeriod(billingPeriodsCollection, {
-            ...nextPeriod,
-            status: 'completed'
-        });
+        const insertedCompletedPeriod = await insertBillingPeriod(
+            billingPeriodsCollection,
+            invoiceCountersCollection,
+            {
+                ...nextPeriod,
+                status: 'completed'
+            }
+        );
         createdPeriods.push(insertedCompletedPeriod);
         nextStartDate = new Date(`${nextPeriod.period_end}T12:00:00`);
     }
@@ -312,6 +367,7 @@ export async function processClubBillingRenewal(
 export async function processBillingRenewals(
     clubsCollection: Collection<ClubDocument>,
     billingPeriodsCollection: Collection<BillingPeriodDocument>,
+    invoiceCountersCollection: Collection<InvoiceCounterDocument>,
     now = new Date()
 ): Promise<ProcessedBillingRenewalsResult> {
     const clubs = await clubsCollection.find({}).toArray();
@@ -327,6 +383,7 @@ export async function processBillingRenewals(
         const result = await processClubBillingRenewal(
             clubsCollection,
             billingPeriodsCollection,
+            invoiceCountersCollection,
             club,
             now
         );

@@ -39,6 +39,7 @@ type ValidatedEditRequest = {
     start_time: number;
     end_time: number;
     recurring: boolean;
+    user_id?: string;
   };
 };
 
@@ -79,7 +80,7 @@ const validateEditRequest = (
   body: Record<string, unknown>,
   userRole: string,
   club: ReservationClub
-): ValidatedEditRequest | { error: unknown } | { status: 403; body: { error: string } } => {
+): ValidatedEditRequest | { error: unknown } | ReturnType<typeof getAppErrorResponse> => {
   const {
     reservation_id: _reservationId,
     assign_to_myself: assignToMyselfValue,

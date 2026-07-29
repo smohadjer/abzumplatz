@@ -6,7 +6,7 @@ import sendEmail from './_sendEmail.js';
 import { BillingPeriodDocument } from './_billingPeriods.js';
 import { AdminEmailDocument, ClubDocument } from './_types.js';
 
-export type BillingInvoiceNotificationType = 'manual' | 'renewal' | 'resend' | 'repair';
+export type BillingInvoiceNotificationType = 'initial' | 'manual' | 'renewal' | 'resend' | 'repair';
 
 function parseLocalDate(dateString: string) {
   return new Date(`${dateString}T12:00:00`);
@@ -50,22 +50,22 @@ function buildClubAddressLines(club: Pick<ClubDocument, 'address_line1' | 'posta
   ].filter((line): line is string => Boolean(line));
 }
 
-export function getBillingInvoiceReference(clubId: string, period: BillingPeriodDocument) {
-  const periodKey = period.period_start.replaceAll('-', '');
-  const clubKey = clubId.slice(-6).toUpperCase();
-  const idKey = period._id?.toString().slice(-6).toUpperCase();
+export function getRequiredInvoiceNumber(period: BillingPeriodDocument) {
+  if (!period.invoice_number) {
+    const periodId = period._id?.toString() ?? 'unknown';
+    throw new Error(`Billing period ${periodId} is missing an invoice number.`);
+  }
 
-  return ['AZP', clubKey, periodKey, idKey].filter(Boolean).join('-');
+  return period.invoice_number;
 }
 
 function buildBillingPeriodNotificationEmail(
-  club: Pick<ClubDocument, '_id' | 'name' | 'address_line1' | 'postal_code' | 'city' | 'country'>,
+  club: Pick<ClubDocument, 'name' | 'address_line1' | 'postal_code' | 'city' | 'country'>,
   period: BillingPeriodDocument,
   notificationType: BillingInvoiceNotificationType
 ) {
-  const clubId = club._id?.toString() ?? period.club_id;
   const price = getRequiredBillingPrice(period);
-  const invoiceReference = getBillingInvoiceReference(clubId, period);
+  const invoiceReference = getRequiredInvoiceNumber(period);
   const coveredUntil = getCoveredUntilFromPeriodEnd(period.period_end) ?? period.period_end;
   const issueDate = formatDate(period.created_at);
   const serviceStart = formatDate(period.period_start);
@@ -82,6 +82,8 @@ function buildBillingPeriodNotificationEmail(
       ? 'Dieser Abrechnungszeitraum wurde als Reparatur für fehlende Abrechnungsdaten angelegt.'
     : notificationType === 'resend'
       ? 'Diese Rechnung wurde auf Anfrage erneut versendet.'
+      : notificationType === 'initial'
+        ? 'Dieser Abrechnungszeitraum wurde bei der Registrierung Ihres Vereins angelegt.'
       : 'Dieser Abrechnungszeitraum wurde manuell angelegt.';
 
   return `
