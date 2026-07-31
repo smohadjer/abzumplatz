@@ -7,8 +7,6 @@ const DEFAULT_DATABASE_NAME = 'abzumplatz';
 
 const PRICE_BY_PLAN = {
   basic: 0,
-  pro: 10,
-  elite: 25,
 };
 
 async function main() {
@@ -24,6 +22,22 @@ async function main() {
   try {
     await client.connect();
     const collection = client.db(dbName).collection('billing_periods');
+    const ambiguousProPeriodsCount = await collection.countDocuments({
+      plan_type: 'pro',
+      $or: [
+        { price: { $exists: false } },
+        { price: null },
+      ],
+    });
+
+    if (ambiguousProPeriodsCount > 0) {
+      throw new Error(
+        `Cannot safely backfill ${ambiguousProPeriodsCount} Pro billing period(s): ` +
+        'the Pro identifier covers legacy Pro, migrated Elite, and current Pro prices. ' +
+        'Resolve these records from their original invoices or another authoritative source.'
+      );
+    }
+
     let updatedCount = 0;
 
     for (const [planType, price] of Object.entries(PRICE_BY_PLAN)) {

@@ -71,23 +71,12 @@ export default function RegisterClub() {
                 `Bis zu ${PLAN_CONFIG.basic.membersLimit} aktive Mitglieder`,
                 'E-Mail-Support',
             ],
-            footnote: 'Upgrade auf den Pro- oder Elite-Plan jederzeit möglich',
+            footnote: 'Upgrade auf den Pro-Plan jederzeit möglich',
         },
         {
             key: 'pro',
             title: PLAN_CONFIG.pro.label,
             price: `${PLAN_CONFIG.pro.price} €`,
-            priceSuffix: PAID_PLAN_DURATION_LABEL,
-            features: [
-                `Bis zu ${PLAN_CONFIG.pro.membersLimit} aktive Mitglieder`,
-                'E-Mail-Support',
-            ],
-            footnote: 'Monatliche Zahlung per Rechnung. Kündigung jederzeit möglich.',
-        },
-        {
-            key: 'elite',
-            title: PLAN_CONFIG.elite.label,
-            price: `${PLAN_CONFIG.elite.price} €`,
             priceSuffix: PAID_PLAN_DURATION_LABEL,
             features: [
                 'Keine Begrenzung der aktiven Mitglieder',

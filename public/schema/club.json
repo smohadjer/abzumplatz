@@ -67,7 +67,7 @@
         },
         "plan_type": {
             "type": "string",
-            "enum": ["basic", "pro", "elite"],
+            "enum": ["basic", "pro"],
             "errorMessage": {
                 "enum": "Bitte wählen Sie einen gültigen Plan aus."
             }

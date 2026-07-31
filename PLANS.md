@@ -4,19 +4,26 @@ This document describes the available plans, how plan periods work, and how bill
 
 ## Plans
 
-The app currently supports three plans:
+The app currently supports two plans:
 
 - `basic`
 - `pro`
-- `elite`
 
 Shared plan configuration lives in [src/planConfig.ts](/Users/sm/Documents/abzumplatz/src/planConfig.ts).
 
 Plan behavior:
 
 - `basic` renews monthly and limits active members to the configured cap
-- `pro` renews monthly and limits active members to the configured cap
-- `elite` renews monthly and has no member cap
+- `pro` renews monthly and has no member cap
+
+### Legacy plan consolidation
+
+The former `pro` and `elite` tiers are consolidated into the current `pro` plan:
+
+- clubs already on the former `pro` plan remain on `pro`
+- clubs on the former `elite` plan are migrated to `pro`
+- existing billing periods keep their original price snapshots
+- all subsequent renewals use the current `pro` price of 15 EUR per month
 
 ## Core Rules
 
@@ -165,13 +172,13 @@ If a club downgrades to a cheaper plan:
 
 Example:
 
-- current `Elite` period: `2026-06-19` to `2026-07-19`
-- on `2026-07-05` the club switches to `Pro`
+- current `Pro` period: `2026-06-19` to `2026-07-19`
+- on `2026-07-05` the club switches to `Basic`
 
 Result:
 
-- the club keeps `Elite` access until `2026-07-19`
-- the next billing period starting `2026-07-19` is billed as `Pro`
+- the club keeps `Pro` access until `2026-07-19`
+- the next billing period starting `2026-07-19` is billed as `Basic`
 
 ## Invoicing
 
@@ -228,8 +235,7 @@ Delivery behavior:
 Member limits apply only to active members.
 
 - `basic`: up to 100 active members
-- `pro`: up to 500 active members
-- `elite`: no limit
+- `pro`: no limit
 
 Enforcement:
 

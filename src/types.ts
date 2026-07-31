@@ -23,8 +23,8 @@ export type Field = {
   hasDisplayToggle?: boolean;
 }
 
-export type PlanType = 'basic' | 'pro' | 'elite';
-export type NormalizedPlanType = 'basic' | 'pro' | 'elite';
+export type PlanType = 'basic' | 'pro';
+export type NormalizedPlanType = 'basic' | 'pro';
 
 export type FormDataInterface = {
   form: FormAttributes;
