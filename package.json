@@ -1,7 +1,7 @@
 {
   "name": "abzumplatz",
   "private": true,
-  "version": "0.0.20",
+  "version": "0.0.21",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,7 @@
     "export:db": "node scripts/export-mongodb.js",
     "backfill:billing-prices": "node scripts/backfill-billing-period-prices.js",
     "backfill:invoice-numbers": "node scripts/backfill-billing-period-invoice-numbers.js",
+    "migrate:elite-to-pro": "node scripts/migrate-elite-to-pro.js",
     "release:github": "node scripts/release-github.js"
   },
   "dependencies": {

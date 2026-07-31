@@ -17,14 +17,8 @@ export const PLAN_CONFIG: Record<PlanType, PlanConfigItem> = {
     pro: {
         durationMonths: 1,
         label: 'Pro',
-        membersLimit: 500,
-        price: 10,
-    },
-    elite: {
-        durationMonths: 1,
-        label: 'Elite',
         membersLimit: null,
-        price: 25,
+        price: 15,
     },
 };
 
@@ -55,10 +49,6 @@ function addMonthsKeepingDay(fromDate: Date, months: number, preferredDay = from
 }
 
 export function normalizePlanType(planType?: PlanType): NormalizedPlanType {
-    if (planType === 'elite') {
-        return 'elite';
-    }
-
     if (planType === 'pro') {
         return 'pro';
     }
@@ -73,12 +63,8 @@ export function getPlanConfig(planType?: PlanType) {
 export function getPlanLevel(planType?: PlanType) {
     const normalizedPlanType = normalizePlanType(planType);
 
-    if (normalizedPlanType === 'elite') {
-        return 2;
-    }
-
     if (normalizedPlanType === 'pro') {
-        return 1;
+        return 2;
     }
 
     return 0;
@@ -137,10 +123,6 @@ export function getProPlanLabel() {
     return getPaidPlanLabel('pro');
 }
 
-export function getElitePlanLabel() {
-    return getPaidPlanLabel('elite');
-}
-
 export function getBasicPlanLabel() {
     return `${PLAN_CONFIG.basic.label} (${PLAN_CONFIG.basic.price} ${'\u20ac'}${FORM_PLAN_DURATION_LABEL})`;
 }
@@ -149,12 +131,8 @@ export function getBasicPlanHint(membersLimit = PLAN_CONFIG.basic.membersLimit ?
     return `Bis zu ${membersLimit} aktive Mitglieder im Basic Plan zulässig`;
 }
 
-export function getProPlanHint(membersLimit = PLAN_CONFIG.pro.membersLimit ?? 0) {
-    return `Bis zu ${membersLimit} aktive Mitglieder im Pro Plan zulässig`;
-}
-
-export function getElitePlanHint() {
-    return `Keine Begrenzung der Mitgliederzahl im Elite Plan`;
+export function getProPlanHint() {
+    return `Keine Begrenzung der Mitgliederzahl im Pro Plan`;
 }
 
 export function getPlanName(planType?: PlanType) {
@@ -165,8 +143,7 @@ export function applyPlanConfigToFields(fields: Field[], planType: PlanType) {
     const normalizedPlanType = normalizePlanType(planType);
     const hintByValue = {
         basic: getBasicPlanHint(),
-        pro: getProPlanHint(),
-        elite: getElitePlanHint()
+        pro: getProPlanHint()
     };
 
     return fields.map(field => {
@@ -190,13 +167,6 @@ export function applyPlanConfigToFields(fields: Field[], planType: PlanType) {
                     return {
                         ...option,
                         label: getProPlanLabel()
-                    };
-                }
-
-                if (option.value === 'elite') {
-                    return {
-                        ...option,
-                        label: getElitePlanLabel()
                     };
                 }
 

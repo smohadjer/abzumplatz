@@ -36,16 +36,10 @@ export default function AdminMembersPage() {
     const planUpgradeText = currentPlanType === 'basic'
         ? (
             <>
-                Wechseln Sie zum <Link to="/admin/club">{PLAN_CONFIG.pro.label} oder {PLAN_CONFIG.elite.label}</Link>, um diese Einschränkung aufzuheben.
+                Wechseln Sie zum <Link to="/admin/club">{PLAN_CONFIG.pro.label}</Link>, um diese Einschränkung aufzuheben.
             </>
         )
-        : currentPlanType === 'pro'
-            ? (
-                <>
-                    Wechseln Sie zum <Link to="/admin/club">{PLAN_CONFIG.elite.label}</Link>, um diese Einschränkung aufzuheben.
-                </>
-            )
-            : null;
+        : null;
 
     const setTab = (tab: 'active' | 'inactive') => {
         setActiveTab(tab);

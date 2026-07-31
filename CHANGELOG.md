@@ -2,6 +2,18 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.21
+
+### Added
+
+- Added an idempotent migration for consolidating legacy Elite records into the Pro plan.
+
+### Changed
+
+- Reduced the available plans to Basic and Pro.
+- Changed Pro to include unlimited active members for 15 EUR per month.
+- Changed historical price backfilling to reject ambiguous Pro periods instead of guessing their original price.
+
 ## 0.0.20
 
 ### Added

@@ -32,7 +32,7 @@ export function SignupClub(props: Props) {
             if (downgradeLocked) {
                 field.options = field.options?.map(option => ({
                     ...option,
-                    disabled: typeof option.value === 'string' && getPlanLevel(option.value as 'basic' | 'pro' | 'elite') < getPlanLevel(accessPlanType)
+                    disabled: typeof option.value === 'string' && getPlanLevel(option.value as 'basic' | 'pro') < getPlanLevel(accessPlanType)
                 }));
             }
             const coveredUntilLabel = data?.current_billing_period_end
