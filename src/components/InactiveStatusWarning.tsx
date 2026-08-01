@@ -17,7 +17,7 @@ export default function InactiveStatusWarning() {
     }
   }, [auth.club_id, auth.status, auth.value, dispatch, hasUsersForCurrentClub]);
 
-  if (!auth.value || auth.status !== 'inactive') {
+  if (!auth.value || auth.status !== 'inactive' || !auth.club_id) {
     return null;
   }
 
@@ -45,8 +45,9 @@ export default function InactiveStatusWarning() {
     <div className="inactive-status-warning" role="alert">
       {adminName ? (
         <>
-          Ihr Konto ist derzeit inaktiv. Bitte kontaktieren Sie Ihren Vereinsadministrator{' '}
-          <a href={adminMailto}>{adminName}</a>.
+          Ihr Konto wurde noch nicht aktiviert. Wenn Sie sich gerade registriert haben, warten Sie bitte, bis Ihr
+          Vereinsadministrator Ihr Konto freischaltet. Sollte Ihr Konto nach einiger Zeit noch nicht aktiviert sein,
+          kontaktieren Sie bitte Ihren Vereinsadministrator {adminName} (<a href={adminMailto}>{adminEmail}</a>).
         </>
       ) : (
         getInactiveUserMessage()

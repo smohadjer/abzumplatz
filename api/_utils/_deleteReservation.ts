@@ -29,6 +29,7 @@ const previousOccurrencesWereDeleted = (reservation: ReservationItem, selectedDa
 export const deleteReservation = async (req: VercelRequest, res: VercelResponse, reservations: Collection<ReservationItem>,
   users: Collection<DBUser>) => {
     const reservation_id = req.body?.reservation_id;
+    const deleteType = req.body?.delete_type ?? 'all';
     if (!reservation_id || typeof reservation_id !== 'string') {
       const { status, body } = getAppErrorResponse('RESERVATION_ID_REQUIRED');
       return res.status(status).json(body);
@@ -80,7 +81,7 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
     }
 
     // delete reservation from db
-    if (!reservationIsRecurring || req.body.delete_type === 'all') {
+    if (!reservationIsRecurring || deleteType === 'all') {
       const result = await reservations.deleteOne(query);
       if (result.deletedCount > 0) {
         await returnResponse();
@@ -89,7 +90,7 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
         return res.status(500).json(body);
       }
     // add req.body.date to deleted_dates array of reservation doc in db
-    } else if (req.body.delete_type === 'once') {
+    } else if (deleteType === 'once') {
       if (reservation.deleted_dates) {
         reservation.deleted_dates.push(req.body.date);
       } else {

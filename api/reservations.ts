@@ -36,33 +36,23 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const users = database.collection<DBUser>('users');
 
     if (req.method === 'GET') {
-      const club_id = req.query?.club_id;
-      if (club_id) {
-        if (Array.isArray(club_id)) {
-          return res.status(400).json({error: 'Club id is invalid'});
-        }
-
-        const payload = await getJwtPayload(req);
-        if (!payload) {
-          return res.status(401).json({error: 'Authentication required'});
-        }
-
-        const user = await users.findOne({
-          _id: ObjectId.createFromHexString(payload._id)
-        });
-        if (!user) {
-          return res.status(401).json({error: 'Authentication required'});
-        }
-
-        if (user.club_id !== club_id) {
-          return res.status(403).json({error: 'Reading these reservations is not allowed'});
-        }
-
-        const docs = await getAllReservations(reservations, club_id);
-        res.json(docs);
-      } else {
-        res.status(500).end();
+      const payload = await getJwtPayload(req);
+      if (!payload) {
+        return res.status(401).json({error: 'Authentication required'});
       }
+
+      const user = await users.findOne({
+        _id: ObjectId.createFromHexString(payload._id)
+      });
+      if (!user) {
+        return res.status(401).json({error: 'Authentication required'});
+      }
+      if (!user.club_id) {
+        return res.status(403).json({error: 'User does not belong to a club'});
+      }
+
+      const docs = await getAllReservations(reservations, user.club_id);
+      return res.json(docs);
     }
 
     if (req.method === 'POST') {

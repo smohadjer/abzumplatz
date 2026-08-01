@@ -184,6 +184,10 @@ ul {
         margin: 0;
     }
 
+    .members-admin-checkbox {
+        pointer-events: none;
+    }
+
     .members-list-name--admin {
         font-weight: 700;
     }
@@ -223,6 +227,11 @@ ul {
     border-radius: 0.25em;
 }
 
+.members-warning-box,
+.inactive-status-warning {
+    font-weight: 400;
+}
+
 .inactive-status-warning {
     background: #fff4d6;
     border: 1px solid #e0c36c;
@@ -230,7 +239,6 @@ ul {
     padding: 0.85em 1em;
     margin: 0 0 1rem;
     border-radius: 0.25em;
-    font-weight: 600;
 }
 
 .members-form {
@@ -342,17 +350,6 @@ ul {
     color: #4b5b78;
     font-weight: 600;
     padding-right: 1rem;
-}
-
-.profile-actions {
-    width: 100%;
-    max-width: 36rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-    flex-wrap: wrap;
 }
 
 .billings-table .billings-table__period {

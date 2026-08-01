@@ -185,7 +185,7 @@ export default function Reservations() {
         } else if (!reservationsData.loaded) {
             (async () => {
                 setLoading(true);
-                await fetchReservations(user.club_id, dispatch);
+                await fetchReservations(dispatch);
                 setLoading(false);
             })();
         }

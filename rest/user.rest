@@ -1,19 +1,22 @@
 // get all users of a club
 GET http://localhost:3000/api/users?club_id=686f544e85081abe19f78156
+Authorization: Bearer <token>
 
 ###
 
-// get a specific user by his id
-GET http://localhost:3000/api/users?id=6901c515e273031e29ad9619
+// get a specific user by id
+GET http://localhost:3000/api/users?id=6a099dfd05698e9c2042e18f
+Authorization: Bearer <token>
 
 ###
 
-// update user
+// update members; supported actions are activate, deactivate, and remove
+// remove is only allowed for an inactive member
 POST http://localhost:3000/api/users
-Content-Type: application/json  
+Content-Type: application/json
 Authorization: Bearer <token>
 
 {
-    "user_id": "6901c515e273031e29ad9619",
-    "status": "active"
+    "user_id": "6874df30846ca9c06325815e",
+    "action": "remove"
 }

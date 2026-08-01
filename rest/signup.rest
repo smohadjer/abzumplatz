@@ -1,11 +1,14 @@
+// registers a new user
+// optionally provide club_id to register the user for an existing club
+// if club_id is omitted, the user is registered without a club
 POST http://localhost:3000/api/signup
 Content-Type: application/json
 
 {
-    "first_name": "Jackie",
-    "last_name": "Jones",
-    "role": "player",
-    "email": "jackie@test.com",
-    "password": "blahbalh?T23",
+    "first_name": "Samuel",
+    "last_name": "Joker",
+    "club_id": "686f544e85081abe19f78156",
+    "email": "joker@test.com",
+    "password": "Opengl?1",
     "privacy": "agree"
 }

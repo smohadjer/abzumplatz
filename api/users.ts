@@ -218,7 +218,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           return res.status(403).json({error: 'Updating this member is not allowed'});
         }
         if (targetUser.role === 'admin') {
-          return res.status(403).json({error: 'Admin users cannot be changed here'});
+          return res.status(403).json({
+            error: action === 'deactivate'
+              ? 'Admin users cannot be deactivated'
+              : 'Admin users cannot be changed here'
+          });
         }
         if (action === 'remove' && targetUser.status === 'active') {
           return res.status(400).json({error: 'Only inactive members can be removed from club'});

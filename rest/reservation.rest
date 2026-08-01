@@ -1,37 +1,33 @@
-// get all reservations
-GET http://localhost:3000/api/reservations?club_id=67a501832225683fb61ca069
+// get all reservations for the authenticated user's club
+GET http://localhost:3000/api/reservations
+Authorization: Bearer <token>
 
 ###
 
-// make a reservation in tsv by user silvia@test.de
+// make a reservation as a player; admins may include multiple court numbers
 POST http://localhost:3000/api/reservations
 Content-Type: application/json
 Authorization: Bearer <token>
-{
-  "court_num": "1",
-  "date": "2025-06-12",
-  "start_time": "18",
-  "end_time": "19"
-}
-
-###
-
-// make a reservation in waldkirch
-POST http://localhost:3000/api/reservations
-Content-Type: application/json
-Authorization: Bearer [add token here...]
 
 {
-  "court_num": "3",
-  "date": "2025-03-17",
-  "start_time": "14",
-  "end_time": "15"
+  "court_nums": [1],
+  "date": "2026-08-12",
+  "start_time": 18,
+  "end_time": 19,
+  "label": "Testing by Saeid..."
 }
 
 ###
 
 // delete a reservation
-DELETE http://localhost:3000/api/reservations?reservation_id=67d852d2ad76ec6b8cb5fe01
+// delete_type can be "once", "once_and_future", or "all" and defaults to "all"
+// include the selected occurrence date when using "once" or "once_and_future"
+POST http://localhost:3000/api/reservations
 Content-Type: application/json
-Authorization: Bearer [add token here...]
+Authorization: Bearer <token>
 
+{
+  "delete": "true",
+  "reservation_id": "6a6d9bf03e52fbfec7f0e598",
+  "delete_type": "all"
+}

@@ -277,7 +277,7 @@ export const getAllReservations = async (
 
 export const fetchAppData = async (clubId: string, dispatch: AppDispatch) => {
     const usersEndpoint = `/api/users?club_id=${clubId}`;
-    const reservationsEndpoint = `/api/reservations?club_id=${clubId}`;
+    const reservationsEndpoint = '/api/reservations';
     const usersRequest: Promise<StateUser[]> = fetch(usersEndpoint)
         .then(res => res.json());
     const reservationsRequest: Promise<ReservationItem[]> = fetch(reservationsEndpoint)
@@ -332,8 +332,8 @@ export const fetchUsers = async (clubId: string, dispatch: AppDispatch) => {
     });
 };
 
-export const fetchReservations = async (clubId: string, dispatch: AppDispatch) => {
-    const reservationsEndpoint = `/api/reservations?club_id=${clubId}`;
+export const fetchReservations = async (dispatch: AppDispatch) => {
+    const reservationsEndpoint = '/api/reservations';
     const reservationsData = await fetch(reservationsEndpoint);
     const reservations: ReservationItem[] = await reservationsData.json();
     dispatch({

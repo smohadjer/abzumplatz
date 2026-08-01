@@ -3,17 +3,24 @@ GET http://localhost:3000/api/clubs
 
 ###
 
-// registers a club, a date field in ISO format is added during insertion by api
-// only admins can register a club and new club's id is added to user in db after club is inserted and api returns id of the club
+// registers a club; timestamp is added during insertion
+// the authenticated admin must not already belong to a club
+// after insertion, the new club id is assigned to the admin and returned by the API
 POST http://localhost:3000/api/clubs
 Content-Type: application/json
 Authorization: Bearer <token>
 
 {
-    "name": "Bike Club",
+    "name": "Biking Club",
+    "address_line1": "Musterstraße 12",
+    "postal_code": "79183",
+    "city": "Waldkirch",
+    "country": "Deutschland",
+    "plan_type": "basic",
     "courts_count": 5,
     "start_hour": 9,
     "end_hour": 21,
+    "timezone": "Europe/Berlin",
     "reservations_limit": 3
 }
 
