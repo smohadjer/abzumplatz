@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ChangeEvent, SyntheticEvent } from 'react'
+import type { ChangeEvent, ReactNode, SyntheticEvent } from 'react'
 import { fetchJson } from '../../utils/utils.js';
 import { validateData } from '../../utils/validate.js';
 import Hint from '../Hint.js';
@@ -21,6 +21,8 @@ type Props = {
     callback?: Function;
     formData?: Field[];
     onFormDataChange?: (fields: Field[]) => void;
+    children?: ReactNode;
+    isSubmitDisabled?: (fields: Field[]) => boolean;
 }
 
 type Option = {
@@ -131,6 +133,9 @@ export function Form(props: Props) {
 
     async function submitHandler(event: SyntheticEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (props.isSubmitDisabled?.(formData)) {
+            return;
+        }
         setDisabled(true);
         removeErrors();
 
@@ -336,8 +341,9 @@ export function Form(props: Props) {
             noValidate={formAttributes.disableBrowserValidation}>
             {getFields()}
             <div className="row">
-                <button disabled={disabled} type="submit">{label}</button>
+                <button disabled={disabled || props.isSubmitDisabled?.(formData)} type="submit">{label}</button>
             </div>
+            {props.children}
         </form>
     ) : <p>Loading...</p>
 }

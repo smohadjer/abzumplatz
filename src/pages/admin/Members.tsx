@@ -94,6 +94,10 @@ export default function AdminMembersPage() {
         );
     };
 
+    const showAdminDeactivationHint = () => {
+        alert('Administratoren können nicht deaktiviert werden.');
+    };
+
     const selectableUsers = visibleUsers.filter(member => member.role !== 'admin');
     const allVisibleSelected = selectableUsers.length > 0 && selectableUsers.every(member => selectedUserIds.includes(member._id));
     const submitAction = activeTab === 'active' ? 'deactivate' : inactiveAction;
@@ -267,13 +271,21 @@ export default function AdminMembersPage() {
                                         <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
                                     </label>
                                 ) : (
-                                    <label className="members-list-item" htmlFor={user._id}>
+                                    <label
+                                        className="members-list-item"
+                                        htmlFor={user._id}
+                                        onClick={event => {
+                                            if (!(event.target as HTMLElement).closest('a')) {
+                                                showAdminDeactivationHint();
+                                            }
+                                        }}
+                                    >
                                         <input
                                             id={user._id}
+                                            className="members-admin-checkbox"
                                             type="checkbox"
                                             checked={false}
-                                            disabled={true}
-                                            onChange={() => undefined}
+                                            disabled
                                         />
                                         <span className="members-list-name members-list-name--admin">
                                             {user.first_name} {user.last_name} (Admin)

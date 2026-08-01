@@ -17,8 +17,8 @@ Authorization: Bearer <token>
 
 {
     "club_id": "686f544e85081abe19f78156",
-    "period_start": "2026-06-17",
-    "period_end": "2026-07-17",
+    "period_start": "2026-08-17",
+    "period_end": "2026-09-17",
     "status": "active",
     "source": "manual-stage-insert"
 }
@@ -27,7 +27,7 @@ Authorization: Bearer <token>
 
 // note:
 // - period_end is the next renewal boundary
-// - the derived user-facing "bezahlt bis" date for this example would be 2026-07-16
+// - the derived user-facing "bezahlt bis" date for this example would be 2026-09-16
 // - make sure there is no other active billing period for the same club before inserting
 
 ###

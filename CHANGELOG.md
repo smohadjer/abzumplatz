@@ -2,6 +2,23 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.22
+
+### Changed
+
+- Changed member administration so admin users are explicitly shown as non-deactivatable and the API returns a specific error when admin deactivation is attempted.
+- Changed reservation listing to derive the club from the authenticated user instead of requiring a `club_id` query parameter.
+- Changed recurring reservation deletion to default to deleting the entire series when `delete_type` is omitted.
+- Changed the inactive-account warning so it is only shown after a user belongs to a club.
+- Changed the inactive-account warning to tell newly registered users to wait for club-admin activation before contacting the administrator if activation remains pending.
+- Changed the inactive-account warning to display the club administrator's email address alongside their name.
+- Changed the profile page to show the club-change action as an inline link after the club name.
+- Renamed the club-leave button from “Kein Verein” to the action-oriented “Verein verlassen.”
+- Moved the missing-club guidance into the club-selection form below the submit button.
+- Changed club selection to keep the user's current club in the dropdown so it remains available after leaving.
+- Changed the club-change warning to state that active reservations in the current club are deleted when switching or leaving.
+- Changed club selection to disable submission when the user's current club is selected.
+
 ## 0.0.21
 
 ### Added

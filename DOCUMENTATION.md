@@ -301,3 +301,4 @@ Implementation details:
 - `delete=true`: marks the request as a delete operation
 - `date`: the selected occurrence date to delete
 - `delete_type`: `once`, `once_and_future`, or `all`
+- If `delete_type` is omitted, it defaults to `all`.

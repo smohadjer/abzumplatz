@@ -25,7 +25,12 @@ export default function Profile() {
                     </tr>
                     <tr>
                         <th>Verein</th>
-                        <td>{club?.name ?? '-'}</td>
+                        <td>
+                            {club?.name ?? '-'}
+                            {auth.role !== 'admin' ? (
+                                <> (<Link to="/select-club">Verein wechseln</Link>)</>
+                            ) : null}
+                        </td>
                     </tr>
                     <tr>
                         <th>Email</th>
@@ -33,9 +38,6 @@ export default function Profile() {
                     </tr>
                 </tbody>
             </table>
-            <div className="profile-actions">
-                {auth.role !== 'admin' ? <Link className="button-link" to="/select-club">Verein wechseln</Link> : <span />}
-            </div>
         </>
     )
 }

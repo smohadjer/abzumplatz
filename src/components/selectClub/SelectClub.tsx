@@ -25,9 +25,7 @@ export function SelectClub(props: Props) {
     const dispatch = useDispatch();
     const auth = useSelector((state: RootState) => state.auth);
     const [pending, setPending] = useState(false);
-    const clubs = props.clubs
-        .filter(club => club._id !== auth.club_id)
-        .map(club => {
+    const clubs = props.clubs.map(club => {
         return {
             label: club.name,
             value: club._id,
@@ -117,12 +115,19 @@ export function SelectClub(props: Props) {
                 formAttributes={formJson.form}
                 label={auth.club_id ? 'Verein wechseln' : 'Absenden'}
                 callback={callback}
-            />
+                isSubmitDisabled={fields => Boolean(auth.club_id)
+                    && fields.find(field => field.name === 'club_id')?.value === auth.club_id}
+            >
+                <p className="select-club-guidance">
+                    Solltest du deinen Vereinsnamen nicht finden, wende dich an den Vorstand deines Vereins und bitte
+                    ihn, den Verein auf abzumplatz.de anzumelden.
+                </p>
+            </Form>
             {auth.club_id ? (
                 <p>
                     <button type="button" disabled={pending} onClick={leaveClub}>
                         {pending ? <Loader size="small" /> : null}
-                        Kein Verein
+                        Verein verlassen
                     </button>
                 </p>
             ) : null}
