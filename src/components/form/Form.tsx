@@ -159,9 +159,22 @@ export function Form(props: Props) {
 
         // client-side validation
         if (pathSchema && !formAttributes?.disableClientSideValidation) {
-            const schema = await fetchJson(pathSchema);
-            if (!validateData(data, schema, errorCallback)) {
-                // console.log('client side validation failed, not submitting form');
+            try {
+                const schema = await fetchJson(pathSchema);
+                if (!await validateData(data, schema, errorCallback)) {
+                    // console.log('client side validation failed, not submitting form');
+                    return;
+                }
+            } catch (error) {
+                console.error('Could not load or compile validation schema', error);
+                errorCallback([{
+                    instancePath: getFallbackErrorField(),
+                    message: 'Die Validierung konnte nicht geladen werden. Bitte versuchen Sie es erneut.',
+                    keyword: 'schema',
+                    params: {
+                        missingProperty: ''
+                    }
+                }]);
                 return;
             }
         }
