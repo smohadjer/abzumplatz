@@ -1,4 +1,5 @@
 {
+    "$id": "/schema/club.json",
     "type": "object",
     "properties": {
         "_id": {
@@ -30,12 +31,8 @@
             "type": "string",
             "allOf": [
                 {
-                    "minLength": 3,
-                    "errorMessage": "Die PLZ ist zu kurz."
-                },
-                {
-                    "maxLength": 20,
-                    "errorMessage": "Die PLZ ist zu lang."
+                    "pattern": "^\\d{5}$",
+                    "errorMessage": "Die PLZ muss aus genau 5 Ziffern bestehen."
                 }
             ]
         },

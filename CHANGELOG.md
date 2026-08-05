@@ -2,6 +2,19 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.23
+
+### Changed
+
+- Deduplicated club-registration validation by referencing the shared account and club schemas from the combined signup schema ([#88](https://github.com/smohadjer/abzumplatz/issues/88)).
+- Changed German postal-code validation to require exactly five digits while preserving leading zeroes.
+- Changed client-side validation to load referenced JSON schemas asynchronously.
+
+### Fixed
+
+- Fixed shared server-side schema registration so API modules reuse existing AJV validators instead of failing on duplicate schema IDs.
+- Fixed schema-loading failures so forms are re-enabled and display a retry message instead of remaining disabled.
+
 ## 0.0.22
 
 ### Changed

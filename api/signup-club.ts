@@ -16,6 +16,13 @@ if (!database_uri || !database_name) {
 
 const client = new MongoClient(database_uri);
 const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup-club.json', 'utf8'));
+const clubSchema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/club.json', 'utf8'));
+const signupSchema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/signup.json', 'utf8'));
+[clubSchema, signupSchema].forEach(sharedSchema => {
+    if (!ajv.getSchema(sharedSchema.$id)) {
+        ajv.addSchema(sharedSchema);
+    }
+});
 
 const sendNewClubNotification = async (body: SignupClubBody) => {
     await sendEmail({
