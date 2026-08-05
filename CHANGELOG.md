@@ -2,6 +2,13 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.24
+
+### Fixed
+
+- Fixed newly registered clubs remaining absent from client state by returning the created club from the signup API and upserting it into the club list without another API request ([#117](https://github.com/smohadjer/abzumplatz/issues/117)).
+- Fixed the new club administrator seeing “Verein nicht gefunden!” when logging in immediately after registering the club in the same browser session.
+
 ## 0.0.23
 
 ### Changed
