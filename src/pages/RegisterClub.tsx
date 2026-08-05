@@ -1,21 +1,34 @@
 import { useState } from 'react';
 import { useNavigate } from "react-router";
+import { useDispatch } from 'react-redux';
 import { Link } from 'react-router';
 import { Form } from '../components/form/Form';
 import signupFormJson from '../components/signup/signupForm.json';
 import signupClubFormJson from '../components/signupClub/signupClubForm.json';
-import { Field, PlanType } from '../types';
+import { Club, Field, PlanType } from '../types';
 import { applyPlanConfigToFields } from '../planConfig';
 import { PAID_PLAN_DURATION_LABEL, PLAN_CONFIG, getPlanName } from '../planConfig';
+import { AppDispatch } from '../store';
 import './register-club.css';
+
+type SignupClubResponse = {
+    club: Club;
+}
 
 export default function RegisterClub() {
     const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
     const [selectedPlanType, setSelectedPlanType] = useState<PlanType | null>(null);
     const [isChoosingPlan, setIsChoosingPlan] = useState(true);
     const [formFields, setFormFields] = useState<Field[] | null>(null);
 
-    const callback = async () => {
+    const callback = (response: SignupClubResponse) => {
+        dispatch({
+            type: 'clubs/upsert',
+            payload: {
+                value: response.club
+            }
+        });
         navigate('/login');
     }
 
