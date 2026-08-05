@@ -112,7 +112,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/club.json', 'utf8'));
-      const validator = ajv.compile(schema);
+      const validator = ajv.getSchema(schema.$id) ?? ajv.compile(schema);
       const valid = validator(body);
 
       if (!valid) {

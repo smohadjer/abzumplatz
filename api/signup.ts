@@ -149,7 +149,7 @@ async function sendWelcomeEmail(user: DBUser, club?: ClubDocument) {
 
 export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
-        const validator = ajv.compile(schema);
+        const validator = ajv.getSchema(schema.$id) ?? ajv.compile(schema);
         const body = sanitize(req.body) as SignupBody;
         const valid = validator(body);
         if (!valid) {
