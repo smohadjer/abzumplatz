@@ -1,0 +1,7 @@
+.rules-list li {
+    margin-bottom: 1rem;
+}
+
+.rules-list li:last-child {
+    margin-bottom: 0;
+}

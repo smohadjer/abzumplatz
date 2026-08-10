@@ -68,6 +68,7 @@ export type Club = {
     start_hour: number;
     end_hour: number;
     timezone: string;
+    rules?: string[];
     access_plan_type: PlanType;
     next_plan_type: PlanType;
 }

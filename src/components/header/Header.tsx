@@ -1,11 +1,10 @@
-import { getClub, onLogout } from '../../utils/utils';
-import { useSelector, useDispatch } from 'react-redux'
+import { getClub } from '../../utils/utils';
+import { useSelector } from 'react-redux'
 import { RootState } from '../../store';
 import { Link, useLocation } from 'react-router';
 import './header.css';
 
 export default function Header() {
-    const dispatch = useDispatch();
     const auth = useSelector((state: RootState) => state.auth);
     const isAuthChecked = auth.authChecked;
     const isLoggedin = auth.value;
@@ -29,26 +28,16 @@ export default function Header() {
                         <img width="250" src="/assets/logo.png" alt="abzumplatz logo" className="header-logo" />
                     )}
                 </Link>
-                {isLoggedin ? (
-                    <div className="header-login-link">
-                        <a href="#" onClick={(e) => {
-                            e.preventDefault();
-                            onLogout(dispatch);
-                        }}>
-                            <span>Abmelden</span>
-                            <span className="icon icon--logout" aria-hidden="true"></span>
-                        </a>
-                    </div>
-                ) : isAuthChecked ? (
+                {!isLoggedin && isAuthChecked ? (
                     <div className="header-login-link">
                         <Link to="/login">
                             <span>Anmelden</span>
                             <span className="icon icon--login" aria-hidden="true"></span>
                         </Link>
                     </div>
-                ) : (
+                ) : !isLoggedin ? (
                     <div className="header-login-link header-login-link--placeholder" aria-hidden="true"></div>
-                )}
+                ) : null}
             </div>
         </header>
     )

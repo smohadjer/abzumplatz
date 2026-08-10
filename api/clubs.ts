@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import { getJwtPayload } from './verifyAuth.js';
 import { ClubWithBilling, DBUser, JwtPayload } from '../src/types.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
-import { ClubDocument, ClubFormBody, CourtsFormBody } from './_utils/_types.js';
+import { ClubDocument, ClubFormBody, CourtsFormBody, RulesFormBody } from './_utils/_types.js';
 import { updateCourts } from './_utils/_updateCourts.js';
 import { BillingPeriodDocument, getClubBillingState, InvoiceCounterDocument, isDowngradeLocked } from './_utils/_billingPeriods.js';
 import { BillingPeriodInvoiceDeliveryError, createInitialBillingPeriodAndSendInvoice, processClubBillingRenewalAndSendInvoices } from './_utils/_billingService.js';
@@ -13,6 +13,7 @@ import { getClubPlanState, getPlanChangeUpdate } from './_utils/_planTransitions
 import { fetchClub } from './_utils/_fetchClub.js';
 import { isLowerPlan } from '../src/planConfig.js';
 import { getEffectiveMembersLimitForPlan, hasMembersLimitOverride } from './_utils/_planLimits.js';
+import { defaultClubRules } from '../src/clubRules.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -74,7 +75,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     if (req.method === 'POST') {
-      const body = sanitize(req.body) as ClubFormBody | CourtsFormBody;
+      const body = sanitize(req.body) as ClubFormBody | CourtsFormBody | RulesFormBody;
 
       const payload = await getJwtPayload(req);
       if (!payload) {
@@ -109,6 +110,25 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         }
 
         return await updateCourts(collection, res, body, requester);
+      }
+
+      if ('update_type' in body && body.update_type === 'rules') {
+        if (requester.club_id !== body.club_id) {
+          return res.status(403).json({error: 'Updating these club rules is not allowed'});
+        }
+        if (!Array.isArray(body.rules) || body.rules.length < 1 || body.rules.length > 50 || body.rules.some(rule => typeof rule !== 'string' || rule.length > 2000)) {
+          return res.status(400).json({error: 'Bitte geben Sie zwischen 1 und 50 gültige Regeln ein.'});
+        }
+
+        await collection.updateOne(
+          {_id: ObjectId.createFromHexString(body.club_id)},
+          {$set: {rules: body.rules}}
+        );
+        const docs = await getAllClubs(collection, billingPeriodsCollection);
+        return res.status(201).json({
+          message: 'Regeln wurden gespeichert',
+          data: {club_id: body.club_id, clubs: docs}
+        });
       }
 
       const schema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/club.json', 'utf8'));
@@ -212,6 +232,7 @@ async function addClub(
     timezone,
     reservations_limit,
     courts,
+    rules: defaultClubRules,
     timestamp: new Date()
   };
   const insertResponse = await collection.insertOne(club);

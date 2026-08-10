@@ -11,24 +11,22 @@ export default function Footer() {
     //const club = getClub();
     const location = useLocation();
     const page_id = location.pathname.substring(1);
-    const isRegisterPage = page_id === 'register' || page_id.startsWith('register/');
 
     return (
         (auth.value) ?
         <footer>
-            <Link to="/reservations"><span className={`icon icon--home${page_id === 'reservations' ? ' selected' : ''}`}></span></Link>
-            <Link to="/bookings"><span className={`icon icon--list${page_id === 'bookings' ? ' selected' : ''}`}></span></Link>
-            <Link to="/profile"><span className={`icon icon--account${page_id === 'profile' ? ' selected' : ''}`}></span></Link>
-            <Link to="/impressum"><span className={`icon icon--imprint${page_id === 'impressum' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Reservierungen" to="/reservations"><span aria-hidden="true" className={`icon icon--home${page_id === 'reservations' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Meine Buchungen" to="/bookings"><span aria-hidden="true" className={`icon icon--list${page_id === 'bookings' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Einstellungen" to="/settings"><span aria-hidden="true" className={`icon icon--settings${page_id === 'settings' ? ' selected' : ''}`}></span></Link>
             {auth.role === 'admin' &&
-                 <Link to="/admin"><span className={`icon icon--admin${page_id === 'admin' ? ' selected' : ''}`}></span></Link>
+                 <Link aria-label="Administration" to="/admin"><span aria-hidden="true" className={`icon icon--admin${page_id === 'admin' ? ' selected' : ''}`}></span></Link>
             }
         </footer> :
         <footer>
-            <Link to="/"><span className={`icon icon--home${page_id === '' ? ' selected' : ''}`}></span></Link>
-            <Link to="/login"><span className={`icon icon--login${page_id === 'login' ? ' selected' : ''}`}></span></Link>
-            <Link to="/register/player"><span className={`icon icon--register${isRegisterPage ? ' selected' : ''}`}></span></Link>
-            <Link to="/impressum"><span className={`icon icon--imprint${page_id === 'impressum' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Startseite" to="/"><span aria-hidden="true" className={`icon icon--home${page_id === '' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Anmelden" to="/login"><span aria-hidden="true" className={`icon icon--login${page_id === 'login' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Als Spieler registrieren" to="/register/player"><span aria-hidden="true" className={`icon icon--register${page_id === 'register/player' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Verein registrieren" to="/register/club"><span aria-hidden="true" className={`icon icon--group-add${page_id === 'register/club' ? ' selected' : ''}`}></span></Link>
         </footer>
     )
 }

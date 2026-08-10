@@ -1,7 +1,11 @@
 import { Link } from 'react-router';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 import './home.css';
 
 export default function Home() {
+    const isLoggedIn = useSelector((state: RootState) => state.auth.value);
+
     return (
         <>
             <p className="home-tagline">Online Platzreservierung für Tennisvereine</p>
@@ -32,7 +36,12 @@ export default function Home() {
                     </ul>
                 </div>
             </div>
-            <p className="home-support-box">Haben Sie Fragen? Senden Sie Ihre Fragen oder Anliegen gerne an <a href="mailto:support@abzumplatz.de">support@abzumplatz.de</a>.</p>
+            {!isLoggedIn ? (
+                <p className="home-info-links">
+                    <Link to="/impressum">Impressum</Link>{' · '}
+                    <Link to="/support">Support</Link>
+                </p>
+            ) : null}
         </>
     )
 }
