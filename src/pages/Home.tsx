@@ -31,6 +31,7 @@ export default function Home() {
                     <li>Reservieren Sie mehrere Plätze für mehrere Stunden in einer einzigen Buchung, zum Beispiel für Mannschaftsspiele</li>
                     <li>Wiederkehrende Reservierungen, zum Beispiel für wöchentliches Teamtraining</li>
                     <li>Reservierungslimits für Spieler festlegen sowie Reservierungen neu zuweisen, entfernen oder ändern</li>
+                    <li>Eigene Vereinsregeln festlegen oder die bereitgestellten Standardregeln verwenden</li>
                     <li>Spieler in deinem Club aktivieren, deaktivieren oder entfernen</li>
                     <li>Sowie viele weitere Funktionen, wie etwa die Möglichkeit, bestimmte Tennisplätze zu sperren, die Öffnungszeiten zu ändern usw.</li>
                     </ul>

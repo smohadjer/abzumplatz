@@ -11,9 +11,9 @@ export default function Settings() {
             <h1>Einstellungen</h1>
             <ul className="settings-links">
                 <li><Link to="/profile">Mein Profil</Link></li>
-                <li><Link to="/impressum">Impressum</Link></li>
                 <li><Link to="/rules">Regeln</Link></li>
                 <li><Link to="/support">Support</Link></li>
+                <li><Link to="/impressum">Impressum</Link></li>
                 <li>
                     <a className="settings-logout-link" href="#" onClick={(event) => {
                         event.preventDefault();

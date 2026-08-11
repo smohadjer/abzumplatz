@@ -17,6 +17,7 @@ All notable changes to this project should be documented in this file.
 - Moved logout from the header to Settings and added a confirmation prompt.
 - Changed the Impressum contact address to `info@abzumplatz.de` and moved reservation support details to the Support page.
 - Changed club rules so administrators can intentionally save an empty rule list.
+- Changed member administration to display names as “Nachname, Vorname” and sort members by last name, then first name.
 
 ## 0.0.24
 

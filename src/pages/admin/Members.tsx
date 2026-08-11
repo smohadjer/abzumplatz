@@ -266,7 +266,7 @@ export default function AdminMembersPage() {
                                             onChange={() => toggleSelection(user._id)}
                                         />
                                         <span className="members-list-name">
-                                            {user.first_name} {user.last_name}
+                                            {user.last_name}, {user.first_name}
                                         </span>
                                         <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
                                     </label>
@@ -288,7 +288,7 @@ export default function AdminMembersPage() {
                                             disabled
                                         />
                                         <span className="members-list-name members-list-name--admin">
-                                            {user.first_name} {user.last_name} (Admin)
+                                            {user.last_name}, {user.first_name} (Admin)
                                         </span>
                                         <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
                                     </label>
