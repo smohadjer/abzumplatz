@@ -1,0 +1,45 @@
+.settings-links {
+    list-style: none;
+    padding: 0;
+    border-top: 1px solid #ddd;
+}
+
+.settings-links li {
+    margin: 0;
+}
+
+.settings-links li + li {
+    border-top: 1px solid #ddd;
+}
+
+.settings-links a {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.85rem 0;
+    text-decoration: none;
+}
+
+.settings-links a:not(.settings-logout-link)::after {
+    content: '';
+    width: 1rem;
+    height: 1rem;
+    background-color: currentColor;
+    -webkit-mask: url('../images/forward.svg') center / contain no-repeat;
+    mask: url('../images/forward.svg') center / contain no-repeat;
+}
+
+.settings-links a:hover,
+.settings-links a:focus-visible {
+    background: #f2f5fa;
+    text-decoration: none;
+}
+
+.settings-logout-link {
+    color: #b42318;
+}
+
+.settings-logout-link:hover,
+.settings-logout-link:focus-visible {
+    color: #8f1c13;
+}

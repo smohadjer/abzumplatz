@@ -59,6 +59,7 @@ export default function AdminHomePage() {
                 <Link className="button-link" to="/admin/members">Mitglieder verwalten</Link>
                 <Link className="button-link" to="/admin/club">Verein editieren</Link>
                 <Link className="button-link" to="/admin/courts">Plätze verwalten</Link>
+                <Link className="button-link" to="/admin/rules">Regeln verwalten</Link>
                 <Link className="button-link" to="/admin/billings">Abrechnungen</Link>
             </div>
             {loadingClub || !clubData.loaded ? (

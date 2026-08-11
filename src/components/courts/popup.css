@@ -97,6 +97,10 @@
             }
         }
 
+        .rules-notice {
+            margin: 1em 0 0;
+        }
+
         input[type=hidden] + button[type=submit] {
             margin-top: 0;
         }

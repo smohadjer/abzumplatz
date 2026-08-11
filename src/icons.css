@@ -62,8 +62,16 @@ a.icon:hover {
     background-image: url(./images/register.svg);
 }
 
+.icon--group-add {
+    background-image: url(./images/group_add.svg);
+}
+
 .icon--account {
     background-image: url(./images/account.svg);
+}
+
+.icon--settings {
+    background-image: url(./images/settings.svg);
 }
 
 .icon--back {

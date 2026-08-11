@@ -14,8 +14,12 @@ import AdminHomePage from './pages/admin/Home';
 import AdminMembersPage from './pages/admin/Members'
 import AdminClubPage from './pages/admin/Club';
 import AdminCourtsPage from './pages/admin/Courts';
+import AdminRulesPage from './pages/admin/Rules';
 import AdminBillingsPage from './pages/admin/Billings';
 import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+import Rules from './pages/Rules';
+import Support from './pages/Support';
 import Bookings from './pages/Bookings';
 import RegisterPlayer from './pages/RegisterPlayer';
 import RegisterClub from './pages/RegisterClub';
@@ -83,6 +87,19 @@ export default function App() {
                         <Profile />
                     </ProtectedRoute>
                 }/>
+                <Route path="/settings" element={
+                    <ProtectedRoute>
+                        <Settings />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/rules" element={
+                    <ProtectedRoute>
+                        <Rules />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/support" element={
+                    <Support />
+                }/>
                 <Route path="/bookings" element={
                     <ProtectedRoute>
                         <Bookings />
@@ -106,6 +123,11 @@ export default function App() {
                 <Route path="/admin/courts" element={
                     <ProtectedRoute>
                         <AdminCourtsPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/rules" element={
+                    <ProtectedRoute>
+                        <AdminRulesPage />
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/billings" element={

@@ -12,6 +12,7 @@ export default function Profile() {
 
     return (
         <>
+            <p><Link className="icon icon--back" to="/settings">Zurück</Link></p>
             <h1>Mein Profil</h1>
             <table className="profile-table">
                 <tbody>

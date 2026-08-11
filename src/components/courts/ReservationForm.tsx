@@ -4,6 +4,7 @@ import { getInactiveUserMessage } from './../../messages';
 import { SubmitEventHandler, useState } from "react";
 import { Loader } from './../loader/Loader';
 import { Court } from '../../types';
+import { Link } from 'react-router';
 
 type Props = {
     submitHandler: SubmitEventHandler<HTMLFormElement>;
@@ -233,6 +234,10 @@ export function ReservationForm(props: Props) {
                     }
                 </div>}
             {formError && <p className="form-error-message">{formError}</p>}
+            {!props.reservationId &&
+                <p className="rules-notice">
+                    Mit der Reservierung bestätigen Sie, dass Sie die <Link rel="noreferrer" target="_blank" to="/rules">Regeln Ihres Clubs</Link> gelesen haben und diese einhalten.
+                </p>}
             {props.reservationId ?
                 <div className="form-actions">
                     <button type="submit" disabled={props.disabled}>{props.submitLabel ?? 'Speichern'}</button>

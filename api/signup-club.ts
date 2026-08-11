@@ -146,6 +146,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
             res.status(201).json({
                 message: `Verein ${club.name} ist registeriert mit id ${club_id}`,
+                club: {
+                    ...club,
+                    _id: club_id,
+                },
                 ...(invoiceEmailError ? {invoice_email_error: invoiceEmailError} : {}),
             });
         } catch (e) {

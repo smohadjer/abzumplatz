@@ -30,10 +30,21 @@ export const clubsSlice = createSlice({
       // immutable state based off those changes
       state.value = action.payload.value;
     },
+    upsert: (state, action) => {
+      const club = action.payload.value as ClubWithBilling;
+      const existingIndex = state.value.findIndex(item => item._id === club._id);
+
+      if (existingIndex >= 0) {
+        state.value[existingIndex] = club;
+      } else {
+        state.value.push(club);
+        state.value.sort((a, b) => a.name.localeCompare(b.name, 'de'));
+      }
+    },
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { fetch } = clubsSlice.actions
+export const { fetch, upsert } = clubsSlice.actions
 
 export default clubsSlice.reducer

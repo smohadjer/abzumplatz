@@ -37,6 +37,12 @@ export type CourtsFormBody = {
     courts: string[];
 }
 
+export type RulesFormBody = {
+    club_id: string;
+    update_type: 'rules';
+    rules: string[];
+}
+
 export type SignupClubBody = {
     first_name: string;
     last_name: string;

@@ -2,6 +2,30 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.25
+
+### Added
+
+- Added a Settings page with links to profile, club rules, support, legal information, and logout.
+- Added club-specific rules with default content, database persistence, and an admin editor for adding, removing, reordering, resetting, and updating rules.
+- Added a club-rules confirmation notice to the reservation form, with the rules opening in a separate tab.
+- Added a Support page with the current club administrator as the reservation contact and a technical-support email address.
+
+### Changed
+
+- Replaced the footer profile action with a Settings action and removed the Impressum action from the footer.
+- Moved logout from the header to Settings and added a confirmation prompt.
+- Changed the Impressum contact address to `info@abzumplatz.de` and moved reservation support details to the Support page.
+- Changed club rules so administrators can intentionally save an empty rule list.
+- Changed member administration to display names as “Nachname, Vorname” and sort members by last name, then first name.
+
+## 0.0.24
+
+### Fixed
+
+- Fixed newly registered clubs remaining absent from client state by returning the created club from the signup API and upserting it into the club list without another API request ([#117](https://github.com/smohadjer/abzumplatz/issues/117)).
+- Fixed the new club administrator seeing “Verein nicht gefunden!” when logging in immediately after registering the club in the same browser session.
+
 ## 0.0.23
 
 ### Changed

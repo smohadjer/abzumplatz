@@ -1,0 +1,42 @@
+.admin-rules-form ol {
+    padding-left: 1.5rem;
+}
+
+.admin-rules-form li {
+    margin-bottom: 1.25rem;
+}
+
+.admin-rules-form textarea {
+    box-sizing: border-box;
+    display: block;
+    font: inherit;
+    max-width: 48rem;
+    padding: 0.6rem;
+    resize: vertical;
+    width: 100%;
+}
+
+.admin-rule-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.admin-rule-actions button {
+    margin-top: 0;
+}
+
+.admin-rules-list-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.admin-rules-list-actions button {
+    margin-top: 0;
+}
+
+.admin-rules-form .form-error-message {
+    color: #b42318;
+}

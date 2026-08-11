@@ -59,10 +59,10 @@ export async function fetchUsers(
       const docs = await collection.find(query, {projection})
         // using collation so sort is case insensitive
         .collation({
-          locale: 'en',
+          locale: 'de',
           strength: 2 /* case insensitive search */
         })
-        .sort({ first_name: 1 })
+        .sort({ last_name: 1, first_name: 1 })
         .toArray();
 
       return docs.map(normalizeUserRole);
