@@ -27,6 +27,16 @@
     margin-top: 0;
 }
 
+.admin-rules-list-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.admin-rules-list-actions button {
+    margin-top: 0;
+}
+
 .admin-rules-form .form-error-message {
     color: #b42318;
 }

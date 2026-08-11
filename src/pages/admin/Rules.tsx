@@ -39,7 +39,7 @@ export default function AdminRulesPage() {
 
     useEffect(() => {
         if (clubData.loaded && clubData.value._id === clubId) {
-            setRules(clubData.value.rules?.length ? clubData.value.rules : defaultClubRules);
+            setRules(Array.isArray(clubData.value.rules) ? clubData.value.rules : defaultClubRules);
         }
     }, [clubData.loaded, clubData.value._id, clubId]);
 
@@ -60,10 +60,6 @@ export default function AdminRulesPage() {
     const saveRules = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const normalizedRules = rules.map(rule => rule.trim()).filter(Boolean);
-        if (!normalizedRules.length) {
-            setError('Bitte geben Sie mindestens eine Regel ein.');
-            return;
-        }
 
         setError('');
         setSaving(true);
@@ -114,12 +110,15 @@ export default function AdminRulesPage() {
                             <div className="admin-rule-actions">
                                 <button disabled={saving || index === 0} onClick={() => moveRule(index, -1)} type="button">Nach oben</button>
                                 <button disabled={saving || index === rules.length - 1} onClick={() => moveRule(index, 1)} type="button">Nach unten</button>
-                                <button disabled={saving || rules.length === 1} onClick={() => setRules(current => current.filter((_, ruleIndex) => ruleIndex !== index))} type="button">Entfernen</button>
+                                <button disabled={saving} onClick={() => setRules(current => current.filter((_, ruleIndex) => ruleIndex !== index))} type="button">Entfernen</button>
                             </div>
                         </li>
                     ))}
                 </ol>
-                <button disabled={saving || rules.length >= 50} onClick={() => setRules(current => [...current, ''])} type="button">Regel hinzufügen</button>
+                <div className="admin-rules-list-actions">
+                    <button disabled={saving || rules.length >= 50} onClick={() => setRules(current => [...current, ''])} type="button">Regel hinzufügen</button>
+                    <button disabled={saving} onClick={() => setRules([...defaultClubRules])} type="button">Standardregeln wiederherstellen</button>
+                </div>
                 {error ? <p className="form-error-message">{error}</p> : null}
                 <button disabled={saving} type="submit">{saving ? 'Wird gespeichert...' : 'Speichern'}</button>
             </form>

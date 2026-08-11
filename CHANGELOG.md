@@ -7,7 +7,7 @@ All notable changes to this project should be documented in this file.
 ### Added
 
 - Added a Settings page with links to profile, club rules, support, legal information, and logout.
-- Added club-specific rules with default content, database persistence, and an admin editor for adding, removing, reordering, and updating rules.
+- Added club-specific rules with default content, database persistence, and an admin editor for adding, removing, reordering, resetting, and updating rules.
 - Added a club-rules confirmation notice to the reservation form, with the rules opening in a separate tab.
 - Added a Support page with the current club administrator as the reservation contact and a technical-support email address.
 
@@ -16,6 +16,7 @@ All notable changes to this project should be documented in this file.
 - Replaced the footer profile action with a Settings action and removed the Impressum action from the footer.
 - Moved logout from the header to Settings and added a confirmation prompt.
 - Changed the Impressum contact address to `info@abzumplatz.de` and moved reservation support details to the Support page.
+- Changed club rules so administrators can intentionally save an empty rule list.
 
 ## 0.0.24
 

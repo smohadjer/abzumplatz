@@ -116,8 +116,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         if (requester.club_id !== body.club_id) {
           return res.status(403).json({error: 'Updating these club rules is not allowed'});
         }
-        if (!Array.isArray(body.rules) || body.rules.length < 1 || body.rules.length > 50 || body.rules.some(rule => typeof rule !== 'string' || rule.length > 2000)) {
-          return res.status(400).json({error: 'Bitte geben Sie zwischen 1 und 50 gültige Regeln ein.'});
+        if (!Array.isArray(body.rules) || body.rules.length > 50 || body.rules.some(rule => typeof rule !== 'string' || rule.length > 2000)) {
+          return res.status(400).json({error: 'Bitte geben Sie höchstens 50 gültige Regeln ein.'});
         }
 
         await collection.updateOne(
