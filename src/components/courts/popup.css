@@ -97,16 +97,8 @@
             }
         }
 
-        .rules-confirmation {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5em;
+        .rules-notice {
             margin: 1em 0 0;
-
-            input {
-                flex: 0 0 auto;
-                margin-top: 0.2em;
-            }
         }
 
         input[type=hidden] + button[type=submit] {

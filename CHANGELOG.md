@@ -8,7 +8,7 @@ All notable changes to this project should be documented in this file.
 
 - Added a Settings page with links to profile, club rules, support, legal information, and logout.
 - Added club-specific rules with default content, database persistence, and an admin editor for adding, removing, reordering, and updating rules.
-- Added a required club-rules confirmation checkbox to the reservation form, with the rules opening in a separate tab.
+- Added a club-rules confirmation notice to the reservation form, with the rules opening in a separate tab.
 - Added a Support page with the current club administrator as the reservation contact and a technical-support email address.
 
 ### Changed

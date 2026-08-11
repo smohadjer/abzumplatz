@@ -235,16 +235,9 @@ export function ReservationForm(props: Props) {
                 </div>}
             {formError && <p className="form-error-message">{formError}</p>}
             {!props.reservationId &&
-                <label className="rules-confirmation">
-                    <input
-                        disabled={props.disabled}
-                        name="rules_accepted"
-                        required
-                        type="checkbox"
-                        value="true"
-                    />
-                    <span>Ich habe die <Link rel="noreferrer" target="_blank" to="/rules">Vereinsregeln</Link> gelesen und akzeptiere sie.</span>
-                </label>}
+                <p className="rules-notice">
+                    Mit der Reservierung bestätigen Sie, dass Sie die <Link rel="noreferrer" target="_blank" to="/rules">Regeln Ihres Clubs</Link> gelesen haben und diese einhalten.
+                </p>}
             {props.reservationId ?
                 <div className="form-actions">
                     <button type="submit" disabled={props.disabled}>{props.submitLabel ?? 'Speichern'}</button>
