@@ -2,13 +2,34 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.26
+
+### Added
+
+- Added duplicate-name highlighting to member administration so administrators can identify matching member accounts.
+
+### Changed
+
+- Updated the default club rules and added court-watering and cancellation guidance.
+- Replaced the required club-rules checkbox in the reservation form with a confirmation notice.
+- Changed club rules so administrators can save an empty rule list or restore the standard rules.
+- Changed member administration to display names as “Nachname, Vorname” and sort members by last name, then first name using German collation.
+- Added club rules to the administrator feature overview and adjusted the Settings link order.
+- Simplified and refined the reservation popup layout for non-admin players.
+- Changed calendar actions to close the reservation popup after use.
+- Changed the Bookings page to a read-only list ordered with later reservations first.
+
+### Fixed
+
+- Fixed non-admin reservation edits failing when changing the duration because the existing label was omitted.
+
 ## 0.0.25
 
 ### Added
 
 - Added a Settings page with links to profile, club rules, support, legal information, and logout.
-- Added club-specific rules with default content, database persistence, and an admin editor for adding, removing, reordering, resetting, and updating rules.
-- Added a club-rules confirmation notice to the reservation form, with the rules opening in a separate tab.
+- Added club-specific rules with default content, database persistence, and an admin editor for adding, removing, reordering, and updating rules.
+- Added a required club-rules confirmation checkbox to the reservation form, with the rules opening in a separate tab.
 - Added a Support page with the current club administrator as the reservation contact and a technical-support email address.
 
 ### Changed
@@ -16,8 +37,6 @@ All notable changes to this project should be documented in this file.
 - Replaced the footer profile action with a Settings action and removed the Impressum action from the footer.
 - Moved logout from the header to Settings and added a confirmation prompt.
 - Changed the Impressum contact address to `info@abzumplatz.de` and moved reservation support details to the Support page.
-- Changed club rules so administrators can intentionally save an empty rule list.
-- Changed member administration to display names as “Nachname, Vorname” and sort members by last name, then first name.
 
 ## 0.0.24
 

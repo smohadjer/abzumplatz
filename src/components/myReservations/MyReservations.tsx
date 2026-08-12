@@ -3,16 +3,20 @@ import {
     getClub,
     getNextActiveRecurringReservationDate
 } from './../../utils/utils';
-import './myReservations.css';
 
 export function MyReservations(props: {
     reservations:  ReservationItem[];
-    hasPopup: boolean;
-    showPopup: Function;
 }) {
     const { reservations } = props;
     const club = getClub();
     const reservationsLimit = club?.reservations_limit;
+    const sortedReservations = [...reservations].sort((first, second) => {
+        const firstDate = first.recurring ? getNextActiveRecurringReservationDate(first) : first.date;
+        const secondDate = second.recurring ? getNextActiveRecurringReservationDate(second) : second.date;
+        const dateDifference = new Date(secondDate ?? second.date).getTime() - new Date(firstDate ?? first.date).getTime();
+
+        return dateDifference || second.start_time - first.start_time;
+    });
 
     return (
         <div className="my-reservations">
@@ -22,7 +26,7 @@ export function MyReservations(props: {
             </h1>
             {reservations.length ?
                 <ul>
-                {reservations.map(item => {
+                {sortedReservations.map(item => {
                     const activeDate = item.recurring ? getNextActiveRecurringReservationDate(item) : item.date;
                     const day = new Date(activeDate ?? item.date);
                     const isoDate = day.toLocaleDateString('de-DE');
@@ -30,31 +34,14 @@ export function MyReservations(props: {
                     const key = item._id!.toString();
                     const courtNums = item.court_nums;
                     const courtNumsLabel = courtNums.join(', ');
-                    const primaryCourtNum = courtNums[0];
 
 	                    return (
 	                        <li key={key}>
 	                            {item.label ? `${item.label}, ` : ''}
 	                            {weekday} {isoDate}, {''}
-	                            {item.start_time}-{item.end_time} Uhr,{' '}
+                            {item.start_time}-{item.end_time} Uhr,{' '}
 	                            {courtNums.length > 1 ? 'Plätze' : 'Platz'} {courtNumsLabel}
                             {item.recurring ? ' (wiederkehrend)' : ''}
-                            {props.hasPopup && <span
-                                onClick={event => {props.showPopup(event.target)}}
-                                data-court_number={primaryCourtNum}
-                                data-court_nums={JSON.stringify(courtNums)}
-                                data-club_id={item.club_id}
-                                data-hour={item.start_time}
-                                data-end_time={item.end_time}
-                                data-date={activeDate ?? item.date}
-                                data-reservation_date={item.date}
-                                data-reservation_id={item._id}
-                                data-user_id={item.user_id}
-                                data-label={item.label}
-                                data-deleted_dates={item.deleted_dates ? JSON.stringify(item.deleted_dates) : undefined}
-                                data-end_date={item.end_date}
-                                data-timestamp={item.timestamp ? item.timestamp.toString() : undefined}
-                                className="icon icon--inline icon--edit"></span>}
                         </li>
                     )}
                 )}

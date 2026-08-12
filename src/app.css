@@ -209,6 +209,20 @@ ul {
         background: #eef4ff;
     }
 
+    .user-list-item--duplicate-name {
+        background: #fff4d6;
+        border-left: 3px solid #c58b00;
+    }
+
+    .members-duplicate-name-badge {
+        background: #8a5d00;
+        border-radius: 999px;
+        color: white;
+        font-size: 0.75em;
+        font-weight: 700;
+        padding: 0.15em 0.5em;
+    }
+
 }
 
 .members-tabs {

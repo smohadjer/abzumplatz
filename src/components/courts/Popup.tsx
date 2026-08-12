@@ -139,6 +139,7 @@ export function Popup(props: {
                     <a
                         className="button-link"
                         href={buildGoogleCalendarUrl(reservation)}
+                        onClick={() => props.closePopup()}
                         rel="noreferrer"
                         target="_blank">
                         Zu Google Kalender hinzufügen
@@ -146,7 +147,8 @@ export function Popup(props: {
                     <a
                         className="button-link"
                         download={`abzumplatz-${reservation.date}-platz-${reservation.courtNumbers.join('-')}.ics`}
-                        href={buildAppleCalendarUrl(reservation)}>
+                        href={buildAppleCalendarUrl(reservation)}
+                        onClick={() => props.closePopup()}>
                         Zu Apple Kalender hinzufügen
                     </a>
                 </div>

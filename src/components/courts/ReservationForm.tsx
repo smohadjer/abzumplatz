@@ -56,16 +56,10 @@ export function ReservationForm(props: Props) {
     ].filter(Boolean).join(' ');
     const labelDefaultValue = props.reservationId ? props.label : (props.label ?? generatedUserLabel);
     const selectedCourtNumbers = props.selectedCourtNumbers ?? [props.selectedCourtNumber];
-    const courtOptions = user.role === 'admin' ?
-        props.courts.map((court, index) => ({
-            number: (index + 1).toString(),
-            status: court.status
-        })) :
-        [{
-            number: props.selectedCourtNumber,
-            status: 'active'
-        }];
-    const courtCheckboxIsReadOnly = user.role !== 'admin';
+    const courtOptions = props.courts.map((court, index) => ({
+        number: (index + 1).toString(),
+        status: court.status
+    }));
     const submitHandler: SubmitEventHandler<HTMLFormElement> = (event) => {
         const form = event.currentTarget;
         const courtCheckbox = form.querySelector<HTMLInputElement>('input[name="court_nums"]');
@@ -118,7 +112,7 @@ export function ReservationForm(props: Props) {
             onSubmit={submitHandler}>
             {props.reservationId && <input type="hidden" name="reservation_id" value={props.reservationId} />}
             {props.reservationId && props.occurrenceDate && <input type="hidden" name="occurrence_date" value={props.occurrenceDate} />}
-            {!props.reservationId && user.role !== 'admin' && <input type="hidden" name="label" value={labelDefaultValue} />}
+            {user.role !== 'admin' && <input type="hidden" name="label" value={labelDefaultValue} />}
             <div className="reservation-field">
                 <label>Datum:</label>
                 <input name="date" type="date" defaultValue={props.date} readOnly={user.role !== 'admin'} required />
@@ -140,6 +134,33 @@ export function ReservationForm(props: Props) {
                     </>
                 )}
             </div>
+            <div className="reservation-field court-selection">
+                <span>{user.role === 'admin' ? 'Plätze:' : 'Platz:'}</span>
+                <div className="court-selection-options">
+                    {user.role === 'admin' ? courtOptions.map((court) => (
+                            <label
+                                className={court.status === 'inactive' ? 'disabled' : undefined}
+                                key={court.number}>
+                                <input
+                                    defaultChecked={selectedCourtNumbers.includes(court.number)}
+                                    disabled={court.status === 'inactive'}
+                                    name="court_nums"
+                                    onChange={(event) => event.currentTarget.form
+                                        ?.querySelector<HTMLInputElement>('input[name="court_nums"]')
+                                        ?.setCustomValidity('')}
+                                    type="checkbox"
+                                    value={court.number}
+                                />
+                                Platz {court.number}
+                            </label>
+                        )) : (
+                            <>
+                                <input type="hidden" name="court_nums" value={props.selectedCourtNumber} />
+                                <span className="reservation-readonly-value">{props.selectedCourtNumber}</span>
+                            </>
+                        )}
+                </div>
+            </div>
             <div className="reservation-field">
                 <label>Dauer:</label>
                 <select className="duration-select" name="duration" defaultValue={props.duration ?? 1}>
@@ -150,45 +171,10 @@ export function ReservationForm(props: Props) {
             </div>
             {(user.role === 'admin') && <>
                 <div className="reservation-field">
-                        <label>Reservierungslabel:</label>
+                        <label>Label:</label>
                         <input name="label" defaultValue={labelDefaultValue} required />
                 </div>
             </>}
-            <div
-                className="reservation-field court-selection"
-                onChange={(event) => {
-                    if (event.target instanceof HTMLInputElement) {
-                        event.target.form?.querySelector<HTMLInputElement>('input[name="court_nums"]')?.setCustomValidity('');
-                    }
-                }}>
-                <span>Plätze:</span>
-                <div className="court-selection-options">
-                    {courtOptions.map((court) => (
-                        <label
-                            className={[
-                                court.status === 'inactive' ? 'disabled' : '',
-                                courtCheckboxIsReadOnly ? 'readonly' : ''
-                            ].filter(Boolean).join(' ') || undefined}
-                            key={court.number}>
-                            <input
-                                defaultChecked={selectedCourtNumbers.includes(court.number)}
-                                disabled={court.status === 'inactive'}
-                                name="court_nums"
-                                onClick={courtCheckboxIsReadOnly ? (event) => event.preventDefault() : undefined}
-                                onKeyDown={courtCheckboxIsReadOnly ? (event) => {
-                                    if (event.key === ' ') {
-                                        event.preventDefault();
-                                    }
-                                } : undefined}
-                                readOnly={courtCheckboxIsReadOnly}
-                                type="checkbox"
-                                value={court.number}
-                            />
-                            Platz {court.number}
-                        </label>
-                    ))}
-                </div>
-            </div>
             {(user.role === 'admin') && <>
                 <div className="reservation-field">
                     <span>Wiederholung:</span>
