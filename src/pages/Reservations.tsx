@@ -91,6 +91,23 @@ export default function Reservations() {
         setSlot(null);
     };
     const parseDatasetArray = (value: string | undefined) => value ? JSON.parse(value) : undefined;
+    const getReservationSlot = (slot: HTMLElement): Slot => ({
+        court_number: slot.dataset.court_number!,
+        date: slot.dataset.date!,
+        reservation_date: slot.dataset.reservation_date,
+        hour: Number(slot.dataset.hour),
+        court_nums: parseDatasetArray(slot.dataset.court_nums),
+        club_id: slot.dataset.club_id,
+        reservation_id: slot.dataset.reservation_id,
+        end_time: slot.dataset.end_time ? Number(slot.dataset.end_time) : undefined,
+        recurring: slot.dataset.recurring === 'true',
+        user_name: slot.dataset.user_name,
+        user_id: slot.dataset.user_id,
+        label: slot.dataset.label,
+        deleted_dates: parseDatasetArray(slot.dataset.deleted_dates),
+        end_date: slot.dataset.end_date,
+        timestamp: slot.dataset.timestamp
+    });
     const clickHandler = (event: React.MouseEvent) => {
         if (disabled) {
             return;
@@ -110,8 +127,14 @@ export default function Reservations() {
 
             const reservedByOthers = slot.classList.contains('reserved') && !slot.classList.contains('my-reservation');
 
-            // slots in the past or reserved by others should not be clickable unless user is admin
-            if (user.role !== 'admin' && (slot.classList.contains('past') || reservedByOthers)) {
+            if (reservedByOthers && user.role !== 'admin') {
+                setPopupType('reservationDetails');
+                setSlot(getReservationSlot(slot));
+                return;
+            }
+
+            // slots in the past should not be clickable unless user is admin
+            if (user.role !== 'admin' && slot.classList.contains('past')) {
                 return;
             }
 
@@ -121,23 +144,7 @@ export default function Reservations() {
             if (slot.classList.contains('my-reservation') ||
                 (reservedByOthers && user.role === 'admin')) {
                 setPopupType('deleteReservation');
-                setSlot({
-                    court_number: slot.dataset.court_number!,
-                    date: slot.dataset.date!,
-                    reservation_date: slot.dataset.reservation_date,
-                    hour: Number(slot.dataset.hour),
-                    court_nums: parseDatasetArray(slot.dataset.court_nums),
-                    club_id: slot.dataset.club_id,
-                    reservation_id: slot.dataset.reservation_id,
-                    end_time: slot.dataset.end_time ? Number(slot.dataset.end_time) : undefined,
-                    recurring: slot.dataset.recurring === 'true',
-                    user_name: slot.dataset.user_name,
-                    user_id: slot.dataset.user_id,
-                    label: slot.dataset.label,
-                    deleted_dates: parseDatasetArray(slot.dataset.deleted_dates),
-                    end_date: slot.dataset.end_date,
-                    timestamp: slot.dataset.timestamp
-                });
+                setSlot(getReservationSlot(slot));
                 return;
             }
 

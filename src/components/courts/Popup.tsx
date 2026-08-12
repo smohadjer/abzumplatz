@@ -117,7 +117,7 @@ export function Popup(props: {
         ['Datum', getLocalDate(reservationDate)],
         ['Startzeit', `${slot.hour}:00 Uhr`],
         ['Endzeit', slot.end_time ? `${slot.end_time}:00 Uhr` : undefined],
-        ['Reservierungslabel', slot.label],
+        ['Label', slot.label],
         ['Wiederholt sich jede Woche', user.role === 'admin' ? formatBoolean(slot.recurring) : undefined],
         ['Gelöschte Termine', slot.deleted_dates?.map(date => getLocalDate(date)).join(', ')],
         ['Enddatum', getLocalDate(slot.end_date)],
@@ -158,6 +158,22 @@ export function Popup(props: {
     const getPopupContent = (slot: Slot, popupType: string) => {
         if (createdReservation) {
             return getReservationSuccessContent(createdReservation);
+        }
+
+        if (popupType === 'reservationDetails') {
+            return (
+                <div className="reservation-details">
+                    <h2>Reservierungsdetails</h2>
+                    <dl>
+                        {getReservationDetails(slot).map(([label, value]) => (
+                            <div key={label}>
+                                <dt>{label}</dt>
+                                <dd>{value}</dd>
+                            </div>
+                        ))}
+                    </dl>
+                </div>
+            );
         }
 
         if (popupType === 'deleteReservation') {

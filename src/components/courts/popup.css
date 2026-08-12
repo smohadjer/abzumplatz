@@ -250,4 +250,25 @@
             margin-top: 1.25em;
         }
     }
+
+    .reservation-details {
+        dl {
+            margin-bottom: 0;
+        }
+
+        dl > div {
+            display: grid;
+            grid-template-columns: 7.5rem minmax(0, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.35em;
+        }
+
+        dt {
+            font-weight: 700;
+        }
+
+        dd {
+            margin: 0;
+        }
+    }
 }

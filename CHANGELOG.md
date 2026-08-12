@@ -7,6 +7,7 @@ All notable changes to this project should be documented in this file.
 ### Added
 
 - Added duplicate-name highlighting to member administration so administrators can identify matching member accounts.
+- Added a read-only detail popup when players select another member's reservation.
 
 ### Changed
 
