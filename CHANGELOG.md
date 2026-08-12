@@ -2,6 +2,12 @@
 
 All notable changes to this project should be documented in this file.
 
+## Upcoming
+
+### Added
+
+- Added app and browser diagnostics to technical-support email drafts.
+
 ## 0.0.26
 
 ### Added

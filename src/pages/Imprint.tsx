@@ -1,11 +1,9 @@
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router';
 import { RootState } from './../store';
-import packageJson from '../../package.json';
 
 export default function Imprint() {
     const auth = useSelector((state: RootState) => state.auth);
-    const appVersion = packageJson.version;
     const subject = `abzumplatz: Feedback von ${auth.first_name} ${auth.last_name}`;
 
     return (
@@ -20,7 +18,6 @@ export default function Imprint() {
                 Deutschland</p>
             <p><a href={`mailto:info@abzumplatz.de?subject=${subject}`}>info@abzumplatz.de</a></p>
             <p>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV: Saeid Mohadjer (Anschrift wie oben)</p>
-            <p>App-Version: {appVersion}</p>
         </div>
     )
 }

@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { onLogout } from '../utils/utils';
+import packageJson from '../../package.json';
 import './settings.css';
 
 export default function Settings() {
@@ -22,6 +23,7 @@ export default function Settings() {
                         }
                     }}>Abmelden</a>
                 </li>
+                <li className="settings-version">App-Version: {packageJson.version}</li>
             </ul>
         </>
     );
