@@ -2,11 +2,20 @@
 
 All notable changes to this project should be documented in this file.
 
-## Upcoming
+## 0.0.27
 
 ### Added
 
 - Added app and browser diagnostics to technical-support email drafts.
+
+### Changed
+
+- Restyled the admin overview navigation to match the Settings page.
+- Simplified the admin overview to show only the club registration date below its navigation links.
+
+### Fixed
+
+- Contained horizontal scrolling within the billing table on narrow screens.
 
 ## 0.0.26
 

@@ -124,19 +124,6 @@ a {
     min-height: 2.25em;
 }
 
-.admin-actions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    margin: 1rem 0;
-}
-
-.admin-actions .button-link {
-    min-width: 0;
-    min-height: 0;
-    padding: 0.5em 0.8em;
-}
-
 .button-link--secondary {
     background: #eef3fb;
     color: #234b96;
@@ -368,6 +355,11 @@ ul {
 
 .billings-table .billings-table__period {
     padding-right: 1.25rem;
+}
+
+.billings-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
 }
 
 .billings-table th,

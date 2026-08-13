@@ -99,47 +99,49 @@ export default function AdminBillingsPage() {
                     <p>Keine Abrechnungszeiträume vorhanden.</p>
                 ) : null}
                 {!loadError && billings.length ? (
-                    <table className="profile-table billings-table">
-                        <thead>
-                            <tr>
-                                <th>Plan</th>
-                                <th>Preis</th>
-                                <th className="billings-table__period">Zeitraum</th>
-                                <th>Status</th>
-                                <th>Rechnungsnr.</th>
-                                <th>Aktion</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {billings.map(period => {
-                                const coveredUntil = getCoveredUntilFromPeriodEnd(period.period_end) ?? period.period_end;
+                    <div className="billings-table-wrapper">
+                        <table className="profile-table billings-table">
+                            <thead>
+                                <tr>
+                                    <th>Plan</th>
+                                    <th>Preis</th>
+                                    <th className="billings-table__period">Zeitraum</th>
+                                    <th>Status</th>
+                                    <th>Rechnungsnr.</th>
+                                    <th>Aktion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {billings.map(period => {
+                                    const coveredUntil = getCoveredUntilFromPeriodEnd(period.period_end) ?? period.period_end;
 
-                                return (
-                                    <tr key={period._id ?? `${period.period_start}-${period.period_end}`}>
-                                        <td>{getPlanName(period.plan_type)}</td>
-                                        <td>{formatCurrency(period.price)}</td>
-                                        <td className="billings-table__period">
-                                            {parseLocalDate(period.period_start).toLocaleDateString('de-DE')}
-                                            {' - '}
-                                            {parseLocalDate(coveredUntil).toLocaleDateString('de-DE')}
-                                        </td>
-                                        <td>{period.status}</td>
-                                        <td>{period.invoice_number}</td>
-                                        <td>
-                                            <button
-                                                type="button"
-                                                className="button-link button-link--secondary"
-                                                disabled={!period._id || sendingInvoiceId === period._id}
-                                                onClick={() => sendInvoice(period)}
-                                            >
-                                                {sendingInvoiceId === period._id ? 'Wird gesendet...' : 'Rechnung senden'}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                                    return (
+                                        <tr key={period._id ?? `${period.period_start}-${period.period_end}`}>
+                                            <td>{getPlanName(period.plan_type)}</td>
+                                            <td>{formatCurrency(period.price)}</td>
+                                            <td className="billings-table__period">
+                                                {parseLocalDate(period.period_start).toLocaleDateString('de-DE')}
+                                                {' - '}
+                                                {parseLocalDate(coveredUntil).toLocaleDateString('de-DE')}
+                                            </td>
+                                            <td>{period.status}</td>
+                                            <td>{period.invoice_number}</td>
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    className="button-link button-link--secondary"
+                                                    disabled={!period._id || sendingInvoiceId === period._id}
+                                                    onClick={() => sendInvoice(period)}
+                                                >
+                                                    {sendingInvoiceId === period._id ? 'Wird gesendet...' : 'Rechnung senden'}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 ) : null}
             </>
         )

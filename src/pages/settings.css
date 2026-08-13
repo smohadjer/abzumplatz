@@ -12,18 +12,16 @@
     border-top: 1px solid #ddd;
 }
 
-.settings-links a {
+.settings-links a,
+.settings-links li > span {
     display: flex;
     align-items: center;
     gap: 0.4rem;
     padding: 0.85rem 0;
-    text-decoration: none;
 }
 
-.settings-version {
-    display: flex;
-    align-items: center;
-    padding: 0.85rem 0;
+.settings-links a {
+    text-decoration: none;
 }
 
 .settings-links a:not(.settings-logout-link)::after {

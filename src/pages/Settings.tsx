@@ -23,7 +23,7 @@ export default function Settings() {
                         }
                     }}>Abmelden</a>
                 </li>
-                <li className="settings-version">App-Version: {packageJson.version}</li>
+                <li><span>App-Version: {packageJson.version}</span></li>
             </ul>
         </>
     );
