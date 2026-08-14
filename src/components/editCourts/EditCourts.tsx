@@ -27,6 +27,7 @@ export function EditCourts(props: Props) {
         courtsOptions.push(
             {
                 label: `Platz ${index+1}`,
+                uncheckedLabel: `Platz ${index+1} (gesperrt)`,
                 value: `court_${index+1}`
             }
         )
@@ -48,7 +49,7 @@ export function EditCourts(props: Props) {
     normalizedFields.push({
         name: 'courts',
         value: courtsValue,
-        label: 'Plätze in der Benutzeroberfläche aktivieren/deaktivieren',
+        label: '',
         type: 'checkbox',
         options: courtsOptions,
     });

@@ -4,10 +4,6 @@ import { DBUser } from '../../src/types.js';
 import { ClubDocument, CourtsFormBody } from './_types.js';
 import { fetchClub } from './_fetchClub.js';
 
-const projection = {
-  timestamp: 0
-} as const;
-
 export async function updateCourts(
   collection: Collection<ClubDocument>,
   res: VercelResponse,
@@ -22,7 +18,7 @@ export async function updateCourts(
     return res.status(403).json({error: 'Updating these courts is not allowed'});
   }
 
-  const doc = await fetchClub(body._id, collection, {projection});
+  const doc = await fetchClub(body._id, collection);
   if (!doc) {
     return res.status(404).json({error: 'Club not found'});
   }
@@ -47,7 +43,7 @@ export async function updateCourts(
     throw new Error(`Club courts couldn't be updated`);
   }
 
-  const docs = await collection.find({}, {projection})
+  const docs = await collection.find({})
     .collation({
       locale: 'en',
       strength: 2

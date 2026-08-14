@@ -16,6 +16,7 @@ export type Field = {
   options?: {
     disabled?: boolean;
     label: string;
+    uncheckedLabel?: string;
     value: string | number;
   }[];
   autocomplete?: string;

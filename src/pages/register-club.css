@@ -9,11 +9,11 @@
 }
 
 .register-club-plan-card {
-    padding: 1rem;
-    background: #fff;
-    border: 1px solid #d9e3f5;
-    border-radius: 0.9rem;
-    box-shadow: 0 10px 24px rgba(50, 100, 200, 0.08);
+    padding: 1.25rem 1rem;
+    background: linear-gradient(180deg, #f8fbff 0%, #edf3fd 100%);
+    border: 1px solid #d6e1f4;
+    border-radius: 1rem;
+    box-sizing: border-box;
 }
 
 .register-club-plan-name,
@@ -57,8 +57,8 @@
 }
 
 .register-club-plan-action .register-club-plan-select-button {
-    display: block;
-    width: 100%;
+    display: inline-flex;
+    width: auto;
     margin-top: 0;
     border-radius: 999px;
 }
@@ -73,10 +73,6 @@
 
 .register-club-form-intro {
     margin: 0.5rem 0 0.75rem;
-}
-
-.register-club-plan-limit-note {
-    margin-top: 1rem;
 }
 
 .register-club-form-section--hidden {

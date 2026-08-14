@@ -27,6 +27,7 @@ type Props = {
 
 type Option = {
     label: string;
+    uncheckedLabel?: string;
     value: string | number;
 }
 
@@ -280,14 +281,14 @@ export function Form(props: Props) {
             case 'checkbox':
                 return (
                  <div className={item.error  ? 'row row-error' : 'row'} key={index}>
-                    <label>{item.label}: {item.required ? '*' : ''}</label>
+                    {item.label ? <label>{item.label}: {item.required ? '*' : ''}</label> : null}
                     <div>
                     <div>
                         {item.options?.map((option: Option, index: number) =>
                         <Checkbox
                             key={index}
                             name={item.name}
-                            label={option.label}
+                            label={isChecked(item, option) ? option.label : option.uncheckedLabel ?? option.label}
                             checked={isChecked(item, option)}
                             value={option.value}
                             handleChange={handleChange}

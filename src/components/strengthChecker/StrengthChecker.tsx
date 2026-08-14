@@ -1,6 +1,7 @@
 import './StrengthChecker.css';
 
 const strengthLevels = ['low', 'medium', 'high'];
+const strengthLabels = ['Niedrig', 'Mittel', 'Hoch'];
 const rules = [
     { regex: /.{8,}/ }, // min 8 letters
     { regex: /[0-9]/ }, // numbers from 0 - 9
@@ -26,6 +27,6 @@ export function StrengthChecker({password}: {password: string}) {
     const normalizedScore = (score < 3) ? 0 : (score < 5) ? 1 : 2;
     const strength = strengthLevels[normalizedScore];
     return (
-        <span className={strength}>Strength: {strength}</span>
+        <span className={strength}>Passwortstärke: {strengthLabels[normalizedScore]}</span>
     )
 }

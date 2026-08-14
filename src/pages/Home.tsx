@@ -42,7 +42,8 @@ export default function Home() {
             {!isLoggedIn ? (
                 <p className="home-info-links">
                     <Link to="/impressum">Impressum</Link>{' · '}
-                    <Link to="/support">Support</Link>
+                    <Link to="/support">Support</Link>{' · '}
+                    <Link to="/faq">FAQ</Link>
                 </p>
             ) : null}
         </>

@@ -2,6 +2,26 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.28
+
+### Added
+
+- Added separate player and administrator FAQ sections and linked them from the homepage and Settings.
+
+### Changed
+
+- Refined homepage messaging, cards, actions, screenshot, and supporting links.
+- Centered club names in the authenticated header and reduced page-heading size.
+- Expanded the Support page and email template to welcome general feedback and feature suggestions as well as bug reports.
+- Updated club-registration plan cards to match the homepage card styling and moved the Basic-plan member-limit explanation to the FAQ.
+- Restyled FAQ and member-management tabs and updated member action buttons with pill styling.
+- Translated the password-strength indicator into German.
+- Updated court controls to label unchecked courts as blocked immediately.
+
+### Fixed
+
+- Preserved the club registration timestamp in court-update responses.
+
 ## 0.0.27
 
 ### Added

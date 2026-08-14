@@ -149,9 +149,6 @@ export default function RegisterClub() {
                             </article>
                         ))}
                     </div>
-                    <p className="register-club-plan-limit-note">
-                        Das Mitgliederlimit begrenzt nur, wie viele Mitglieder gleichzeitig aktiv sein können. Wenn Ihr Verein bereits über dem Limit liegt, bleiben bestehende aktive Mitglieder erhalten, aber es können keine weiteren inaktiven oder neuen Mitglieder aktiviert werden, bis die Zahl der Vereinsmitglieder wieder unter das Limit des Plans fällt.
-                    </p>
                 </section>
             )}
 

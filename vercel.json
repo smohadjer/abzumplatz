@@ -17,6 +17,7 @@
         {"source": "/settings", "destination": "/"},
         {"source": "/rules", "destination": "/"},
         {"source": "/support", "destination": "/"},
+        {"source": "/faq", "destination": "/"},
         {"source": "/reservations", "destination": "/"},
         {"source": "/bookings", "destination": "/"},
         {"source": "/impressum", "destination": "/"},

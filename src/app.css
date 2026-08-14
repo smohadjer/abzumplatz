@@ -214,9 +214,8 @@ ul {
 
 .members-tabs {
     display: flex;
-    gap: 0.5rem;
     margin: 1rem 0;
-    flex-wrap: wrap;
+    border-bottom: 1px solid #c7d3eb;
 }
 
 .members-warning-box {
@@ -247,20 +246,26 @@ ul {
 }
 
 .members-tab {
-    margin-top: 0;
-    padding: 0.45rem 0.75rem;
-    border: 1px solid #c7d3eb;
-    border-radius: 999px;
-    background: #f4f7fc;
-    color: #234b96;
+    margin: 0 0 -1px;
+    padding: 0.65rem 1rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: #4b5b78;
     cursor: pointer;
     font: inherit;
 }
 
 .members-tab--active {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: white;
+    border-bottom-color: var(--blue);
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.members-tab:hover,
+.members-tab:focus-visible {
+    color: var(--blue);
+    background: #f4f7fc;
 }
 
 .members-select-all-button {
@@ -314,6 +319,7 @@ ul {
     background: #3264c8;
     color: white;
     border: 0;
+    border-radius: 999px;
     cursor: pointer;
 }
 
