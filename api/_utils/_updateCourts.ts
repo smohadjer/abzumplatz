@@ -43,7 +43,7 @@ export async function updateCourts(
     throw new Error(`Club courts couldn't be updated`);
   }
 
-  const docs = await collection.find({})
+  const docs = await collection.find({deleted_at: {$exists: false}})
     .collation({
       locale: 'en',
       strength: 2

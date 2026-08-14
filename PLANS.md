@@ -140,6 +140,21 @@ Renewal still keeps the original billing anchor day.
 - the next active period is created from the previous renewal boundary
 - missed periods are backfilled in order if processing runs after multiple renewal boundaries
 
+### Deleted and restored clubs
+
+Deleted clubs are excluded from scheduled and fallback billing renewal processing. No billing periods or invoice emails are created while a club is deleted.
+
+When an administrator restores a club:
+
+- a still-current active billing period is kept unchanged
+- no new invoice is issued while that period remains current
+- an expired active period is marked as completed
+- if there is no current active period, exactly one new period begins on the restoration date using `next_plan_type`
+- the restoration date becomes the anchor for subsequent renewals
+- periods covering the deleted interval are not backfilled or invoiced
+
+The billing reconciliation and club restoration are committed in one database transaction. If a new period is created, its invoice email is sent only after the transaction commits.
+
 ## Upgrades
 
 If a club upgrades to a higher plan:
@@ -199,6 +214,7 @@ An invoice email is sent:
 - immediately after the initial billing period is created during club registration
 - automatically for every billing period created by the scheduled renewal process
 - automatically for every billing period created by fallback renewal in another write workflow
+- once when club restoration creates a new current billing period
 - immediately after an administrator manually creates a billing period
 - immediately after `GET /api/billing` repairs a club that has no billing periods by creating a missing initial period
 - when an administrator uses the resend action for an existing billing period

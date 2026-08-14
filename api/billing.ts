@@ -147,6 +147,16 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       return res.status(403).json({error: 'Admin is not assigned to a club'});
     }
 
+    const requesterClub = await clubs.findOne({
+      _id: ObjectId.createFromHexString(requester.club_id),
+      deleted_at: {$exists: false},
+    }, {
+      projection: {_id: 1},
+    });
+    if (!requesterClub) {
+      return res.status(410).json({error: 'Club has been deleted'});
+    }
+
     if (req.method === 'GET') {
       const requestedClubId = isString(req.query?.club_id)
         ? req.query.club_id
@@ -165,7 +175,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
       if (!periods.length) {
         const club = await clubs.findOne({
-          _id: ObjectId.createFromHexString(requestedClubId)
+          _id: ObjectId.createFromHexString(requestedClubId),
+          deleted_at: {$exists: false},
         });
         if (!club) {
           return res.status(404).json({error: 'Club not found'});
@@ -234,6 +245,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
         const club = await clubs.findOne({
           _id: ObjectId.createFromHexString(period.club_id),
+          deleted_at: {$exists: false},
         });
         if (!club) {
           return res.status(404).json({error: 'Club not found for billing period'});
@@ -294,7 +306,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       const club = await clubs.findOne({
-        _id: ObjectId.createFromHexString(club_id)
+        _id: ObjectId.createFromHexString(club_id),
+        deleted_at: {$exists: false},
       });
       if (!club) {
         return res.status(404).json(validationError('/club_id', 'Verein nicht gefunden.'));
@@ -343,7 +356,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
         if (status === 'active') {
           await clubs.updateOne(
-            {_id: ObjectId.createFromHexString(club_id)},
+            {_id: ObjectId.createFromHexString(club_id), deleted_at: {$exists: false}},
             {
               $set: getPlanStateAtRenewal(billingPlanType),
               $unset: {
@@ -361,7 +374,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         console.error('Failed to send invoice email for manually created billing period', emailError);
         if (status === 'active' && emailError instanceof BillingPeriodInvoiceDeliveryError) {
           await clubs.updateOne(
-            {_id: ObjectId.createFromHexString(club_id)},
+            {_id: ObjectId.createFromHexString(club_id), deleted_at: {$exists: false}},
             {
               $set: getPlanStateAtRenewal(billingPlanType),
               $unset: {

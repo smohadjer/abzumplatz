@@ -59,6 +59,7 @@ export type Court = {
 export type Club = {
     _id: string;
     name: string;
+    deleted_at?: Date | string;
     timestamp?: Date | string;
     address_line1?: string;
     postal_code?: string;
@@ -153,6 +154,7 @@ export type AuthenticatedUser = {
     email: string;
     _id: string;
     club_id: string;
+    club_deleted?: boolean;
     role: string;
     // Display-only client cache; it is not the backend authorization source of truth.
     status?: string;

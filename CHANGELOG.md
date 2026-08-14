@@ -2,6 +2,22 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.29
+
+### Added
+
+- Added administrator actions to delete and restore a club.
+
+### Changed
+
+- Hid deleted clubs from registration and club-selection lists while retaining administrator access for restoration.
+- Redirected players assigned to a deleted club to select an active club after login.
+- Added the deletion date for club administrators and a deleted-club notice for affected players.
+- Restricted administrators of deleted clubs to a recovery page with restore and logout actions.
+- Required administrators to re-enter their current password before deleting a club.
+- Excluded deleted clubs from club-scoped API operations and scheduled billing renewals.
+- Resumed billing on club restoration without creating retroactive billing periods for the deleted interval.
+
 ## 0.0.28
 
 ### Added

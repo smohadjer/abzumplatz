@@ -193,7 +193,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       const club = await clubCollection.findOne({
-        _id: ObjectId.createFromHexString(club_id)
+        _id: ObjectId.createFromHexString(club_id),
+        deleted_at: {$exists: false}
       });
       if (!club) {
         return res.status(404).json(validationError('Verein nicht gefunden.'));

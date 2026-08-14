@@ -18,6 +18,11 @@ export default function SelectClubPage(props: Props) {
         <>
             <p><Link className="icon icon--back" to="/profile">Zurück</Link></p>
             <h1>{isChangingClub ? 'Verein wechseln' : 'Verein auswählen'}</h1>
+            {auth.club_deleted ? (
+                <p className="inactive-status-warning">
+                    Ihr bisheriger Verein wurde gelöscht. Bitte wählen Sie einen neuen Verein aus.
+                </p>
+            ) : null}
             {isChangingClub ? <p>Aktueller Verein: <strong>{club?.name ?? '-'}</strong></p> : null}
             <p>{isChangingClub
                 ? 'Wenn Sie Ihren Verein wechseln oder verlassen, werden alle aktiven Reservierungen in Ihrem aktuellen Verein gelöscht.'

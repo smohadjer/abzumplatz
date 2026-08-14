@@ -28,7 +28,7 @@ export function Signup() {
                 label: 'Verein auswählen',
                 value: ''
             },
-            ...clubs.map(club => ({
+            ...clubs.filter(club => !club.deleted_at).map(club => ({
                 label: club.name,
                 value: club._id
             }))

@@ -7,13 +7,15 @@ import { ClubWithBilling, DBUser, JwtPayload } from '../src/types.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, ClubFormBody, CourtsFormBody, RulesFormBody } from './_utils/_types.js';
 import { updateCourts } from './_utils/_updateCourts.js';
-import { BillingPeriodDocument, getClubBillingState, InvoiceCounterDocument, isDowngradeLocked } from './_utils/_billingPeriods.js';
+import { BillingPeriodDocument, getClubBillingState, InvoiceCounterDocument, isDowngradeLocked, ProcessedClubBillingRenewal, resumeClubBilling } from './_utils/_billingPeriods.js';
 import { BillingPeriodInvoiceDeliveryError, createInitialBillingPeriodAndSendInvoice, processClubBillingRenewalAndSendInvoices } from './_utils/_billingService.js';
+import { sendBillingPeriodInvoiceEmail } from './_utils/_billingInvoices.js';
 import { getClubPlanState, getPlanChangeUpdate } from './_utils/_planTransitions.js';
 import { fetchClub } from './_utils/_fetchClub.js';
 import { isLowerPlan } from '../src/planConfig.js';
 import { getEffectiveMembersLimitForPlan, hasMembersLimitOverride } from './_utils/_planLimits.js';
 import { defaultClubRules } from '../src/clubRules.js';
+import bcrypt from 'bcrypt';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -46,6 +48,33 @@ const enrichClubWithBilling = async (
   };
 };
 
+type ClubAdminAuthorization =
+  | {requester: WithId<DBUser>}
+  | {error: {status: 401 | 403; message: string}};
+
+const authorizeClubAdmin = async (
+  req: VercelRequest,
+  userCollection: Collection<DBUser>,
+  clubId: string
+): Promise<ClubAdminAuthorization> => {
+  const payload = await getJwtPayload(req);
+  if (!payload) {
+    return {error: {status: 401, message: 'Authentication required'}};
+  }
+
+  const requester = await userCollection.findOne({
+    _id: ObjectId.createFromHexString(payload._id)
+  });
+  if (!requester) {
+    return {error: {status: 401, message: 'Authentication required'}};
+  }
+  if (requester.role !== 'admin' || requester.club_id !== clubId) {
+    return {error: {status: 403, message: 'Updating this club is not allowed'}};
+  }
+
+  return {requester};
+};
+
 export default async (req: VercelRequest, res: VercelResponse) => {
   try {
     await client.connect();
@@ -62,7 +91,18 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           return res.status(400).json({error: 'Club id is invalid'});
         }
 
-        const doc = await enrichClubWithBilling(collection, billingPeriodsCollection, await fetchClub(id, collection));
+        const rawClub = await fetchClub(id, collection);
+        if (rawClub?.deleted_at) {
+          const payload = await getJwtPayload(req);
+          const requester = payload ? await userCollection.findOne({
+            _id: ObjectId.createFromHexString(payload._id)
+          }) : null;
+          if (!requester || requester.role !== 'admin' || requester.club_id !== id) {
+            return res.status(404).end();
+          }
+        }
+
+        const doc = await enrichClubWithBilling(collection, billingPeriodsCollection, rawClub);
         if (doc) {
           return res.json(doc);
         } else {
@@ -72,6 +112,107 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         const docs = await getAllClubs(collection, billingPeriodsCollection);
         return res.json(docs);
       }
+    }
+
+    if (req.method === 'DELETE') {
+      const id = req.query?.id;
+      if (!id || Array.isArray(id)) {
+        return res.status(400).json({error: 'Club id is invalid'});
+      }
+
+      const authorization = await authorizeClubAdmin(req, userCollection, id);
+      if ('error' in authorization) {
+        return res.status(authorization.error.status).json({error: authorization.error.message});
+      }
+
+      const password = typeof req.body?.password === 'string' ? req.body.password : '';
+      if (!password || !await bcrypt.compare(password, authorization.requester.password)) {
+        return res.status(401).json({error: 'Das Passwort ist nicht korrekt.'});
+      }
+
+      const result = await collection.updateOne(
+        {_id: ObjectId.createFromHexString(id), deleted_at: {$exists: false}},
+        {$set: {deleted_at: new Date()}}
+      );
+      if (!result.matchedCount) {
+        return res.status(404).json({error: 'Club not found'});
+      }
+
+      const club = await enrichClubWithBilling(
+        collection,
+        billingPeriodsCollection,
+        await fetchClub(id, collection)
+      );
+      return res.json(club);
+    }
+
+    if (req.method === 'PATCH') {
+      const id = req.query?.id;
+      if (!id || Array.isArray(id)) {
+        return res.status(400).json({error: 'Club id is invalid'});
+      }
+
+      const authorization = await authorizeClubAdmin(req, userCollection, id);
+      if ('error' in authorization) {
+        return res.status(authorization.error.status).json({error: authorization.error.message});
+      }
+
+      let restoredBilling: ProcessedClubBillingRenewal | undefined;
+      let result;
+      const session = client.startSession();
+      try {
+        await session.withTransaction(async () => {
+          const deletedClub = await collection.findOne({
+            _id: ObjectId.createFromHexString(id),
+            deleted_at: {$exists: true},
+          }, {session});
+          if (!deletedClub) {
+            return;
+          }
+
+          restoredBilling = await resumeClubBilling(
+            collection,
+            billingPeriodsCollection,
+            invoiceCountersCollection,
+            deletedClub,
+            new Date(),
+            session
+          );
+          result = await collection.updateOne(
+            {_id: ObjectId.createFromHexString(id), deleted_at: {$exists: true}},
+            {$unset: {deleted_at: ''}},
+            {session}
+          );
+        });
+      } finally {
+        await session.endSession();
+      }
+
+      if (!result?.matchedCount) {
+        return res.status(404).json({error: 'Club not found'});
+      }
+
+      let invoiceEmailError: string | undefined;
+      if (restoredBilling?.createdPeriods.length) {
+        try {
+          await Promise.all(restoredBilling.createdPeriods.map(period =>
+            sendBillingPeriodInvoiceEmail(database, restoredBilling!.club, period, 'renewal')
+          ));
+        } catch (error) {
+          console.error('Failed to send restored club invoice email', error);
+          invoiceEmailError = error instanceof Error ? error.message : 'Invoice email delivery failed.';
+        }
+      }
+
+      const club = await enrichClubWithBilling(
+        collection,
+        billingPeriodsCollection,
+        await fetchClub(id, collection)
+      );
+      return res.json({
+        ...club,
+        ...(invoiceEmailError ? {invoice_email_error: invoiceEmailError} : {}),
+      });
     }
 
     if (req.method === 'POST') {
@@ -87,6 +228,18 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       });
       if (!requester) {
         return res.status(401).json({error: 'Authentication required'});
+      }
+
+      if (requester.club_id) {
+        const requesterClub = await collection.findOne({
+          _id: ObjectId.createFromHexString(requester.club_id),
+          deleted_at: {$exists: false},
+        }, {
+          projection: {_id: 1},
+        });
+        if (!requesterClub) {
+          return res.status(410).json({error: 'Club has been deleted'});
+        }
       }
       if (requester.role !== 'admin') {
         return res.status(403).json({error: 'Only admins can edit clubs'});
@@ -385,7 +538,7 @@ async function getAllClubs(
   collection: Collection<ClubDocument>,
   billingPeriodsCollection: Collection<BillingPeriodDocument>
 ) {
-    const docs = await collection.find({})
+  const docs = await collection.find({deleted_at: {$exists: false}})
     .collation({
         locale: 'en',
         strength: 2

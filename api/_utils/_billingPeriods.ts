@@ -1,4 +1,4 @@
-import { Collection, ObjectId } from 'mongodb';
+import { ClientSession, Collection, ObjectId } from 'mongodb';
 import { PlanType } from '../../src/types.js';
 import { getNextBillingPeriodStartForPlan, getPlanPrice, hasFutureBillingPeriodEnd } from '../../src/planConfig.js';
 import { ClubDocument } from './_types.js';
@@ -99,7 +99,8 @@ function getInvoiceYear(value: Date) {
 
 async function getNextInvoiceNumber(
     invoiceCountersCollection: Collection<InvoiceCounterDocument>,
-    issueDate: Date
+    issueDate: Date,
+    session?: ClientSession
 ) {
     const year = getInvoiceYear(issueDate);
     const counter = await invoiceCountersCollection.findOneAndUpdate(
@@ -108,6 +109,7 @@ async function getNextInvoiceNumber(
         {
             upsert: true,
             returnDocument: 'after',
+            ...(session ? {session} : {}),
         }
     );
 
@@ -121,16 +123,18 @@ async function getNextInvoiceNumber(
 export async function insertBillingPeriod(
     collection: Collection<BillingPeriodDocument>,
     invoiceCountersCollection: Collection<InvoiceCounterDocument>,
-    period: NewBillingPeriodDocument
+    period: NewBillingPeriodDocument,
+    session?: ClientSession
 ) {
     const document: BillingPeriodDocument = {
         ...period,
         invoice_number: await getNextInvoiceNumber(
             invoiceCountersCollection,
-            period.created_at
+            period.created_at,
+            session
         ),
     };
-    const result = await collection.insertOne(document);
+    const result = await collection.insertOne(document, session ? {session} : undefined);
     document._id = result.insertedId;
     return document;
 }
@@ -147,18 +151,20 @@ async function getLatestBillingPeriod(
 
 async function getActiveBillingPeriod(
     collection: Collection<BillingPeriodDocument>,
-    clubId: string
+    clubId: string,
+    session?: ClientSession
 ) {
     return collection.findOne({
         club_id: clubId,
         status: 'active'
-    });
+    }, session ? {session} : undefined);
 }
 
 async function updateBillingPeriod(
     collection: Collection<BillingPeriodDocument>,
     periodId: ObjectId | undefined,
-    fields: Partial<BillingPeriodDocument>
+    fields: Partial<BillingPeriodDocument>,
+    session?: ClientSession
 ) {
     if (!periodId) {
         return;
@@ -166,14 +172,16 @@ async function updateBillingPeriod(
 
     await collection.updateOne(
         {_id: periodId},
-        {$set: fields}
+        {$set: fields},
+        session ? {session} : undefined
     );
 }
 
 async function updateClubPlanState(
     clubsCollection: Collection<ClubDocument>,
     club: ClubDocument,
-    fields: Partial<ClubDocument>
+    fields: Partial<ClubDocument>,
+    session?: ClientSession
 ) {
     if (!club._id) {
         return {
@@ -186,7 +194,8 @@ async function updateClubPlanState(
         {_id: club._id},
         {
             $set: fields,
-        }
+        },
+        session ? {session} : undefined
     );
 
     return {
@@ -228,7 +237,7 @@ export async function getClubBillingState(
     now = new Date()
 ): Promise<ResolvedClubBillingState> {
     const clubId = club._id?.toString();
-    if (!clubId) {
+    if (!clubId || club.deleted_at) {
         return {
             club,
             currentBillingPeriod: null,
@@ -260,7 +269,7 @@ export async function processClubBillingRenewal(
     let createdPeriodsCount = 0;
     const createdPeriods: BillingPeriodDocument[] = [];
 
-    if (!clubId) {
+    if (!clubId || club.deleted_at) {
         return {
             club: resolvedClub,
             currentBillingPeriod: null,
@@ -270,6 +279,22 @@ export async function processClubBillingRenewal(
             createdPeriods,
         };
     }
+
+    const currentClub = await clubsCollection.findOne({
+        _id: ObjectId.createFromHexString(clubId),
+        deleted_at: {$exists: false},
+    });
+    if (!currentClub) {
+        return {
+            club: resolvedClub,
+            currentBillingPeriod: null,
+            renewalApplied,
+            completedPeriodsCount,
+            createdPeriodsCount,
+            createdPeriods,
+        };
+    }
+    resolvedClub = currentClub;
 
     let activePeriod = await getActiveBillingPeriod(billingPeriodsCollection, clubId);
 
@@ -364,13 +389,88 @@ export async function processClubBillingRenewal(
     }
 }
 
+export async function resumeClubBilling(
+    clubsCollection: Collection<ClubDocument>,
+    billingPeriodsCollection: Collection<BillingPeriodDocument>,
+    invoiceCountersCollection: Collection<InvoiceCounterDocument>,
+    club: ClubDocument,
+    now = new Date(),
+    session?: ClientSession
+): Promise<ProcessedClubBillingRenewal> {
+    const clubId = club._id?.toString();
+    let resolvedClub = club;
+    let completedPeriodsCount = 0;
+    const createdPeriods: BillingPeriodDocument[] = [];
+
+    if (!clubId) {
+        return {
+            club: resolvedClub,
+            currentBillingPeriod: null,
+            renewalApplied: false,
+            completedPeriodsCount,
+            createdPeriodsCount: 0,
+            createdPeriods,
+        };
+    }
+
+    const activePeriod = await getActiveBillingPeriod(billingPeriodsCollection, clubId, session);
+    if (activePeriod && hasFutureBillingPeriodEnd(activePeriod.period_end, now)) {
+        return {
+            club: resolvedClub,
+            currentBillingPeriod: activePeriod,
+            renewalApplied: false,
+            completedPeriodsCount,
+            createdPeriodsCount: 0,
+            createdPeriods,
+        };
+    }
+
+    if (activePeriod) {
+        await updateBillingPeriod(billingPeriodsCollection, activePeriod._id, {
+            status: 'completed',
+        }, session);
+        completedPeriodsCount = 1;
+    }
+
+    const planType = resolvedClub.next_plan_type;
+    resolvedClub = await updateClubPlanState(
+        clubsCollection,
+        resolvedClub,
+        getPlanStateAtRenewal(planType),
+        session
+    );
+    const newPeriod = await insertBillingPeriod(
+        billingPeriodsCollection,
+        invoiceCountersCollection,
+        createBillingPeriodRecord(
+            clubId,
+            planType,
+            now,
+            'active',
+            'restoration',
+            now.getDate()
+        ),
+        session
+    );
+    createdPeriods.push(newPeriod);
+
+    return {
+        club: resolvedClub,
+        currentBillingPeriod: newPeriod,
+        renewalApplied: true,
+        completedPeriodsCount,
+        createdPeriodsCount: 1,
+        createdPeriods,
+    };
+}
+
 export async function processBillingRenewals(
     clubsCollection: Collection<ClubDocument>,
     billingPeriodsCollection: Collection<BillingPeriodDocument>,
     invoiceCountersCollection: Collection<InvoiceCounterDocument>,
     now = new Date()
 ): Promise<ProcessedBillingRenewalsResult> {
-    const clubs = await clubsCollection.find({}).toArray();
+    const clubs = await clubsCollection.find({deleted_at: {$exists: false}}).toArray();
     const summary: ProcessedBillingRenewalsSummary = {
         totalClubsChecked: clubs.length,
         clubsRenewed: 0,

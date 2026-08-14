@@ -47,3 +47,106 @@
 .settings-logout-link:focus-visible {
     color: #8f1c13;
 }
+
+.settings-danger-button {
+    display: flex;
+    width: 100%;
+    margin: 0;
+    padding: 0.85rem 0;
+    border: 0;
+    background: transparent;
+    color: #b42318;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.settings-danger-button:hover,
+.settings-danger-button:focus-visible {
+    background: #fff3f2;
+    color: #8f1c13;
+}
+
+.settings-danger-button:disabled {
+    color: #777;
+    cursor: default;
+}
+
+.settings-restore-button {
+    color: var(--blue);
+}
+
+.settings-restore-button:hover,
+.settings-restore-button:focus-visible {
+    background: #f2f5fa;
+    color: #254f9f;
+}
+
+.settings-delete-error {
+    color: #b42318;
+}
+
+.admin-deleted-club-warning {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #e0c36c;
+    border-radius: 0.25rem;
+    background: #fff4d6;
+    color: #222;
+}
+
+.admin-deleted-club-warning p {
+    margin-top: 0.5rem;
+}
+
+.admin-deleted-club-warning p:first-child {
+    margin-top: 0;
+}
+
+.admin-delete-confirmation {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #e4aaa5;
+    border-radius: 0.25rem;
+    background: #fff3f2;
+}
+
+.admin-delete-confirmation p {
+    margin-top: 0;
+}
+
+.admin-delete-confirmation label {
+    display: block;
+    margin-top: 0.75rem;
+}
+
+.admin-delete-confirmation input {
+    width: 100%;
+    max-width: 20rem;
+    margin-top: 0.25rem;
+    padding: 0.4rem;
+    border: 1px solid #aaa;
+    box-sizing: border-box;
+    font: inherit;
+}
+
+.admin-delete-confirmation-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.admin-delete-confirmation-actions button {
+    margin: 0;
+    padding: 0.5rem 0.85rem;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.admin-delete-confirm-button {
+    background: #b42318;
+    color: white;
+}

@@ -191,7 +191,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                         throw createError('Der ausgewählte Verein existiert nicht.', 'club_id');
                     }
                     club = await database.collection<ClubDocument>('clubs').findOne({
-                        _id: ObjectId.createFromHexString(club_id)
+                        _id: ObjectId.createFromHexString(club_id),
+                        deleted_at: {$exists: false}
                     });
                     if (!club) {
                         throw createError('Der ausgewählte Verein existiert nicht.', 'club_id');

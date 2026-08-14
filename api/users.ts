@@ -130,6 +130,17 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       if (!requester) {
         return res.status(401).json({error: 'Authentication required'});
       }
+      if (requester.club_id) {
+        const requesterClub = await clubCollection.findOne({
+          _id: ObjectId.createFromHexString(requester.club_id),
+          deleted_at: {$exists: false},
+        }, {
+          projection: {_id: 1},
+        });
+        if (!requesterClub) {
+          return res.status(410).json({error: 'Club has been deleted'});
+        }
+      }
 
       const user_id = req.query?.id;
       if (user_id) {
@@ -192,8 +203,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       const club = requester.club_id ? await clubCollection.findOne({
-        _id: ObjectId.createFromHexString(requester.club_id)
+        _id: ObjectId.createFromHexString(requester.club_id),
+        deleted_at: {$exists: false},
       }) : null;
+      if (!club) {
+        return res.status(410).json({error: 'Club has been deleted'});
+      }
       const billingState = requester.club_id && club
         ? await processClubBillingRenewalAndSendInvoices(
             database,

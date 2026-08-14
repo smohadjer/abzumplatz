@@ -1,12 +1,13 @@
 import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { jwtSecret, environment, database_uri, database_name } from './_utils/_config.js';
 import bcrypt from 'bcrypt';
 import { SignJWT } from 'jose';
 import { AuthenticatedUserResponse, DBUser, JwtPayload } from '../src/types.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { getErrorMessage } from './_utils/_errors.js';
+import { ClubDocument } from './_utils/_types.js';
 
 type LoginBody = {
     email: string;
@@ -64,6 +65,24 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
                 if (authenticated) {
                     const role = user.role || 'player';
+                    let clubId = user.club_id ?? '';
+                    let clubDeleted = false;
+
+                    if (clubId) {
+                      const club = await database.collection<ClubDocument>('clubs').findOne({
+                        _id: ObjectId.createFromHexString(clubId),
+                      }, {
+                        projection: {_id: 1, deleted_at: 1},
+                      });
+                      if (club?.deleted_at) {
+                        clubDeleted = true;
+                        if (role !== 'admin') {
+                          clubId = '';
+                        }
+                      } else if (!club && role !== 'admin') {
+                        clubId = '';
+                      }
+                    }
 
                     if (!user.first_name || !user.last_name) {
                       throw new Error('Benutzerkonto ist unvollständig konfiguriert.');
@@ -74,12 +93,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                       _id: user._id.toString(),
                       first_name: user.first_name,
                       last_name: user.last_name,
-                      club_id: user.club_id ?? '',
+                      club_id: clubId,
                       email: user.email,
                       role,
                     };
                     const responsePayload: AuthenticatedUserResponse = {
                       ...payload,
+                      club_deleted: clubDeleted,
                       status: user.status ?? 'inactive',
                     };
                     const token = await new SignJWT(payload)

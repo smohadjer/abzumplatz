@@ -11,6 +11,7 @@ import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { getErrorMessage, isAppError } from './_utils/_errors.js';
 
 type ReservationClub = {
+  deleted_at?: Date | string;
   start_hour: number;
   end_hour: number;
   reservations_limit: number | null;
@@ -35,7 +36,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const clubs = database.collection<ReservationClub>('clubs');
     const users = database.collection<DBUser>('users');
 
-    if (req.method === 'GET') {
+    if (req.method === 'GET' || req.method === 'POST') {
       const payload = await getJwtPayload(req);
       if (!payload) {
         return res.status(401).json({error: 'Authentication required'});
@@ -51,8 +52,18 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(403).json({error: 'User does not belong to a club'});
       }
 
-      const docs = await getAllReservations(reservations, user.club_id);
-      return res.json(docs);
+      const club = await clubs.findOne({
+        _id: ObjectId.createFromHexString(user.club_id),
+        deleted_at: {$exists: false},
+      });
+      if (!club) {
+        return res.status(410).json({error: 'Club has been deleted'});
+      }
+
+      if (req.method === 'GET') {
+        const docs = await getAllReservations(reservations, user.club_id);
+        return res.json(docs);
+      }
     }
 
     if (req.method === 'POST') {

@@ -10,6 +10,7 @@ export const authSlice = createSlice({
     email: '',
     _id: '',
     club_id: '',
+    club_deleted: false,
     role: '',
     status: '',
   },
@@ -26,6 +27,7 @@ export const authSlice = createSlice({
       state.email = action.payload.email;
       state._id = action.payload._id;
       state.club_id = action.payload.club_id ?? '';
+      state.club_deleted = action.payload.club_deleted ?? false;
       state.role = action.payload.role;
       state.status = action.payload.status ?? '';
     },
@@ -37,6 +39,7 @@ export const authSlice = createSlice({
       state.email = '';
       state._id = '';
       state.club_id = '';
+      state.club_deleted = false;
       state.role = '';
       state.status = '';
     },
@@ -45,14 +48,18 @@ export const authSlice = createSlice({
     },
     setClubId: (state, action) => {
       state.club_id = action.payload.club_id;
+      state.club_deleted = false;
       if (action.payload.status) {
         state.status = action.payload.status;
       }
+    },
+    setClubDeleted: (state, action) => {
+      state.club_deleted = action.payload.club_deleted;
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { login, logout, setAuthChecked, setClubId } = authSlice.actions
+export const { login, logout, setAuthChecked, setClubId, setClubDeleted } = authSlice.actions
 
 export default authSlice.reducer
