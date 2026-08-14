@@ -28,14 +28,13 @@ export default function Home() {
                 <div className="content">
                     <h2>Was abzumplatz Vereinen bietet:</h2>
                     <ul>
-                    <li>Auf jedem Gerät über den Browser nutzbar – ohne App-Installation</li>
-                    <li>Kostenlos für Tennisspieler und Vereine mit weniger als 100 aktiven Nutzern</li>
-                    <li>Reservieren Sie mehrere Plätze für mehrere Stunden in einer einzigen Buchung, zum Beispiel für Mannschaftsspiele</li>
-                    <li>Wiederkehrende Reservierungen, zum Beispiel für wöchentliches Teamtraining</li>
-                    <li>Reservierungslimits für Spieler festlegen sowie Reservierungen neu zuweisen, entfernen oder ändern</li>
-                    <li>Eigene Vereinsregeln festlegen oder die bereitgestellten Standardregeln verwenden</li>
-                    <li>Spieler in deinem Club aktivieren, deaktivieren oder entfernen</li>
-                    <li>Sowie viele weitere Funktionen, wie etwa die Möglichkeit, bestimmte Tennisplätze zu sperren, die Öffnungszeiten zu ändern usw.</li>
+                    <li>Ohne Installation auf Smartphone, Tablet und Computer nutzbar</li>
+                    <li>Kostenloser Basic-Plan für Vereine mit bis zu 100 aktiven Mitgliedern</li>
+                    <li>Einzelne, mehrstündige und wiederkehrende Reservierungen verwalten</li>
+                    <li>Mehrere Plätze gleichzeitig reservieren, beispielsweise für Mannschaftsspiele</li>
+                    <li>Mitglieder aktivieren, deaktivieren und verwalten</li>
+                    <li>Reservierungslimits, Öffnungszeiten und verfügbare Plätze festlegen</li>
+                    <li>Eigene Vereinsregeln erstellen oder Standardregeln verwenden</li>
                     </ul>
                 </div>
             </div>

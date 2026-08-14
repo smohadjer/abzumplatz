@@ -242,6 +242,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         if (period.club_id !== requester.club_id) {
           return res.status(403).json({error: 'Reading billing periods for another club is not allowed'});
         }
+        if (period.plan_type === 'basic') {
+          return res.status(200).json({
+            message: 'No invoice email is sent for Basic billing periods.',
+            data: normalizeBillingPeriod(period),
+          });
+        }
 
         const club = await clubs.findOne({
           _id: ObjectId.createFromHexString(period.club_id),

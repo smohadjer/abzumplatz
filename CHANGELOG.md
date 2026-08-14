@@ -2,6 +2,15 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.30
+
+### Changed
+
+- Simplified public club registration by applying default country, reservation hours, timezone, and reservation-limit settings without showing those fields; the settings remain editable in club administration.
+- Changed invoice emails to use `rechnung@abzumplatz.de` as their default sender while leaving other transactional emails on the general sender address.
+- Stopped sending invoice emails for free Basic-plan billing periods and removed the invoice resend action for those periods from club administration.
+- Refreshed the homepage feature list with shorter descriptions and corrected the Basic plan to state that it supports up to 100 active members.
+
 ## 0.0.29
 
 ### Added

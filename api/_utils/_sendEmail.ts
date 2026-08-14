@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 
 type SendEmailOptions = {
   email: string | string[];
+  from?: string;
   subject: string;
   html?: string;
   text?: string;
@@ -29,7 +30,7 @@ const fastmailTransporter = nodemailer.createTransport({
 
 export default async (options: SendEmailOptions) => {
   const mailData = {
-      from: process.env.email_from,
+      from: options.from ?? process.env.email_from,
       to: options.email,
       subject: options.subject,
       html: options.html,

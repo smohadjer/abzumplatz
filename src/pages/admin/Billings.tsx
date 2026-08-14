@@ -127,14 +127,18 @@ export default function AdminBillingsPage() {
                                             <td>{period.status}</td>
                                             <td>{period.invoice_number}</td>
                                             <td>
-                                                <button
-                                                    type="button"
-                                                    className="button-link button-link--secondary"
-                                                    disabled={!period._id || sendingInvoiceId === period._id}
-                                                    onClick={() => sendInvoice(period)}
-                                                >
-                                                    {sendingInvoiceId === period._id ? 'Wird gesendet...' : 'Rechnung senden'}
-                                                </button>
+                                                {period.plan_type === 'basic' ? (
+                                                    <span>Keine Rechnung</span>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        className="button-link button-link--secondary"
+                                                        disabled={!period._id || sendingInvoiceId === period._id}
+                                                        onClick={() => sendInvoice(period)}
+                                                    >
+                                                        {sendingInvoiceId === period._id ? 'Wird gesendet...' : 'Rechnung senden'}
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     );

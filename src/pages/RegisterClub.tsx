@@ -15,6 +15,14 @@ type SignupClubResponse = {
     club: Club;
 }
 
+const CLUB_SETTINGS_CONFIGURED_AFTER_REGISTRATION = new Set([
+    'country',
+    'start_hour',
+    'end_hour',
+    'timezone',
+    'reservations_limit',
+]);
+
 export default function RegisterClub() {
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
@@ -36,7 +44,14 @@ export default function RegisterClub() {
         .filter(field => field.name !== 'club_id');
     const privacyField = userFields.find(field => field.name === 'privacy');
     const clubFields = (signupClubFormJson.fields as Field[])
-        .filter(field => field.name !== '_id');
+        .filter(field => field.name !== '_id')
+        .map(field => CLUB_SETTINGS_CONFIGURED_AFTER_REGISTRATION.has(field.name)
+            ? {
+                ...field,
+                type: 'hidden',
+            }
+            : field
+        );
     const fields: Field[] = JSON.parse(JSON.stringify([
         ...userFields.filter(field => field.name !== 'privacy'),
         ...clubFields,
@@ -68,10 +83,10 @@ export default function RegisterClub() {
             : field
         );
 
-        const hiddenPlanField = configuredFields.find(field => field.name === 'plan_type');
-        const otherFields = configuredFields.filter(field => field.name !== 'plan_type');
+        const hiddenFields = configuredFields.filter(field => field.type === 'hidden');
+        const visibleFields = configuredFields.filter(field => field.type !== 'hidden');
 
-        return hiddenPlanField ? [hiddenPlanField, ...otherFields] : otherFields;
+        return [...hiddenFields, ...visibleFields];
     };
 
     const planCards = [
