@@ -24,7 +24,7 @@ export default function Home() {
                 </div>
             </div>
             <div className="home-feature-layout">
-                <img className="hero-image" src="/assets/1.png" alt="screenshot" />
+                <img className="hero-image" src="/assets/screen4.png" alt="screenshot" />
                 <div className="content">
                     <h2>Was abzumplatz Vereinen bietet:</h2>
                     <ul>
