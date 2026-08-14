@@ -40,6 +40,7 @@
 }
 
 .home-intro-label,
+.home-intro-subtitle,
 .home-intro-text {
     margin: 0;
 }
@@ -49,6 +50,14 @@
     font-weight: 700;
     color: #333;
     margin-bottom: 0.5rem;
+}
+
+.home-intro-subtitle {
+    margin-top: -0.25rem;
+    margin-bottom: 0.5rem;
+    color: #4b5b78;
+    font-size: 0.9rem;
+    font-weight: 700;
 }
 
 .home-intro-text {
@@ -69,7 +78,8 @@
 
 .home-info-links {
     max-width: 52rem;
-    margin: 1.25rem auto 0;
+    margin: 1.25rem auto;
+    text-align: center;
 }
 
 .hero-image {

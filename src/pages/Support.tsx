@@ -26,9 +26,8 @@ export default function Support() {
         })
         : undefined;
     const reservationRequestSubject = 'abzumplatz: Anfrage zur Platzreservierung';
-    const supportSubject = 'abzumplatz: Technisches Problem';
+    const supportSubject = 'abzumplatz: Feedback und Support';
     const supportDetails = [
-        'Bitte beschreiben Sie das Problem hier und fügen Sie nach Möglichkeit einen Screenshot hinzu:',
         '',
         '',
         '--- Technische Informationen ---',
@@ -65,7 +64,7 @@ export default function Support() {
                 </p>
             ) : null}
             <p>
-                Wenn Sie auf ein technisches Problem stoßen oder einen Fehler entdecken, senden Sie bitte eine detaillierte Beschreibung, möglichst mit einem Screenshot, an {' '}
+                Wir freuen uns über jedes Feedback unserer Nutzerinnen und Nutzer und bemühen uns, vorgeschlagene Verbesserungen und noch fehlende Funktionen zeitnah umzusetzen. Wenn Sie auf ein technisches Problem stoßen oder einen Fehler entdecken, beschreiben Sie es bitte möglichst detailliert und fügen Sie nach Möglichkeit einen Screenshot hinzu. Feedback jeder Art, Verbesserungsvorschläge und Fehlermeldungen senden Sie bitte an {' '}
                 <a href={technicalSupportHref}>support@abzumplatz.de</a>.
             </p>
         </>

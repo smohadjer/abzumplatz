@@ -8,16 +8,18 @@ export default function Home() {
 
     return (
         <>
-            <p className="home-tagline">Online Platzreservierung für Tennisvereine</p>
+            <p className="home-tagline">Platzreservierung für Tennisvereine</p>
             <div className="home-intro">
                 <div className="home-intro-card">
-                    <h2 className="home-intro-label">Für Spieler (kostenlos)</h2>
+                    <h2 className="home-intro-label">Für Spieler</h2>
+                    <p className="home-intro-subtitle">Immer kostenlos</p>
                     <p className="home-intro-text">Sie möchten einem bestehenden Verein beitreten und Tennisplätze online reservieren.</p>
                     <p><Link className="button-link" to="/register/player">Als Spieler registrieren</Link></p>
                 </div>
                 <div className="home-intro-card intro">
                     <h2 className="home-intro-label">Für Vereine</h2>
-                    <p className="home-intro-text">Sie möchten Ihren Verein anlegen und Plätze für Ihre Mitglieder online reservierbar machen.</p>
+                    <p className="home-intro-subtitle">Kostenloser Basic-Plan verfügbar</p>
+                    <p className="home-intro-text">Sie möchten Ihren Verein anlegen und Ihre Plätze und Mitglieder online verwalten.</p>
                     <p><Link className="button-link" to="/register/club">Plan auswählen</Link></p>
                 </div>
             </div>
