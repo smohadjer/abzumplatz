@@ -15,6 +15,7 @@ type ReservationClub = {
   start_hour: number;
   end_hour: number;
   reservations_limit: number | null;
+  timezone: string;
 }
 
 type ReservationRouteBody = {
@@ -35,6 +36,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const reservations = database.collection<ReservationItem>('reservations');
     const clubs = database.collection<ReservationClub>('clubs');
     const users = database.collection<DBUser>('users');
+    let clubTimeZone: string | undefined;
 
     if (req.method === 'GET' || req.method === 'POST') {
       const payload = await getJwtPayload(req);
@@ -59,6 +61,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       if (!club) {
         return res.status(410).json({error: 'Club has been deleted'});
       }
+      clubTimeZone = club.timezone;
 
       if (req.method === 'GET') {
         const docs = await getAllReservations(reservations, user.club_id);
@@ -69,7 +72,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     if (req.method === 'POST') {
       const body = req.body as ReservationRouteBody;
       if (body.delete === 'true') {
-        await deleteReservation(req, res, reservations, users);
+        if (!clubTimeZone) {
+          throw new Error('Club timezone is unavailable');
+        }
+        await deleteReservation(req, res, reservations, users, clubTimeZone);
       } else if (body.reservation_id) {
         await editReservation(req, res, reservations, clubs, users);
       } else {

@@ -2,6 +2,23 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.31
+
+### Added
+
+- Added `24 Uhr` as a valid club reservation end time and removed the ambiguous `0 Uhr` end-time option.
+
+### Changed
+
+- Centralized reservation date, recurrence, activity, and club-timezone calculations in a shared reservation-time module.
+- Marked reservation owners who are no longer in the club as `Ehemaliges Mitglied` while retaining their user ID.
+
+### Fixed
+
+- Fixed completed reservations being counted toward a player's reservation limit when the server timezone differed from the club timezone.
+- Made reservation creation, editing, deletion, calendar navigation, recurring occurrences, and member-removal cleanup consistently use the club timezone.
+- Normalized midnight reservation end times to `00:00` on the following day in Google Calendar and ICS exports.
+
 ## 0.0.30
 
 ### Changed

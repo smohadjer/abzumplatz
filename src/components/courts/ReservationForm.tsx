@@ -5,6 +5,7 @@ import { SubmitEventHandler, useState } from "react";
 import { Loader } from './../loader/Loader';
 import { Court } from '../../types';
 import { Link } from 'react-router';
+import { isReservationTimeInPast } from '../../utils/reservationTime';
 
 type Props = {
     submitHandler: SubmitEventHandler<HTMLFormElement>;
@@ -17,6 +18,7 @@ type Props = {
     startHour: number;
     clubStartHour: number;
     clubEndHour: number;
+    clubTimeZone: string;
     reservationId?: string;
     selectedCourtNumbers?: string[];
     duration?: number;
@@ -83,13 +85,10 @@ export function ReservationForm(props: Props) {
         const startTime = Number(formData.get('start_time') ?? props.startHour);
         const duration = Number(formData.get('duration') ?? 1);
         const dateValue = String(formData.get('date') ?? props.date);
-        const reservationTime = new Date(dateValue);
-        reservationTime.setHours(startTime, 0, 0, 0);
-
         // Skip this frontend past-time check for recurring edits.
         // The backend decides the effective recurring edit boundary from the
         // clicked occurrence date and the current series state.
-        if (!props.recurring && reservationTime < new Date()) {
+        if (!props.recurring && isReservationTimeInPast(dateValue, startTime, props.clubTimeZone)) {
             event.preventDefault();
             setFormError('Eine Reservierung in der Vergangenheit ist nicht möglich.');
             return;

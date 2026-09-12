@@ -1,8 +1,6 @@
 import { ReservationItem } from '../../types';
-import {
-    getClub,
-    getNextActiveRecurringReservationDate
-} from './../../utils/utils';
+import { getClub } from './../../utils/utils';
+import { getNextActiveRecurringReservationDate } from '../../utils/reservationTime';
 
 export function MyReservations(props: {
     reservations:  ReservationItem[];
@@ -11,8 +9,8 @@ export function MyReservations(props: {
     const club = getClub();
     const reservationsLimit = club?.reservations_limit;
     const sortedReservations = [...reservations].sort((first, second) => {
-        const firstDate = first.recurring ? getNextActiveRecurringReservationDate(first) : first.date;
-        const secondDate = second.recurring ? getNextActiveRecurringReservationDate(second) : second.date;
+        const firstDate = first.recurring && club ? getNextActiveRecurringReservationDate(first, new Date(), club.timezone) : first.date;
+        const secondDate = second.recurring && club ? getNextActiveRecurringReservationDate(second, new Date(), club.timezone) : second.date;
         const dateDifference = new Date(secondDate ?? second.date).getTime() - new Date(firstDate ?? first.date).getTime();
 
         return dateDifference || second.start_time - first.start_time;
@@ -27,10 +25,10 @@ export function MyReservations(props: {
             {reservations.length ?
                 <ul>
                 {sortedReservations.map(item => {
-                    const activeDate = item.recurring ? getNextActiveRecurringReservationDate(item) : item.date;
-                    const day = new Date(activeDate ?? item.date);
-                    const isoDate = day.toLocaleDateString('de-DE');
-                    const weekday = day.toLocaleDateString('de-DE', {weekday: 'short'});
+                    const activeDate = item.recurring && club ? getNextActiveRecurringReservationDate(item, new Date(), club.timezone) : item.date;
+                    const day = new Date(`${activeDate ?? item.date}T00:00:00Z`);
+                    const isoDate = day.toLocaleDateString('de-DE', {timeZone: 'UTC'});
+                    const weekday = day.toLocaleDateString('de-DE', {weekday: 'short', timeZone: 'UTC'});
                     const key = item._id!.toString();
                     const courtNums = item.court_nums;
                     const courtNumsLabel = courtNums.join(', ');

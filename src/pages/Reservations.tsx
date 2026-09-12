@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../store';
 import {
-    isInPast,
     getClub,
-    getIsoDateString,
-    reservationIsOnSameDay,
     getUserReservations,
     fetchAppData,
     fetchUsers,
@@ -20,6 +17,7 @@ import { Calendar } from '../components/courts/Calendar';
 import { Loader } from '../components/loader/Loader';
 
 import './reservations.css';
+import { getIsoDateString, getZonedDateTime, isReservationTimeInPast, reservationIsOnSameDay } from '../utils/reservationTime';
 
 type Slot = {
     date: string;
@@ -69,7 +67,8 @@ export default function Reservations() {
     const clubHours = Array.from({
         length: club.end_hour - club.start_hour
     }, (_, i) => i + club.start_hour);
-    const [reservationDate, setReservationDate] = useState(new Date());
+    const [reservationDate, setReservationDate] = useState(() =>
+        new Date(`${getZonedDateTime(new Date(), club.timezone).date}T12:00:00`));
     const isoDate = getIsoDateString(reservationDate);
     const reservationFilter = (reservationItem: ReservationItem) => {
         return reservationIsOnSameDay(reservationItem, isoDate);
@@ -77,10 +76,10 @@ export default function Reservations() {
     const getUserName = (userId: string) => {
         if (users.length > 0) {
             const user = users.find((item: StateUser) => item._id === userId);
-            return user ? `${user.first_name} ${user.last_name}` : userId;
+            return user ? `${user.first_name} ${user.last_name}` : `${userId} (Ehemaliges Mitglied)`;
         } else {
             console.warn('no user found', users)
-            return userId;
+            return `${userId} (Ehemaliges Mitglied)`;
         }
     };
     const filteredReservations: ReservationItem[] = reservations.filter(reservationFilter);
@@ -161,7 +160,7 @@ export default function Reservations() {
             }
 
             // if user is trying to make a reservation in the past alert and return
-            if (isInPast(reservationDate, Number(slot.dataset.hour))) {
+            if (isReservationTimeInPast(isoDate, Number(slot.dataset.hour), club.timezone)) {
                 alert('Eine Reservierung in der Vergangenheit ist nicht möglich!');
                 return;
             }
@@ -211,6 +210,7 @@ export default function Reservations() {
                         setReservationDate={setReservationDate}
                         user={user}
                         setLoading={setLoading}
+                        timeZone={club.timezone}
                     />
                     <div className="reservations-legend" aria-label="Legende für Platzstatus">
                         <span className="reservations-legend__item">
@@ -251,7 +251,7 @@ export default function Reservations() {
                                     date={isoDate}
                                     courts={club.courts}
                                     user_id={user._id}
-                                    isPast={isInPast(reservationDate, hour)}
+                                    isPast={isReservationTimeInPast(isoDate, hour, club.timezone)}
                                 />
                             )}
                         </div>

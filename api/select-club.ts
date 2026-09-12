@@ -6,7 +6,7 @@ import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { DBUser, ReservationItem } from '../src/types.js';
 import sendEmail from './_utils/_sendEmail.js';
 import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';
-import { isReservationActive } from '../src/utils/utils.js';
+import { isReservationActive } from '../src/utils/reservationTime.js';
 
 type SelectClubBody = {
   club_id?: string;
@@ -24,15 +24,18 @@ const validationError = (message: string) => ({
 
 async function deleteActiveReservationsForUser(
   reservationsCollection: Collection<ReservationItem>,
+  clubCollection: Collection<ClubDocument>,
   userId: string,
-  clubId?: string
+  clubId: string
 ) {
   const reservations = await reservationsCollection.find({
     user_id: userId,
-    ...(clubId ? {club_id: clubId} : {})
+    club_id: clubId
   }).toArray() as ReservationItem[];
+  const club = await clubCollection.findOne({_id: ObjectId.createFromHexString(clubId)});
+  if (!club) return 0;
   const activeReservationIds = reservations
-    .filter(reservation => isReservationActive(reservation))
+    .filter(reservation => isReservationActive(reservation, new Date(), club.timezone))
     .map(reservation => reservation._id)
     .filter((id): id is ObjectId => Boolean(id));
 
@@ -152,7 +155,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
       if (action === 'leave' || club_id === '') {
         if (previousClubId) {
-          await deleteActiveReservationsForUser(reservationsCollection, payload._id, previousClubId);
+          await deleteActiveReservationsForUser(reservationsCollection, clubCollection, payload._id, previousClubId);
         }
 
         await userCollection.updateOne(query, {
@@ -205,7 +208,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       if (previousClubId && previousClubId !== club_id) {
-        await deleteActiveReservationsForUser(reservationsCollection, payload._id, previousClubId);
+        await deleteActiveReservationsForUser(reservationsCollection, clubCollection, payload._id, previousClubId);
       }
 
       await userCollection.updateOne(
