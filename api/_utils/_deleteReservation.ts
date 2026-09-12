@@ -1,6 +1,6 @@
 import { ObjectId, Collection } from 'mongodb';
 import { DBUser, ReservationItem } from '../../src/types.js';
-import { getIsoDateString, isInPast } from '../../src/utils/utils.js';
+import { addDaysToIsoDate, isReservationTimeInPast } from '../../src/utils/reservationTime.js';
 import { getAllReservations } from '../../src/utils/utils.js';
 import type { VercelRequest, VercelResponse } from './_apiTypes.js';
 import { createAppError, getAppErrorResponse } from './_errors.js';
@@ -8,12 +8,11 @@ import { getAuthenticatedUserContext } from './_authenticatedUser.js';
 
 const getWeeklyOccurrenceDatesBefore = (startDate: string, endDate: string) => {
   const dates: string[] = [];
-  const current = new Date(startDate);
-  const end = new Date(endDate);
+  let current = startDate;
 
-  while (current < end) {
-    dates.push(getIsoDateString(current));
-    current.setDate(current.getDate() + 7);
+  while (current < endDate) {
+    dates.push(current);
+    current = addDaysToIsoDate(current, 7);
   }
 
   return dates;
@@ -27,7 +26,7 @@ const previousOccurrencesWereDeleted = (reservation: ReservationItem, selectedDa
 };
 
 export const deleteReservation = async (req: VercelRequest, res: VercelResponse, reservations: Collection<ReservationItem>,
-  users: Collection<DBUser>) => {
+  users: Collection<DBUser>, clubTimeZone: string) => {
     const reservation_id = req.body?.reservation_id;
     const deleteType = req.body?.delete_type ?? 'all';
     if (!reservation_id || typeof reservation_id !== 'string') {
@@ -45,13 +44,6 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
       return res.status(status).json(body);
     }
 
-    // reservations in the past that do not recurr can not be deleted
-    const reservationIsInPast = isInPast(new Date(reservation.date), reservation.start_time);
-    const reservationIsRecurring = reservation.recurring;
-    if (reservationIsInPast && !reservationIsRecurring) {
-      throw createAppError('RESERVATION_DELETE_PAST_NOT_ALLOWED');
-    }
-
     const { payload, user } = await getAuthenticatedUserContext(req, users, {
       requireActive: true
     });
@@ -59,6 +51,12 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
     const club_id = user.club_id;
     if (!club_id) {
       throw createAppError('USER_HAS_NO_CLUB');
+    }
+    // Reservations are evaluated in the club's timezone, not the server's timezone.
+    const reservationIsInPast = isReservationTimeInPast(reservation.date, reservation.start_time, clubTimeZone);
+    const reservationIsRecurring = reservation.recurring;
+    if (reservationIsInPast && !reservationIsRecurring) {
+      throw createAppError('RESERVATION_DELETE_PAST_NOT_ALLOWED');
     }
 
     const returnResponse = async () => {

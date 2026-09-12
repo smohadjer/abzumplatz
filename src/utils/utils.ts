@@ -3,17 +3,7 @@ import { RootState, AppDispatch } from './../store';
 import type { SyntheticEvent } from "react";
 import * as mongoDB from "mongodb";
 import { ReservationItem, StateUser } from './../types';
-
-export const isReservationActive = (reservation: ReservationItem, now = new Date()) => {
-    if (reservation.recurring) {
-        return getNextActiveRecurringReservationDate(reservation, now) !== null;
-    }
-
-    const reservationEndTime = new Date(reservation.date);
-    reservationEndTime.setHours(reservation.end_time, 0, 0, 0);
-
-    return reservationEndTime > now;
-};
+import { isReservationActive } from './reservationTime';
 
 export async function fetchJson(path: string) {
   const response = await fetch(path);
@@ -41,38 +31,6 @@ export const isAuthenticated = async () => {
     }
 };
 
-export const isInPast = (reservationDate: Date, hour: number) => {
-    const reservationTime = new Date(reservationDate);
-    reservationTime.setHours(hour);
-    reservationTime.setMinutes(0);
-    reservationTime.setSeconds(0);
-    if (reservationTime < new Date()) {
-        return true;
-    } else {
-        return false;
-    }
-};
-
-export const isToday = (someDate: Date) => {
-    const today = new Date();
-    return someDate.getDate() === today.getDate() &&
-        someDate.getMonth() === today.getMonth() &&
-        someDate.getFullYear() === today.getFullYear();
-};
-
-export const getIsoDateString = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
-};
-
-const getLocalDateFromIso = (isoDate: string) => {
-    const [year, month, day] = isoDate.split('-').map(Number);
-    return new Date(year, month - 1, day);
-};
-
 export const getClub = () => {
     const auth = useSelector((state: RootState) => state.auth);
     const clubs = useSelector((state: RootState) => state.clubs);
@@ -83,77 +41,13 @@ export const getClub = () => {
 
 export const getUserReservations = () => {
     const user = useSelector((state: RootState) => state.auth);
+    const clubs = useSelector((state: RootState) => state.clubs);
     const reservations = useSelector((state: RootState) => state.reservations.value);
+    const clubTimeZone = clubs.value.find(club => club._id === user.club_id)?.timezone;
     const userReservations = reservations.filter(item => item.user_id === user._id);
-    const validUserReservations = userReservations.filter(item => isReservationActive(item));
+    if (!clubTimeZone) return [];
+    const validUserReservations = userReservations.filter(item => isReservationActive(item, new Date(), clubTimeZone));
     return validUserReservations;
-};
-
-export const getDayName = (date: string) => {
-    return new Date(date).toLocaleDateString('de-DE', {weekday: 'short'});
-}
-
-export const getNextActiveRecurringReservationDate = (
-    reservation: ReservationItem,
-    now = new Date()
-) => {
-    if (!reservation.recurring) {
-        return reservation.date;
-    }
-
-    const deletedDates = new Set(reservation.deleted_dates ?? []);
-    const startDate = getLocalDateFromIso(reservation.date);
-    const candidate = new Date(startDate);
-    const today = new Date(now);
-    today.setHours(0, 0, 0, 0);
-
-    while (candidate < today) {
-        candidate.setDate(candidate.getDate() + 7);
-    }
-
-    if (candidate.getTime() === today.getTime()) {
-        const candidateDateTime = new Date(candidate);
-        candidateDateTime.setHours(reservation.start_time, 0, 0, 0);
-        if (candidateDateTime < now) {
-            candidate.setDate(candidate.getDate() + 7);
-        }
-    }
-
-    while (true) {
-        const isoDate = getIsoDateString(candidate);
-
-        if (reservation.end_date && isoDate >= reservation.end_date) {
-            return null;
-        }
-
-        if (!deletedDates.has(isoDate)) {
-            return isoDate;
-        }
-
-        candidate.setDate(candidate.getDate() + 7);
-    }
-};
-
-// checks if a recurring reservation in the past falls on provided date
-export const recurringReservationIsOnSameDay = (reservationItem: ReservationItem, isoDate: string) => {
-    if (!reservationItem.recurring) return false;
-    if (getDayName(reservationItem.date) !== getDayName(isoDate)) return false;
-    if (reservationItem.deleted_dates && reservationItem.deleted_dates.find(item => item === isoDate)) return false;
-    if (reservationItem.end_date && (new Date(reservationItem.end_date) <= new Date(isoDate))) return false;
-    return (new Date(reservationItem.date) < new Date(isoDate));
-};
-
-export const reservationIsOnSameDay = (reservationItem: ReservationItem, isoDate: string) => {
-    if (reservationItem.deleted_dates && reservationItem.deleted_dates.find(item => item === isoDate)) return false;
-    if (reservationItem.date === isoDate) return true;
-    return recurringReservationIsOnSameDay(reservationItem, isoDate);
-};
-
-export const getLocalDate = (date: string | undefined) => {
-    if (date) {
-        const day = new Date(date);
-        return day.toLocaleDateString('de-DE');
-    }
 };
 
 export const editReservation = (

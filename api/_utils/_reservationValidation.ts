@@ -3,10 +3,11 @@ import { Collection, ObjectId } from 'mongodb';
 import { ReservationItem } from '../../src/types.js';
 import * as fs from 'fs';
 import {
-  getDayName,
+  getIsoWeekday,
   getLocalDate,
+  isReservationTimeInPast,
   reservationIsOnSameDay
-} from '../../src/utils/utils.js';
+} from '../../src/utils/reservationTime.js';
 
 type ReservationErrorKey =
   'already_booked' |
@@ -171,12 +172,10 @@ export const validateReservationWithinClubHours = (
 
 export const validateReservationNotInPast = (
   date: string,
-  startTime: number
+  startTime: number,
+  timeZone: string
 ) => {
-  const reservationTime = new Date(date);
-  reservationTime.setHours(startTime, 0, 0, 0);
-
-  if (reservationTime < new Date()) {
+  if (isReservationTimeInPast(date, startTime, timeZone)) {
     throw new Error(getReservationError('in_past'));
   }
 };
@@ -222,8 +221,8 @@ export const validateReservationOverlap = async (
 
     if (recurring) {
       const reservationsOnSameDayInFuture = reservationsForSameCourt.filter(item => {
-        return getDayName(item.date) === getDayName(date) && (
-          new Date(item.date) > new Date(date)
+        return getIsoWeekday(item.date) === getIsoWeekday(date) && (
+          item.date > date
         );
       });
       const reservationsWithOverlappingTime = reservationsOnSameDayInFuture.filter(overlappingHoursFilter);

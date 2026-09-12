@@ -1,9 +1,9 @@
 import { ObjectId, Collection } from 'mongodb';
 import { sanitize } from './_lib.js';
 import {
-  getAllReservations,
-  isReservationActive
+  getAllReservations
 } from '../../src/utils/utils.js';
+import { isReservationActive } from '../../src/utils/reservationTime.js';
 import {
   getReservationError,
   validateReservationBody,
@@ -20,11 +20,13 @@ type ReservationClub = {
   start_hour: number;
   end_hour: number;
   reservations_limit: number | null;
+  timezone: string;
 }
 
 const getUserReservations = async (
   reservations: Collection<ReservationItem>,
-  user_id: string
+  user_id: string,
+  timeZone: string
 ): Promise<ReservationItem[]> => {
   const docs = await reservations.find({
     user_id
@@ -33,7 +35,7 @@ const getUserReservations = async (
     start_time: 1
   });
   const reservationsArray = await docs.toArray();
-  return reservationsArray.filter((reservation) => isReservationActive(reservation));
+  return reservationsArray.filter((reservation) => isReservationActive(reservation, new Date(), timeZone));
 };
 
 export const setReservation = async (
@@ -67,13 +69,13 @@ export const setReservation = async (
       throw new Error('Club not found');
     }
 
-    validateReservationNotInPast(date, startTime);
+    validateReservationNotInPast(date, startTime, userClub.timezone);
     validateReservationWithinClubHours(startTime, endTime, userClub.start_hour, userClub.end_hour);
 
     const userId: string = user._id.toString();
     await validateReservationOverlap(reservations, club_id, courtNums, date, startTime, endTime, recurring);
 
-    const userReservations = await getUserReservations(reservations, userId);
+    const userReservations = await getUserReservations(reservations, userId, userClub.timezone);
 
     // validation for none-admin users
     if (!user.role || user.role !== 'admin') {
