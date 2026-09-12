@@ -3,7 +3,7 @@ import { RootState, AppDispatch } from './../store';
 import type { SyntheticEvent } from "react";
 import * as mongoDB from "mongodb";
 import { ReservationItem, StateUser } from './../types';
-import { isReservationActive } from './reservationTime';
+import { isReservationActive } from './reservationTime.js';
 
 export async function fetchJson(path: string) {
   const response = await fetch(path);

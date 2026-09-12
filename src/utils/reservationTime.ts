@@ -1,4 +1,4 @@
-import type { ReservationItem } from '../types';
+import type { ReservationItem } from './../types';
 
 type ZonedDateTime = {
     date: string;
