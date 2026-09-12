@@ -1,0 +1,28 @@
+.faq-tabs {
+    display: flex;
+    margin: 1rem 0;
+    border-bottom: 1px solid #c7d3eb;
+}
+
+.faq-tab {
+    margin: 0 0 -1px;
+    padding: 0.65rem 1rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: #4b5b78;
+    cursor: pointer;
+    font: inherit;
+}
+
+.faq-tab--active {
+    border-bottom-color: var(--blue);
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.faq-tab:hover,
+.faq-tab:focus-visible {
+    color: var(--blue);
+    background: #f4f7fc;
+}

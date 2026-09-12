@@ -2,11 +2,8 @@ import { ObjectId, Collection } from 'mongodb';
 import { sanitize } from './_lib.js';
 import type { VercelRequest, VercelResponse } from './_apiTypes.js';
 import { DBUser, ReservationItem } from '../../src/types.js';
-import {
-  getAllReservations,
-  getNextActiveRecurringReservationDate,
-  isInPast
-} from '../../src/utils/utils.js';
+import { getAllReservations } from '../../src/utils/utils.js';
+import { getIsoWeekday, getNextActiveRecurringReservationDate, isReservationTimeInPast } from '../../src/utils/reservationTime.js';
 import {
   validateReservationBody,
 } from './_reservationValidation.js';
@@ -24,6 +21,7 @@ type ReservationClub = {
   start_hour: number;
   end_hour: number;
   reservations_limit: number;
+  timezone: string;
 }
 
 type ValidatedEditRequest = {
@@ -48,10 +46,11 @@ const validateEditAccess = (
   clubId: string,
   payloadUserId: string,
   userRole: string,
-  occurrenceDate: string
+  occurrenceDate: string,
+  timeZone: string
 ) => {
-  const passed = isInPast(new Date(reservation.date), reservation.start_time);
-  const passedOccurrence = isInPast(new Date(occurrenceDate), reservation.start_time);
+  const passed = isReservationTimeInPast(reservation.date, reservation.start_time, timeZone);
+  const passedOccurrence = isReservationTimeInPast(occurrenceDate, reservation.start_time, timeZone);
 
   if (reservation.club_id !== clubId) {
     return getAppErrorResponse('RESERVATION_EDIT_OWN_CLUB_ONLY');
@@ -127,7 +126,7 @@ const validateEditRequest = (
     validateNonAdminReservationRules(courtNums, recurring, startTime, endTime);
   }
 
-  validateReservationNotInPast(updates.date, startTime);
+  validateReservationNotInPast(updates.date, startTime, club.timezone);
   validateReservationWithinClubHours(startTime, endTime, club.start_hour, club.end_hour);
 
   return {
@@ -140,7 +139,7 @@ const validateEditRequest = (
   };
 };
 
-const getWeekday = (date: string) => new Date(date).getDay();
+const getWeekday = (date: string) => getIsoWeekday(date);
 
 export const editReservation = async (
   req: VercelRequest,
@@ -189,20 +188,20 @@ export const editReservation = async (
   }
 
   if (reservation.recurring && occurrenceDate) {
-    const accessError = validateEditAccess(reservation, club_id, payload._id, user.role, occurrenceDate);
+    const accessError = validateEditAccess(reservation, club_id, payload._id, user.role, occurrenceDate, club.timezone);
     if (accessError) {
       return res.status(accessError.status).json(accessError.body);
     }
   }
 
   const editFromReservationDate = reservation.recurring
-    ? getNextActiveRecurringReservationDate(reservation)
+    ? getNextActiveRecurringReservationDate(reservation, new Date(), club.timezone)
     : reservation.date;
   if (reservation.recurring && !editFromReservationDate) {
     throw createAppError('RESERVATION_EDIT_PAST_NOT_ALLOWED');
   }
   if (!reservation.recurring) {
-    const accessError = validateEditAccess(reservation, club_id, payload._id, user.role, editFromReservationDate);
+    const accessError = validateEditAccess(reservation, club_id, payload._id, user.role, editFromReservationDate, club.timezone);
     if (accessError) {
       return res.status(accessError.status).json(accessError.body);
     }

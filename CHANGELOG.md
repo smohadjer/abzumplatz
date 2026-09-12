@@ -2,13 +2,112 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.0.31
+
+### Added
+
+- Added `24 Uhr` as a valid club reservation end time and removed the ambiguous `0 Uhr` end-time option.
+
+### Changed
+
+- Centralized reservation date, recurrence, activity, and club-timezone calculations in a shared reservation-time module.
+- Marked reservation owners who are no longer in the club as `Ehemaliges Mitglied` while retaining their user ID.
+
+### Fixed
+
+- Fixed completed reservations being counted toward a player's reservation limit when the server timezone differed from the club timezone.
+- Made reservation creation, editing, deletion, calendar navigation, recurring occurrences, and member-removal cleanup consistently use the club timezone.
+- Normalized midnight reservation end times to `00:00` on the following day in Google Calendar and ICS exports.
+
+## 0.0.30
+
+### Changed
+
+- Simplified public club registration by applying default country, reservation hours, timezone, and reservation-limit settings without showing those fields; the settings remain editable in club administration.
+- Changed invoice emails to use `rechnung@abzumplatz.de` as their default sender while leaving other transactional emails on the general sender address.
+- Stopped sending invoice emails for free Basic-plan billing periods and removed the invoice resend action for those periods from club administration.
+- Refreshed the homepage feature list with shorter descriptions and corrected the Basic plan to state that it supports up to 100 active members.
+
+## 0.0.29
+
+### Added
+
+- Added administrator actions to delete and restore a club.
+
+### Changed
+
+- Hid deleted clubs from registration and club-selection lists while retaining administrator access for restoration.
+- Redirected players assigned to a deleted club to select an active club after login.
+- Added the deletion date for club administrators and a deleted-club notice for affected players.
+- Restricted administrators of deleted clubs to a recovery page with restore and logout actions.
+- Required administrators to re-enter their current password before deleting a club.
+- Excluded deleted clubs from club-scoped API operations and scheduled billing renewals.
+- Resumed billing on club restoration without creating retroactive billing periods for the deleted interval.
+
+## 0.0.28
+
+### Added
+
+- Added separate player and administrator FAQ sections and linked them from the homepage and Settings.
+
+### Changed
+
+- Refined homepage messaging, cards, actions, screenshot, and supporting links.
+- Centered club names in the authenticated header and reduced page-heading size.
+- Expanded the Support page and email template to welcome general feedback and feature suggestions as well as bug reports.
+- Updated club-registration plan cards to match the homepage card styling and moved the Basic-plan member-limit explanation to the FAQ.
+- Restyled FAQ and member-management tabs and updated member action buttons with pill styling.
+- Translated the password-strength indicator into German.
+- Updated court controls to label unchecked courts as blocked immediately.
+
+### Fixed
+
+- Preserved the club registration timestamp in court-update responses.
+
+## 0.0.27
+
+### Added
+
+- Added app and browser diagnostics to technical-support email drafts.
+
+### Changed
+
+- Restyled the admin overview navigation to match the Settings page.
+- Simplified the admin overview to show only the club registration date below its navigation links.
+
+### Fixed
+
+- Contained horizontal scrolling within the billing table on narrow screens.
+
+## 0.0.26
+
+### Added
+
+- Added duplicate-name highlighting to member administration so administrators can identify matching member accounts.
+- Added a read-only detail popup when players select another member's reservation.
+
+### Changed
+
+- Updated the default club rules and added court-watering and cancellation guidance.
+- Replaced the required club-rules checkbox in the reservation form with a confirmation notice.
+- Changed club rules so administrators can save an empty rule list or restore the standard rules.
+- Changed member administration to display names as “Nachname, Vorname” and sort members by last name, then first name using German collation.
+- Added club rules to the administrator feature overview and adjusted the Settings link order.
+- Simplified and refined the reservation popup layout for non-admin players.
+- Changed calendar actions to close the reservation popup after use.
+- Changed the Bookings page to a read-only list ordered with later reservations first.
+
+### Fixed
+
+- Fixed non-admin reservation edits failing when changing the duration because the existing label was omitted.
+
 ## 0.0.25
 
 ### Added
 
 - Added a Settings page with links to profile, club rules, support, legal information, and logout.
-- Added club-specific rules with default content, database persistence, and an admin editor for adding, removing, reordering, resetting, and updating rules.
-- Added a club-rules confirmation notice to the reservation form, with the rules opening in a separate tab.
+- Added club-specific rules with default content, database persistence, and an admin editor for adding, removing, reordering, and updating rules.
+- Added a required club-rules confirmation checkbox to the reservation form, with the rules opening in a separate tab.
 - Added a Support page with the current club administrator as the reservation contact and a technical-support email address.
 
 ### Changed
@@ -16,8 +115,6 @@ All notable changes to this project should be documented in this file.
 - Replaced the footer profile action with a Settings action and removed the Impressum action from the footer.
 - Moved logout from the header to Settings and added a confirmation prompt.
 - Changed the Impressum contact address to `info@abzumplatz.de` and moved reservation support details to the Support page.
-- Changed club rules so administrators can intentionally save an empty rule list.
-- Changed member administration to display names as “Nachname, Vorname” and sort members by last name, then first name.
 
 ## 0.0.24
 

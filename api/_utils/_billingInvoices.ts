@@ -1,6 +1,6 @@
 import { Db } from 'mongodb';
 import { getCoveredUntilFromPeriodEnd, getPlanName } from '../../src/planConfig.js';
-import { bank_account_holder, bank_iban, bank_name } from './_config.js';
+import { bank_account_holder, bank_iban, bank_name, invoice_email_from } from './_config.js';
 import { escapeHtml } from './_lib.js';
 import sendEmail from './_sendEmail.js';
 import { BillingPeriodDocument } from './_billingPeriods.js';
@@ -190,6 +190,7 @@ async function notifyClubAdminsOfBillingPeriod(
 
   const results = await Promise.allSettled(adminEmails.map(email => sendEmail({
     email,
+    from: invoice_email_from,
     subject,
     html,
   })));
@@ -206,6 +207,10 @@ export async function sendBillingPeriodInvoiceEmail(
   period: BillingPeriodDocument,
   notificationType: BillingInvoiceNotificationType
 ) {
+  if (period.plan_type === 'basic') {
+    return;
+  }
+
   const clubId = club._id?.toString() ?? period.club_id;
   const coveredUntil = getCoveredUntilFromPeriodEnd(period.period_end) ?? period.period_end;
   const subject = `Rechnung für ${club.name ?? 'Verein'} (${formatDate(period.period_start)} - ${formatDate(coveredUntil)})`;

@@ -1,9 +1,9 @@
 import {
-    getLocalDate,
     editReservation,
     makeReservation,
     getClub
 } from './../../utils/utils';
+import { addDaysToIsoDate, getLocalDate } from '../../utils/reservationTime';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { ReservationForm } from "../courts/ReservationForm";
@@ -71,9 +71,13 @@ export function Popup(props: {
     const getReservationSummary = (reservation: ReservationSuccess) => `Platz ${reservation.courtNumbers.join(', ')} reserviert`;
     const getReservationLabel = (reservation: ReservationSuccess) => reservation.courtNumbers.length === 1 ? 'Platz' : 'Plätze';
     const getReservationDetailsText = (reservation: ReservationSuccess) => `Reservierung über abzumplatz für ${getReservationLabel(reservation).toLowerCase()} ${reservation.courtNumbers.join(', ')}.`;
-    const buildGoogleCalendarUrl = (reservation: ReservationSuccess) => {
+    const formatCalendarDate = (date: string, hour: number) => {
         const pad = (value: number) => value.toString().padStart(2, '0');
-        const formatCalendarDate = (date: string, hour: number) => `${date.split('-').join('')}T${pad(hour)}0000`;
+        const normalizedDate = hour === 24 ? addDaysToIsoDate(date, 1) : date;
+        const normalizedHour = hour === 24 ? 0 : hour;
+        return `${normalizedDate.split('-').join('')}T${pad(normalizedHour)}0000`;
+    };
+    const buildGoogleCalendarUrl = (reservation: ReservationSuccess) => {
         const clubName = club?.name ?? 'abzumplatz';
         const reservationSummary = getReservationSummary(reservation);
         const details = getReservationDetailsText(reservation);
@@ -81,8 +85,6 @@ export function Popup(props: {
         return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(reservationSummary)}&dates=${formatCalendarDate(reservation.date, reservation.startHour)}/${formatCalendarDate(reservation.date, reservation.endHour)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(clubName)}&ctz=${encodeURIComponent(clubTimeZone)}`;
     };
     const buildAppleCalendarUrl = (reservation: ReservationSuccess) => {
-        const pad = (value: number) => value.toString().padStart(2, '0');
-        const formatCalendarDate = (date: string, hour: number) => `${date.split('-').join('')}T${pad(hour)}0000`;
         const escapeIcsText = (value: string) => value
             .replace(/\\/g, '\\\\')
             .replace(/\n/g, '\\n')
@@ -117,7 +119,7 @@ export function Popup(props: {
         ['Datum', getLocalDate(reservationDate)],
         ['Startzeit', `${slot.hour}:00 Uhr`],
         ['Endzeit', slot.end_time ? `${slot.end_time}:00 Uhr` : undefined],
-        ['Reservierungslabel', slot.label],
+        ['Label', slot.label],
         ['Wiederholt sich jede Woche', user.role === 'admin' ? formatBoolean(slot.recurring) : undefined],
         ['Gelöschte Termine', slot.deleted_dates?.map(date => getLocalDate(date)).join(', ')],
         ['Enddatum', getLocalDate(slot.end_date)],
@@ -139,6 +141,7 @@ export function Popup(props: {
                     <a
                         className="button-link"
                         href={buildGoogleCalendarUrl(reservation)}
+                        onClick={() => props.closePopup()}
                         rel="noreferrer"
                         target="_blank">
                         Zu Google Kalender hinzufügen
@@ -146,7 +149,8 @@ export function Popup(props: {
                     <a
                         className="button-link"
                         download={`abzumplatz-${reservation.date}-platz-${reservation.courtNumbers.join('-')}.ics`}
-                        href={buildAppleCalendarUrl(reservation)}>
+                        href={buildAppleCalendarUrl(reservation)}
+                        onClick={() => props.closePopup()}>
                         Zu Apple Kalender hinzufügen
                     </a>
                 </div>
@@ -156,6 +160,22 @@ export function Popup(props: {
     const getPopupContent = (slot: Slot, popupType: string) => {
         if (createdReservation) {
             return getReservationSuccessContent(createdReservation);
+        }
+
+        if (popupType === 'reservationDetails') {
+            return (
+                <div className="reservation-details">
+                    <h2>Reservierungsdetails</h2>
+                    <dl>
+                        {getReservationDetails(slot).map(([label, value]) => (
+                            <div key={label}>
+                                <dt>{label}</dt>
+                                <dd>{value}</dd>
+                            </div>
+                        ))}
+                    </dl>
+                </div>
+            );
         }
 
         if (popupType === 'deleteReservation') {
@@ -194,6 +214,7 @@ export function Popup(props: {
                         recurring={slot.recurring}
                         clubStartHour={club?.start_hour ?? slot.hour}
                         clubEndHour={club?.end_hour ?? slot.hour + 1}
+                        clubTimeZone={club?.timezone ?? 'Europe/Berlin'}
                         reservationId={slot.reservation_id}
                         showAssignToMe={user.role === 'admin' && slot.user_id !== user._id}
                         includeDeleteControls={true}
@@ -234,6 +255,7 @@ export function Popup(props: {
                         startHour={slot.hour}
                         clubStartHour={club?.start_hour ?? slot.hour}
                         clubEndHour={club?.end_hour ?? slot.hour + 1}
+                        clubTimeZone={club?.timezone ?? 'Europe/Berlin'}
                     />
                 </>
             );

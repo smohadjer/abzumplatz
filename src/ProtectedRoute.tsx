@@ -17,6 +17,10 @@ export const ProtectedRoute = ({children}: ProtectedRouteProps) => {
     if (!isLoggedin) {
         return <Navigate to="/" replace />;
     } else {
+        if (auth.role === 'admin' && auth.club_deleted && location.pathname !== '/admin') {
+            return <Navigate to="/admin" replace />;
+        }
+
         if (auth.role !== 'admin' && location.pathname.startsWith('/admin')) {
             return <Navigate to="/reservations" replace />;
         }

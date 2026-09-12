@@ -11,9 +11,11 @@ import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { getErrorMessage, isAppError } from './_utils/_errors.js';
 
 type ReservationClub = {
+  deleted_at?: Date | string;
   start_hour: number;
   end_hour: number;
   reservations_limit: number | null;
+  timezone: string;
 }
 
 type ReservationRouteBody = {
@@ -34,8 +36,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const reservations = database.collection<ReservationItem>('reservations');
     const clubs = database.collection<ReservationClub>('clubs');
     const users = database.collection<DBUser>('users');
+    let clubTimeZone: string | undefined;
 
-    if (req.method === 'GET') {
+    if (req.method === 'GET' || req.method === 'POST') {
       const payload = await getJwtPayload(req);
       if (!payload) {
         return res.status(401).json({error: 'Authentication required'});
@@ -51,14 +54,28 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         return res.status(403).json({error: 'User does not belong to a club'});
       }
 
-      const docs = await getAllReservations(reservations, user.club_id);
-      return res.json(docs);
+      const club = await clubs.findOne({
+        _id: ObjectId.createFromHexString(user.club_id),
+        deleted_at: {$exists: false},
+      });
+      if (!club) {
+        return res.status(410).json({error: 'Club has been deleted'});
+      }
+      clubTimeZone = club.timezone;
+
+      if (req.method === 'GET') {
+        const docs = await getAllReservations(reservations, user.club_id);
+        return res.json(docs);
+      }
     }
 
     if (req.method === 'POST') {
       const body = req.body as ReservationRouteBody;
       if (body.delete === 'true') {
-        await deleteReservation(req, res, reservations, users);
+        if (!clubTimeZone) {
+          throw new Error('Club timezone is unavailable');
+        }
+        await deleteReservation(req, res, reservations, users, clubTimeZone);
       } else if (body.reservation_id) {
         await editReservation(req, res, reservations, clubs, users);
       } else {

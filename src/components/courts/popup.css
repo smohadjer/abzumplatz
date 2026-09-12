@@ -98,6 +98,7 @@
         }
 
         .rules-notice {
+            font-size: 0.9em;
             margin: 1em 0 0;
         }
 
@@ -137,7 +138,7 @@
 
         .reservation-field {
             display: grid;
-            grid-template-columns: 10rem minmax(0, 1fr);
+            grid-template-columns: 7.5rem minmax(0, 1fr);
             align-items: center;
 
             label {
@@ -155,6 +156,11 @@
                 border: 0;
                 color: #666;
                 cursor: default;
+            }
+
+            .reservation-readonly-value {
+                color: #666;
+                padding-left: 2px;
             }
 
             input {
@@ -210,6 +216,10 @@
             }
         }
 
+        .delete-reservation-panel {
+            margin-top: 0.35em;
+        }
+
         .delete_fields {
             input {
                 margin-left: 0;
@@ -238,6 +248,27 @@
             flex-wrap: wrap;
             gap: 0.75em;
             margin-top: 1.25em;
+        }
+    }
+
+    .reservation-details {
+        dl {
+            margin-bottom: 0;
+        }
+
+        dl > div {
+            display: grid;
+            grid-template-columns: 7.5rem minmax(0, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.35em;
+        }
+
+        dt {
+            font-weight: 700;
+        }
+
+        dd {
+            margin: 0;
         }
     }
 }

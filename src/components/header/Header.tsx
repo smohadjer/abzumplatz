@@ -20,7 +20,7 @@ export default function Header() {
 
     return (
         <header className="header">
-            <div className="header-top-row">
+            <div className={`header-top-row${showClubNameAsBrand ? ' header-top-row--club-brand' : ''}`}>
                 <Link to="/" className="header-logo-link" onClick={handleLogoClick}>
                     {showClubNameAsBrand ? (
                         <span className="header-brand-name">{club?.name}</span>

@@ -12,6 +12,10 @@ export default function Footer() {
     const location = useLocation();
     const page_id = location.pathname.substring(1);
 
+    if (auth.value && auth.role === 'admin' && auth.club_deleted) {
+        return null;
+    }
+
     return (
         (auth.value) ?
         <footer>

@@ -7,7 +7,7 @@ import sendEmail from './_utils/_sendEmail.js';
 import { escapeHtml } from './_utils/_lib.js';
 import { ReservationItem } from '../src/types.js';
 import { ClubDocument } from './_utils/_types.js';
-import { isReservationActive } from '../src/utils/utils.js';
+import { isReservationActive } from '../src/utils/reservationTime.js';
 import { BillingPeriodDocument, InvoiceCounterDocument } from './_utils/_billingPeriods.js';
 import { processClubBillingRenewalAndSendInvoices } from './_utils/_billingService.js';
 import { getEffectiveMembersLimitForPlan } from './_utils/_planLimits.js';
@@ -29,15 +29,19 @@ function getRequestedUserIds(body: VercelRequest['body']): string[] {
 async function deleteActiveReservationsForUser(
   database: ReturnType<MongoClient['db']>,
   userId: string,
-  clubId?: string
+  clubId: string
 ) {
   const reservationsCollection = database.collection<ReservationItem>('reservations');
   const reservations = await reservationsCollection.find({
     user_id: userId,
-    ...(clubId ? {club_id: clubId} : {})
+    club_id: clubId
   }).toArray();
+  const club = await database.collection<ClubDocument>('clubs').findOne({
+    _id: ObjectId.createFromHexString(clubId)
+  });
+  if (!club) return 0;
   const activeReservationIds = reservations
-    .filter(reservation => isReservationActive(reservation))
+    .filter(reservation => isReservationActive(reservation, new Date(), club.timezone))
     .map(reservation => reservation._id)
     .filter((id): id is ObjectId => Boolean(id));
 
@@ -130,6 +134,17 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       if (!requester) {
         return res.status(401).json({error: 'Authentication required'});
       }
+      if (requester.club_id) {
+        const requesterClub = await clubCollection.findOne({
+          _id: ObjectId.createFromHexString(requester.club_id),
+          deleted_at: {$exists: false},
+        }, {
+          projection: {_id: 1},
+        });
+        if (!requesterClub) {
+          return res.status(410).json({error: 'Club has been deleted'});
+        }
+      }
 
       const user_id = req.query?.id;
       if (user_id) {
@@ -192,8 +207,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       const club = requester.club_id ? await clubCollection.findOne({
-        _id: ObjectId.createFromHexString(requester.club_id)
+        _id: ObjectId.createFromHexString(requester.club_id),
+        deleted_at: {$exists: false},
       }) : null;
+      if (!club) {
+        return res.status(410).json({error: 'Club has been deleted'});
+      }
       const billingState = requester.club_id && club
         ? await processClubBillingRenewalAndSendInvoices(
             database,

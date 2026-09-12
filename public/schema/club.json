@@ -94,8 +94,8 @@
             "allOf": [
                 {
                     "minimum": 1,
-                    "exclusiveMaximum": 24,
-                    "errorMessage": "Die Endzeit muss zwischen 1 und 23 Uhr liegen."
+                    "maximum": 24,
+                    "errorMessage": "Die Endzeit muss zwischen 1 und 24 Uhr liegen."
                 }
             ]
         },

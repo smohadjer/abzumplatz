@@ -21,7 +21,20 @@ export default function AdminMembersPage() {
     const clubData = useSelector((state: RootState) => state.club);
     const dispatch = useDispatch();
     const users = usersData.value;
+    const normalizeNamePart = (value: string) => value.trim().toLocaleLowerCase('de-DE');
+    const getNormalizedMemberName = (member: typeof users[number]) =>
+        `${normalizeNamePart(member.first_name)} ${normalizeNamePart(member.last_name)}`;
     const isActiveUser = (member: typeof users[number]) => member.status !== 'inactive';
+    const memberNameCounts = users.reduce((counts, member) => {
+        if (!isActiveUser(member)) {
+            return counts;
+        }
+        const normalizedName = getNormalizedMemberName(member);
+        counts.set(normalizedName, (counts.get(normalizedName) ?? 0) + 1);
+        return counts;
+    }, new Map<string, number>());
+    const hasDuplicateName = (member: typeof users[number]) =>
+        isActiveUser(member) && (memberNameCounts.get(getNormalizedMemberName(member)) ?? 0) > 1;
     const activeUsersCount = users.filter(isActiveUser).length;
     const inactiveUsersCount = users.length - activeUsersCount;
     const visibleUsers = users.filter(member => activeTab === 'active' ? isActiveUser(member) : !isActiveUser(member));
@@ -250,9 +263,11 @@ export default function AdminMembersPage() {
                     ) : null}
                     <ul className="users-list">
                         {visibleUsers.map(user => {
+                            const duplicateName = hasDuplicateName(user);
                             const classNames = [
                                 user.role === 'admin' ? 'user-list-item--admin' : '',
                                 selectedUserIds.includes(user._id) ? 'user-list-item--selected' : '',
+                                duplicateName ? 'user-list-item--duplicate-name' : '',
                             ].filter(Boolean).join(' ');
 
                             return <li className={classNames || undefined} key={user._id}>
@@ -268,6 +283,7 @@ export default function AdminMembersPage() {
                                         <span className="members-list-name">
                                             {user.last_name}, {user.first_name}
                                         </span>
+                                        {duplicateName ? <span className="members-duplicate-name-badge">Doppelter Name</span> : null}
                                         <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
                                     </label>
                                 ) : (
@@ -290,6 +306,7 @@ export default function AdminMembersPage() {
                                         <span className="members-list-name members-list-name--admin">
                                             {user.last_name}, {user.first_name} (Admin)
                                         </span>
+                                        {duplicateName ? <span className="members-duplicate-name-badge">Doppelter Name</span> : null}
                                         <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
                                     </label>
                                 )}

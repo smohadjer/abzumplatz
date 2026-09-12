@@ -52,7 +52,7 @@ main {
 }
 
 h1 {
-    font-size: 1.4em;
+    font-size: 1.2em;
 }
 
 h2 {
@@ -122,19 +122,6 @@ a {
     cursor: pointer;
     padding: 0.65em 1em;
     min-height: 2.25em;
-}
-
-.admin-actions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    margin: 1rem 0;
-}
-
-.admin-actions .button-link {
-    min-width: 0;
-    min-height: 0;
-    padding: 0.5em 0.8em;
 }
 
 .button-link--secondary {
@@ -209,13 +196,26 @@ ul {
         background: #eef4ff;
     }
 
+    .user-list-item--duplicate-name {
+        background: #fff4d6;
+        border-left: 3px solid #c58b00;
+    }
+
+    .members-duplicate-name-badge {
+        background: #8a5d00;
+        border-radius: 999px;
+        color: white;
+        font-size: 0.75em;
+        font-weight: 700;
+        padding: 0.15em 0.5em;
+    }
+
 }
 
 .members-tabs {
     display: flex;
-    gap: 0.5rem;
     margin: 1rem 0;
-    flex-wrap: wrap;
+    border-bottom: 1px solid #c7d3eb;
 }
 
 .members-warning-box {
@@ -237,7 +237,7 @@ ul {
     border: 1px solid #e0c36c;
     color: #222;
     padding: 0.85em 1em;
-    margin: 0 0 1rem;
+    margin: 1rem 0;
     border-radius: 0.25em;
 }
 
@@ -246,20 +246,26 @@ ul {
 }
 
 .members-tab {
-    margin-top: 0;
-    padding: 0.45rem 0.75rem;
-    border: 1px solid #c7d3eb;
-    border-radius: 999px;
-    background: #f4f7fc;
-    color: #234b96;
+    margin: 0 0 -1px;
+    padding: 0.65rem 1rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: #4b5b78;
     cursor: pointer;
     font: inherit;
 }
 
 .members-tab--active {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: white;
+    border-bottom-color: var(--blue);
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.members-tab:hover,
+.members-tab:focus-visible {
+    color: var(--blue);
+    background: #f4f7fc;
 }
 
 .members-select-all-button {
@@ -313,6 +319,7 @@ ul {
     background: #3264c8;
     color: white;
     border: 0;
+    border-radius: 999px;
     cursor: pointer;
 }
 
@@ -354,6 +361,11 @@ ul {
 
 .billings-table .billings-table__period {
     padding-right: 1.25rem;
+}
+
+.billings-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
 }
 
 .billings-table th,

@@ -25,7 +25,7 @@ export function SelectClub(props: Props) {
     const dispatch = useDispatch();
     const auth = useSelector((state: RootState) => state.auth);
     const [pending, setPending] = useState(false);
-    const clubs = props.clubs.map(club => {
+    const clubs = props.clubs.filter(club => !club.deleted_at).map(club => {
         return {
             label: club.name,
             value: club._id,

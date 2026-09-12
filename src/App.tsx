@@ -20,6 +20,7 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Rules from './pages/Rules';
 import Support from './pages/Support';
+import Faq from './pages/Faq';
 import Bookings from './pages/Bookings';
 import RegisterPlayer from './pages/RegisterPlayer';
 import RegisterClub from './pages/RegisterClub';
@@ -99,6 +100,9 @@ export default function App() {
                 }/>
                 <Route path="/support" element={
                     <Support />
+                }/>
+                <Route path="/faq" element={
+                    <Faq />
                 }/>
                 <Route path="/bookings" element={
                     <ProtectedRoute>

@@ -40,6 +40,16 @@
   gap: 1rem;
 }
 
+.header-top-row--club-brand {
+  grid-template-columns: 1fr;
+}
+
+.header-top-row--club-brand .header-logo-link {
+  grid-column: 1;
+  justify-self: center;
+  text-align: center;
+}
+
 .header-login-link {
   grid-column: 2;
   justify-self: end;
