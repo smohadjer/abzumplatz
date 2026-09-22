@@ -21,6 +21,7 @@ export default function Footer() {
         <footer>
             <Link aria-label="Reservierungen" to="/reservations"><span aria-hidden="true" className={`icon icon--home${page_id === 'reservations' ? ' selected' : ''}`}></span></Link>
             <Link aria-label="Meine Buchungen" to="/bookings"><span aria-hidden="true" className={`icon icon--list${page_id === 'bookings' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Turniere" to="/tournaments"><span aria-hidden="true" className={`icon icon--trophy${page_id === 'tournaments' ? ' selected' : ''}`}></span></Link>
             <Link aria-label="Einstellungen" to="/settings"><span aria-hidden="true" className={`icon icon--settings${page_id === 'settings' ? ' selected' : ''}`}></span></Link>
             {auth.role === 'admin' &&
                  <Link aria-label="Administration" to="/admin"><span aria-hidden="true" className={`icon icon--admin${page_id === 'admin' ? ' selected' : ''}`}></span></Link>

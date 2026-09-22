@@ -262,6 +262,16 @@ export const onLogout = (dispatch: AppDispatch) => {
             loaded: false,
             clubId: ''
         }});
+        dispatch({type: 'tournaments/fetch', payload: {
+            value: [],
+            loaded: false,
+            clubId: ''
+        }});
+        dispatch({type: 'competitionGroups/fetch', payload: {
+            value: [],
+            loaded: false,
+            clubId: ''
+        }});
         dispatch({type: 'club/fetch', payload: {
             value: {
                 _id: '',

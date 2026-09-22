@@ -49,6 +49,10 @@ a.icon:hover {
     background-image: url(./images/list.svg);
 }
 
+.icon--trophy {
+    background-image: url(./images/trophy.svg);
+}
+
 
 .icon--admin {
     background-image: url(./images/admin.svg);

@@ -1,0 +1,466 @@
+.admin-tournament-form {
+    max-width: 46rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid #ccd5e3;
+    border-radius: 0.35rem;
+    background: #f8faff;
+}
+
+.admin-tournament-form h2 {
+    margin-top: 0;
+}
+
+.admin-tournament-form > label,
+.admin-tournament-date-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.8rem;
+    font-weight: 700;
+}
+
+.admin-tournament-form input,
+.admin-tournament-form select,
+.admin-tournament-form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #9ba8ba;
+    border-radius: 0.25rem;
+    box-sizing: border-box;
+    font: inherit;
+    font-weight: 400;
+}
+
+.admin-tournament-date-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0 1rem;
+}
+
+.admin-tournament-status {
+    margin: 0.8rem 0 0;
+    padding: 0;
+    border: 0;
+}
+
+.admin-tournament-status legend {
+    padding: 0;
+    font-weight: 700;
+}
+
+.admin-tournament-status > div {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.55rem;
+}
+
+.admin-tournament-date-grid .admin-tournament-status label {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    font-weight: 400;
+}
+
+.admin-tournament-status input {
+    width: auto;
+    padding: 0;
+}
+
+.admin-tournament-groups {
+    margin-top: 1rem;
+    border: 1px solid #9ba8ba;
+    border-radius: 0.25rem;
+}
+
+.admin-tournament-groups label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.45rem 0;
+}
+
+.admin-tournament-groups input {
+    width: auto;
+}
+
+.admin-tournament-form-actions,
+.admin-management-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.admin-tournament-form-actions button,
+.admin-management-actions button {
+    margin: 0;
+}
+
+.admin-management-section {
+    max-width: 46rem;
+    margin-top: 1.5rem;
+}
+
+.admin-management-tabs {
+    display: flex;
+    max-width: 46rem;
+    margin-top: 1rem;
+    border-bottom: 1px solid #c7d3eb;
+}
+
+.admin-management-tabs a {
+    padding: 0.65rem 1rem;
+    border-bottom: 3px solid transparent;
+    color: #4a5568;
+    text-decoration: none;
+}
+
+.admin-management-tabs a:hover,
+.admin-management-tabs a:focus-visible {
+    background: #f2f5fa;
+    color: var(--blue);
+}
+
+.admin-management-tabs a.active {
+    border-bottom-color: var(--blue);
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.admin-management-heading {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.admin-management-heading .button-link {
+    min-width: 0;
+}
+
+.admin-management-create-link {
+    max-width: 46rem;
+    border-top: 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.admin-competition-groups-description {
+    margin: 1.25rem 0;
+}
+
+.admin-management-filters {
+    display: flex;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+    width: 100%;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #c7d3eb;
+}
+
+.admin-management-filters button {
+    margin: 0;
+    padding: 0.4rem 0.65rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: #4a5568;
+    cursor: pointer;
+    font: inherit;
+    white-space: nowrap;
+}
+
+.admin-management-filters button:hover,
+.admin-management-filters button:focus-visible {
+    background: #f2f5fa;
+    color: var(--blue);
+}
+
+.admin-management-filters button.active {
+    border-bottom-color: var(--blue);
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.admin-management-list article {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    padding: 0.9rem;
+    border: 1px solid #d6dce5;
+    border-radius: 0.35rem;
+}
+
+.admin-management-list article h3,
+.admin-management-list article p {
+    margin-top: 0;
+}
+
+.admin-management-list article p + p {
+    margin-top: 0.3rem;
+}
+
+.admin-tournament-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-management-list .admin-tournament-card {
+    flex-direction: column;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    border: 0;
+    border-radius: 0;
+    background: #f5f6f8;
+}
+
+.admin-tournament-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.admin-tournament-heading h2 {
+    margin: 0;
+    font-size: 1.17em;
+}
+
+.admin-tournament-countdown {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.45rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--blue);
+    color: var(--blue);
+    line-height: 1;
+}
+
+.admin-tournament-countdown strong {
+    font-size: 1.75rem;
+}
+
+.admin-tournament-countdown span,
+.admin-tournament-countdown small {
+    display: block;
+}
+
+.admin-tournament-countdown span {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.admin-tournament-countdown small {
+    margin-top: 0.2rem;
+    color: #586577;
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+.admin-tournament-finished {
+    flex: none;
+    padding-left: 0.75rem;
+    border-left: 2px solid #b42318;
+    color: #b42318;
+    line-height: 1;
+}
+
+.admin-tournament-finished strong {
+    display: block;
+    font-size: 1rem;
+}
+
+.admin-tournament-finished small {
+    display: block;
+    margin-top: 0.2rem;
+    color: #586577;
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+.admin-tournament-card dl {
+    margin: 0;
+}
+
+.admin-tournament-card > .admin-management-actions {
+    justify-content: flex-end;
+}
+
+.admin-tournament-card dl > div {
+    display: grid;
+    grid-template-columns: minmax(7rem, 0.4fr) minmax(0, 1fr);
+    gap: 1rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #d6dce5;
+}
+
+.admin-tournament-card dt {
+    color: #000;
+    font-size: 0.9em;
+    font-weight: 400;
+}
+
+.admin-tournament-card dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-size: 0.9em;
+    text-align: right;
+}
+
+.admin-tournament-card dl > .admin-tournament-competitions-row {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+}
+
+.admin-tournament-competitions-row dd {
+    text-align: left;
+}
+
+.admin-management-list .admin-competition-group-row {
+    align-items: center;
+    margin-top: 0;
+    padding: 0.45rem 0;
+    border: 0;
+    border-bottom: 1px solid #d6dce5;
+    border-radius: 0;
+}
+
+.admin-management-list .admin-competition-group-row:last-child {
+    border-bottom: 0;
+}
+
+.admin-competition-group-row > p {
+    margin: 0;
+}
+
+.admin-competition-group-row > p span {
+    color: #586577;
+    font-size: 0.85em;
+}
+
+.admin-competition-group-row .admin-management-actions {
+    flex-wrap: nowrap;
+}
+
+.admin-competition-group-row .button-link,
+.admin-competition-group-row .admin-delete-button {
+    min-height: 0;
+    padding: 0.3rem 0.6rem;
+}
+
+.admin-management-actions {
+    align-content: flex-start;
+    margin-top: 0;
+}
+
+.admin-management-actions .button-link {
+    min-width: 0;
+    padding: 0.45rem 0.75rem;
+}
+
+.admin-delete-button {
+    margin: 0;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid #d6a09b;
+    border-radius: 0.25rem;
+    background: white;
+    color: #b42318;
+    cursor: pointer;
+    font: inherit;
+}
+
+.admin-participant-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0.75rem 1rem;
+    max-width: 46rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid #ccd5e3;
+    border-radius: 0.35rem;
+    background: #f8faff;
+}
+
+.admin-participant-form h2 {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
+.admin-participant-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-weight: 700;
+}
+
+.admin-participant-form select {
+    padding: 0.5rem;
+    border: 1px solid #9ba8ba;
+    border-radius: 0.25rem;
+    font: inherit;
+    font-weight: 400;
+}
+
+.admin-participant-form button {
+    align-self: end;
+    margin: 0;
+    min-height: 2.5rem;
+}
+
+.admin-participant-groups {
+    max-width: 46rem;
+    margin-top: 1.5rem;
+}
+
+.admin-participant-groups section {
+    margin-top: 1.25rem;
+}
+
+.admin-participant-groups h2 small {
+    color: #586577;
+    font-size: 0.75em;
+    font-weight: 400;
+}
+
+.admin-participant-groups ul {
+    margin-top: 0.5rem;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-participant-groups li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid #d6dce5;
+}
+
+.admin-participant-groups li button {
+    margin: 0;
+    color: #b42318;
+}
+
+@media (max-width: 560px) {
+    .admin-management-heading,
+    .admin-management-list article:not(.admin-competition-group-row) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-tournament-card dl > div {
+        grid-template-columns: minmax(6rem, auto) minmax(0, 1fr);
+    }
+
+    .admin-competition-group-row {
+        flex-wrap: wrap;
+    }
+}

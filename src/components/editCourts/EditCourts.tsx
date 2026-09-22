@@ -15,7 +15,7 @@ export function EditCourts(props: Props) {
     // normalize form fields
     const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
     normalizedFields.map(field => {
-        if (data && data.hasOwnProperty(field.name)) {
+        if (data && Object.prototype.hasOwnProperty.call(data, field.name)) {
             field.value = data[field.name];
         }
         return field;

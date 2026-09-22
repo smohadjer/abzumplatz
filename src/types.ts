@@ -146,6 +146,68 @@ export type DBUser = {
     timestamp?: Date | string;
 }
 
+export type CompetitionType = {
+    id: 'single' | 'double';
+    name: 'Einzel' | 'Doppel';
+}
+
+export type CompetitionGroup = {
+    _id: string;
+    club_id: string;
+    name: string;
+    competition_type: CompetitionType;
+    sex?: 'male' | 'female' | 'mixed';
+    min_age?: number;
+    max_age?: number;
+}
+
+export type TournamentGroup = {
+    _id: string;
+    tournament_id: string;
+    source_group_id: string;
+    name: string;
+    competition_type: CompetitionType;
+    sex?: 'male' | 'female' | 'mixed';
+    min_age?: number;
+    max_age?: number;
+}
+
+export type TournamentStatus = 'draft' | 'published';
+
+export type TournamentPaymentMethod = 'cash' | 'bank_transfer';
+
+export type Tournament = {
+    _id: string;
+    club_id: string;
+    name: string;
+    description?: string;
+    format?: string;
+    start_date: string;
+    end_date: string;
+    registration_deadline: string;
+    draw?: string;
+    entry_fee?: number;
+    payment_method?: TournamentPaymentMethod;
+    status: TournamentStatus;
+    groups: TournamentGroup[];
+    registrants_count: number;
+    group_registrants_count: Record<string, number>;
+    current_user_registrations: Record<string, TournamentRegistration>;
+    created_by: string;
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string;
+}
+
+export type TournamentRegistration = {
+    _id: string;
+    tournament_id: string;
+    group_id: string;
+    user_ids: string[];
+    registered_at: string;
+    users?: StateUser[];
+}
+
 export type AuthenticatedUser = {
     authChecked?: boolean;
     value: boolean;

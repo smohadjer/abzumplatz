@@ -74,7 +74,7 @@ export const getJwtPayload = async (req: VercelRequest) : Promise<JwtPayload | u
         // The JWT carries identity/session fields only. Authorization-sensitive
         // status checks must read the current user record from the database.
         return jwtResponse.payload;
-    } catch(error) {
+    } catch {
         return;
     }
 }
