@@ -15,6 +15,7 @@ import { fetchClub } from './_utils/_fetchClub.js';
 import { isLowerPlan } from '../src/planConfig.js';
 import { getEffectiveMembersLimitForPlan, hasMembersLimitOverride } from './_utils/_planLimits.js';
 import { defaultClubRules } from '../src/clubRules.js';
+import { createDefaultCompetitionGroups } from './_utils/_competitionGroupDefaults.js';
 import bcrypt from 'bcrypt';
 
 if (!database_uri || !database_name) {
@@ -390,6 +391,8 @@ async function addClub(
   };
   const insertResponse = await collection.insertOne(club);
   const club_id = insertResponse.insertedId.toString();
+
+  await createDefaultCompetitionGroups(database, club_id);
 
   if (club_id) {
     const query = {_id: ObjectId.createFromHexString(payload._id)};

@@ -1,13 +1,13 @@
-import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
+import { sanitize, ajv, getCustomErrorMessage } from '../_utils/_lib.js';
 import * as fs from 'fs';
 import { MongoClient, ObjectId } from 'mongodb';
-import { jwtSecret, environment, database_uri, database_name } from './_utils/_config.js';
+import { jwtSecret, environment, database_uri, database_name } from '../_utils/_config.js';
 import bcrypt from 'bcrypt';
 import { SignJWT } from 'jose';
-import { AuthenticatedUserResponse, DBUser, JwtPayload } from '../src/types.js';
-import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
-import { getErrorMessage } from './_utils/_errors.js';
-import { ClubDocument } from './_utils/_types.js';
+import { AuthenticatedUserResponse, DBUser, JwtPayload } from '../../src/types.js';
+import type { VercelRequest, VercelResponse } from '../_utils/_apiTypes.js';
+import { getErrorMessage } from '../_utils/_errors.js';
+import { ClubDocument } from '../_utils/_types.js';
 
 type LoginBody = {
     email: string;

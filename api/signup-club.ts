@@ -9,6 +9,7 @@ import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, SignupClubBody } from './_utils/_types.js';
 import { BillingPeriodDocument, InvoiceCounterDocument } from './_utils/_billingPeriods.js';
 import { BillingPeriodInvoiceDeliveryError, createInitialBillingPeriodAndSendInvoice } from './_utils/_billingService.js';
+import { createDefaultCompetitionGroups } from './_utils/_competitionGroupDefaults.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -110,6 +111,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             };
             const clubResponse = await clubs.insertOne(club);
             const club_id = clubResponse.insertedId.toString();
+
+            await createDefaultCompetitionGroups(database, club_id);
 
             await database.collection<DBUser>('users').updateOne(
                 {_id: new ObjectId(userResponse.insertedId)},
