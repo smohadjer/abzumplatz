@@ -2,6 +2,29 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.1.0
+
+### Added
+
+- Added tournament and competition management for administrators, including tournament details, statuses, competition selection, participant management, filtering, and soft deletion ([#122](https://github.com/smohadjer/abzumplatz/issues/122)).
+- Added a player tournament page with date-based filters, start countdowns, participant lists, and registration or withdrawal for singles and doubles competitions.
+- Added reusable competition-group definitions, tournament-specific group snapshots, standard competition seed data, and automatic default-group creation for new clubs.
+- Added tournament database migrations, lookup indexes, and a unique registration index that prevents a player from being registered twice in the same competition.
+- Added `TOURNAMENTS.md` with the tournament data model, workflows, validation rules, migrations, and deferred features.
+
+### Changed
+
+- Preserved historical tournament groups independently from reusable competition templates so later template changes do not alter existing tournaments.
+- Changed tournament deletion to retain tournaments, competition groups, and registrations through soft deletion.
+- Updated production dependencies to resolve reported security vulnerabilities.
+- Migrated ESLint configuration to the ESLint 9 flat-config format.
+- Simplified administration navigation labels and added tournament access to the admin overview and authenticated footer.
+
+### Fixed
+
+- Made concurrent duplicate tournament registrations return a conflict response and enforced the rule atomically in MongoDB.
+- Kept tournament and competition caches synchronized after successful create, edit, delete, registration, and withdrawal operations.
+
 ## 0.0.31
 
 ### Added

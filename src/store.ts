@@ -4,6 +4,8 @@ import clubsReducer from './reducers/clubsSlice';
 import clubReducer from './reducers/clubSlice';
 import usersReducer from './reducers/usersSlice';
 import reservationsReducer from './reducers/reservationsSlice';
+import tournamentsReducer from './reducers/tournamentsSlice';
+import competitionGroupsReducer from './reducers/competitionGroupsSlice';
 import type { Action, ThunkAction } from '@reduxjs/toolkit';
 
 export const store = configureStore({
@@ -13,6 +15,8 @@ export const store = configureStore({
     club: clubReducer,
     users: usersReducer,
     reservations: reservationsReducer,
+    tournaments: tournamentsReducer,
+    competitionGroups: competitionGroupsReducer,
   }
 })
 

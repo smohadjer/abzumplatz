@@ -223,7 +223,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           )
         : null;
       const resolvedClub = billingState?.club ?? club;
-      const currentBillingPeriod = billingState?.currentBillingPeriod ?? null;
       const normalizedUserIds: string[] = [...new Set<string>(requestedUserIds)];
       const targetUsers = [];
 

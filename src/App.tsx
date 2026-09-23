@@ -16,12 +16,17 @@ import AdminClubPage from './pages/admin/Club';
 import AdminCourtsPage from './pages/admin/Courts';
 import AdminRulesPage from './pages/admin/Rules';
 import AdminBillingsPage from './pages/admin/Billings';
+import AdminTournamentsPage from './pages/admin/Tournaments';
+import AdminTournamentFormPage from './pages/admin/TournamentForm';
+import AdminCompetitionGroupFormPage from './pages/admin/CompetitionGroupForm';
+import AdminTournamentParticipantsPage from './pages/admin/TournamentParticipants';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Rules from './pages/Rules';
 import Support from './pages/Support';
 import Faq from './pages/Faq';
 import Bookings from './pages/Bookings';
+import Tournaments from './pages/Tournaments';
 import RegisterPlayer from './pages/RegisterPlayer';
 import RegisterClub from './pages/RegisterClub';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -109,6 +114,11 @@ export default function App() {
                         <Bookings />
                     </ProtectedRoute>
                 }/>
+                <Route path="/tournaments" element={
+                    <ProtectedRoute>
+                        <Tournaments />
+                    </ProtectedRoute>
+                }/>
                 <Route path="/admin" element={
                     <ProtectedRoute>
                         <AdminHomePage />
@@ -137,6 +147,36 @@ export default function App() {
                 <Route path="/admin/billings" element={
                     <ProtectedRoute>
                         <AdminBillingsPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/tournaments" element={
+                    <ProtectedRoute>
+                        <AdminTournamentsPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/tournaments/new" element={
+                    <ProtectedRoute>
+                        <AdminTournamentFormPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/tournaments/:id/edit" element={
+                    <ProtectedRoute>
+                        <AdminTournamentFormPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/tournaments/:id/participants" element={
+                    <ProtectedRoute>
+                        <AdminTournamentParticipantsPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/tournaments/groups/new" element={
+                    <ProtectedRoute>
+                        <AdminCompetitionGroupFormPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/tournaments/groups/:id/edit" element={
+                    <ProtectedRoute>
+                        <AdminCompetitionGroupFormPage />
                     </ProtectedRoute>
                 }/>
                 <Route path="/register/club" element={

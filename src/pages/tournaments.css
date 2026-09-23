@@ -1,0 +1,353 @@
+.tournament-list {
+    max-width: 46rem;
+}
+
+.tournament-filters {
+    display: flex;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 46rem;
+    gap: 0.25rem;
+    margin: 1rem 0 0.75rem;
+    border-bottom: 1px solid #c7d3eb;
+}
+
+.tournament-filters button {
+    margin: 0;
+    padding: 0.4rem 0.65rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: #4a5568;
+    cursor: pointer;
+    font: inherit;
+    white-space: nowrap;
+}
+
+.tournament-filters button:hover,
+.tournament-filters button:focus-visible {
+    background: #f2f5fa;
+    color: var(--blue);
+}
+
+.tournament-filters button.active {
+    border-bottom-color: var(--blue);
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.tournament-list article {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: #f5f6f8;
+}
+
+.tournament-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.tournament-heading h2 {
+    margin: 0;
+    font-size: 1.17em;
+    overflow-wrap: anywhere;
+}
+
+.tournament-heading > div:first-child {
+    min-width: 0;
+}
+
+.tournament-heading-meta {
+    display: flex;
+    flex: none;
+    align-items: stretch;
+    gap: 0.6rem;
+}
+
+.tournament-status {
+    display: flex;
+    flex: none;
+    align-items: center;
+    width: 6.5rem;
+    margin: 0 0.75rem 0 0;
+    padding: 0;
+    color: #000;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: left;
+}
+
+.tournament-user-status {
+    margin: 0 0 0.65rem;
+    padding: 0.5rem 0.65rem;
+    border-left: 3px solid #318247;
+    background: #eaf5ed;
+    color: #226c35;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.tournament-user-status--none {
+    border-left-color: #c17a00;
+    background: #fff4df;
+    color: #6d4700;
+    font-weight: 400;
+}
+
+.tournament-description {
+    font-size: 0.9em;
+}
+
+.tournament-countdown {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.45rem;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--blue);
+    color: var(--blue);
+    line-height: 1;
+}
+
+.tournament-countdown strong {
+    font-size: 1.75rem;
+}
+
+.tournament-countdown span,
+.tournament-countdown small {
+    display: block;
+}
+
+.tournament-countdown span {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.tournament-countdown small {
+    margin-top: 0.2rem;
+    color: #586577;
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+.tournament-finished {
+    flex: none;
+    padding-left: 0.75rem;
+    border-left: 2px solid #b42318;
+    color: #b42318;
+    line-height: 1;
+}
+
+.tournament-finished strong {
+    display: block;
+    font-size: 1rem;
+}
+
+.tournament-finished small {
+    display: block;
+    margin-top: 0.2rem;
+    color: #586577;
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+.tournament-list dl {
+    margin-bottom: 0;
+}
+
+.tournament-list dl > div {
+    display: grid;
+    grid-template-columns: minmax(7rem, 0.4fr) minmax(0, 1fr);
+    gap: 1rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #d6dce5;
+    font-size: 0.9em;
+}
+
+.tournament-list dt {
+    font-weight: 400;
+}
+
+.tournament-list dd {
+    margin: 0;
+    text-align: right;
+}
+
+.tournament-list .tournament-groups-row {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+    border-bottom: 0;
+}
+
+.tournament-list .tournament-groups-row dd {
+    text-align: left;
+}
+
+.tournament-group-link {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--blue);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.tournament-group-link:hover,
+.tournament-group-link:focus-visible {
+    text-decoration: underline;
+}
+
+.tournament-group-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.tournament-group-row button {
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.tournament-group-row .tournament-register-button,
+.tournament-group-row .tournament-unregister-button {
+    padding: 0.35rem 0.85rem;
+    border: 0;
+    border-radius: 0.3rem;
+    color: white;
+    cursor: pointer;
+}
+
+.tournament-group-row .tournament-register-button {
+    background: var(--blue);
+}
+
+.tournament-group-row .tournament-register-button:hover,
+.tournament-group-row .tournament-register-button:focus-visible {
+    background: #254f9f;
+}
+
+.tournament-group-row .tournament-unregister-button {
+    background: #b42318;
+}
+
+.tournament-double-registration {
+    display: grid;
+    gap: 0.45rem;
+    margin-bottom: 0.75rem;
+}
+
+.tournament-double-registration select {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.45rem;
+}
+
+.tournament-double-registration > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tournament-double-registration button {
+    margin: 0;
+}
+
+.tournament-double-registration p {
+    margin: 0;
+}
+
+.tournament-participants {
+    margin-bottom: 0;
+    padding-left: 1.2rem;
+}
+
+.tournament-participants li {
+    padding: 0.15rem 0;
+    border: 0;
+}
+
+.tournament-registration-note {
+    color: #586577;
+    font-size: 1em;
+}
+
+.tournament-registration-message,
+.tournament-registration-success {
+    margin: 0.65rem 0 0;
+    font-size: 1em;
+}
+
+.tournament-registration-success {
+    color: #226c35;
+}
+
+.tournament-dialog-backdrop {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgb(16 24 40 / 55%);
+}
+
+.tournament-dialog {
+    box-sizing: border-box;
+    width: min(32rem, 100%);
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    padding: 1rem;
+    border-radius: 0.35rem;
+    background: white;
+    box-shadow: 0 1rem 3rem rgb(0 0 0 / 25%);
+}
+
+.tournament-dialog header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #d6dce5;
+}
+
+.tournament-dialog h2,
+.tournament-dialog header p {
+    margin: 0;
+}
+
+.tournament-dialog header p {
+    margin-top: 0.2rem;
+    color: #586577;
+    font-size: 0.9em;
+}
+
+.tournament-dialog-close {
+    margin: 0;
+    padding: 0 0.25rem;
+    border: 0;
+    background: transparent;
+    color: #586577;
+    cursor: pointer;
+    font-size: 1.75rem;
+    line-height: 1;
+}
+
+.tournament-dialog > .tournament-group-row {
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+@media (max-width: 36rem) {
+    .tournament-filters button:nth-child(n + 3) {
+        display: none;
+    }
+}
