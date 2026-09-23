@@ -50,6 +50,8 @@ export default async (request: VercelRequest, response: VercelResponse) => {
             email: doc.email,
             role: doc.role,
             status: doc.status ?? 'inactive',
+            birth_year: doc.birth_year,
+            sex: doc.sex,
         };
         return response.json(authenticatedUser);
     } else {

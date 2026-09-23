@@ -158,6 +158,11 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             return res.status(403).json({error: 'Reading this member is not allowed'});
           }
 
+          if (doc._id.toString() !== payload._id) {
+            const {birth_year: _birthYear, sex: _sex, ...publicMember} = doc;
+            return res.json(publicMember);
+          }
+
           return res.json(doc);
         } else {
           return res.status(404).end();
@@ -178,6 +183,73 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         const docs = await fetchUsers(database, undefined, club_id);
         return res.json(docs);
       }
+    }
+
+    if (req.method === 'PATCH') {
+      const payload = await getJwtPayload(req);
+      if (!payload) {
+        return res.status(401).json({error: 'Authentication required'});
+      }
+
+      const birthYear = req.body?.birth_year;
+      const sex = req.body?.sex;
+      const firstName = typeof req.body?.first_name === 'string' ? req.body.first_name.trim() : '';
+      const lastName = typeof req.body?.last_name === 'string' ? req.body.last_name.trim() : '';
+      const currentYear = new Date().getFullYear();
+      const namePattern = /^[\p{L}][\p{L}' -]*$/u;
+      if (firstName.length < 2 || firstName.length > 40 || !namePattern.test(firstName)) {
+        return res.status(400).json({error: [{
+          instancePath: '/first_name',
+          message: 'Bitte geben Sie einen gültigen Vornamen ein.'
+        }]});
+      }
+      if (lastName.length < 2 || lastName.length > 40 || !namePattern.test(lastName)) {
+        return res.status(400).json({error: [{
+          instancePath: '/last_name',
+          message: 'Bitte geben Sie einen gültigen Nachnamen ein.'
+        }]});
+      }
+      if (birthYear !== null && birthYear !== undefined &&
+          (!Number.isInteger(birthYear) || birthYear < 1900 || birthYear > currentYear)) {
+        return res.status(400).json({error: [{
+          instancePath: '/birth_year',
+          message: `Bitte geben Sie ein Geburtsjahr zwischen 1900 und ${currentYear} ein.`
+        }]});
+      }
+      if (sex !== null && sex !== undefined && !['male', 'female'].includes(sex)) {
+        return res.status(400).json({error: [{
+          instancePath: '/sex',
+          message: 'Bitte wählen Sie ein gültiges Geschlecht.'
+        }]});
+      }
+
+      const update: {$set?: Record<string, unknown>; $unset?: Record<string, ''>} = {
+        $set: {first_name: firstName, last_name: lastName}
+      };
+      if (birthYear === null || birthYear === undefined) {
+        update.$unset = {...update.$unset, birth_year: ''};
+      } else {
+        update.$set = {...update.$set, birth_year: birthYear};
+      }
+      if (sex === null || sex === undefined) {
+        update.$unset = {...update.$unset, sex: ''};
+      } else {
+        update.$set = {...update.$set, sex};
+      }
+
+      const result = await collection.updateOne(
+        {_id: ObjectId.createFromHexString(payload._id)},
+        update
+      );
+      if (!result.matchedCount) {
+        return res.status(404).json({error: 'User not found'});
+      }
+      return res.json({
+        first_name: firstName,
+        last_name: lastName,
+        birth_year: birthYear ?? undefined,
+        sex: sex ?? undefined
+      });
     }
 
     if (req.method === 'POST') {

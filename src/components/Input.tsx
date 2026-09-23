@@ -19,6 +19,8 @@ export default function Input(props: Props) {
       value={item.value}
       onChange={handleChange}
       placeholder={item.placeholder}
+      min={item.min}
+      max={item.max}
       required={item.required}
     />
   )

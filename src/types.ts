@@ -10,6 +10,8 @@ export type Field = {
   label: string;
   required?: boolean;
   placeholder?: string;
+  min?: number;
+  max?: number;
   hint?: string;
   hintByValue?: Record<string, string>;
   footnote?: string;
@@ -143,8 +145,12 @@ export type DBUser = {
     password: string;
     role: string;
     status?: string;
+    birth_year?: number;
+    sex?: MemberSex;
     timestamp?: Date | string;
 }
+
+export type MemberSex = 'male' | 'female';
 
 export type CompetitionType = {
     id: 'single' | 'double';
@@ -220,6 +226,8 @@ export type AuthenticatedUser = {
     role: string;
     // Display-only client cache; it is not the backend authorization source of truth.
     status?: string;
+    birth_year?: number;
+    sex?: MemberSex;
 }
 
 export type AuthenticatedUserResponse = Omit<AuthenticatedUser, 'value'> & {

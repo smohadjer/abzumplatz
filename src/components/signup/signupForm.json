@@ -21,6 +21,25 @@
             "value": ""
         },
         {
+            "name": "birth_year",
+            "label": "Geburtsjahr",
+            "type": "number",
+            "required": false,
+            "value": ""
+        },
+        {
+            "name": "sex",
+            "label": "Geschlecht",
+            "type": "select",
+            "required": false,
+            "options": [
+                {"label": "Keine Angabe", "value": ""},
+                {"label": "Männlich", "value": "male"},
+                {"label": "Weiblich", "value": "female"}
+            ],
+            "value": ""
+        },
+        {
             "name": "email",
             "label": "Email",
             "type": "email",

@@ -21,6 +21,7 @@ import AdminTournamentFormPage from './pages/admin/TournamentForm';
 import AdminCompetitionGroupFormPage from './pages/admin/CompetitionGroupForm';
 import AdminTournamentParticipantsPage from './pages/admin/TournamentParticipants';
 import Profile from './pages/Profile';
+import EditProfile from './pages/EditProfile';
 import Settings from './pages/Settings';
 import Rules from './pages/Rules';
 import Support from './pages/Support';
@@ -91,6 +92,11 @@ export default function App() {
                 <Route path="/profile" element={
                     <ProtectedRoute>
                         <Profile />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/profile/edit" element={
+                    <ProtectedRoute>
+                        <EditProfile />
                     </ProtectedRoute>
                 }/>
                 <Route path="/settings" element={

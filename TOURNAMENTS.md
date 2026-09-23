@@ -248,15 +248,15 @@ is registered immediately; confirmation is not required in the current
 version. Members may add or remove registrations containing their own user ID
 while the tournament status is `published` and the Meldeschluss has not passed.
 Upcoming, running, and past states are derived from the tournament dates rather
-than stored as statuses. Age and sex eligibility will be enforced after the optional member
-profile fields are implemented.
+than stored as statuses. The optional member profile fields are implemented;
+automatic age and sex eligibility enforcement is still pending.
 
 ## Member profile fields
 
-The planned member-profile extension adds two optional properties:
+The member profile includes two optional properties:
 
 ```ts
-type MemberSex = 'male' | 'female' | 'diverse';
+type MemberSex = 'male' | 'female';
 
 type TournamentProfileFields = {
   birth_year?: number;
@@ -264,7 +264,7 @@ type TournamentProfileFields = {
 };
 ```
 
-These fields are not implemented yet. Both remain optional so members can continue using court booking
+Both remain optional so members can continue using court booking
 without providing them. A member must provide the relevant field before
 joining a group with a corresponding eligibility restriction.
 
@@ -424,7 +424,6 @@ All migrations are idempotent.
 
 ## Current exclusions and future work
 
-- Member profile editing for birth year and sex
 - Automatic age, sex, and mixed-team eligibility enforcement
 - Partner invitation and confirmation for member-created doubles teams
 - Participant limits

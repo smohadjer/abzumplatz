@@ -16,6 +16,8 @@ type SignupBody = {
     email: string;
     password: string;
     club_id?: string;
+    birth_year?: string;
+    sex?: 'male' | 'female';
 }
 
 if (!database_uri || !database_name) {
@@ -168,7 +170,16 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 return res.status(500).json({error: 'Ungültige Daten.'});
             }
         } else {
-            const { first_name, last_name, password } = body;
+            const { first_name, last_name, password, sex } = body;
+            const birth_year = body.birth_year ? Number(body.birth_year) : undefined;
+            const currentYear = new Date().getFullYear();
+            if (birth_year !== undefined &&
+                (!Number.isInteger(birth_year) || birth_year < 1900 || birth_year > currentYear)) {
+                return res.status(400).json({error: [{
+                    instancePath: '/birth_year',
+                    message: `Bitte geben Sie ein Geburtsjahr zwischen 1900 und ${currentYear} ein.`
+                }]});
+            }
             const club_id = body.club_id?.trim();
             const email = body.email.toLowerCase();
             const user: DBUser = {
@@ -179,6 +190,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 ...(club_id ? {club_id} : {}),
                 role: 'player',
                 status: 'inactive',
+                ...(birth_year ? {birth_year} : {}),
+                ...(sex ? {sex} : {}),
             };
 
             try {

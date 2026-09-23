@@ -39,6 +39,15 @@
         "club_id": {
             "type": "string"
         },
+        "birth_year": {
+            "type": "string",
+            "pattern": "^(19[0-9]{2}|20[0-9]{2})$",
+            "errorMessage": "Bitte geben Sie ein gültiges Geburtsjahr ein."
+        },
+        "sex": {
+            "enum": ["male", "female"],
+            "errorMessage": "Bitte wählen Sie ein gültiges Geschlecht."
+        },
         "email": {
             "type": "string",
             "allOf": [

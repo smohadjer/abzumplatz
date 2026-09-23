@@ -2,6 +2,20 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.1.1
+
+### Added
+
+- Added optional birth-year and sex fields to player registration and authenticated user profiles.
+- Added a dedicated profile-editing page where users can update their name, birth year, and sex while email and account status remain read-only.
+
+### Changed
+
+- Changed the profile page to present account details as a read-only overview with birth year, calculated age, and sex.
+- Moved the player club-change action to the edit-profile page while retaining the existing restriction for club administrators.
+- Kept birth year and sex private from other club members in member API responses.
+- Updated the homepage to present court reservations and club-tournament management as the app's core offerings.
+
 ## 0.1.0
 
 ### Added

@@ -7,6 +7,8 @@ type FetchedUser = {
     status: string;
     role?: string | null;
     club_id?: string;
+    birth_year?: number;
+    sex?: 'male' | 'female';
 }
 
 type NormalizedFetchedUser = Omit<FetchedUser, 'role'> & {
@@ -38,6 +40,8 @@ export async function fetchUsers(
           role: 1,
           email: 1,
           status: 1,
+          birth_year: 1,
+          sex: 1,
       };
       const query = {_id: ObjectId.createFromHexString(userId)};
       const doc = await collection.findOne(query, {projection});

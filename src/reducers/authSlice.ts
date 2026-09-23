@@ -13,6 +13,8 @@ export const authSlice = createSlice({
     club_deleted: false,
     role: '',
     status: '',
+    birth_year: undefined as number | undefined,
+    sex: undefined as 'male' | 'female' | undefined,
   },
   reducers: {
     login: (state, action) => {
@@ -30,6 +32,8 @@ export const authSlice = createSlice({
       state.club_deleted = action.payload.club_deleted ?? false;
       state.role = action.payload.role;
       state.status = action.payload.status ?? '';
+      state.birth_year = action.payload.birth_year;
+      state.sex = action.payload.sex;
     },
     logout: (state) => {
       state.authChecked = true;
@@ -42,6 +46,8 @@ export const authSlice = createSlice({
       state.club_deleted = false;
       state.role = '';
       state.status = '';
+      state.birth_year = undefined;
+      state.sex = undefined;
     },
     setAuthChecked: (state) => {
       state.authChecked = true;
@@ -55,11 +61,17 @@ export const authSlice = createSlice({
     },
     setClubDeleted: (state, action) => {
       state.club_deleted = action.payload.club_deleted;
+    },
+    setProfile: (state, action) => {
+      state.first_name = action.payload.first_name;
+      state.last_name = action.payload.last_name;
+      state.birth_year = action.payload.birth_year;
+      state.sex = action.payload.sex;
     }
   }
 })
 
 // Action creators are generated for each case reducer function
-export const { login, logout, setAuthChecked, setClubId, setClubDeleted } = authSlice.actions
+export const { login, logout, setAuthChecked, setClubId, setClubDeleted, setProfile } = authSlice.actions
 
 export default authSlice.reducer

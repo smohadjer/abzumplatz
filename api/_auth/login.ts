@@ -101,6 +101,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                       ...payload,
                       club_deleted: clubDeleted,
                       status: user.status ?? 'inactive',
+                      birth_year: user.birth_year,
+                      sex: user.sex,
                     };
                     const token = await new SignJWT(payload)
                       .setProtectedHeader({ alg })

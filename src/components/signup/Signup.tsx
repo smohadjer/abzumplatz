@@ -21,6 +21,11 @@ export function Signup() {
 
     const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
     const clubField = normalizedFields.find(field => field.name === 'club_id');
+    const birthYearField = normalizedFields.find(field => field.name === 'birth_year');
+    if (birthYearField) {
+        birthYearField.min = 1900;
+        birthYearField.max = new Date().getFullYear();
+    }
     if (clubField) {
         clubField.hint = 'Falls Ihr Verein nicht in der Liste erscheint, können Sie sich trotzdem registrieren. Reservierungen sind erst möglich, sobald Ihr Verein ein Konto auf abzumplatz erstellt hat.';
         clubField.options = [
