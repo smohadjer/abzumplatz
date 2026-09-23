@@ -323,6 +323,26 @@ Abmelden action. Participant names are loaded lazily when the dialog is opened.
 The `Meine Turniere` filter and the registration summary below each tournament
 title make the member's own registrations visible without opening the dialog.
 
+### New-tournament footer indicator
+
+Active player accounts assigned to a club see a small pulsing yellow indicator
+to the left of the tournament trophy in the footer when their club has a
+published tournament they have not seen yet. Administrators, inactive players,
+and players without a club do not see the indicator.
+
+The client compares the IDs of the club's currently published tournaments with
+a list stored in `localStorage` under the current user and club. Opening any
+route in the `/tournaments` area marks all tournaments that are published at
+that time as seen and hides the indicator. A tournament is considered new by
+its ID, so editing an already seen tournament does not show the indicator
+again.
+
+This is a lightweight in-app notice rather than a push or email notification.
+The seen state is local to each browser and device, and the tournament list is
+normally refreshed when the application loads; there is no background polling.
+Clearing browser storage resets the seen state and can make existing published
+tournaments appear new again.
+
 The administration overview has separate tournament and competition-group tabs. Tournament
 and competition-group lists are cached in club-scoped Redux slices. Create,
 edit, and delete operations update those slices only after the corresponding

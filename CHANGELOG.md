@@ -2,6 +2,14 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.1.3
+
+### Changed
+
+- Changed “Verein löschen” on the admin overview from an inline destructive action to a standard navigation link.
+- Moved club deletion to a dedicated confirmation page with consequence guidance and current-password verification.
+- Added a footer indicator that alerts players to newly published tournaments until they open the tournament area.
+
 ## 0.1.2
 
 ### Added

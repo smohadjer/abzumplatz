@@ -13,6 +13,7 @@ import Reservations from './pages/Reservations';
 import AdminHomePage from './pages/admin/Home';
 import AdminMembersPage from './pages/admin/Members'
 import AdminClubPage from './pages/admin/Club';
+import AdminDeleteClubPage from './pages/admin/DeleteClub';
 import AdminCourtsPage from './pages/admin/Courts';
 import AdminRulesPage from './pages/admin/Rules';
 import AdminBillingsPage from './pages/admin/Billings';
@@ -143,6 +144,11 @@ export default function App() {
                 <Route path="/admin/club" element={
                     <ProtectedRoute>
                         <AdminClubPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/club/delete" element={
+                    <ProtectedRoute>
+                        <AdminDeleteClubPage />
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/courts" element={

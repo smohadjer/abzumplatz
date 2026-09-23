@@ -9,8 +9,6 @@ import "../settings.css";
 export default function AdminHomePage() {
     const [loadingClub, setLoadingClub] = useState(false);
     const [updatingClubStatus, setUpdatingClubStatus] = useState(false);
-    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-    const [deletePassword, setDeletePassword] = useState('');
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const user = useSelector((state: RootState) => state.auth);
     const clubData = useSelector((state: RootState) => state.club);
@@ -34,9 +32,8 @@ export default function AdminHomePage() {
         }
     }, [clubData.loaded, clubData.value._id, dispatch, user.club_id]);
 
-    const updateClubDeletionStatus = async (password?: string) => {
-        const isRestoring = isClubDeleted;
-        if (isRestoring && !confirm('Möchten Sie diesen Verein wirklich wiederherstellen?')) {
+    const restoreClub = async () => {
+        if (!confirm('Möchten Sie diesen Verein wirklich wiederherstellen?')) {
             return;
         }
 
@@ -45,15 +42,11 @@ export default function AdminHomePage() {
 
         try {
             const response = await fetch(`/api/clubs?id=${encodeURIComponent(user.club_id)}`, {
-                method: isRestoring ? 'PATCH' : 'DELETE',
-                headers: isRestoring ? undefined : {
-                    'Content-Type': 'application/json',
-                },
-                body: isRestoring ? undefined : JSON.stringify({password}),
+                method: 'PATCH',
             });
             const data = await response.json();
             if (!response.ok || data.error) {
-                throw new Error(data.error ?? 'Der Verein konnte nicht gelöscht werden.');
+                throw new Error(data.error ?? 'Der Verein konnte nicht wiederhergestellt werden.');
             }
 
             dispatch({
@@ -74,8 +67,6 @@ export default function AdminHomePage() {
             if (data.invoice_email_error) {
                 setDeleteError('Der Verein wurde wiederhergestellt und der neue Abrechnungszeitraum wurde angelegt, aber die Rechnungs-E-Mail konnte nicht gesendet werden. Sie können die Rechnung unter Abrechnungen erneut senden.');
             }
-            setShowDeleteConfirmation(false);
-            setDeletePassword('');
         } catch (error) {
             setDeleteError(error instanceof Error ? error.message : 'Der Vereinsstatus konnte nicht aktualisiert werden.');
         } finally {
@@ -96,9 +87,9 @@ export default function AdminHomePage() {
                     <li>
                         <button
                             type="button"
-                        className="settings-danger-button settings-restore-button"
-                        disabled={updatingClubStatus}
-                        onClick={() => updateClubDeletionStatus()}
+                            className="settings-danger-button settings-restore-button"
+                            disabled={updatingClubStatus}
+                            onClick={restoreClub}
                         >
                             {updatingClubStatus ? 'Verein wird wiederhergestellt...' : 'Verein wiederherstellen'}
                         </button>
@@ -127,21 +118,7 @@ export default function AdminHomePage() {
                 <li><Link to="/admin/rules">Regeln</Link></li>
                 <li><Link to="/admin/tournaments">Turniere/Konkurrenzen</Link></li>
                 <li><Link to="/admin/billings">Abrechnungen</Link></li>
-                <li>
-                    <button
-                        type="button"
-                        className={`settings-danger-button${club.deleted_at ? ' settings-restore-button' : ''}`}
-                        disabled={updatingClubStatus}
-                        onClick={() => {
-                            setDeleteError(null);
-                            setShowDeleteConfirmation(true);
-                        }}
-                    >
-                        {updatingClubStatus
-                            ? club.deleted_at ? 'Verein wird wiederhergestellt...' : 'Verein wird gelöscht...'
-                            : club.deleted_at ? 'Verein wiederherstellen' : 'Verein löschen'}
-                    </button>
-                </li>
+                <li><Link to="/admin/club/delete">Verein löschen</Link></li>
                 <li>
                     <span>
                         {loadingClub || !clubData.loaded
@@ -150,36 +127,6 @@ export default function AdminHomePage() {
                     </span>
                 </li>
             </ul>
-            {showDeleteConfirmation ? (
-                <form className="admin-delete-confirmation" onSubmit={(event) => {
-                    event.preventDefault();
-                    updateClubDeletionStatus(deletePassword);
-                }}>
-                    <p><strong>Verein löschen bestätigen</strong></p>
-                    <label htmlFor="admin-delete-password">Aktuelles Passwort</label>
-                    <input
-                        id="admin-delete-password"
-                        type="password"
-                        autoComplete="current-password"
-                        required
-                        value={deletePassword}
-                        onChange={(event) => setDeletePassword(event.target.value)}
-                    />
-                    <div className="admin-delete-confirmation-actions">
-                        <button type="submit" className="admin-delete-confirm-button" disabled={updatingClubStatus || !deletePassword}>
-                            {updatingClubStatus ? 'Verein wird gelöscht...' : 'Verein löschen'}
-                        </button>
-                        <button type="button" disabled={updatingClubStatus} onClick={() => {
-                            setShowDeleteConfirmation(false);
-                            setDeletePassword('');
-                            setDeleteError(null);
-                        }}>
-                            Abbrechen
-                        </button>
-                    </div>
-                </form>
-            ) : null}
-            {deleteError ? <p className="settings-delete-error">{deleteError}</p> : null}
         </>
     )
 }
