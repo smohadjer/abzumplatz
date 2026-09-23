@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link, useParams } from 'react-router';
 import { Tournament, TournamentGroup, TournamentRegistration } from '../types';
 import { RootState } from '../store';
 import { Loader } from '../components/loader/Loader';
@@ -24,6 +25,9 @@ const daysBetween = (from: string, to: string) => {
 };
 const memberName = (member?: {first_name: string; last_name: string}) =>
     member ? `${member.first_name} ${member.last_name}`.trim() : 'Unbekanntes Mitglied';
+const formatGroupNames = (names: string[]) => names.length < 2
+    ? names.join('')
+    : `${names.slice(0, -1).join(', ')} und ${names[names.length - 1]}`;
 type TournamentFilter = 'all' | 'mine' | 'upcoming' | 'running' | 'past';
 const tournamentFilters: Array<{id: TournamentFilter; label: string}> = [
     {id: 'all', label: 'Alle'},
@@ -34,6 +38,7 @@ const tournamentFilters: Array<{id: TournamentFilter; label: string}> = [
 ];
 
 export default function TournamentsPage() {
+    const {id: tournamentId} = useParams();
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.auth);
     const tournamentsData = useSelector((state: RootState) => state.tournaments);
@@ -60,7 +65,10 @@ export default function TournamentsPage() {
         if (filter === 'running') return tournament.start_date <= today && tournament.end_date >= today;
         return tournament.end_date < today;
     };
-    const filteredTournaments = tournaments.filter(tournament => tournamentMatchesFilter(tournament, tournamentFilter));
+    const detailTournament = tournamentId ? tournaments.find(tournament => tournament._id === tournamentId) : undefined;
+    const filteredTournaments = tournamentId
+        ? detailTournament ? [detailTournament] : []
+        : tournaments.filter(tournament => tournamentMatchesFilter(tournament, tournamentFilter));
     const closeGroupDialog = () => {
         setExpandedGroup('');
         setDoubleRegistrationGroup('');
@@ -275,9 +283,11 @@ export default function TournamentsPage() {
     if (loading) return <div className="splash"><Loader size="big" text="Turniere werden geladen..." /></div>;
 
     return <>
-        <h1>Turniere</h1>
+        {tournamentId ? <p><Link className="icon icon--back" to="/tournaments">Zurück zu den Turnieren</Link></p> : null}
+        {!tournamentId ? <h1>Turniere</h1> : null}
+        {tournamentId && !detailTournament ? <h1>Turnier</h1> : null}
         {error ? <p className="form-error-message">{error}</p> : null}
-        <div aria-label="Turniere filtern" className="tournament-filters" role="tablist">
+        {!tournamentId ? <div aria-label="Turniere filtern" className="tournament-filters" role="tablist">
             {tournamentFilters.map(filter => <button
                 aria-selected={tournamentFilter === filter.id}
                 className={tournamentFilter === filter.id ? 'active' : ''}
@@ -286,25 +296,37 @@ export default function TournamentsPage() {
                 role="tab"
                 type="button"
             >{filter.label} ({tournaments.filter(tournament => tournamentMatchesFilter(tournament, filter.id)).length})</button>)}
-        </div>
-        {filteredTournaments.length ? <div className="tournament-list">{filteredTournaments.map(tournament => <article key={tournament._id}>
+        </div> : null}
+        {filteredTournaments.length ? <div className={`tournament-list${tournamentId ? ' tournament-detail' : ''}`}>{filteredTournaments.map(tournament => <article key={tournament._id}>
+            {tournamentId ? <div className="tournament-page-heading">
+                <h1>{tournament.name}</h1>
+                {tournament.start_date > today ? <div
+                    aria-label={`Noch ${daysBetween(today, tournament.start_date)} ${daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'} bis zum Start`}
+                    className="tournament-countdown"
+                >
+                    <strong>{daysBetween(today, tournament.start_date)}</strong>
+                    <span>{daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'}<small>bis zum Start</small></span>
+                </div> : tournament.end_date < today ? <div className="tournament-finished"><strong>Beendet</strong><small>Turnier vorbei</small></div> : null}
+            </div> : null}
             {Object.keys(tournament.current_user_registrations ?? {}).length ? <div className="tournament-user-status">
-                {tournament.end_date < today ? 'Teilgenommen an' : 'Angemeldet in'}{' '}
-                {tournament.groups
+                {tournament.end_date < today ? 'Sie haben an ' : 'Sie haben sich für '}
+                {formatGroupNames(tournament.groups
                     .filter(group => tournament.current_user_registrations?.[group._id])
                     .map(group => group.name)
-                    .join(', ')}
+                )}
+                {tournament.end_date < today ? ' teilgenommen.' : ' angemeldet.'}
             </div> : tournament.status === 'published' && new Date(tournament.registration_deadline).getTime() >= Date.now()
                 ? <div className="tournament-user-status tournament-user-status--none">
-                    Sie haben sich für dieses Turnier nicht angemeldet. Klicken Sie auf eine Konkurrenz, um sich anzumelden.
+                    Sie haben sich für dieses Turnier nicht angemeldet.{tournamentId ? ' Wählen Sie unten eine Konkurrenz aus.' : ''}
                 </div>
                 : null}
-            <div className="tournament-heading">
+            {!tournamentId ? <div className="tournament-heading">
                 <div>
                     <h2>{tournament.name}</h2>
+                    <p className="tournament-summary-date">{formatTournamentDate(tournament)}</p>
                 </div>
                 <div className="tournament-heading-meta">
-                    {tournament.start_date > today ? <div
+                    {!tournamentId && tournament.start_date > today ? <div
                         aria-label={`Noch ${daysBetween(today, tournament.start_date)} ${daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'} bis zum Start`}
                         className="tournament-countdown"
                     >
@@ -315,8 +337,11 @@ export default function TournamentsPage() {
                         <small>Turnier vorbei</small>
                     </div> : null}
                 </div>
-            </div>
+            </div> : null}
+            {tournamentId ? <>
             {tournament.description ? <p className="tournament-description">{tournament.description}</p> : null}
+            <section className="tournament-detail-section">
+            <h2>Turnierdaten</h2>
             <dl>
                 <div><dt>Datum</dt><dd>{formatTournamentDate(tournament)}</dd></div>
                 <div><dt>Meldeschluss</dt><dd>{formatDeadline(tournament.registration_deadline)}</dd></div>
@@ -325,17 +350,35 @@ export default function TournamentsPage() {
                 {tournament.entry_fee !== 0 ? <div><dt>Zahlungsart</dt><dd>{tournament.payment_method ? paymentMethodLabels[tournament.payment_method] : 'Noch nicht festgelegt'}</dd></div> : null}
                 {tournament.format ? <div><dt>Spielmodus</dt><dd>{tournament.format}</dd></div> : null}
                 <div><dt>Teilnehmende</dt><dd>{tournament.registrants_count ?? 0}</dd></div>
-                <div className="tournament-groups-row">
-                    <dt>Konkurrenzen ({tournament.groups.length})</dt>
-                    <dd>{tournament.groups.map((group, index) => <span key={group._id}>
-                        {index > 0 ? ', ' : null}
+            </dl>
+            </section>
+            <section className="tournament-registration-section">
+                <h2>Konkurrenzen</h2>
+                <p>{new Date(tournament.registration_deadline).getTime() >= Date.now()
+                    ? 'Wählen Sie eine Konkurrenz aus, um die Anmeldung zu öffnen:'
+                    : 'Die Anmeldung ist geschlossen.'}</p>
+                <ul className="tournament-registration-options">
+                    {tournament.groups.map(group => <li key={group._id}>
                         <button className="tournament-group-link" onClick={() => toggleGroup(tournament, group._id)} type="button">
                             {group.name} ({tournament.group_registrants_count?.[group._id] ?? 0})
                         </button>
-                    </span>)}</dd>
-                </div>
-            </dl>
-        </article>)}</div> : <p>{tournaments.length ? 'Keine passenden Turniere vorhanden.' : 'Derzeit sind keine Turniere verfügbar.'}</p>}
+                        {tournament.current_user_registrations?.[group._id] ? <span> – Angemeldet</span> : null}
+                    </li>)}
+                </ul>
+                {!tournament.groups.length ? <p>Noch keine Daten verfügbar.</p> : null}
+            </section>
+            <section className="tournament-detail-section">
+                <h2>Auslosung</h2>
+                <p>{tournament.draw ? `Geplant für ${formatDeadline(tournament.draw)}.` : 'Noch keine Daten verfügbar.'}</p>
+            </section>
+            <section className="tournament-detail-section">
+                <h2>Ergebnisse</h2>
+                <p>Noch keine Daten verfügbar.</p>
+            </section>
+            </> : <>
+                <p className="tournament-view-link"><Link to={`/tournaments/${tournament._id}`}>Turnier ansehen</Link></p>
+            </>}
+        </article>)}</div> : <p>{tournamentId ? 'Turnier nicht gefunden.' : tournaments.length ? 'Keine passenden Turniere vorhanden.' : 'Derzeit sind keine Turniere verfügbar.'}</p>}
         {selectedTournament && selectedGroup ? <div
             className="tournament-dialog-backdrop"
             onMouseDown={event => {

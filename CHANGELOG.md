@@ -2,6 +2,19 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.1.2
+
+### Added
+
+- Added dedicated player and administrator detail pages for individual tournaments.
+- Added structured tournament-data, competition, draw, and results sections to tournament detail pages.
+
+### Changed
+
+- Simplified tournament listings to show the tournament name, prominent date, registration status, countdown, and a link to the full details.
+- Made competition registration clearer on tournament detail pages while retaining participant lists and singles or doubles registration workflows.
+- Refined tournament detail-page spacing, countdowns, section separators, status messages, and responsive title handling.
+
 ## 0.1.1
 
 ### Added

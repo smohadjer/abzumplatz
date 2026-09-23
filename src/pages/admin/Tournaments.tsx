@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { CompetitionGroup, Tournament, TournamentStatus } from '../../types';
 import { Loader } from '../../components/loader/Loader';
@@ -58,8 +58,10 @@ const groupMatchesFilter = (group: CompetitionGroup, filter: GroupFilter) => {
 };
 
 export default function AdminTournamentsPage() {
+    const {id: tournamentId} = useParams();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const activeTab = searchParams.get('tab') === 'groups' ? 'groups' : 'tournaments';
+    const activeTab = tournamentId ? 'tournaments' : searchParams.get('tab') === 'groups' ? 'groups' : 'tournaments';
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.auth);
     const tournamentsData = useSelector((state: RootState) => state.tournaments);
@@ -79,6 +81,8 @@ export default function AdminTournamentsPage() {
         if (tournamentFilter === 'running') return tournament.start_date <= today && tournament.end_date >= today;
         return tournament.end_date < today;
     });
+    const detailTournament = tournamentId ? tournaments.find(tournament => tournament._id === tournamentId) : undefined;
+    const displayedTournaments = tournamentId ? detailTournament ? [detailTournament] : [] : filteredTournaments;
     const tournamentCount = (filter: TournamentFilter) => tournaments.filter(tournament => {
         if (filter === 'all') return true;
         if (filter === 'upcoming') return tournament.start_date > today;
@@ -131,6 +135,7 @@ export default function AdminTournamentsPage() {
             const result = await response.json();
             if (!response.ok) throw new Error(result.error ?? 'Das Turnier konnte nicht gelöscht werden.');
             dispatch({type: 'tournaments/remove', payload: tournament._id});
+            if (tournamentId) navigate('/admin/tournaments');
         } catch (deleteError) {
             setError(deleteError instanceof Error ? deleteError.message : 'Das Turnier konnte nicht gelöscht werden.');
         }
@@ -153,11 +158,12 @@ export default function AdminTournamentsPage() {
 
     return (
         <>
-            <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
-            <h1>Turniere/Konkurrenzen verwalten</h1>
+            <p><Link className="icon icon--back" to={tournamentId ? '/admin/tournaments' : '/admin'}>Zurück</Link></p>
+            {!tournamentId ? <h1>Turniere/Konkurrenzen verwalten</h1> : null}
+            {tournamentId && !detailTournament ? <h1>Turnier</h1> : null}
             {error ? <p className="form-error-message">{error}</p> : null}
 
-            <nav aria-label="Turnierverwaltung" className="admin-management-tabs">
+            {!tournamentId ? <nav aria-label="Turnierverwaltung" className="admin-management-tabs">
                 <Link
                     aria-current={activeTab === 'tournaments' ? 'page' : undefined}
                     className={activeTab === 'tournaments' ? 'active' : ''}
@@ -168,10 +174,10 @@ export default function AdminTournamentsPage() {
                     className={activeTab === 'groups' ? 'active' : ''}
                     to="/admin/tournaments?tab=groups"
                 >Konkurrenzen</Link>
-            </nav>
+            </nav> : null}
 
             {activeTab === 'tournaments' ? <section className="admin-management-section">
-                <ul className="settings-links admin-management-create-link">
+                {!tournamentId ? <><ul className="settings-links admin-management-create-link">
                     <li><Link to="/admin/tournaments/new">Turnier hinzufügen</Link></li>
                 </ul>
                 <p className="admin-competition-groups-description">Hier verwalten Sie die bevorstehenden und vergangenen Turniere Ihres Vereins.</p>
@@ -184,13 +190,26 @@ export default function AdminTournamentsPage() {
                         role="tab"
                         type="button"
                     >{filter.label} ({tournamentCount(filter.id)})</button>)}
-                </div>
-                {filteredTournaments.length ? <div className="admin-management-list">
-                    {filteredTournaments.map(tournament => (
+                </div></> : null}
+                {displayedTournaments.length ? <div className={`admin-management-list${tournamentId ? ' admin-tournament-detail' : ''}`}>
+                    {displayedTournaments.map(tournament => (
                         <article className="admin-tournament-card" key={tournament._id}>
-                            <div className="admin-tournament-heading">
-                                <h2>{tournament.name}</h2>
+                            {tournamentId ? <div className="admin-tournament-page-heading">
+                                <h1>{tournament.name}</h1>
                                 {tournament.start_date > today ? <div
+                                    aria-label={`Noch ${daysBetween(today, tournament.start_date)} ${daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'} bis zum Start`}
+                                    className="admin-tournament-countdown"
+                                >
+                                    <strong>{daysBetween(today, tournament.start_date)}</strong>
+                                    <span>{daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'}<small>bis zum Start</small></span>
+                                </div> : tournament.end_date < today ? <div className="admin-tournament-finished"><strong>Beendet</strong><small>Turnier vorbei</small></div> : null}
+                            </div> : null}
+                            {!tournamentId ? <div className="admin-tournament-heading">
+                                <div>
+                                    <h2>{tournament.name}</h2>
+                                    <p className="admin-tournament-summary-date">{formatTournamentDate(tournament)}</p>
+                                </div>
+                                {!tournamentId && tournament.start_date > today ? <div
                                     aria-label={`Noch ${daysBetween(today, tournament.start_date)} ${daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'} bis zum Start`}
                                     className="admin-tournament-countdown"
                                 >
@@ -200,8 +219,11 @@ export default function AdminTournamentsPage() {
                                     <strong>Beendet</strong>
                                     <small>Turnier vorbei</small>
                                 </div> : null}
-                            </div>
-                            <div className="admin-tournament-details">
+                            </div> : null}
+                            {tournamentId && tournament.description ? <p>{tournament.description}</p> : null}
+                            {tournamentId ? <>
+                            <section className="admin-tournament-details admin-tournament-detail-section">
+                                <h2>Turnierdaten</h2>
                                 <dl>
                                     <div><dt>Datum</dt><dd>{formatTournamentDate(tournament)}</dd></div>
                                     <div><dt>Meldeschluss</dt><dd>{formatDeadline(tournament.registration_deadline)}</dd></div>
@@ -211,10 +233,23 @@ export default function AdminTournamentsPage() {
                                     <div><dt>Status</dt><dd>{statusLabels[tournament.status]}</dd></div>
                                     {tournament.format ? <div><dt>Spielmodus</dt><dd>{tournament.format}</dd></div> : null}
                                     <div><dt>Teilnehmende</dt><dd>{tournament.registrants_count ?? 0}</dd></div>
-                                    <div className="admin-tournament-competitions-row"><dt>Konkurrenzen ({tournament.groups.length})</dt><dd>{tournament.groups.map(group => group.name).join(', ')}</dd></div>
                                 </dl>
-                            </div>
+                            </section>
+                            <section className="admin-tournament-detail-section">
+                                <h2>Konkurrenzen</h2>
+                                <p>{tournament.groups.length ? tournament.groups.map(group => group.name).join(', ') : 'Noch keine Daten verfügbar.'}</p>
+                            </section>
+                            <section className="admin-tournament-detail-section">
+                                <h2>Auslosung</h2>
+                                <p>{tournament.draw ? `Geplant für ${formatDeadline(tournament.draw)}.` : 'Noch keine Daten verfügbar.'}</p>
+                            </section>
+                            <section className="admin-tournament-detail-section">
+                                <h2>Ergebnisse</h2>
+                                <p>Noch keine Daten verfügbar.</p>
+                            </section>
+                            </> : null}
                             <div className="admin-management-actions">
+                                {!tournamentId ? <Link className="button-link button-link--secondary" to={`/admin/tournaments/${tournament._id}`}>Ansehen</Link> : <>
                                 <Link className="button-link button-link--secondary" to={`/admin/tournaments/${tournament._id}/participants`}>Teilnehmende</Link>
                                 <Link
                                     className="button-link button-link--secondary"
@@ -226,10 +261,11 @@ export default function AdminTournamentsPage() {
                                     to={`/admin/tournaments/${tournament._id}/edit`}
                                 >Bearbeiten</Link>
                                 <button className="admin-delete-button" onClick={() => deleteTournament(tournament)} type="button">Löschen</button>
+                                </>}
                             </div>
                         </article>
                     ))}
-                </div> : <p>{tournaments.length ? 'Keine passenden Turniere vorhanden.' : 'Noch keine Turniere angelegt.'}</p>}
+                </div> : <p>{tournamentId ? 'Turnier nicht gefunden.' : tournaments.length ? 'Keine passenden Turniere vorhanden.' : 'Noch keine Turniere angelegt.'}</p>}
             </section> : null}
 
             {activeTab === 'groups' ? <section className="admin-management-section">

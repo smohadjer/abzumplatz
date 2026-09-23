@@ -300,6 +300,7 @@ The implemented administration routes are:
 
 ```text
 /admin/tournaments
+/admin/tournaments/:id
 /admin/tournaments/new
 /admin/tournaments/:id/edit
 /admin/tournaments/:id/participants
@@ -311,16 +312,18 @@ The protected member route is:
 
 ```text
 /tournaments
+/tournaments/:id
 ```
 
-The tournament list displays competition names as comma-separated links below
-the `Konkurrenzen` label. Selecting a competition opens a dialog with its
+The tournament lists display compact summaries that link to dedicated player
+and administration detail pages. On the player detail page, competition names
+are displayed as links below the `Konkurrenzen` label. Selecting a competition opens a dialog with its
 participant count, participant names, and the current member's Anmelden or
 Abmelden action. Participant names are loaded lazily when the dialog is opened.
 The `Meine Turniere` filter and the registration summary below each tournament
 title make the member's own registrations visible without opening the dialog.
 
-The overview has separate tournament and competition-group tabs. Tournament
+The administration overview has separate tournament and competition-group tabs. Tournament
 and competition-group lists are cached in club-scoped Redux slices. Create,
 edit, and delete operations update those slices only after the corresponding
 database operation succeeds. Player registration and withdrawal update the

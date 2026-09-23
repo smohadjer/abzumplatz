@@ -44,6 +44,11 @@
     background: #f5f6f8;
 }
 
+.tournament-detail article {
+    padding: 0;
+    background: transparent;
+}
+
 .tournament-heading {
     display: flex;
     align-items: flex-start;
@@ -51,10 +56,30 @@
     gap: 1rem;
 }
 
+.tournament-page-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 46rem;
+}
+
+.tournament-page-heading h1 {
+    min-width: 0;
+    margin-top: 0;
+    overflow-wrap: anywhere;
+}
+
 .tournament-heading h2 {
     margin: 0;
     font-size: 1.17em;
     overflow-wrap: anywhere;
+}
+
+.tournament-summary-date {
+    margin: 0.35rem 0 0;
+    font-size: 1.1rem;
+    font-weight: 700;
 }
 
 .tournament-heading > div:first-child {
@@ -83,24 +108,31 @@
 }
 
 .tournament-user-status {
-    margin: 0 0 0.65rem;
+    margin: 0.75rem 0 0.65rem;
     padding: 0.5rem 0.65rem;
     border-left: 3px solid #318247;
     background: #eaf5ed;
     color: #226c35;
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: 400;
 }
 
 .tournament-user-status--none {
     border-left-color: #c17a00;
     background: #fff4df;
     color: #6d4700;
-    font-weight: 400;
 }
 
 .tournament-description {
     font-size: 0.9em;
+}
+
+.tournament-view-link {
+    margin: 0.75rem 0 0;
+}
+
+.tournament-view-link a {
+    font-weight: 700;
 }
 
 .tournament-countdown {
@@ -108,14 +140,14 @@
     flex: none;
     align-items: center;
     gap: 0.45rem;
-    padding-left: 0.75rem;
-    border-left: 2px solid var(--blue);
-    color: var(--blue);
+    padding: 0.5em;
+    background: aliceblue;
+    color: #000;
     line-height: 1;
 }
 
 .tournament-countdown strong {
-    font-size: 1.75rem;
+    font-size: 2rem;
 }
 
 .tournament-countdown span,
@@ -202,6 +234,40 @@
 .tournament-group-link:hover,
 .tournament-group-link:focus-visible {
     text-decoration: underline;
+}
+
+.tournament-detail-section,
+.tournament-registration-section {
+    margin-top: 2rem;
+    border-top: 1px dotted #000;
+}
+
+.tournament-detail-section h2,
+.tournament-registration-section h2 {
+    display: table;
+    margin: 0 0 -0.25rem;
+    padding-right: 0.5rem;
+    background: #fff;
+    transform: translateY(-50%);
+}
+
+.tournament-detail-section > p,
+.tournament-registration-section > p {
+    margin: 0;
+}
+
+.tournament-registration-section > p {
+    margin-top: 0.35rem;
+}
+
+.tournament-registration-options {
+    margin: 0.5rem 0 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.tournament-registration-options li {
+    padding: 0.2rem 0;
 }
 
 .tournament-group-row {

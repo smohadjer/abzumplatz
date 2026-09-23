@@ -125,6 +125,11 @@ export default function App() {
                         <Tournaments />
                     </ProtectedRoute>
                 }/>
+                <Route path="/tournaments/:id" element={
+                    <ProtectedRoute>
+                        <Tournaments />
+                    </ProtectedRoute>
+                }/>
                 <Route path="/admin" element={
                     <ProtectedRoute>
                         <AdminHomePage />
@@ -156,6 +161,11 @@ export default function App() {
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/tournaments" element={
+                    <ProtectedRoute>
+                        <AdminTournamentsPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/tournaments/:id" element={
                     <ProtectedRoute>
                         <AdminTournamentsPage />
                     </ProtectedRoute>
