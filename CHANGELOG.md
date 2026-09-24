@@ -6,6 +6,7 @@ All notable changes to this project should be documented in this file.
 
 ### Changed
 
+- Refined homepage messaging with clearer club-management features, more concise registration cards, direct support access, and improved page title and search description.
 - Ordered tournament lists with running and nearest upcoming tournaments first and completed tournaments at the bottom.
 - Refined tournament cards with light-red completed states, linked titles, calendar icons, weekday labels for single-day events, and more compact date styling.
 - Aligned the player tournament detail header with the listing-card presentation and removed the duplicated date from the tournament-data section.
