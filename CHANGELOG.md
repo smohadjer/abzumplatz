@@ -2,17 +2,20 @@
 
 All notable changes to this project should be documented in this file.
 
-## 0.1.5
+## 0.1.6
 
 ### Added
 
 - Added `robots.txt` and an XML sitemap for the public homepage, FAQ, support, and legal-information pages.
 - Added production homepage prerendering so search engines and browsers receive meaningful content in the initial HTML response.
+- Added route-specific titles, descriptions, canonical URLs, and search-indexing directives for public and application pages.
 
 ### Changed
 
 - Hydrated the prerendered homepage with the existing React application to preserve its styling, behavior, and loading experience without hidden or duplicated SEO content.
 - Changed the homepage tagline to a semantic primary heading.
+- Pinned deployments to the Node.js 24 major release line so Vercel does not automatically select a future major version.
+- Explicitly approved the version-pinned `bcrypt` and `esbuild` dependency installation scripts used during deployment.
 
 ### Fixed
 

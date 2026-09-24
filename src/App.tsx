@@ -41,6 +41,7 @@ import Imprint from './pages/Imprint';
 import { Loader } from './components/loader/Loader';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
+import RouteMetadata from './components/RouteMetadata';
 
 import { AuthenticatedUserResponse, Club } from './types';
 import './app.css';
@@ -86,7 +87,9 @@ export default function App({initiallyInitialized = false}: AppProps) {
     }, []);
 
     return (
-        initialized ?
+        <>
+        <RouteMetadata />
+        {initialized ?
         <Routes>
             <Route element={<Layout />}>
                 <Route path="/reservations" element={
@@ -255,6 +258,7 @@ export default function App({initiallyInitialized = false}: AppProps) {
                 </main>
                 <Footer />
             </>
-        )
+        )}
+        </>
     );
 }

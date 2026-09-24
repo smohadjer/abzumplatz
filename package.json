@@ -1,7 +1,7 @@
 {
   "name": "abzumplatz",
   "private": true,
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -54,6 +54,10 @@
     "vite": "^6.4.3"
   },
   "engines": {
-    "node": ">=24.15.0"
+    "node": "24.x"
+  },
+  "allowScripts": {
+    "bcrypt@6.0.0": true,
+    "esbuild@0.25.12": true
   }
 }
