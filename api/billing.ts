@@ -1,7 +1,7 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import { cron_secret, database_uri, database_name } from './_utils/_config.js';
 import { sanitize } from './_utils/_lib.js';
-import { getJwtPayload } from './verifyAuth.js';
+import { getJwtPayload } from './_auth/verify.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { DBUser, PlanType } from '../src/types.js';
 import { ClubDocument } from './_utils/_types.js';

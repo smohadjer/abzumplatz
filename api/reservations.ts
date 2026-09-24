@@ -6,7 +6,7 @@ import { deleteReservation } from './_utils/_deleteReservation.js';
 import { setReservation } from './_utils/_setReservation.js';
 import { editReservation } from './_utils/_editReservation.js';
 import { ReservationValidationError } from './_utils/_reservationValidation.js';
-import { getJwtPayload } from './verifyAuth.js';
+import { getJwtPayload } from './_auth/verify.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { getErrorMessage, isAppError } from './_utils/_errors.js';
 

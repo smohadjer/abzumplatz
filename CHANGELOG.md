@@ -21,6 +21,7 @@ All notable changes to this project should be documented in this file.
 ### Fixed
 
 - Replaced the competition-group JSON module import with a shared JavaScript data module so Vercel can compile the API functions without JSON-module or import-attribute errors.
+- Consolidated authentication verification into the existing authentication function so the Node.js middleware remains within Vercel Hobby's 12-function deployment limit.
 
 ## 0.1.4
 

@@ -2,7 +2,7 @@ import { Collection, Db, MongoClient, ObjectId, WithId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
 import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
-import { getJwtPayload } from './verifyAuth.js';
+import { getJwtPayload } from './_auth/verify.js';
 import { ClubWithBilling, DBUser, JwtPayload } from '../src/types.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, ClubFormBody, CourtsFormBody, RulesFormBody } from './_utils/_types.js';

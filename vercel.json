@@ -5,6 +5,7 @@
     "rewrites": [
         {"source": "/api/login", "destination": "/api/auth?action=login"},
         {"source": "/api/logout", "destination": "/api/auth?action=logout"},
+        {"source": "/api/verifyAuth", "destination": "/api/auth?action=verify"},
         {"source": "/api/tournaments", "destination": "/api/tournament?resource=tournaments"},
         {"source": "/api/tournament-registrations", "destination": "/api/tournament?resource=registrations"},
         {"source": "/api/competition-groups", "destination": "/api/tournament?resource=competition-groups"},

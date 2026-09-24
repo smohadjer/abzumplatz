@@ -1,11 +1,11 @@
 import {jwtVerify} from 'jose';
-import { jwtSecret } from './_utils/_config.js';
-import { AuthenticatedUserResponse, JwtPayload } from '../src/types.js';
-import { fetchUsers } from './_utils/_fetchUsers.js';
-import { database_uri, database_name } from './_utils/_config.js';
+import { jwtSecret } from '../_utils/_config.js';
+import { AuthenticatedUserResponse, JwtPayload } from '../../src/types.js';
+import { fetchUsers } from '../_utils/_fetchUsers.js';
+import { database_uri, database_name } from '../_utils/_config.js';
 import { MongoClient, ObjectId } from 'mongodb';
-import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
-import { ClubDocument } from './_utils/_types.js';
+import type { VercelRequest, VercelResponse } from '../_utils/_apiTypes.js';
+import { ClubDocument } from '../_utils/_types.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');

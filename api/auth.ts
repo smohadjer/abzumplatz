@@ -1,10 +1,12 @@
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import loginHandler from './_auth/login.js';
 import logoutHandler from './_auth/logout.js';
+import verifyHandler from './_auth/verify.js';
 
 const handlers = {
   login: loginHandler,
   logout: logoutHandler,
+  verify: verifyHandler,
 } as const;
 
 export default async (req: VercelRequest, res: VercelResponse) => {

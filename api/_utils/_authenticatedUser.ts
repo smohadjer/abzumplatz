@@ -1,6 +1,6 @@
 import { Collection, ObjectId, WithId } from 'mongodb';
 import { DBUser, JwtPayload } from '../../src/types.js';
-import { getJwtPayload } from '../verifyAuth.js';
+import { getJwtPayload } from '../_auth/verify.js';
 import type { VercelRequest } from './_apiTypes.js';
 import { createAppError } from './_errors.js';
 
