@@ -2,6 +2,18 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.1.5
+
+### Added
+
+- Added `robots.txt` and an XML sitemap for the public homepage, FAQ, support, and legal-information pages.
+- Added production homepage prerendering so search engines and browsers receive meaningful content in the initial HTML response.
+
+### Changed
+
+- Hydrated the prerendered homepage with the existing React application to preserve its styling, behavior, and loading experience without hidden or duplicated SEO content.
+- Changed the homepage tagline to a semantic primary heading.
+
 ## 0.1.4
 
 ### Changed

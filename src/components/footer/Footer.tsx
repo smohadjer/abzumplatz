@@ -20,6 +20,7 @@ export default function Footer() {
     const publishedTournamentIdsKey = publishedTournamentIds.join(',');
     const seenStorageKey = `seen-tournaments:${auth._id}:${auth.club_id}`;
     const seenTournamentIds = (() => {
+        if (typeof window === 'undefined') return [];
         try {
             const storedIds = localStorage.getItem(seenStorageKey);
             const parsedIds: unknown = storedIds ? JSON.parse(storedIds) : [];

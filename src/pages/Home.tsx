@@ -8,7 +8,7 @@ export default function Home() {
 
     return (
         <>
-            <p className="home-tagline">Die intuitive Plattform für Platzreservierung und Vereinsverwaltung</p>
+            <h1 className="home-tagline">Die intuitive Plattform für Platzreservierung und Vereinsverwaltung</h1>
             <div className="home-intro">
                 <div className="home-intro-card">
                     <h2 className="home-intro-label">Für Spieler</h2>

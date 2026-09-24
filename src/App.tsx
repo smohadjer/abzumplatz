@@ -45,8 +45,12 @@ import Footer from './components/footer/Footer';
 import { AuthenticatedUserResponse, Club } from './types';
 import './app.css';
 
-export default function App() {
-    const [initialized, setInitialized] = useState(false);
+type AppProps = {
+    initiallyInitialized?: boolean;
+};
+
+export default function App({initiallyInitialized = false}: AppProps) {
+    const [initialized, setInitialized] = useState(initiallyInitialized);
     // const auth = useSelector((state: RootState) => state.auth);
     const clubs = useSelector((state: RootState) => state.clubs.value);
     const dispatch = useDispatch();

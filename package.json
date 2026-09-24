@@ -1,11 +1,11 @@
 {
   "name": "abzumplatz",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && tsc -p tsconfig.api.json && vite build",
+    "build": "tsc && tsc -p tsconfig.api.json && vite build && vite build --ssr src/entry-server.tsx --outDir .prerender && node scripts/inject-prerender.js",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "export:db": "node scripts/export-mongodb.js",
