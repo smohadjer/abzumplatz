@@ -53,6 +53,11 @@ a.icon:hover {
     background-image: url(./images/trophy.svg);
 }
 
+.icon--calendar {
+    background-image: url(./images/calendar.svg);
+    background-size: 20px;
+}
+
 
 .icon--admin {
     background-image: url(./images/admin.svg);

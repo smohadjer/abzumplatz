@@ -8,13 +8,16 @@ import { getZonedDateTime } from '../utils/reservationTime';
 import './tournaments.css';
 
 const formatDate = (value: string) => new Date(`${value}T12:00:00`).toLocaleDateString('de-DE');
+const formatSingleDayDate = (value: string) => new Date(`${value}T12:00:00`).toLocaleDateString('de-DE', {
+    weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
+});
 const formatDeadline = (value: string) => `${new Date(value).toLocaleString('de-DE', {
     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
 })} Uhr`;
 const formatEntryFee = (value?: number) => value === undefined ? 'Noch nicht festgelegt' : value === 0 ? 'Kostenlos' : `${value} €`;
 const paymentMethodLabels = {cash: 'Barzahlung', bank_transfer: 'Überweisung'} as const;
 const formatTournamentDate = (tournament: Tournament) => tournament.start_date === tournament.end_date
-    ? formatDate(tournament.start_date)
+    ? formatSingleDayDate(tournament.start_date)
     : `${formatDate(tournament.start_date)} bis ${formatDate(tournament.end_date)}`;
 const daysBetween = (from: string, to: string) => {
     const toUtc = (value: string) => {
@@ -28,6 +31,15 @@ const memberName = (member?: {first_name: string; last_name: string}) =>
 const formatGroupNames = (names: string[]) => names.length < 2
     ? names.join('')
     : `${names.slice(0, -1).join(', ')} und ${names[names.length - 1]}`;
+const compareTournaments = (today: string) => (first: Tournament, second: Tournament) => {
+    const firstIsPast = first.end_date < today;
+    const secondIsPast = second.end_date < today;
+    if (firstIsPast !== secondIsPast) return firstIsPast ? 1 : -1;
+    const dateOrder = firstIsPast
+        ? second.end_date.localeCompare(first.end_date)
+        : first.start_date.localeCompare(second.start_date);
+    return dateOrder || first.name.localeCompare(second.name, 'de');
+};
 type TournamentFilter = 'all' | 'mine' | 'upcoming' | 'running' | 'past';
 const tournamentFilters: Array<{id: TournamentFilter; label: string}> = [
     {id: 'all', label: 'Alle'},
@@ -68,7 +80,9 @@ export default function TournamentsPage() {
     const detailTournament = tournamentId ? tournaments.find(tournament => tournament._id === tournamentId) : undefined;
     const filteredTournaments = tournamentId
         ? detailTournament ? [detailTournament] : []
-        : tournaments.filter(tournament => tournamentMatchesFilter(tournament, tournamentFilter));
+        : tournaments
+            .filter(tournament => tournamentMatchesFilter(tournament, tournamentFilter))
+            .sort(compareTournaments(today));
     const closeGroupDialog = () => {
         setExpandedGroup('');
         setDoubleRegistrationGroup('');
@@ -297,17 +311,7 @@ export default function TournamentsPage() {
                 type="button"
             >{filter.label} ({tournaments.filter(tournament => tournamentMatchesFilter(tournament, filter.id)).length})</button>)}
         </div> : null}
-        {filteredTournaments.length ? <div className={`tournament-list${tournamentId ? ' tournament-detail' : ''}`}>{filteredTournaments.map(tournament => <article key={tournament._id}>
-            {tournamentId ? <div className="tournament-page-heading">
-                <h1>{tournament.name}</h1>
-                {tournament.start_date > today ? <div
-                    aria-label={`Noch ${daysBetween(today, tournament.start_date)} ${daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'} bis zum Start`}
-                    className="tournament-countdown"
-                >
-                    <strong>{daysBetween(today, tournament.start_date)}</strong>
-                    <span>{daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'}<small>bis zum Start</small></span>
-                </div> : tournament.end_date < today ? <div className="tournament-finished"><strong>Beendet</strong><small>Turnier vorbei</small></div> : null}
-            </div> : null}
+        {filteredTournaments.length ? <div className={`tournament-list${tournamentId ? ' tournament-detail' : ''}`}>{filteredTournaments.map(tournament => <article className={!tournamentId && tournament.end_date < today ? 'tournament-card--past' : undefined} key={tournament._id}>
             {Object.keys(tournament.current_user_registrations ?? {}).length ? <div className="tournament-user-status">
                 {tournament.end_date < today ? 'Sie haben an ' : 'Sie haben sich für '}
                 {formatGroupNames(tournament.groups
@@ -316,17 +320,19 @@ export default function TournamentsPage() {
                 )}
                 {tournament.end_date < today ? ' teilgenommen.' : ' angemeldet.'}
             </div> : tournament.status === 'published' && new Date(tournament.registration_deadline).getTime() >= Date.now()
-                ? <div className="tournament-user-status tournament-user-status--none">
+                ? <div className="tournament-user-status">
                     Sie haben sich für dieses Turnier nicht angemeldet.{tournamentId ? ' Wählen Sie unten eine Konkurrenz aus.' : ''}
                 </div>
                 : null}
-            {!tournamentId ? <div className="tournament-heading">
+            <div className="tournament-heading">
                 <div>
-                    <h2>{tournament.name}</h2>
-                    <p className="tournament-summary-date">{formatTournamentDate(tournament)}</p>
+                    {tournamentId
+                        ? <h1>{tournament.name}</h1>
+                        : <h2><Link to={`/tournaments/${tournament._id}`}>{tournament.name}</Link></h2>}
+                    <p className="tournament-summary-date icon icon--inline icon--calendar">{formatTournamentDate(tournament)}</p>
                 </div>
                 <div className="tournament-heading-meta">
-                    {!tournamentId && tournament.start_date > today ? <div
+                    {tournament.start_date > today ? <div
                         aria-label={`Noch ${daysBetween(today, tournament.start_date)} ${daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'} bis zum Start`}
                         className="tournament-countdown"
                     >
@@ -337,13 +343,12 @@ export default function TournamentsPage() {
                         <small>Turnier vorbei</small>
                     </div> : null}
                 </div>
-            </div> : null}
+            </div>
             {tournamentId ? <>
             {tournament.description ? <p className="tournament-description">{tournament.description}</p> : null}
             <section className="tournament-detail-section">
             <h2>Turnierdaten</h2>
             <dl>
-                <div><dt>Datum</dt><dd>{formatTournamentDate(tournament)}</dd></div>
                 <div><dt>Meldeschluss</dt><dd>{formatDeadline(tournament.registration_deadline)}</dd></div>
                 <div><dt>Auslosung</dt><dd>{tournament.draw ? formatDeadline(tournament.draw) : 'Noch nicht festgelegt'}</dd></div>
                 <div><dt>Startgeld</dt><dd>{formatEntryFee(tournament.entry_fee)}</dd></div>
@@ -369,15 +374,13 @@ export default function TournamentsPage() {
             </section>
             <section className="tournament-detail-section">
                 <h2>Auslosung</h2>
-                <p>{tournament.draw ? `Geplant für ${formatDeadline(tournament.draw)}.` : 'Noch keine Daten verfügbar.'}</p>
+                <p>Noch keine Daten verfügbar.</p>
             </section>
             <section className="tournament-detail-section">
                 <h2>Ergebnisse</h2>
                 <p>Noch keine Daten verfügbar.</p>
             </section>
-            </> : <>
-                <p className="tournament-view-link"><Link to={`/tournaments/${tournament._id}`}>Turnier ansehen</Link></p>
-            </>}
+            </> : null}
         </article>)}</div> : <p>{tournamentId ? 'Turnier nicht gefunden.' : tournaments.length ? 'Keine passenden Turniere vorhanden.' : 'Derzeit sind keine Turniere verfügbar.'}</p>}
         {selectedTournament && selectedGroup ? <div
             className="tournament-dialog-backdrop"

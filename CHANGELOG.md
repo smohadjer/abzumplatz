@@ -2,6 +2,16 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.1.4
+
+### Changed
+
+- Ordered tournament lists with running and nearest upcoming tournaments first and completed tournaments at the bottom.
+- Refined tournament cards with light-red completed states, linked titles, calendar icons, weekday labels for single-day events, and more compact date styling.
+- Aligned the player tournament detail header with the listing-card presentation and removed the duplicated date from the tournament-data section.
+- Unified tournament registration hints under the existing green color scheme and clarified unavailable draw data.
+- Renamed account logout actions from “Abmelden” to “Ausloggen” to distinguish them from tournament withdrawals.
+
 ## 0.1.3
 
 ### Changed

@@ -19,10 +19,10 @@ export default function Settings() {
                 <li>
                     <a className="settings-logout-link" href="#" onClick={(event) => {
                         event.preventDefault();
-                        if (confirm('Möchten Sie sich wirklich abmelden?')) {
+                        if (confirm('Möchten Sie sich wirklich ausloggen?')) {
                             onLogout(dispatch);
                         }
-                    }}>Abmelden</a>
+                    }}>Ausloggen</a>
                 </li>
                 <li><span>App-Version: {packageJson.version}</span></li>
             </ul>

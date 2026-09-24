@@ -14,13 +14,16 @@ const statusLabels: Record<TournamentStatus, string> = {
 };
 
 const formatDate = (value: string) => new Date(`${value}T12:00:00`).toLocaleDateString('de-DE');
+const formatSingleDayDate = (value: string) => new Date(`${value}T12:00:00`).toLocaleDateString('de-DE', {
+    weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
+});
 const formatDeadline = (value: string) => `${new Date(value).toLocaleString('de-DE', {
     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
 })} Uhr`;
 const formatEntryFee = (value?: number) => value === undefined ? 'Noch nicht festgelegt' : value === 0 ? 'Kostenlos' : `${value} €`;
 const paymentMethodLabels = {cash: 'Barzahlung', bank_transfer: 'Überweisung'} as const;
 const formatTournamentDate = (tournament: Tournament) => tournament.start_date === tournament.end_date
-    ? formatDate(tournament.start_date)
+    ? formatSingleDayDate(tournament.start_date)
     : `${formatDate(tournament.start_date)} bis ${formatDate(tournament.end_date)}`;
 const daysBetween = (from: string, to: string) => {
     const toUtc = (value: string) => {
@@ -75,12 +78,22 @@ export default function AdminTournamentsPage() {
     const [groupFilter, setGroupFilter] = useState<GroupFilter>('all');
     const filteredGroups = groups.filter(group => groupMatchesFilter(group, groupFilter));
     const today = getZonedDateTime(new Date(), club?.timezone ?? 'Europe/Berlin').date;
-    const filteredTournaments = tournaments.filter(tournament => {
-        if (tournamentFilter === 'all') return true;
-        if (tournamentFilter === 'upcoming') return tournament.start_date > today;
-        if (tournamentFilter === 'running') return tournament.start_date <= today && tournament.end_date >= today;
-        return tournament.end_date < today;
-    });
+    const filteredTournaments = tournaments
+        .filter(tournament => {
+            if (tournamentFilter === 'all') return true;
+            if (tournamentFilter === 'upcoming') return tournament.start_date > today;
+            if (tournamentFilter === 'running') return tournament.start_date <= today && tournament.end_date >= today;
+            return tournament.end_date < today;
+        })
+        .sort((first, second) => {
+            const firstIsPast = first.end_date < today;
+            const secondIsPast = second.end_date < today;
+            if (firstIsPast !== secondIsPast) return firstIsPast ? 1 : -1;
+            const dateOrder = firstIsPast
+                ? second.end_date.localeCompare(first.end_date)
+                : first.start_date.localeCompare(second.start_date);
+            return dateOrder || first.name.localeCompare(second.name, 'de');
+        });
     const detailTournament = tournamentId ? tournaments.find(tournament => tournament._id === tournamentId) : undefined;
     const displayedTournaments = tournamentId ? detailTournament ? [detailTournament] : [] : filteredTournaments;
     const tournamentCount = (filter: TournamentFilter) => tournaments.filter(tournament => {
@@ -193,7 +206,7 @@ export default function AdminTournamentsPage() {
                 </div></> : null}
                 {displayedTournaments.length ? <div className={`admin-management-list${tournamentId ? ' admin-tournament-detail' : ''}`}>
                     {displayedTournaments.map(tournament => (
-                        <article className="admin-tournament-card" key={tournament._id}>
+                        <article className={`admin-tournament-card${!tournamentId && tournament.end_date < today ? ' admin-tournament-card--past' : ''}`} key={tournament._id}>
                             {tournamentId ? <div className="admin-tournament-page-heading">
                                 <h1>{tournament.name}</h1>
                                 {tournament.start_date > today ? <div
@@ -206,8 +219,8 @@ export default function AdminTournamentsPage() {
                             </div> : null}
                             {!tournamentId ? <div className="admin-tournament-heading">
                                 <div>
-                                    <h2>{tournament.name}</h2>
-                                    <p className="admin-tournament-summary-date">{formatTournamentDate(tournament)}</p>
+                                    <h2><Link to={`/admin/tournaments/${tournament._id}`}>{tournament.name}</Link></h2>
+                                    <p className="admin-tournament-summary-date icon icon--inline icon--calendar">{formatTournamentDate(tournament)}</p>
                                 </div>
                                 {!tournamentId && tournament.start_date > today ? <div
                                     aria-label={`Noch ${daysBetween(today, tournament.start_date)} ${daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'} bis zum Start`}
@@ -241,15 +254,14 @@ export default function AdminTournamentsPage() {
                             </section>
                             <section className="admin-tournament-detail-section">
                                 <h2>Auslosung</h2>
-                                <p>{tournament.draw ? `Geplant für ${formatDeadline(tournament.draw)}.` : 'Noch keine Daten verfügbar.'}</p>
+                                <p>Noch keine Daten verfügbar.</p>
                             </section>
                             <section className="admin-tournament-detail-section">
                                 <h2>Ergebnisse</h2>
                                 <p>Noch keine Daten verfügbar.</p>
                             </section>
                             </> : null}
-                            <div className="admin-management-actions">
-                                {!tournamentId ? <Link className="button-link button-link--secondary" to={`/admin/tournaments/${tournament._id}`}>Ansehen</Link> : <>
+                            {tournamentId ? <div className="admin-management-actions">
                                 <Link className="button-link button-link--secondary" to={`/admin/tournaments/${tournament._id}/participants`}>Teilnehmende</Link>
                                 <Link
                                     className="button-link button-link--secondary"
@@ -261,8 +273,7 @@ export default function AdminTournamentsPage() {
                                     to={`/admin/tournaments/${tournament._id}/edit`}
                                 >Bearbeiten</Link>
                                 <button className="admin-delete-button" onClick={() => deleteTournament(tournament)} type="button">Löschen</button>
-                                </>}
-                            </div>
+                            </div> : null}
                         </article>
                     ))}
                 </div> : <p>{tournamentId ? 'Turnier nicht gefunden.' : tournaments.length ? 'Keine passenden Turniere vorhanden.' : 'Noch keine Turniere angelegt.'}</p>}

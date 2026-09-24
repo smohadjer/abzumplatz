@@ -236,6 +236,10 @@
     background: #f5f6f8;
 }
 
+.admin-management-list .admin-tournament-card.admin-tournament-card--past {
+    background: #fff0f0;
+}
+
 .admin-tournament-detail .admin-tournament-card {
     padding: 0;
     background: transparent;
@@ -266,9 +270,12 @@
     font-size: 1.17em;
 }
 
-.admin-tournament-summary-date {
+.admin-tournament-summary-date.icon--inline {
     margin: 0.35rem 0 0;
-    font-size: 1.1rem;
+    padding-left: 25px;
+    background-position-y: 0;
+    color: #000;
+    font-size: 1rem;
     font-weight: 700;
 }
 

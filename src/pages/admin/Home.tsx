@@ -97,10 +97,10 @@ export default function AdminHomePage() {
                     <li>
                         <a className="settings-logout-link" href="#" onClick={(event) => {
                             event.preventDefault();
-                            if (confirm('Möchten Sie sich wirklich abmelden?')) {
+                            if (confirm('Möchten Sie sich wirklich ausloggen?')) {
                                 onLogout(dispatch);
                             }
-                        }}>Abmelden</a>
+                        }}>Ausloggen</a>
                     </li>
                 </ul>
                 {deleteError ? <p className="settings-delete-error">{deleteError}</p> : null}

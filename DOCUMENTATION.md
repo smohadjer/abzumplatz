@@ -67,7 +67,7 @@ While a club is soft-deleted:
 - Club-scoped reservation, member-management, club-management, and billing API operations reject it.
 - Scheduled billing renewals skip it, so no new billing periods or invoices are created while it is deleted.
 - The club administrator can still log in, but the app redirects protected routes to a recovery-only Admin page.
-- The recovery page hides normal club-management navigation and offers only **Verein wiederherstellen** and **Abmelden**.
+- The recovery page hides normal club-management navigation and offers only **Verein wiederherstellen** and **Ausloggen**.
 - Restoring the club removes `deleted_at` and makes the club available again.
 - If the club still has an active billing period whose end date is in the future, restoration keeps that period unchanged and does not issue another invoice.
 - If the previous active billing period has expired, restoration completes it and creates exactly one new billing period beginning on the restoration date. The deleted interval is not recreated or invoiced retroactively.
