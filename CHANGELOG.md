@@ -2,6 +2,13 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.1.7
+
+### Changed
+
+- Consolidated all one-time database migrations and backfills in the `migrations` directory while keeping reusable operational utilities in `scripts`.
+- Updated the database migration and backfill npm commands to use the consolidated directory.
+
 ## 0.1.6
 
 ### Added
