@@ -14,6 +14,10 @@ All notable changes to this project should be documented in this file.
 - Hydrated the prerendered homepage with the existing React application to preserve its styling, behavior, and loading experience without hidden or duplicated SEO content.
 - Changed the homepage tagline to a semantic primary heading.
 
+### Fixed
+
+- Replaced the competition-group JSON module import with a shared JavaScript data module so Vercel can compile the API functions without JSON-module or import-attribute errors.
+
 ## 0.1.4
 
 ### Changed

@@ -1,5 +1,5 @@
 import type { Db } from 'mongodb';
-import defaultCompetitionGroups from '../../scripts/data/competition-groups.json' with {type: 'json'};
+import defaultCompetitionGroups from '../../scripts/data/competition-groups.js';
 
 export async function createDefaultCompetitionGroups(database: Db, clubId: string) {
   if (!defaultCompetitionGroups.length) return;
