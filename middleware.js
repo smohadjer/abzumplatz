@@ -1,20 +1,17 @@
-/* middleware for vercel edge runtime */
+/* Authentication middleware for protected API mutations. */
 import { next } from '@vercel/edge';
 import {jwtVerify} from 'jose';
 import { RequestCookies } from '@edge-runtime/cookies'
 
 // middleware only runs for these paths
 export const config = {
+  runtime: 'nodejs',
   matcher: [
     '/api/reservations',
     '/api/clubs',
     '/api/users'
   ]
 };
-
-if (typeof EdgeRuntime === 'string') {
-  // console.log('******* EdgeRuntime *********');
-}
 
 export default async function middleware(req) {
   const url = new URL(req.url);

@@ -16,6 +16,7 @@ All notable changes to this project should be documented in this file.
 - Changed the homepage tagline to a semantic primary heading.
 - Pinned deployments to the Node.js 24 major release line so Vercel does not automatically select a future major version.
 - Explicitly approved the version-pinned `bcrypt` and `esbuild` dependency installation scripts used during deployment.
+- Migrated the API authentication middleware from Vercel's deprecated Edge runtime to the Node.js runtime.
 
 ### Fixed
 
