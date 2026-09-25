@@ -39,7 +39,7 @@ footer {
 
     .footer-link-label {
         display: inline;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 500;
         line-height: 1.15;
         text-align: left;
@@ -68,13 +68,24 @@ footer {
     }
 }
 
-@media (max-width: 399px) {
-    footer a {
+@media (max-width: 500px) {
+    footer.footer--authenticated a {
         flex-direction: column;
         gap: 0.15rem;
     }
 
-    footer .footer-link-label {
+    footer.footer--authenticated .footer-link-label {
+        text-align: center;
+    }
+}
+
+@media (max-width: 399px) {
+    footer:not(.footer--authenticated) a {
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+
+    footer:not(.footer--authenticated) .footer-link-label {
         text-align: center;
     }
 }
@@ -82,6 +93,10 @@ footer {
 @media (min-width: 768px) {
     footer a {
         gap: 0.4rem;
+    }
+
+    footer .footer-link-label {
+        font-size: 0.9rem;
     }
 
     footer a > .icon {
