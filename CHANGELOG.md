@@ -22,6 +22,7 @@ All notable changes to this project should be documented in this file.
 ### Fixed
 
 - Validated recurring-reservation cancellation dates on the server so only active occurrences belonging to the selected series can be removed.
+- Added deployment rewrites for tournament, tournament-administration, profile-editing, and club-deletion routes so reloading or opening those pages directly serves the application correctly.
 
 ## 0.1.6
 
