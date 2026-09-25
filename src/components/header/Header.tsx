@@ -2,6 +2,7 @@ import { getClub } from '../../utils/utils';
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store';
 import { Link, useLocation } from 'react-router';
+import AccountMenu from './AccountMenu';
 import './header.css';
 
 export default function Header() {
@@ -37,7 +38,9 @@ export default function Header() {
                     </div>
                 ) : !isLoggedin ? (
                     <div className="header-login-link header-login-link--placeholder" aria-hidden="true"></div>
-                ) : null}
+                ) : (
+                    <AccountMenu />
+                )}
             </div>
         </header>
     )

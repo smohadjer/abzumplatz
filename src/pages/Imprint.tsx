@@ -8,7 +8,7 @@ export default function Imprint() {
 
     return (
         <div>
-            <p><Link className="icon icon--back" to="/settings">Zurück</Link></p>
+            {!auth.value ? <p><Link className="icon icon--back" to="/">Zurück</Link></p> : null}
             <h1>Impressum</h1>
             <p>Angaben gemäß § 5 TMG:</p>
             <p>

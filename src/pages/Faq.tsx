@@ -13,7 +13,7 @@ export default function Faq() {
 
     return (
         <>
-            <p><Link className="icon icon--back" to={auth.value ? '/settings' : '/'}>Zurück</Link></p>
+            {!auth.value ? <p><Link className="icon icon--back" to="/">Zurück</Link></p> : null}
             <h1>Häufig gestellte Fragen</h1>
 
             <div className="faq-tabs" aria-label="FAQ-Bereich">

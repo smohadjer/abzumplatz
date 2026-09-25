@@ -15,7 +15,6 @@ export default function Profile() {
 
     return (
         <>
-            <p><Link className="icon icon--back" to="/settings">Zurück</Link></p>
             <h1>Mein Profil</h1>
             <ul className="settings-links">
                 <li><Link to="/profile/edit">Profil bearbeiten</Link></li>

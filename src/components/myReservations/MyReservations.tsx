@@ -84,7 +84,7 @@ export function MyReservations(props: {
 
     return (
         <div className="my-reservations">
-            <h1>Meine Reservierungen {club &&
+            <h1>Meine Buchungen {reservationLimitApplies && club &&
                 reservationsLimit != null &&
                 <span>({reservations.length} von {String(reservationsLimit)})</span>}
             </h1>

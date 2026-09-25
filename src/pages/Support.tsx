@@ -53,7 +53,7 @@ export default function Support() {
 
     return (
         <>
-            <p><Link className="icon icon--back" to={auth.value ? '/settings' : '/'}>Zurück</Link></p>
+            {!auth.value ? <p><Link className="icon icon--back" to="/">Zurück</Link></p> : null}
             <h1>Support</h1>
             {adminContact ? (
                 <p>

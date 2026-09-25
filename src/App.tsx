@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route } from 'react-router';
+import { Navigate, Routes, Route } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './store';
 import { isAuthenticated } from './utils/utils';
@@ -23,7 +23,6 @@ import AdminCompetitionGroupFormPage from './pages/admin/CompetitionGroupForm';
 import AdminTournamentParticipantsPage from './pages/admin/TournamentParticipants';
 import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
-import Settings from './pages/Settings';
 import Rules from './pages/Rules';
 import Support from './pages/Support';
 import Faq from './pages/Faq';
@@ -109,7 +108,7 @@ export default function App({initiallyInitialized = false}: AppProps) {
                 }/>
                 <Route path="/settings" element={
                     <ProtectedRoute>
-                        <Settings />
+                        <Navigate to="/reservations" replace />
                     </ProtectedRoute>
                 }/>
                 <Route path="/rules" element={

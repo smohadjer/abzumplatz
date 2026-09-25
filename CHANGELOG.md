@@ -2,6 +2,28 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.1.8
+
+### Added
+
+- Added an authenticated account menu that slides in from the right and is opened from a profile button in the header.
+- Added the signed-in user's name, email address, and administrator status to the account-menu header.
+- Added accessible account-menu behavior including keyboard focus management, Escape and backdrop closing, background-scroll locking, focus restoration, and reduced-motion support.
+
+### Changed
+
+- Replaced the Settings page and footer action with a compact account menu containing profile, club rules, support, FAQ, legal information, logout, and app-version links.
+- Kept the former `/settings` URL as a compatibility redirect to reservations and removed redundant back links from authenticated profile, rules, support, FAQ, and legal-information pages.
+- Kept the club name centered in the header at mobile widths while placing the profile button at the upper right.
+- Refined the account menu with divider-based groups, tighter spacing, and consistent profile and close-button states.
+- Redesigned authenticated and public footers with visible labels beside icons at wider widths and centered beneath icons below 400px, plus responsive icon sizes, compact padding, balanced spacing, and accessible touch targets.
+- Clarified footer labels with “Platz buchen”, “Meine Buchungen”, “Start”, “Registrieren”, “Verein anlegen”, and “Admin”; aligned the personal-bookings page heading with its footer label; and removed the redundant public login action because login remains available in the header.
+
+### Fixed
+
+- Kept the Administration footer action selected throughout nested administrator pages instead of only on the administrator overview.
+- Hid the player reservation-limit count from administrators, whose bookings are not subject to that limit.
+
 ## 0.1.7
 
 ### Added

@@ -41,13 +41,235 @@
 }
 
 .header-top-row--club-brand {
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(2.75rem, 1fr) auto minmax(2.75rem, 1fr);
 }
 
 .header-top-row--club-brand .header-logo-link {
-  grid-column: 1;
+  grid-column: 2;
   justify-self: center;
   text-align: center;
+}
+
+.header-account-button {
+  grid-column: 2;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #cbd3df;
+  border-radius: 50%;
+  background: #f2f5fa;
+  cursor: pointer;
+}
+
+.header-top-row--club-brand .header-account-button {
+  grid-column: 3;
+}
+
+.header .header-account-button span.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  background-position: center;
+  background-size: contain;
+  filter: invert(35%) sepia(91%) saturate(3615%) hue-rotate(213deg) brightness(86%) contrast(79%);
+}
+
+.header-account-button:hover,
+.header-account-button:focus-visible {
+  border-color: var(--blue);
+  background: #dfe5ed;
+}
+
+.account-menu-layer {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 240ms;
+}
+
+.account-menu-layer--open {
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.account-menu-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: rgb(10 20 35 / 42%);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.account-menu-layer--open .account-menu-backdrop {
+  opacity: 1;
+}
+
+.account-menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(22rem, 92vw);
+  height: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  box-shadow: -0.25rem 0 1.5rem rgb(0 0 0 / 18%);
+  color: #333;
+  text-align: left;
+  transform: translateX(100%);
+  transition: transform 240ms ease;
+}
+
+.account-menu-layer--open .account-menu {
+  transform: translateX(0);
+}
+
+.account-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.account-menu-header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.account-menu-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #f2f5fa;
+  color: #333;
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.account-menu-close:hover,
+.account-menu-close:focus-visible {
+  background: #dfe5ed;
+}
+
+.account-menu-user {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.account-menu-user h2 {
+  overflow-wrap: anywhere;
+  color: #333;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.account-menu-user span {
+  margin-top: 0;
+  overflow-wrap: anywhere;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.25;
+}
+
+.account-menu-group {
+  padding: 0.2rem 0;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+.account-menu nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.5rem;
+  padding: 0 0.25rem;
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.account-menu nav a::after {
+  content: '';
+  width: 1rem;
+  height: 1rem;
+  background-color: currentColor;
+  -webkit-mask: url('../../images/forward.svg') center / contain no-repeat;
+  mask: url('../../images/forward.svg') center / contain no-repeat;
+}
+
+.account-menu nav a:hover,
+.account-menu nav a:focus-visible {
+  background: #f2f5fa;
+  text-decoration: none;
+}
+
+.account-menu-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-top: auto;
+  padding-top: 1.25rem;
+}
+
+.account-menu-footer span {
+  color: #777;
+  font-size: 0.8rem;
+}
+
+.account-menu-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #b42318;
+  cursor: pointer;
+  font: inherit;
+}
+
+.header .account-menu-logout span.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: inherit;
+  background-image: none;
+  background-color: currentColor;
+  -webkit-mask: url('../../images/logout.svg') center / contain no-repeat;
+  mask: url('../../images/logout.svg') center / contain no-repeat;
+}
+
+.account-menu-logout:hover,
+.account-menu-logout:focus-visible {
+  color: #8f1c13;
+  text-decoration: underline;
 }
 
 .header-login-link {
@@ -118,9 +340,20 @@
     text-align: left;
   }
 
+  .header-top-row--club-brand {
+    grid-template-columns: minmax(2.75rem, 1fr) auto minmax(2.75rem, 1fr);
+  }
+
   .header-login-link {
     grid-column: 2;
     justify-self: end;
     justify-content: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-menu,
+  .account-menu-backdrop {
+    transition: none;
   }
 }

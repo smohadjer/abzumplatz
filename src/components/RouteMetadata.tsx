@@ -40,7 +40,6 @@ const privateTitles: Record<string, string> = {
     '/bookings': 'Meine Buchungen – abzumplatz',
     '/tournaments': 'Turniere – abzumplatz',
     '/profile': 'Profil – abzumplatz',
-    '/settings': 'Einstellungen – abzumplatz',
     '/rules': 'Vereinsregeln – abzumplatz',
     '/select-club': 'Verein auswählen – abzumplatz',
     '/admin': 'Administration – abzumplatz'

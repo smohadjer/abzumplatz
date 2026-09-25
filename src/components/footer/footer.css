@@ -1,26 +1,30 @@
 footer {
     margin: 0;
     border-top: solid 1px #ccc;
-    padding: 1em;
+    padding: 0.5em 1em;
     text-align: right;
     font-size: smaller;
     color: #666;
     display: flex;
-    justify-content: space-around;
+    gap: 0.5rem;
+    justify-content: space-between;
 
     a {
         display: inline-flex;
+        flex-direction: row;
         align-items: center;
-        gap: 0.4rem;
+        justify-content: center;
+        gap: 0.3rem;
+        min-height: 44px;
         color: var(--blue);
         text-decoration: none;
 
         > .icon {
             display: inline-block;
-            height: 30px;
-            width: 30px;
+            height: 26px;
+            width: 26px;
             background-position: center;
-            background-size: 30px;
+            background-size: 26px;
             filter: invert(35%) sepia(91%) saturate(3615%) hue-rotate(213deg) brightness(86%) contrast(79%);
 
             &.selected {
@@ -29,14 +33,16 @@ footer {
         }
 
         .icon--calendar {
-            background-size: 30px;
+            background-size: 26px;
         }
     }
 
     .footer-link-label {
-        display: none;
+        display: inline;
         font-size: 0.9rem;
         font-weight: 500;
+        line-height: 1.15;
+        text-align: left;
     }
 
     .icon.selected + .footer-link-label {
@@ -62,9 +68,30 @@ footer {
     }
 }
 
-@media (min-width: 768px) {
+@media (max-width: 399px) {
+    footer a {
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+
     footer .footer-link-label {
-        display: inline;
+        text-align: center;
+    }
+}
+
+@media (min-width: 768px) {
+    footer a {
+        gap: 0.4rem;
+    }
+
+    footer a > .icon {
+        width: 30px;
+        height: 30px;
+        background-size: 30px;
+    }
+
+    footer a .icon--calendar {
+        background-size: 30px;
     }
 }
 
