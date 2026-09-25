@@ -381,7 +381,7 @@ export default function TournamentsPage() {
                 <p>Noch keine Daten verfügbar.</p>
             </section>
             </> : null}
-        </article>)}</div> : <p>{tournamentId ? 'Turnier nicht gefunden.' : tournaments.length ? 'Keine passenden Turniere vorhanden.' : 'Derzeit sind keine Turniere verfügbar.'}</p>}
+        </article>)}</div> : <p>{tournamentId ? 'Turnier nicht gefunden.' : tournaments.length ? 'Keine passenden Turniere vorhanden.' : 'Ihr Verein hat derzeit keine Turniere oder Wettbewerbe geplant.'}</p>}
         {selectedTournament && selectedGroup ? <div
             className="tournament-dialog-backdrop"
             onMouseDown={event => {
