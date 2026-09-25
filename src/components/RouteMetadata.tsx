@@ -31,7 +31,7 @@ const publicMetadata: Record<string, Metadata> = {
 };
 
 const privateTitles: Record<string, string> = {
-    '/login': 'Anmelden – abzumplatz',
+    '/login': 'Einloggen – abzumplatz',
     '/register/player': 'Spieler registrieren – abzumplatz',
     '/register/club': 'Verein registrieren – abzumplatz',
     '/forgot-password': 'Passwort zurücksetzen – abzumplatz',

@@ -29,7 +29,7 @@ export function Login() {
                 classNames="form-login"
                 initialData={formJson.fields}
                 formAttributes={formJson.form}
-                label="Anmelden"
+                label="Einloggen"
                 pathSchema="/schema/login.json"
                 callback={callback}
             />

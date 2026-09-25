@@ -65,22 +65,23 @@ export default function Footer() {
     return (
         (auth.value) ?
         <footer>
-            <Link aria-label="Reservierungen" to="/reservations"><span aria-hidden="true" className={`icon icon--calendar${page_id === 'reservations' ? ' selected' : ''}`}></span></Link>
-            <Link aria-label="Meine Buchungen" to="/bookings"><span aria-hidden="true" className={`icon icon--list${page_id === 'bookings' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Reservierungen" to="/reservations"><span aria-hidden="true" className={`icon icon--calendar${page_id === 'reservations' ? ' selected' : ''}`}></span><span className="footer-link-label">Reservierungen</span></Link>
+            <Link aria-label="Meine Buchungen" to="/bookings"><span aria-hidden="true" className={`icon icon--list${page_id === 'bookings' ? ' selected' : ''}`}></span><span className="footer-link-label">Meine Buchungen</span></Link>
             <Link aria-label={hasNewTournament ? 'Turniere – neues Turnier verfügbar' : 'Turniere'} className="footer-tournament-link" to="/tournaments">
                 <span aria-hidden="true" className={`icon icon--trophy${page_id.startsWith('tournaments') ? ' selected' : ''}`}></span>
+                <span className="footer-link-label">Turniere</span>
                 {hasNewTournament ? <span aria-hidden="true" className="footer-notification-dot"></span> : null}
             </Link>
-            <Link aria-label="Einstellungen" to="/settings"><span aria-hidden="true" className={`icon icon--settings${page_id === 'settings' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Einstellungen" to="/settings"><span aria-hidden="true" className={`icon icon--settings${page_id === 'settings' ? ' selected' : ''}`}></span><span className="footer-link-label">Einstellungen</span></Link>
             {auth.role === 'admin' &&
-                 <Link aria-label="Administration" to="/admin"><span aria-hidden="true" className={`icon icon--admin${page_id === 'admin' ? ' selected' : ''}`}></span></Link>
+                 <Link aria-label="Administration" to="/admin"><span aria-hidden="true" className={`icon icon--admin${page_id === 'admin' ? ' selected' : ''}`}></span><span className="footer-link-label">Administration</span></Link>
             }
         </footer> :
         <footer>
-            <Link aria-label="Startseite" to="/"><span aria-hidden="true" className={`icon icon--home${page_id === '' ? ' selected' : ''}`}></span></Link>
-            <Link aria-label="Anmelden" to="/login"><span aria-hidden="true" className={`icon icon--login${page_id === 'login' ? ' selected' : ''}`}></span></Link>
-            <Link aria-label="Als Spieler registrieren" to="/register/player"><span aria-hidden="true" className={`icon icon--register${page_id === 'register/player' ? ' selected' : ''}`}></span></Link>
-            <Link aria-label="Verein registrieren" to="/register/club"><span aria-hidden="true" className={`icon icon--group-add${page_id === 'register/club' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Startseite" to="/"><span aria-hidden="true" className={`icon icon--home${page_id === '' ? ' selected' : ''}`}></span><span className="footer-link-label">Startseite</span></Link>
+            <Link aria-label="Einloggen" to="/login"><span aria-hidden="true" className={`icon icon--login${page_id === 'login' ? ' selected' : ''}`}></span><span className="footer-link-label">Einloggen</span></Link>
+            <Link aria-label="Als Spieler registrieren" to="/register/player"><span aria-hidden="true" className={`icon icon--register${page_id === 'register/player' ? ' selected' : ''}`}></span><span className="footer-link-label">Spieler registrieren</span></Link>
+            <Link aria-label="Verein registrieren" to="/register/club"><span aria-hidden="true" className={`icon icon--group-add${page_id === 'register/club' ? ' selected' : ''}`}></span><span className="footer-link-label">Verein registrieren</span></Link>
         </footer>
     )
 }

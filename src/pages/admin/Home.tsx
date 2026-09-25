@@ -81,7 +81,7 @@ export default function AdminHomePage() {
                 <div className="admin-deleted-club-warning">
                     <p><strong>Dieser Verein wurde gelöscht.</strong></p>
                     {deletedAtLabel ? <p>Gelöscht am: {deletedAtLabel}</p> : null}
-                    <p>Mitglieder sehen bei ihrer nächsten Anmeldung einen Hinweis und werden aufgefordert, einen neuen Verein auszuwählen.</p>
+                    <p>Mitglieder sehen beim nächsten Einloggen einen Hinweis und werden aufgefordert, einen neuen Verein auszuwählen.</p>
                 </div>
                 <ul className="settings-links">
                     <li>

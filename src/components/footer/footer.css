@@ -9,10 +9,13 @@ footer {
     justify-content: space-around;
 
     a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
         color: var(--blue);
         text-decoration: none;
 
-        span {
+        > .icon {
             display: inline-block;
             height: 30px;
             width: 30px;
@@ -28,6 +31,16 @@ footer {
         .icon--calendar {
             background-size: 30px;
         }
+    }
+
+    .footer-link-label {
+        display: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .icon.selected + .footer-link-label {
+        color: #5f6368;
     }
 
     .footer-tournament-link {
@@ -46,6 +59,12 @@ footer {
         box-shadow: 0 0 0 0 rgb(195 224 39 / 55%);
         filter: none;
         animation: footer-notification-pulse 2.2s ease-out infinite;
+    }
+}
+
+@media (min-width: 768px) {
+    footer .footer-link-label {
+        display: inline;
     }
 }
 

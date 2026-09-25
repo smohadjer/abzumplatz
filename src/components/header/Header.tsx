@@ -31,7 +31,7 @@ export default function Header() {
                 {!isLoggedin && isAuthChecked ? (
                     <div className="header-login-link">
                         <Link to="/login">
-                            <span>Anmelden</span>
+                            <span>Einloggen</span>
                             <span className="icon icon--login" aria-hidden="true"></span>
                         </Link>
                     </div>
