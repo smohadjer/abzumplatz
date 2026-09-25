@@ -162,7 +162,7 @@ export default function AdminTournamentParticipantsPage() {
                     <h2>{group.name} <small>{registrationCount}</small></h2>
                     {groupRegistrations.length ? <ul>{groupRegistrations.map(registration => <li key={registration._id}>
                         <span>{registration.users?.map(memberName).join(' / ') || 'Unbekanntes Mitglied'}</span>
-                        <button onClick={() => removeRegistration(registration)} type="button">Entfernen</button>
+                        <button className="delete-action-button" onClick={() => removeRegistration(registration)} type="button">Entfernen</button>
                     </li>)}</ul> : <p>Noch keine Anmeldungen.</p>}
                 </section>;
             })}

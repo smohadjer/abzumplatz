@@ -65,7 +65,7 @@ export default function Footer() {
     return (
         (auth.value) ?
         <footer>
-            <Link aria-label="Reservierungen" to="/reservations"><span aria-hidden="true" className={`icon icon--home${page_id === 'reservations' ? ' selected' : ''}`}></span></Link>
+            <Link aria-label="Reservierungen" to="/reservations"><span aria-hidden="true" className={`icon icon--calendar${page_id === 'reservations' ? ' selected' : ''}`}></span></Link>
             <Link aria-label="Meine Buchungen" to="/bookings"><span aria-hidden="true" className={`icon icon--list${page_id === 'bookings' ? ' selected' : ''}`}></span></Link>
             <Link aria-label={hasNewTournament ? 'Turniere – neues Turnier verfügbar' : 'Turniere'} className="footer-tournament-link" to="/tournaments">
                 <span aria-hidden="true" className={`icon icon--trophy${page_id.startsWith('tournaments') ? ' selected' : ''}`}></span>

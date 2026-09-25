@@ -83,16 +83,15 @@
 }
 
 .settings-delete-error {
-    color: #b42318;
+    margin-top: 1rem;
 }
 
 .admin-deleted-club-warning {
     margin-top: 1rem;
     padding: 0.85rem 1rem;
-    border: 1px solid #e0c36c;
-    border-radius: 0.25rem;
+    border-left: 4px solid #d08b00;
     background: #fff4d6;
-    color: #222;
+    color: #5f4300;
 }
 
 .admin-deleted-club-warning p {
@@ -106,9 +105,9 @@
 .admin-delete-confirmation {
     margin-top: 1rem;
     padding: 0.85rem 1rem;
-    border: 1px solid #e4aaa5;
-    border-radius: 0.25rem;
-    background: #fff3f2;
+    border-left: 4px solid #b42318;
+    background: #fff0f0;
+    color: #8f1c13;
 }
 
 .admin-delete-confirmation p {
@@ -141,7 +140,6 @@
     margin: 0;
     padding: 0.5rem 0.85rem;
     border: 0;
-    border-radius: 999px;
     cursor: pointer;
     font: inherit;
 }

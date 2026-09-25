@@ -30,7 +30,10 @@ export default function Bookings() {
                 <Loader size="big" text="Reservierungen werden geladen" />
             </div>
         ) : (
-            <MyReservations reservations={userReservations} />
+            <MyReservations
+                reservations={userReservations}
+                reservationLimitApplies={user.role !== 'admin'}
+            />
         )
     )
 }

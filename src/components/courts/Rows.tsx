@@ -28,6 +28,9 @@ export function Rows(props: Props) {
         const getLabel = (reservation: NormalizedReservationItem) => {
             return reservation.label || reservation.user_name;
         }
+        const accessibleLabel = reservation
+            ? `Platz ${courtNumber}, ${props.hour}:00 Uhr, reserviert von ${getLabel(reservation)}`
+            : `Platz ${courtNumber}, ${props.hour}:00 Uhr, ${courtStatus === 'inactive' ? 'deaktiviert' : 'frei'}`;
 
         row.push(
             <div className={'cell' +
@@ -55,6 +58,7 @@ export function Rows(props: Props) {
                 data-deleted_dates={reservation?.deleted_dates ? JSON.stringify(reservation.deleted_dates) : undefined}
                 data-end_date={reservation ? reservation.end_date : undefined}
                 data-timestamp={reservation?.timestamp ? reservation.timestamp.toString() : undefined}
+                aria-label={accessibleLabel}
                 title={reservation ? getLabel(reservation) : undefined}
             >{reservation && isRecurringReservation ? <span className="recurring-marker" title="Wiederholt sich jede Woche">W</span> : null}
             {reservation ? getLabel(reservation) : ''}

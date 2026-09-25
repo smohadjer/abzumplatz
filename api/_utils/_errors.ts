@@ -23,6 +23,9 @@ export type AppErrorCode =
     | 'RESERVATION_DELETE_OWN_OR_ADMIN_ONLY'
     | 'RESERVATION_DELETE_OWN_CLUB_ONLY'
     | 'RESERVATION_DELETE_PAST_NOT_ALLOWED'
+    | 'RESERVATION_DELETE_TYPE_INVALID'
+    | 'RESERVATION_DELETE_OCCURRENCE_DATE_REQUIRED'
+    | 'RESERVATION_DELETE_OCCURRENCE_INVALID'
     | 'RESERVATION_DELETE_FAILED';
 
 type AppErrorDefinition = {
@@ -101,6 +104,18 @@ const APP_ERRORS: Record<AppErrorCode, AppErrorDefinition> = {
     },
     RESERVATION_DELETE_PAST_NOT_ALLOWED: {
         message: 'Vergangene Reservierungen können nicht gelöscht werden',
+        status: 400
+    },
+    RESERVATION_DELETE_TYPE_INVALID: {
+        message: 'Die Auswahl zum Löschen der Reservierung ist ungültig',
+        status: 400
+    },
+    RESERVATION_DELETE_OCCURRENCE_DATE_REQUIRED: {
+        message: 'Das Datum des wiederkehrenden Termins ist erforderlich',
+        status: 400
+    },
+    RESERVATION_DELETE_OCCURRENCE_INVALID: {
+        message: 'Der ausgewählte Termin gehört nicht zu dieser wiederkehrenden Reservierung oder ist nicht mehr aktiv',
         status: 400
     },
     RESERVATION_DELETE_FAILED: {

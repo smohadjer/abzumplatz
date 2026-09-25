@@ -1,6 +1,6 @@
 import { ObjectId, Collection } from 'mongodb';
 import { DBUser, ReservationItem } from '../../src/types.js';
-import { addDaysToIsoDate, isReservationTimeInPast } from '../../src/utils/reservationTime.js';
+import { addDaysToIsoDate, isReservationTimeInPast, reservationIsOnSameDay } from '../../src/utils/reservationTime.js';
 import { getAllReservations } from '../../src/utils/utils.js';
 import type { VercelRequest, VercelResponse } from './_apiTypes.js';
 import { createAppError, getAppErrorResponse } from './_errors.js';
@@ -29,6 +29,9 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
   users: Collection<DBUser>, clubTimeZone: string) => {
     const reservation_id = req.body?.reservation_id;
     const deleteType = req.body?.delete_type ?? 'all';
+    if (!['once', 'once_and_future', 'all'].includes(deleteType)) {
+      throw createAppError('RESERVATION_DELETE_TYPE_INVALID');
+    }
     if (!reservation_id || typeof reservation_id !== 'string') {
       const { status, body } = getAppErrorResponse('RESERVATION_ID_REQUIRED');
       return res.status(status).json(body);
@@ -78,6 +81,20 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
       return res.status(status).json(body);
     }
 
+    let selectedOccurrenceDate: string | undefined;
+    if (reservationIsRecurring && deleteType !== 'all') {
+      selectedOccurrenceDate = req.body?.date;
+      if (!selectedOccurrenceDate || typeof selectedOccurrenceDate !== 'string') {
+        throw createAppError('RESERVATION_DELETE_OCCURRENCE_DATE_REQUIRED');
+      }
+      if (!reservationIsOnSameDay(reservation, selectedOccurrenceDate)) {
+        throw createAppError('RESERVATION_DELETE_OCCURRENCE_INVALID');
+      }
+      if (isReservationTimeInPast(selectedOccurrenceDate, reservation.start_time, clubTimeZone)) {
+        throw createAppError('RESERVATION_DELETE_PAST_NOT_ALLOWED');
+      }
+    }
+
     // delete reservation from db
     if (!reservationIsRecurring || deleteType === 'all') {
       const result = await reservations.deleteOne(query);
@@ -90,15 +107,15 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
     // add req.body.date to deleted_dates array of reservation doc in db
     } else if (deleteType === 'once') {
       if (reservation.deleted_dates) {
-        reservation.deleted_dates.push(req.body.date);
+        reservation.deleted_dates.push(selectedOccurrenceDate!);
       } else {
-        reservation.deleted_dates = [req.body.date];
+        reservation.deleted_dates = [selectedOccurrenceDate!];
       }
       await reservations.replaceOne(query, reservation);
       await returnResponse();
     // set end_date of reservation doc in db to req.body.date
     } else {
-      if (previousOccurrencesWereDeleted(reservation, req.body.date)) {
+      if (previousOccurrencesWereDeleted(reservation, selectedOccurrenceDate!)) {
         const result = await reservations.deleteOne(query);
         if (result.deletedCount > 0) {
           await returnResponse();
@@ -109,7 +126,7 @@ export const deleteReservation = async (req: VercelRequest, res: VercelResponse,
         return;
       }
 
-      reservation.end_date = req.body.date;
+      reservation.end_date = selectedOccurrenceDate!;
       await reservations.replaceOne(query, reservation);
       await returnResponse();
     }

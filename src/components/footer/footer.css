@@ -24,6 +24,10 @@ footer {
                 filter: none;
             }
         }
+
+        .icon--calendar {
+            background-size: 30px;
+        }
     }
 
     .footer-tournament-link {

@@ -272,7 +272,7 @@ export default function AdminTournamentsPage() {
                                     }}
                                     to={`/admin/tournaments/${tournament._id}/edit`}
                                 >Bearbeiten</Link>
-                                <button className="admin-delete-button" onClick={() => deleteTournament(tournament)} type="button">Löschen</button>
+                                <button className="admin-delete-button delete-action-button" onClick={() => deleteTournament(tournament)} type="button">Löschen</button>
                             </div> : null}
                         </article>
                     ))}
@@ -300,7 +300,7 @@ export default function AdminTournamentsPage() {
                             <p><strong>{group.name}</strong> <span>{group.competition_type.name}</span></p>
                             <div className="admin-management-actions">
                                 <Link className="button-link button-link--secondary" to={`/admin/tournaments/groups/${group._id}/edit`}>Bearbeiten</Link>
-                                <button className="admin-delete-button" onClick={() => deleteGroup(group)} type="button">Löschen</button>
+                                <button className="admin-delete-button delete-action-button" onClick={() => deleteGroup(group)} type="button">Löschen</button>
                             </div>
                         </article>
                     ))}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux'
+import { useSearchParams } from 'react-router';
 import { RootState } from '../store';
 import {
     getClub,
@@ -39,6 +40,7 @@ type Slot = {
 
 export default function Reservations() {
     const dispatch = useDispatch();
+    const [searchParams] = useSearchParams();
     const [loading, setLoading] = useState(false);
     const usersData = useSelector((state: RootState) => state.users);
     const reservationsData = useSelector((state: RootState) => state.reservations);
@@ -67,8 +69,17 @@ export default function Reservations() {
     const clubHours = Array.from({
         length: club.end_hour - club.start_hour
     }, (_, i) => i + club.start_hour);
-    const [reservationDate, setReservationDate] = useState(() =>
-        new Date(`${getZonedDateTime(new Date(), club.timezone).date}T12:00:00`));
+    const [reservationDate, setReservationDate] = useState(() => {
+        const requestedDate = searchParams.get('date');
+        const initialDate = requestedDate && /^\d{4}-\d{2}-\d{2}$/.test(requestedDate)
+            ? requestedDate
+            : getZonedDateTime(new Date(), club.timezone).date;
+        const parsedDate = new Date(`${initialDate}T12:00:00`);
+
+        return Number.isNaN(parsedDate.getTime())
+            ? new Date(`${getZonedDateTime(new Date(), club.timezone).date}T12:00:00`)
+            : parsedDate;
+    });
     const isoDate = getIsoDateString(reservationDate);
     const reservationFilter = (reservationItem: ReservationItem) => {
         return reservationIsOnSameDay(reservationItem, isoDate);

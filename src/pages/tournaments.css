@@ -107,7 +107,7 @@
 .tournament-user-status {
     margin: 0 0 0.65rem;
     padding: 0.5rem 0.65rem;
-    border-left: 3px solid #318247;
+    border-left: 4px solid #318247;
     background: #eaf5ed;
     color: #226c35;
     font-size: 0.85rem;
@@ -335,10 +335,13 @@
 .tournament-registration-message,
 .tournament-registration-success {
     margin: 0.65rem 0 0;
+    padding: 0.75rem 0.9rem;
     font-size: 1em;
 }
 
 .tournament-registration-success {
+    border-left: 4px solid #318247;
+    background: #eaf5ed;
     color: #226c35;
 }
 

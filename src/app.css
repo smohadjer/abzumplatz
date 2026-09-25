@@ -220,11 +220,10 @@ ul {
 
 .members-warning-box {
     background: #fff4d6;
-    border: 1px solid #e0c36c;
-    color: #222;
+    border-left: 4px solid #d08b00;
+    color: #5f4300;
     padding: 0.75em 0.9em;
     margin-top: 0.75em;
-    border-radius: 0.25em;
 }
 
 .members-warning-box,
@@ -234,11 +233,204 @@ ul {
 
 .inactive-status-warning {
     background: #fff4d6;
-    border: 1px solid #e0c36c;
-    color: #222;
+    border-left: 4px solid #d08b00;
+    color: #5f4300;
     padding: 0.85em 1em;
     margin: 1rem 0;
-    border-radius: 0.25em;
+}
+
+.reservation-limit-warning {
+    background: #fff4d6;
+    border-left: 4px solid #d08b00;
+    color: #5f4300;
+    padding: 0.75em 0.9em;
+    margin: 0.75em 0 1em;
+}
+
+.reservation-limit-availability {
+    background: #eaf5ed;
+    border-left: 4px solid #318247;
+    color: #226c35;
+    padding: 0.75em 0.9em;
+    margin: 0.75em 0 1em;
+}
+
+.my-reservations ul {
+    display: grid;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+}
+
+.my-reservations li {
+    padding: 0.75rem 0.85rem;
+    margin: 0;
+    background: #f6f6f6;
+}
+
+.booking-date-time,
+.booking-meta,
+.booking-label {
+    display: block;
+}
+
+.booking-date-time {
+    margin-top: 0.15rem;
+    font-size: 0.9em;
+}
+
+.booking-court {
+    display: inline;
+}
+
+.booking-court::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 0.1rem;
+    background-color: currentColor;
+    -webkit-mask: url('./images/location.svg') center / 16px no-repeat;
+    mask: url('./images/location.svg') center / 16px no-repeat;
+    vertical-align: -0.2em;
+}
+
+.booking-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.3rem;
+}
+
+.booking-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    min-height: 22px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+    background-image: none;
+    color: var(--blue);
+    cursor: pointer;
+    filter: none;
+    font: inherit;
+    font-size: 0.9em;
+    font-weight: 400;
+    text-decoration: underline;
+}
+
+.booking-action::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    flex: none;
+    background-color: currentColor;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: 20px;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: 20px;
+}
+
+.booking-action.icon--calendar::before {
+    -webkit-mask-image: url('./images/calendar.svg');
+    mask-image: url('./images/calendar.svg');
+}
+
+.booking-action.icon--delete::before {
+    -webkit-mask-image: url('./images/delete.svg');
+    mask-image: url('./images/delete.svg');
+}
+
+.delete-action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    margin: 0;
+    padding: 0.25rem 0.45rem;
+    border: 0;
+    background-color: #b42318;
+    color: white;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 400;
+    text-decoration: none;
+}
+
+.delete-action-button::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    flex: none;
+    background-color: currentColor;
+    -webkit-mask: url('./images/delete.svg') center / 20px no-repeat;
+    mask: url('./images/delete.svg') center / 20px no-repeat;
+}
+
+.delete-action-button:disabled {
+    cursor: default;
+    opacity: 0.55;
+}
+
+a.booking-action:hover,
+a.booking-action:focus-visible,
+.booking-cancel-button:hover,
+.booking-cancel-button:focus-visible {
+    filter: none;
+}
+
+.delete-action-button:hover:not(:disabled),
+.delete-action-button:focus-visible {
+    background-color: #8f1c13;
+}
+
+.booking-delete-confirmation {
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-left: 4px solid #b42318;
+    background: #fff0f0;
+    color: #8f1c13;
+}
+
+.booking-delete-confirmation p,
+.booking-delete-confirmation fieldset {
+    margin: 0;
+}
+
+.booking-delete-confirmation fieldset {
+    padding: 0;
+    border: 0;
+}
+
+.booking-delete-confirmation legend {
+    padding: 0.75rem 0 0.35rem;
+}
+
+.booking-delete-confirmation label {
+    display: block;
+    margin-top: 0.35rem;
+}
+
+.booking-delete-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.booking-delete-actions button {
+    margin: 0;
+}
+
+.form-error-message,
+.settings-delete-error {
+    background: #fff0f0;
+    border-left: 4px solid #b42318;
+    color: #8f1c13;
+    padding: 0.75em 0.9em;
 }
 
 .members-form {

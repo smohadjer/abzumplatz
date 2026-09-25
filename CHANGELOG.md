@@ -4,10 +4,24 @@ All notable changes to this project should be documented in this file.
 
 ## 0.1.7
 
+### Added
+
+- Added direct calendar navigation and confirmed cancellation actions to the personal reservations page, including controls for cancelling one occurrence, the current and future occurrences, or an entire recurring series.
+- Added remaining-capacity guidance for players with a reservation limit and a clear warning when that limit is reached.
+- Added Playwright end-to-end coverage for creating, editing, and deleting reservations and profile data.
+
 ### Changed
 
 - Consolidated all one-time database migrations and backfills in the `migrations` directory while keeping reusable operational utilities in `scripts`.
 - Updated the database migration and backfill npm commands to use the consolidated directory.
+- Reworked the personal reservations list with nearest reservations first, structured reservation details, court-location icons, clearer action controls, and visually grouped entries.
+- Replaced the authenticated footer home icon with a calendar icon for court reservations.
+- Standardized warning, error, success, and destructive-action styling throughout the application.
+- Improved reservation-grid and form accessibility with descriptive court-slot labels and explicit form-control associations.
+
+### Fixed
+
+- Validated recurring-reservation cancellation dates on the server so only active occurrences belonging to the selected series can be removed.
 
 ## 0.1.6
 

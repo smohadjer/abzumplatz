@@ -113,13 +113,13 @@ export function ReservationForm(props: Props) {
             {props.reservationId && props.occurrenceDate && <input type="hidden" name="occurrence_date" value={props.occurrenceDate} />}
             {user.role !== 'admin' && <input type="hidden" name="label" value={labelDefaultValue} />}
             <div className="reservation-field">
-                <label>Datum:</label>
-                <input name="date" type="date" defaultValue={props.date} readOnly={user.role !== 'admin'} required />
+                <label htmlFor="reservation-date">Datum:</label>
+                <input id="reservation-date" name="date" type="date" defaultValue={props.date} readOnly={user.role !== 'admin'} required />
             </div>
             <div className="reservation-field">
-                <label>Startzeit:</label>
+                <label htmlFor="reservation-start-time">Startzeit:</label>
                 {user.role === 'admin' ? (
-                    <select className="time-select" name="start_time" defaultValue={props.startHour}>
+                    <select id="reservation-start-time" className="time-select" name="start_time" defaultValue={props.startHour}>
                         {clubHours.map(hour => (
                             <option value={hour} key={hour}>
                                 {hour}:00 Uhr
@@ -129,7 +129,7 @@ export function ReservationForm(props: Props) {
                 ) : (
                     <>
                         <input type="hidden" name="start_time" value={props.startHour} />
-                        <input type="text" readOnly value={`${props.startHour}:00 Uhr`} />
+                        <input id="reservation-start-time" type="text" readOnly value={`${props.startHour}:00 Uhr`} />
                     </>
                 )}
             </div>
@@ -161,8 +161,8 @@ export function ReservationForm(props: Props) {
                 </div>
             </div>
             <div className="reservation-field">
-                <label>Dauer:</label>
-                <select className="duration-select" name="duration" defaultValue={props.duration ?? 1}>
+                <label htmlFor="reservation-duration">Dauer:</label>
+                <select id="reservation-duration" className="duration-select" name="duration" defaultValue={props.duration ?? 1}>
                     {durationOptions.map(duration => (
                         <option value={duration} key={duration}>{duration} h</option>
                     ))}
@@ -170,8 +170,8 @@ export function ReservationForm(props: Props) {
             </div>
             {(user.role === 'admin') && <>
                 <div className="reservation-field">
-                        <label>Label:</label>
-                        <input name="label" defaultValue={labelDefaultValue} required />
+                        <label htmlFor="reservation-label">Label:</label>
+                        <input id="reservation-label" name="label" defaultValue={labelDefaultValue} required />
                 </div>
             </>}
             {(user.role === 'admin') && <>
@@ -225,7 +225,9 @@ export function ReservationForm(props: Props) {
                 </p>}
             {props.reservationId ?
                 <div className="form-actions">
-                    <button type="submit" disabled={props.disabled}>{props.submitLabel ?? 'Speichern'}</button>
+                    <button className={deleteReservationChecked ? 'delete-action-button' : undefined} type="submit" disabled={props.disabled}>
+                        {deleteReservationChecked ? 'Reservierung löschen' : props.submitLabel ?? 'Speichern'}
+                    </button>
                     {props.cancelHandler && <button type="button" disabled={props.disabled} onClick={() => props.cancelHandler?.()}>Abbrechen</button>}
                     {props.disabled ? <Loader /> : null}
                 </div> :

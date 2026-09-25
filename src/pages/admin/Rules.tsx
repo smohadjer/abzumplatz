@@ -110,7 +110,7 @@ export default function AdminRulesPage() {
                             <div className="admin-rule-actions">
                                 <button disabled={saving || index === 0} onClick={() => moveRule(index, -1)} type="button">Nach oben</button>
                                 <button disabled={saving || index === rules.length - 1} onClick={() => moveRule(index, 1)} type="button">Nach unten</button>
-                                <button disabled={saving} onClick={() => setRules(current => current.filter((_, ruleIndex) => ruleIndex !== index))} type="button">Entfernen</button>
+                                <button className="delete-action-button" disabled={saving} onClick={() => setRules(current => current.filter((_, ruleIndex) => ruleIndex !== index))} type="button">Entfernen</button>
                             </div>
                         </li>
                     ))}
