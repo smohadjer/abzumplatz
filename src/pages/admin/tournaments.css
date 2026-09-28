@@ -166,15 +166,18 @@
 
 .admin-management-filters {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     box-sizing: border-box;
     width: 100%;
     gap: 0.25rem;
     margin-bottom: 0.75rem;
     border-bottom: 1px solid #c7d3eb;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
 }
 
 .admin-management-filters button {
+    flex: none;
     margin: 0;
     padding: 0.4rem 0.65rem;
     border: 0;
