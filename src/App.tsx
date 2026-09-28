@@ -21,6 +21,8 @@ import AdminTournamentsPage from './pages/admin/Tournaments';
 import AdminTournamentFormPage from './pages/admin/TournamentForm';
 import AdminCompetitionGroupFormPage from './pages/admin/CompetitionGroupForm';
 import AdminTournamentParticipantsPage from './pages/admin/TournamentParticipants';
+import AdminAnnouncementFormPage from './pages/admin/AnnouncementForm';
+import AdminAnnouncementsPage from './pages/admin/Announcements';
 import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
 import Rules from './pages/Rules';
@@ -205,6 +207,16 @@ export default function App({initiallyInitialized = false}: AppProps) {
                 <Route path="/admin/tournaments/groups/:id/edit" element={
                     <ProtectedRoute>
                         <AdminCompetitionGroupFormPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/announcements/new" element={
+                    <ProtectedRoute>
+                        <AdminAnnouncementFormPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/announcements" element={
+                    <ProtectedRoute>
+                        <AdminAnnouncementsPage />
                     </ProtectedRoute>
                 }/>
                 <Route path="/register/club" element={

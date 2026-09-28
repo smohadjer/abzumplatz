@@ -17,12 +17,13 @@ type TournamentForm = {
     entry_fee: string;
     payment_method: '' | TournamentPaymentMethod;
     status: TournamentStatus;
+    notify_members_on_publish: boolean;
     group_ids: string[];
 };
 
 const emptyForm: TournamentForm = {
     name: '', description: '', format: '', start_date: '', end_date: '', registration_deadline: '', draw: '', entry_fee: '0', payment_method: '',
-    status: 'draft', group_ids: [],
+    status: 'draft', notify_members_on_publish: true, group_ids: [],
 };
 
 const statusLabels: Record<TournamentStatus, string> = {
@@ -46,6 +47,7 @@ const tournamentToForm = (tournament: Tournament): TournamentForm => ({
     entry_fee: tournament.entry_fee?.toString() ?? '',
     payment_method: tournament.payment_method ?? '',
     status: tournament.status,
+    notify_members_on_publish: tournament.notify_members_on_publish !== false,
     group_ids: tournament.groups.map(group => group.source_group_id),
 });
 
@@ -123,6 +125,10 @@ export default function AdminTournamentFormPage() {
             const result = await response.json();
             if (!response.ok) throw new Error(result.error ?? 'Das Turnier konnte nicht gespeichert werden.');
             dispatch({type: 'tournaments/upsert', payload: result});
+            if (result.status === 'published' && result.notify_members_on_publish !== false) {
+                dispatch({type: 'appRefresh/request'});
+                dispatch({type: 'adminNotifications/reset'});
+            }
             navigate('/admin/tournaments');
         } catch (saveError) {
             setError(saveError instanceof Error ? saveError.message : 'Das Turnier konnte nicht gespeichert werden.');
@@ -180,6 +186,15 @@ export default function AdminTournamentFormPage() {
                 </label>)}
                 {!groups.length && !unavailableGroups.length ? <p>Für diesen Verein sind noch keine Konkurrenzen angelegt.</p> : null}
             </fieldset>
+            <label className="admin-tournament-notification" htmlFor="tournament-notify-members">
+                <input
+                    checked={form.notify_members_on_publish}
+                    id="tournament-notify-members"
+                    onChange={event => setForm(current => ({...current, notify_members_on_publish: event.target.checked}))}
+                    type="checkbox"
+                />
+                Mitglieder benachrichtigen, wenn das Turnier veröffentlicht wird
+            </label>
             {error ? <p className="form-error-message">{error}</p> : null}
             <div className="admin-tournament-form-actions">
                 <button disabled={saving || form.group_ids.length === 0} type="submit">{saving ? 'Wird gespeichert...' : 'Speichern'}</button>

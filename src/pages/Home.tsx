@@ -33,6 +33,7 @@ export default function Home() {
                     <li>Einstellungen für Öffnungszeiten, Buchungsdauer, Reservierungslimits und vieles mehr</li>
                     <li>Wiederkehrende Reservierungen für Mannschaftstrainings</li>
                     <li>Interne Vereinsturniere wie Clubmeisterschaften planen, veröffentlichen und verwalten</li>
+                    <li>In-App-Benachrichtigungen für wichtige Vereinsmeldungen und neu veröffentlichte Turniere</li>
                     <li>Mitglieder aktivieren, deaktivieren und verwalten</li>
                     <li>Kostenlos starten und nur bei Bedarf auf den Pro-Plan wechseln</li>
                     <li><a href="mailto:support@abzumplatz.de?subject=abzumplatz%3A%20Feedback%20und%20Support">Persönliche Unterstützung</a> bei Fragen und Problemen</li>

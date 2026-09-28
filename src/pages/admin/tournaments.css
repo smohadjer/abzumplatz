@@ -68,6 +68,19 @@
     padding: 0;
 }
 
+.admin-tournament-form > .admin-tournament-notification {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 0.45rem;
+    font-weight: 400;
+}
+
+.admin-tournament-notification input {
+    width: auto;
+    margin: 0.15rem 0 0;
+    padding: 0;
+}
+
 .admin-tournament-groups {
     margin-top: 1rem;
     border: 1px solid #9ba8ba;

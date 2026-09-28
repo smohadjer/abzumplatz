@@ -2,6 +2,7 @@ import { Collection, MongoClient, ObjectId } from 'mongodb';
 import { database_name, database_uri } from '../_utils/_config.js';
 import { getAuthenticatedUserContext } from '../_utils/_authenticatedUser.js';
 import { getErrorMessage, isAppError } from '../_utils/_errors.js';
+import { createClubNotification } from '../_utils/_notifications.js';
 import type { VercelRequest, VercelResponse } from '../_utils/_apiTypes.js';
 import type { CompetitionType, DBUser, TournamentPaymentMethod, TournamentStatus } from '../../src/types.js';
 
@@ -20,6 +21,7 @@ type TournamentDocument = {
   entry_fee?: number;
   payment_method?: TournamentPaymentMethod;
   status: StoredTournamentStatus;
+  notify_members_on_publish?: boolean;
   created_by: string;
   created_at: Date;
   updated_at: Date;
@@ -56,6 +58,28 @@ const normalizeStatus = (status: StoredTournamentStatus): TournamentStatus => st
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 const paymentMethods = new Set<TournamentPaymentMethod>(['cash', 'bank_transfer']);
 
+async function createPublishedTournamentNotification(
+  database: ReturnType<MongoClient['db']>,
+  tournamentId: ObjectId,
+  clubId: string,
+  body: string,
+  createdBy: string
+) {
+  try {
+    await createClubNotification(database, {
+      clubId,
+      type: 'tournament_published',
+      title: 'Neues Turnier veröffentlicht',
+      body,
+      link: `/tournaments/${tournamentId.toString()}`,
+      createdBy,
+      sourceKey: `tournament:${tournamentId.toString()}:published`,
+    });
+  } catch (error) {
+    console.error('Tournament notification could not be created', error);
+  }
+}
+
 if (!database_uri || !database_name) {
   throw new Error('Database configuration is missing');
 }
@@ -71,6 +95,7 @@ const serializeTournament = (
 ) => ({
   ...tournament,
   status: normalizeStatus(tournament.status),
+  notify_members_on_publish: tournament.notify_members_on_publish !== false,
   _id: tournament._id.toString(),
   groups: groups.map(group => ({
     ...group,
@@ -169,6 +194,7 @@ async function parseTournamentBody(
   const drawValue = readString(body?.draw);
   const status = readString(body?.status) as TournamentStatus;
   const paymentMethodValue = readString(body?.payment_method);
+  const notifyMembersOnPublish = body?.notify_members_on_publish !== false;
   const rawGroupIds = Array.isArray(body?.group_ids) ? body.group_ids : [];
 
   if (!name) throw new Error('Der Turniername ist erforderlich.');
@@ -228,6 +254,7 @@ async function parseTournamentBody(
     ...(entryFee !== undefined ? {entry_fee: entryFee} : {}),
     ...(paymentMethodValue ? {payment_method: paymentMethodValue as TournamentPaymentMethod} : {}),
     status,
+    notify_members_on_publish: notifyMembersOnPublish,
     selected_group_ids: groupIds,
     group_templates: matchingGroups,
   };
@@ -320,6 +347,15 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         ]);
         throw error;
       }
+      if (document.status === 'published' && document.notify_members_on_publish !== false) {
+        await createPublishedTournamentNotification(
+          database,
+          result.insertedId,
+          user.club_id,
+          `Das Turnier „${document.name}“ wurde veröffentlicht.`,
+          payload._id
+        );
+      }
       return res.status(201).json(serializeTournament({...document, _id: result.insertedId}, insertedGroups));
     }
 
@@ -367,6 +403,17 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         {returnDocument: 'after'}
       );
       if (!result) return res.status(404).json({error: 'Turnier nicht gefunden.'});
+      if (normalizeStatus(existingTournament.status) !== 'published'
+          && normalizeStatus(result.status) === 'published'
+          && result.notify_members_on_publish !== false) {
+        await createPublishedTournamentNotification(
+          database,
+          result._id,
+          user.club_id,
+          `Das Turnier „${result.name}“ wurde veröffentlicht.`,
+          payload._id
+        );
+      }
       const [counts, updatedGroups] = await Promise.all([
         getRegistrantCounts(database, [result._id], user._id.toString()),
         tournamentGroups.find({tournament_id: result._id}).sort({name: 1}).toArray(),

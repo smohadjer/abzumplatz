@@ -49,23 +49,6 @@ footer {
         color: #5f6368;
     }
 
-    .footer-tournament-link {
-        position: relative;
-    }
-
-    .footer-notification-dot {
-        position: absolute;
-        top: 0.45rem;
-        left: -1rem;
-        width: 0.65rem;
-        height: 0.65rem;
-        border: 1px solid #b8c95a;
-        border-radius: 50%;
-        background: #dfff35;
-        box-shadow: 0 0 0 0 rgb(195 224 39 / 55%);
-        filter: none;
-        animation: footer-notification-pulse 2.2s ease-out infinite;
-    }
 }
 
 @media (max-width: 500px) {
@@ -107,23 +90,5 @@ footer {
 
     footer a .icon--calendar {
         background-size: 30px;
-    }
-}
-
-@keyframes footer-notification-pulse {
-    0%, 55%, 100% {
-        box-shadow: 0 0 0 0 rgb(195 224 39 / 0%);
-        transform: scale(1);
-    }
-
-    20% {
-        box-shadow: 0 0 0 0.2rem rgb(195 224 39 / 20%);
-        transform: scale(1.05);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    footer .footer-notification-dot {
-        animation: none;
     }
 }

@@ -116,7 +116,8 @@ export default function AdminHomePage() {
                 <li><Link to="/admin/club">Verein</Link></li>
                 <li><Link to="/admin/courts">Plätze</Link></li>
                 <li><Link to="/admin/rules">Regeln</Link></li>
-                <li><Link to="/admin/tournaments">Turniere/Konkurrenzen</Link></li>
+                <li><Link to="/admin/tournaments">Turniere</Link></li>
+                <li><Link to="/admin/announcements">Benachrichtigungen</Link></li>
                 <li><Link to="/admin/billings">Abrechnungen</Link></li>
                 <li><Link to="/admin/club/delete">Verein löschen</Link></li>
                 <li>

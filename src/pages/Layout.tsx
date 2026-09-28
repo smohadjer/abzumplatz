@@ -4,6 +4,7 @@ import { useLocation } from "react-router";
 import Header from '../components/header/Header';
 import Footer from '../components/footer/Footer';
 import InactiveStatusWarning from '../components/InactiveStatusWarning';
+import AppRefreshManager from '../components/AppRefreshManager';
 
 export default function Layout() {
   const location = useLocation();
@@ -18,6 +19,7 @@ export default function Layout() {
 
   return (
     <>
+      <AppRefreshManager />
       <Header />
       <main>
         <InactiveStatusWarning />

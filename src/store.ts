@@ -6,6 +6,9 @@ import usersReducer from './reducers/usersSlice';
 import reservationsReducer from './reducers/reservationsSlice';
 import tournamentsReducer from './reducers/tournamentsSlice';
 import competitionGroupsReducer from './reducers/competitionGroupsSlice';
+import notificationsReducer from './reducers/notificationsSlice';
+import appRefreshReducer from './reducers/appRefreshSlice';
+import adminNotificationsReducer from './reducers/adminNotificationsSlice';
 import type { Action, ThunkAction } from '@reduxjs/toolkit';
 
 export const store = configureStore({
@@ -17,6 +20,9 @@ export const store = configureStore({
     reservations: reservationsReducer,
     tournaments: tournamentsReducer,
     competitionGroups: competitionGroupsReducer,
+    notifications: notificationsReducer,
+    appRefresh: appRefreshReducer,
+    adminNotifications: adminNotificationsReducer,
   }
 })
 
