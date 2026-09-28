@@ -116,6 +116,7 @@
 }
 
 .admin-announcement-form input,
+.admin-announcement-form select,
 .admin-announcement-form textarea {
     box-sizing: border-box;
     font: inherit;

@@ -11,6 +11,19 @@ const formatDate = (value: Date) => new Intl.DateTimeFormat('de-DE', {
     dateStyle: 'medium',
 }).format(value);
 
+const internalPages = [
+    {value: '/', label: 'Startseite', linkLabel: 'Startseite besuchen'},
+    {value: '/reservations', label: 'Platzreservierung', linkLabel: 'Platz reservieren'},
+    {value: '/bookings', label: 'Meine Buchungen', linkLabel: 'Buchungen ansehen'},
+    {value: '/tournaments', label: 'Turniere', linkLabel: 'Turniere ansehen'},
+    {value: '/profile', label: 'Profil', linkLabel: 'Profil ansehen'},
+    {value: '/profile/edit', label: 'Profil bearbeiten', linkLabel: 'Profil bearbeiten'},
+    {value: '/rules', label: 'Vereinsregeln', linkLabel: 'Vereinsregeln ansehen'},
+    {value: '/support', label: 'Support', linkLabel: 'Support öffnen'},
+    {value: '/faq', label: 'FAQ', linkLabel: 'FAQ ansehen'},
+    {value: '/impressum', label: 'Impressum', linkLabel: 'Impressum ansehen'},
+];
+
 export default function AdminAnnouncementFormPage() {
     const location = useLocation();
     const {id} = useParams();
@@ -133,9 +146,17 @@ export default function AdminAnnouncementFormPage() {
             <textarea id="announcement-body" maxLength={3000} onChange={event => setBody(event.target.value)} required rows={7} value={body} />
             <fieldset className="admin-announcement-link-fields">
                 <legend>Verlinkung (optional)</legend>
-                <label htmlFor="announcement-link">Interner Link</label>
-                <input id="announcement-link" onChange={event => setLink(event.target.value)} pattern="/.*" placeholder="/tournaments" value={link} />
-                <small>Zum Beispiel /tournaments oder /rules</small>
+                <label htmlFor="announcement-link">Interne Zielseite</label>
+                <select id="announcement-link" onChange={event => {
+                    const nextLink = event.target.value;
+                    const nextDefaultLabel = internalPages.find(page => page.value === nextLink)?.linkLabel ?? '';
+                    setLink(nextLink);
+                    setLinkLabel(nextDefaultLabel);
+                }} value={link}>
+                    <option value="">Keine Verlinkung</option>
+                    {link && !internalPages.some(page => page.value === link) ? <option value={link}>Aktueller Link ({link})</option> : null}
+                    {internalPages.map(page => <option key={page.value} value={page.value}>{page.label}</option>)}
+                </select>
                 <label htmlFor="announcement-link-label">Link-Beschriftung</label>
                 <input
                     disabled={!link}
