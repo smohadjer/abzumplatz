@@ -195,6 +195,7 @@ export type Tournament = {
     entry_fee?: number;
     payment_method?: TournamentPaymentMethod;
     status: TournamentStatus;
+    notify_members_on_publish: boolean;
     groups: TournamentGroup[];
     registrants_count: number;
     group_registrants_count: Record<string, number>;
@@ -212,6 +213,26 @@ export type TournamentRegistration = {
     user_ids: string[];
     registered_at: string;
     users?: StateUser[];
+}
+
+export type NotificationType = 'announcement' | 'tournament_published' | 'reservation_settings_changed';
+
+export type Notification = {
+    _id: string;
+    type: NotificationType;
+    title: string;
+    body: string;
+    link?: string;
+    link_label?: string;
+    created_at: string;
+    updated_at?: string;
+    read_at?: string;
+}
+
+export type NotificationsResponse = {
+    items: Notification[];
+    unread_count: number;
+    dismissed_count: number;
 }
 
 export type AuthenticatedUser = {

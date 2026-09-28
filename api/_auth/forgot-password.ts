@@ -1,8 +1,8 @@
-import sendEmail from './_utils/_sendEmail.js';
+import sendEmail from '../_utils/_sendEmail.js';
 import { MongoClient } from 'mongodb';
 import crypto from 'crypto';
-import { database_uri, database_name } from './_utils/_config.js';
-import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
+import { database_uri, database_name } from '../_utils/_config.js';
+import type { VercelRequest, VercelResponse } from '../_utils/_apiTypes.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');

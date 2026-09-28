@@ -253,6 +253,9 @@ export const onLogout = (dispatch: AppDispatch) => {
     .then(() => {
         // reset all state
         dispatch({type: 'auth/logout', payload: {}});
+        dispatch({type: 'notifications/reset'});
+        dispatch({type: 'appRefresh/reset'});
+        dispatch({type: 'adminNotifications/reset'});
         dispatch({type: 'reservations/fetch', payload: {
             value: [],
             loaded: false

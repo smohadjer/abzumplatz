@@ -1,0 +1,197 @@
+.admin-announcement-form {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    max-width: 46rem;
+}
+
+.admin-announcement-tabs {
+    border-bottom: 1px solid #c7d3eb;
+    display: flex;
+    margin: 1rem 0;
+    max-width: 46rem;
+}
+
+.admin-announcement-tabs a {
+    border-bottom: 3px solid transparent;
+    color: #4a5568;
+    padding: 0.65rem 1rem;
+    text-decoration: none;
+}
+
+.admin-announcement-tabs a:hover,
+.admin-announcement-tabs a:focus-visible {
+    background: #f2f5fa;
+    color: var(--blue);
+}
+
+.admin-announcement-tabs a.active {
+    border-bottom-color: var(--blue);
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.admin-announcement-list {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    max-width: 46rem;
+}
+
+.admin-announcement-list article {
+    background: #f5f6f8;
+    border-left: 4px solid var(--blue);
+    padding: 0.9rem;
+}
+
+.admin-announcement-list h2,
+.admin-announcement-list p {
+    margin: 0.35rem 0 0;
+}
+
+.admin-announcement-list time {
+    color: #4b5b78;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.admin-announcement-list .button-link {
+    margin-top: 0.8rem;
+    min-width: 0;
+}
+
+.admin-announcement-list .button-link--secondary {
+    background: #dbe6f7;
+}
+
+.admin-announcement-list .button-link--secondary:hover,
+.admin-announcement-list .button-link--secondary:focus-visible {
+    background: #c7d8f1;
+}
+
+.admin-announcement-list .admin-announcement-edit {
+    margin-right: 0.5rem;
+}
+
+.admin-announcement-link-preview {
+    color: #4b5b78;
+    font-size: 0.9rem;
+}
+
+.admin-announcement-required-note {
+    color: #667085;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+.admin-announcement-reset-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    max-width: 46rem;
+}
+
+.admin-announcement-reset {
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.admin-announcement-reset-icon {
+    background: currentColor;
+    display: inline-block;
+    height: 1.25rem;
+    -webkit-mask: url('../../images/cancel.svg') center / contain no-repeat;
+    mask: url('../../images/cancel.svg') center / contain no-repeat;
+    width: 1.25rem;
+}
+
+.admin-announcement-reset:disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+.admin-announcement-required-note span,
+.admin-announcement-form label > span {
+    color: #c62828;
+}
+
+.admin-announcement-form input,
+.admin-announcement-form select,
+.admin-announcement-form textarea {
+    box-sizing: border-box;
+    font: inherit;
+    padding: 0.6rem;
+    width: 100%;
+}
+
+.admin-announcement-form textarea {
+    resize: vertical;
+}
+
+.admin-announcement-link-fields {
+    background: #f5f6f8;
+    border: 1px solid #d9dee8;
+    border-radius: 0.25rem;
+    display: grid;
+    gap: 0.5rem;
+    margin: 1rem 0 0;
+    padding: 0.9rem;
+}
+
+.admin-announcement-link-fields legend {
+    font-weight: 600;
+    padding: 0 0.35rem;
+}
+
+.admin-announcement-link-fields label:not(:first-of-type) {
+    margin-top: 0.5rem;
+}
+
+.admin-announcement-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.admin-announcement-actions button {
+    justify-self: start;
+    margin: 0;
+}
+
+.admin-announcement-actions button:disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+.admin-announcement-preview {
+    background: transparent;
+    border: 0;
+    box-sizing: border-box;
+    height: 100%;
+    margin: auto;
+    max-height: none;
+    max-width: none;
+    padding: 1rem;
+    width: 100%;
+}
+
+.admin-announcement-preview::backdrop {
+    background: rgb(20 27 40 / 55%);
+}
+
+.admin-announcement-preview-content {
+    background: white;
+    border-radius: 0.4rem;
+    box-shadow: 0 1rem 3rem rgb(20 27 40 / 25%);
+    box-sizing: border-box;
+    left: 50%;
+    max-height: calc(100vh - 2rem);
+    max-width: 32rem;
+    overflow: auto;
+    padding: 1rem;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 2rem);
+}

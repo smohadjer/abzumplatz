@@ -4,6 +4,17 @@ Project started with `npm create vite@latest` and choosing React and TypeScript.
 
 https://boilerplate-react-serverless-vite.vercel.app/
 
+## Documentation
+
+- [Architecture](docs/architecture.md)
+- [Authentication and authorization](docs/authentication.md)
+- [Clubs](docs/clubs.md)
+- [In-app notifications](docs/notifications.md)
+- [Plans and billing](docs/plans.md)
+- [Reservations](docs/reservations.md)
+- [Testing](docs/testing.md)
+- [Tournaments](docs/tournaments.md)
+
 ## Run on http://localhost:3000 (requires Vercel CLI)
 ````
 git clone https://github.com/smohadjer/boilerplate-react-serverless.git

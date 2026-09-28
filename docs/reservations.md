@@ -1,25 +1,4 @@
-# Documentation
-
-This document is the starting point for documenting the application's APIs and
-important behavior decisions.
-
-For now it covers reservation editing and deletion behavior. Additional API
-endpoints, workflows, and logic decisions can be added here over time.
-
-Application assumptions should be documented here as well, especially when they
-affect authorization, status handling, data defaults, or other business rules
-that could otherwise remain implicit in code.
-
-## Table of Contents
-
-- [Reservations API](#reservations-api)
-- [User Status Authority](#user-status-authority)
-- [Club Soft Deletion](#club-soft-deletion)
-- [Adding Reservations](#adding-reservations)
-- [Editing Reservations](#editing-reservations)
-- [Deleting Reservations](#deleting-reservations)
-
-## Reservations API
+# Reservations
 
 Base route: `/api/reservations`
 
@@ -30,21 +9,7 @@ The reservations endpoint supports:
 - `POST` with `reservation_id` for editing reservations
 - `POST` with `delete=true` for deleting reservations
 
-## User Status Authority
-
-User status has different roles depending on where it appears:
-
-- The database `users` record is the source of truth for authorization decisions.
-- The JWT does not carry `status`; it contains identity/session fields only.
-- Redux `auth.status` is client display state and may also become stale until the client refreshes or logs in again.
-- Login and `/api/verifyAuth` responses may include `status` for UI display, but that response value is still not the authorization source of truth.
-- If a user record has no stored status, the UI-facing auth responses treat that user as `inactive` by default.
-
-For that reason, reservation authorization does not trust Redux status or prior client-cached status values.
-All reservation `POST` handlers load the current user from the database and apply
-the active-user rule from that record.
-
-### General POST Rules
+## General POST Rules
 
 These rules apply to all `POST` operations on `/api/reservations`:
 
@@ -53,32 +18,6 @@ These rules apply to all `POST` operations on `/api/reservations`:
 - The authenticated user must belong to a club.
 - The club must exist.
 - Inactive users cannot send `POST` requests to reservation API endpoints.
-
-## Club Soft Deletion
-
-An administrator can delete their club from the Admin page. This is a soft delete: the API sets the club's `deleted_at` field to the current date and time. It does not remove the club document or any associated users, reservations, billing records, rules, or court data.
-
-Deleting a club requires the administrator to re-enter their current password. The API verifies the password against the current administrator record before setting `deleted_at`; the client-side confirmation form is not treated as authorization by itself.
-
-While a club is soft-deleted:
-
-- It is excluded from club lists shown during player registration and club selection.
-- Registration and club-selection API requests cannot assign a player to it.
-- Club-scoped reservation, member-management, club-management, and billing API operations reject it.
-- Scheduled billing renewals skip it, so no new billing periods or invoices are created while it is deleted.
-- The club administrator can still log in, but the app redirects protected routes to a recovery-only Admin page.
-- The recovery page hides normal club-management navigation and offers only **Verein wiederherstellen** and **Ausloggen**.
-- Restoring the club removes `deleted_at` and makes the club available again.
-- If the club still has an active billing period whose end date is in the future, restoration keeps that period unchanged and does not issue another invoice.
-- If the previous active billing period has expired, restoration completes it and creates exactly one new billing period beginning on the restoration date. The deleted interval is not recreated or invoiced retroactively.
-- A restoration-created billing period uses the club's next selected plan, anchors future renewals to the restoration date, and sends one invoice for the new period.
-- Billing reconciliation and removal of `deleted_at` are committed in one database transaction. Any invoice email is sent only after that transaction commits, so email failure cannot roll back or duplicate the restored billing state.
-- Players previously assigned to the club can still log in, but authentication exposes an empty `club_id` for them. The app therefore redirects them to the club-selection page.
-- A player's stored club association remains unchanged until they select another club or leave the deleted club. If the administrator restores the club first, the original association becomes effective again on the player's next login or session verification.
-
-Only an authenticated administrator can delete or restore their own club. There is no automatic or scheduled permanent deletion of club data.
-
-Authentication and recovery are intentional exceptions to the operational exclusion: login and session verification inspect the deleted club to route players to club selection and administrators to recovery. The club detail endpoint also permits the club's own authenticated administrator to read the deleted record, and the restore endpoint must be able to update it.
 
 ## Adding Reservations
 

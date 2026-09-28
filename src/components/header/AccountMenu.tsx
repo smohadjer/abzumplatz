@@ -1,30 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation } from 'react-router';
+import { Link } from 'react-router';
 import packageJson from '../../../package.json';
 import { RootState } from '../../store';
 import { onLogout } from '../../utils/utils';
 
 const focusableSelector = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export default function AccountMenu() {
-    const [isOpen, setIsOpen] = useState(false);
+type Props = {
+    isOpen: boolean;
+    onClose: () => void;
+    onOpen: () => void;
+};
+
+export default function AccountMenu({isOpen, onClose, onOpen}: Props) {
     const dispatch = useDispatch();
     const auth = useSelector((state: RootState) => state.auth);
-    const location = useLocation();
     const triggerRef = useRef<HTMLButtonElement>(null);
     const drawerRef = useRef<HTMLElement>(null);
 
     const closeMenu = (restoreFocus = true) => {
-        setIsOpen(false);
+        onClose();
         if (restoreFocus) {
             requestAnimationFrame(() => triggerRef.current?.focus());
         }
     };
-
-    useEffect(() => {
-        setIsOpen(false);
-    }, [location.key]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -78,7 +78,7 @@ export default function AccountMenu() {
                 aria-label="Menü öffnen"
                 aria-expanded={isOpen}
                 aria-controls="account-menu"
-                onClick={() => setIsOpen(true)}
+                onClick={onOpen}
             >
                 <span className="icon icon--account" aria-hidden="true"></span>
             </button>

@@ -2,6 +2,32 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.2.0
+
+### Added
+
+- Added database-backed in-app notifications with per-user unread and dismissed state, a header notification icon and unread indicator, a notification inbox, and restoration of dismissed notifications.
+- Added an app-wide refresh manager and visible update indicator that refresh notification data after login and when the browser regains focus or becomes visible.
+- Added administrator notification management with publication history, a form for publishing club-wide announcements, custom internal links and link labels, a modal preview, editing of published notifications, and reuse of an old notification as a new draft.
+- Added optional automatic notifications when administrators publish tournaments, linking members directly to the tournament registration page.
+- Added MongoDB notification indexes and a migration command for creating them.
+
+### Changed
+
+- Moved tournament publication alerts from the footer to the shared notification system and added in-app notifications to the homepage feature list.
+- Replaced the dedicated notification page with an accessible fly-in drawer that keeps the current page visible and is mutually exclusive with the account drawer.
+- Simplified the administrator navigation labels to “Turniere” and “Benachrichtigungen.”
+- Refined notification and announcement controls with consistent button styles, required-field indicators, grouped optional link fields, and responsive modal spacing.
+- Cached the administrator notification history by club to avoid repeated API requests and full-page loading when revisiting it.
+- Organized internal architecture, authentication, club, notification, billing, reservation, testing, and tournament documentation into dedicated guides under `docs/` and linked them from the README.
+
+### Fixed
+
+- Scoped the client notification cache to both user and club and cleared it on logout so switching accounts displays the correct unread indicator.
+- Kept the unread badge visible while refreshing after notification publication and immediately loaded the updated unread count.
+- Made notification dismissal update the interface immediately and roll back safely if the server request fails.
+- Added application rewrites for direct access to the notification inbox and administrator notification pages.
+
 ## 0.1.8
 
 ### Added
