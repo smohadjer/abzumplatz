@@ -56,6 +56,11 @@ export default function AdminAnnouncementsPage() {
                         <strong>{notification.link_label ?? (notification.type === 'tournament_published' ? 'Turnier ansehen und anmelden' : 'Details ansehen')}:</strong> {notification.link}
                     </p> : null}
                     <Link
+                        className="button-link button-link--secondary admin-announcement-edit"
+                        state={{announcement: notification}}
+                        to={`/admin/announcements/${notification._id}/edit`}
+                    >Bearbeiten</Link>
+                    <Link
                         className="button-link button-link--secondary"
                         state={{announcement: notification}}
                         to="/admin/announcements/new"

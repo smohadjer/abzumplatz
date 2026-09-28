@@ -44,9 +44,15 @@ export const adminNotificationsSlice = createSlice({
       state.items.unshift(action.payload.item);
       state.lastUpdatedAt = new Date().toISOString();
     },
+    update: (state, action: PayloadAction<{item: Notification; clubId: string}>) => {
+      if (!state.loaded || state.clubId !== action.payload.clubId) return;
+      const index = state.items.findIndex(item => item._id === action.payload.item._id);
+      if (index !== -1) state.items[index] = action.payload.item;
+      state.lastUpdatedAt = new Date().toISOString();
+    },
     reset: () => initialState,
   },
 });
 
-export const {fetchStart, fetchSuccess, fetchFailure, add, reset} = adminNotificationsSlice.actions;
+export const {fetchStart, fetchSuccess, fetchFailure, add, update, reset} = adminNotificationsSlice.actions;
 export default adminNotificationsSlice.reducer;

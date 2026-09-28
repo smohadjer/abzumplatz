@@ -214,6 +214,11 @@ export default function App({initiallyInitialized = false}: AppProps) {
                         <AdminAnnouncementFormPage />
                     </ProtectedRoute>
                 }/>
+                <Route path="/admin/announcements/:id/edit" element={
+                    <ProtectedRoute>
+                        <AdminAnnouncementFormPage />
+                    </ProtectedRoute>
+                }/>
                 <Route path="/admin/announcements" element={
                     <ProtectedRoute>
                         <AdminAnnouncementsPage />

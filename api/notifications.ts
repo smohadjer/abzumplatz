@@ -23,15 +23,22 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       const limit = Number.isInteger(limitValue) ? Math.min(Math.max(limitValue, 1), 100) : 50;
       if (req.query?.view === 'published') {
         if (user.role !== 'admin') return res.status(403).json({error: 'Nur Administratoren dürfen veröffentlichte Benachrichtigungen sehen.'});
+        const id = req.query?.id;
+        const filter: Record<string, unknown> = {club_id: user.club_id};
+        if (id !== undefined) {
+          if (Array.isArray(id) || !ObjectId.isValid(id)) return res.status(400).json({error: 'Die Benachrichtigungs-ID ist ungültig.'});
+          filter._id = ObjectId.createFromHexString(id);
+        }
         const items = await database.collection('notifications').find(
-          {club_id: user.club_id},
-          {projection: {type: 1, title: 1, body: 1, link: 1, link_label: 1, created_at: 1}}
+          filter,
+          {projection: {type: 1, title: 1, body: 1, link: 1, link_label: 1, created_at: 1, updated_at: 1}}
         ).sort({created_at: -1}).limit(limit).toArray();
         return res.json({
           items: items.map(item => ({
             ...item,
             _id: item._id.toString(),
             created_at: item.created_at.toISOString(),
+            ...(item.updated_at ? {updated_at: item.updated_at.toISOString()} : {}),
           })),
         });
       }
@@ -83,6 +90,53 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     }
 
     if (req.method === 'PATCH') {
+      if (req.query?.action === 'edit') {
+        if (user.role !== 'admin') return res.status(403).json({error: 'Nur Administratoren dürfen Benachrichtigungen bearbeiten.'});
+        const id = req.query?.id;
+        if (!id || Array.isArray(id) || !ObjectId.isValid(id)) {
+          return res.status(400).json({error: 'Die Benachrichtigungs-ID ist ungültig.'});
+        }
+        const title = readString(req.body?.title);
+        const body = readString(req.body?.body);
+        const link = readString(req.body?.link);
+        const linkLabel = readString(req.body?.link_label);
+        if (!title || title.length > 150) {
+          return res.status(400).json({error: 'Der Titel ist erforderlich und darf höchstens 150 Zeichen lang sein.'});
+        }
+        if (!body || body.length > 3000) {
+          return res.status(400).json({error: 'Der Text ist erforderlich und darf höchstens 3000 Zeichen lang sein.'});
+        }
+        if (link && (!link.startsWith('/') || link.startsWith('//'))) {
+          return res.status(400).json({error: 'Der Link muss ein interner Pfad sein.'});
+        }
+        if (linkLabel.length > 100) {
+          return res.status(400).json({error: 'Die Link-Beschriftung darf höchstens 100 Zeichen lang sein.'});
+        }
+        const notificationId = ObjectId.createFromHexString(id);
+        const updatedAt = new Date();
+        const result = await database.collection('notifications').findOneAndUpdate(
+          {_id: notificationId, club_id: user.club_id},
+          {$set: {
+            title,
+            body,
+            ...(link ? {link} : {}),
+            ...(link && linkLabel ? {link_label: linkLabel} : {}),
+            updated_at: updatedAt,
+          }, ...(!link ? {$unset: {link: '', link_label: ''}} : !linkLabel ? {$unset: {link_label: ''}} : {})},
+          {returnDocument: 'after'}
+        );
+        if (!result) return res.status(404).json({error: 'Benachrichtigung nicht gefunden.'});
+        return res.json({notification: {
+          _id: result._id.toString(),
+          type: result.type,
+          title: result.title,
+          body: result.body,
+          link: result.link,
+          link_label: result.link_label,
+          created_at: result.created_at.toISOString(),
+          updated_at: updatedAt.toISOString(),
+        }});
+      }
       if (req.query?.action === 'restore-dismissed') {
         const clubNotifications = await database.collection('notifications')
           .find({club_id: user.club_id}, {projection: {_id: 1}})

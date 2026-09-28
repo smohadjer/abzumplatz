@@ -8,7 +8,7 @@ All notable changes to this project should be documented in this file.
 
 - Added database-backed in-app notifications with per-user unread and dismissed state, a header notification icon and unread indicator, a notification inbox, and restoration of dismissed notifications.
 - Added an app-wide refresh manager and visible update indicator that refresh notification data after login and when the browser regains focus or becomes visible.
-- Added administrator notification management with publication history, a form for publishing club-wide announcements, custom internal links and link labels, a modal preview, and the ability to reuse an old notification as a new draft.
+- Added administrator notification management with publication history, a form for publishing club-wide announcements, custom internal links and link labels, a modal preview, editing of published notifications, and reuse of an old notification as a new draft.
 - Added optional automatic notifications when administrators publish tournaments, linking members directly to the tournament registration page.
 - Added MongoDB notification indexes and a migration command for creating them.
 

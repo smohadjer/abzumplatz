@@ -60,6 +60,19 @@
     min-width: 0;
 }
 
+.admin-announcement-list .button-link--secondary {
+    background: #dbe6f7;
+}
+
+.admin-announcement-list .button-link--secondary:hover,
+.admin-announcement-list .button-link--secondary:focus-visible {
+    background: #c7d8f1;
+}
+
+.admin-announcement-list .admin-announcement-edit {
+    margin-right: 0.5rem;
+}
+
 .admin-announcement-link-preview {
     color: #4b5b78;
     font-size: 0.9rem;
@@ -173,15 +186,11 @@
     box-sizing: border-box;
     left: 50%;
     max-height: calc(100vh - 2rem);
-    max-width: 46rem;
+    max-width: 32rem;
     overflow: auto;
     padding: 1rem;
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
     width: calc(100% - 2rem);
-}
-
-.admin-announcement-preview-content > h2 {
-    margin-bottom: 0;
 }

@@ -21,6 +21,7 @@
         {"source": "/admin/tournaments/:path*", "destination": "/"},
         {"source": "/admin/announcements", "destination": "/"},
         {"source": "/admin/announcements/new", "destination": "/"},
+        {"source": "/admin/announcements/:path*", "destination": "/"},
         {"source": "/register/club", "destination": "/"},
         {"source": "/register/player", "destination": "/"},
         {"source": "/login", "destination": "/"},

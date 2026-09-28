@@ -1,24 +1,31 @@
 import { FormEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { Notification } from '../../types';
 import { RootState } from '../../store';
 import AnnouncementTabs from './AnnouncementTabs';
 import '../../components/header/notifications.css';
 import './announcement.css';
 
-const formatDate = (value: Date) => `${new Intl.DateTimeFormat('de-DE', {
+const formatDate = (value: Date) => new Intl.DateTimeFormat('de-DE', {
     dateStyle: 'medium',
-    timeStyle: 'short',
-}).format(value)} Uhr`;
+}).format(value);
 
 export default function AdminAnnouncementFormPage() {
     const location = useLocation();
-    const reusedNotification = (location.state as {announcement?: Notification} | null)?.announcement;
-    const [title, setTitle] = useState(reusedNotification?.title ?? '');
-    const [body, setBody] = useState(reusedNotification?.body ?? '');
-    const [link, setLink] = useState(reusedNotification?.link ?? '');
-    const [linkLabel, setLinkLabel] = useState(reusedNotification?.link_label ?? '');
+    const {id} = useParams();
+    const editing = Boolean(id);
+    const navigationNotification = (location.state as {announcement?: Notification} | null)?.announcement;
+    const history = useSelector((state: RootState) => state.adminNotifications);
+    const cachedNotification = editing ? history.items.find(item => item._id === id) : undefined;
+    const initialNotification = editing
+        ? (navigationNotification?._id === id ? navigationNotification : cachedNotification)
+        : navigationNotification;
+    const [title, setTitle] = useState(initialNotification?.title ?? '');
+    const [body, setBody] = useState(initialNotification?.body ?? '');
+    const [link, setLink] = useState(initialNotification?.link ?? '');
+    const [linkLabel, setLinkLabel] = useState(initialNotification?.link_label ?? '');
+    const [loading, setLoading] = useState(editing && !initialNotification);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
     const [previewedAt, setPreviewedAt] = useState<Date | null>(null);
@@ -28,12 +35,46 @@ export default function AdminAnnouncementFormPage() {
     const clubId = useSelector((state: RootState) => state.auth.club_id);
 
     useEffect(() => {
-        setTitle(reusedNotification?.title ?? '');
-        setBody(reusedNotification?.body ?? '');
-        setLink(reusedNotification?.link ?? '');
-        setLinkLabel(reusedNotification?.link_label ?? '');
+        if (!initialNotification) {
+            if (!editing) {
+                setTitle('');
+                setBody('');
+                setLink('');
+                setLinkLabel('');
+                setPreviewedAt(null);
+            }
+            return;
+        }
+        setTitle(initialNotification.title);
+        setBody(initialNotification.body);
+        setLink(initialNotification.link ?? '');
+        setLinkLabel(initialNotification.link_label ?? '');
         setPreviewedAt(null);
-    }, [location.key, reusedNotification]);
+        setLoading(false);
+    }, [editing, initialNotification, location.key]);
+
+    useEffect(() => {
+        if (!editing || !id || initialNotification) return;
+        (async () => {
+            setLoading(true);
+            setError('');
+            try {
+                const response = await fetch(`/api/notifications?view=published&id=${encodeURIComponent(id)}`);
+                const result: {items?: Notification[]; error?: string} = await response.json();
+                if (!response.ok || result.error) throw new Error(result.error ?? 'Die Benachrichtigung konnte nicht geladen werden.');
+                const notification = result.items?.[0];
+                if (!notification) throw new Error('Benachrichtigung nicht gefunden.');
+                setTitle(notification.title);
+                setBody(notification.body);
+                setLink(notification.link ?? '');
+                setLinkLabel(notification.link_label ?? '');
+            } catch (requestError) {
+                setError(requestError instanceof Error ? requestError.message : 'Die Benachrichtigung konnte nicht geladen werden.');
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, [editing, id, initialNotification]);
 
     useEffect(() => {
         const dialog = previewDialogRef.current;
@@ -45,45 +86,47 @@ export default function AdminAnnouncementFormPage() {
         if (event.target === event.currentTarget) setPreviewedAt(null);
     };
 
-    const publish = async (event: FormEvent<HTMLFormElement>) => {
+    const save = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setSaving(true);
         setError('');
         try {
-            const response = await fetch('/api/notifications', {
-                method: 'POST',
+            const response = await fetch(editing ? `/api/notifications?action=edit&id=${encodeURIComponent(id ?? '')}` : '/api/notifications', {
+                method: editing ? 'PATCH' : 'POST',
                 headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
                 body: JSON.stringify({title, body, link, link_label: linkLabel}),
             });
             const result: {notification?: Notification; error?: string} = await response.json();
-            if (!response.ok || result.error) throw new Error(result.error ?? 'Die Benachrichtigung konnte nicht veröffentlicht werden.');
+            if (!response.ok || result.error) throw new Error(result.error ?? `Die Benachrichtigung konnte nicht ${editing ? 'gespeichert' : 'veröffentlicht'} werden.`);
             if (result.notification) {
-                dispatch({type: 'adminNotifications/add', payload: {item: result.notification, clubId}});
+                dispatch({type: editing ? 'adminNotifications/update' : 'adminNotifications/add', payload: {item: result.notification, clubId}});
             }
             dispatch({type: 'appRefresh/request'});
             navigate('/admin/announcements');
         } catch (requestError) {
-            setError(requestError instanceof Error ? requestError.message : 'Die Benachrichtigung konnte nicht veröffentlicht werden.');
+            setError(requestError instanceof Error ? requestError.message : `Die Benachrichtigung konnte nicht ${editing ? 'gespeichert' : 'veröffentlicht'} werden.`);
         } finally {
             setSaving(false);
         }
     };
 
+    if (loading) return <div className="splash">Benachrichtigung wird geladen…</div>;
+
     return <>
-        <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
-        <h1>Benachrichtigung veröffentlichen</h1>
-        <AnnouncementTabs active="new" />
-        <p>Die Benachrichtigung erscheint bei allen Vereinsmitgliedern.</p>
-        <div className="admin-announcement-reset-row">
+        <p><Link className="icon icon--back" to={editing ? '/admin/announcements' : '/admin'}>Zurück</Link></p>
+        <h1>{editing ? 'Benachrichtigung bearbeiten' : 'Benachrichtigung veröffentlichen'}</h1>
+        <AnnouncementTabs active={editing ? 'history' : 'new'} />
+        <p>{editing ? 'Die Änderungen erscheinen bei allen Vereinsmitgliedern.' : 'Die Benachrichtigung erscheint bei allen Vereinsmitgliedern.'}</p>
+        {!editing ? <div className="admin-announcement-reset-row">
             <button
                 className="button-link button-link--secondary admin-announcement-reset"
                 disabled={saving || (!title && !body && !link && !linkLabel)}
                 onClick={() => navigate('/admin/announcements/new', {replace: true})}
                 type="button"
             ><span aria-hidden="true" className="admin-announcement-reset-icon"></span> Zurücksetzen</button>
-        </div>
+        </div> : null}
         <p className="admin-announcement-required-note"><span aria-hidden="true">*</span> Pflichtfeld</p>
-        <form className="admin-announcement-form" onSubmit={publish}>
+        <form className="admin-announcement-form" onSubmit={save}>
             <label htmlFor="announcement-title">Titel <span aria-hidden="true">*</span></label>
             <input id="announcement-title" maxLength={150} onChange={event => setTitle(event.target.value)} required value={title} />
             <label htmlFor="announcement-body">Text <span aria-hidden="true">*</span></label>
@@ -111,7 +154,7 @@ export default function AdminAnnouncementFormPage() {
                     onClick={() => setPreviewedAt(new Date())}
                     type="button"
                 >Vorschau</button>
-                <button className="button-link" disabled={saving} type="submit">{saving ? 'Wird veröffentlicht...' : 'Veröffentlichen'}</button>
+                <button className="button-link" disabled={saving} type="submit">{saving ? `Wird ${editing ? 'gespeichert' : 'veröffentlicht'}...` : editing ? 'Speichern' : 'Veröffentlichen'}</button>
             </div>
         </form>
         <dialog
@@ -122,28 +165,32 @@ export default function AdminAnnouncementFormPage() {
             onClose={() => setPreviewedAt(null)}
             ref={previewDialogRef}
         >
-            <div className="admin-announcement-preview-content">
-            <h2 id="announcement-preview-title">Vorschau</h2>
-            <div className="notification-list">
-                <article className="notification-card--unread">
-                    <button
-                        aria-label="Vorschau schließen"
-                        className="notification-dismiss"
-                        onClick={() => setPreviewedAt(null)}
-                        title="Vorschau schließen"
-                        type="button"
-                    >&times;</button>
-                    <time>{formatDate(previewedAt ?? new Date())}</time>
-                    <div className="notification-card-heading">
-                        <h2>{title || 'Titel der Benachrichtigung'}</h2>
-                        <span className="notification-unread-label">Neu</span>
-                    </div>
-                    <p>{body || 'Text der Benachrichtigung'}</p>
-                    {link ? <p className="notification-actions">
-                        <a className="notification-action-link" href={link} onClick={event => event.preventDefault()}>{linkLabel.trim() || 'Details ansehen'}</a>
-                    </p> : null}
-                </article>
-            </div>
+            <div className="admin-announcement-preview-content notification-drawer">
+                <div className="account-menu-header">
+                    <h2 id="announcement-preview-title">Benachrichtigungen</h2>
+                    <button className="account-menu-close" type="button" aria-label="Vorschau schließen" onClick={() => setPreviewedAt(null)}>&times;</button>
+                </div>
+                <div className="notification-list">
+                    <article className="notification-card--unread">
+                        <div className="notification-card-top">
+                            <div className="notification-card-title-block">
+                                <div className="notification-card-heading">
+                                    <h3>{title || 'Titel der Benachrichtigung'}</h3>
+                                </div>
+                                <time>{formatDate(previewedAt ?? new Date())}</time>
+                            </div>
+                            <div className="notification-card-controls">
+                                <span className="notification-unread-label">Neu</span>
+                                <button aria-label="Als gelesen markieren" className="notification-mark-read" tabIndex={-1} type="button">&#10003;</button>
+                                <button aria-label="Benachrichtigung entfernen" className="notification-dismiss" tabIndex={-1} type="button">&times;</button>
+                            </div>
+                        </div>
+                        <p>{body || 'Text der Benachrichtigung'}</p>
+                        {link ? <p className="notification-actions">
+                            <a className="notification-action-link" href={link} onClick={event => event.preventDefault()}>{linkLabel.trim() || 'Details ansehen'}</a>
+                        </p> : null}
+                    </article>
+                </div>
             </div>
         </dialog>
     </>;

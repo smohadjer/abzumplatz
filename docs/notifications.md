@@ -87,7 +87,9 @@ The administrator area provides two tabs:
 
 The publication history is cached separately from the personal inbox in Redux and is scoped to the current club. Returning to the history reuses the cached list instead of calling the API again. Publishing a manual notification prepends it to an already loaded cache, relevant tournament publication invalidates the cache, and logout clears it.
 
-An old notification can be used as a template. Its title, body, link, and link label prefill the form, but publishing always creates a new notification and new recipient records. The original notification and its recipients are not changed.
+Administrators can edit a published notification from the history. Editing updates the shared notification content for every recipient without creating new recipient records or changing existing read and dismissed state.
+
+An old notification can also be used as the basis for a new one. Its title, body, link, and link label prefill the publication form, but publishing creates a separate notification and new recipient records. The reset button clears the prefilled draft.
 
 ## Tournament Notifications
 
