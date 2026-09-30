@@ -1,7 +1,7 @@
 {
   "name": "abzumplatz",
   "private": true,
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -32,11 +32,12 @@
     "dotenv": "^17.4.2",
     "jose": "^6.0.10",
     "mongodb": "^6.16.0",
-    "nodemailer": "^9.0.1",
+    "nodemailer": "^10.0.13",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-redux": "^9.2.0",
-    "react-router": "^7.18.0"
+    "react-router": "^7.18.0",
+    "swiper": "^14.3.0"
   },
   "devDependencies": {
     "@edge-runtime/cookies": "^6.0.0",

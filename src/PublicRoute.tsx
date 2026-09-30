@@ -13,7 +13,7 @@ export const PublicRoute = ({ children }: Props) => {
   // console.log('PublicRoute', {isLoggedin}, {role}, location.pathname)
 
   if (isLoggedin) {
-    return <Navigate to="/reservations" replace />;
+    return <Navigate to={auth.status === 'inactive' ? '/profile' : '/reservations'} replace />;
   }
 
   return children;

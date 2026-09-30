@@ -16,7 +16,8 @@ footer {
     padding: 0.5em 0.75em;
     box-sizing: border-box;
 
-    a {
+    a,
+    .footer-disabled-link {
         display: inline-flex;
         flex-direction: row;
         align-items: center;
@@ -56,10 +57,16 @@ footer {
         color: #5f6368;
     }
 
+    .footer-disabled-link {
+        cursor: default;
+        opacity: 0.45;
+    }
+
 }
 
 @media (max-width: 500px) {
-    footer.footer--authenticated a {
+    footer.footer--authenticated a,
+    footer.footer--authenticated .footer-disabled-link {
         flex-direction: column;
         gap: 0.15rem;
     }
@@ -81,7 +88,8 @@ footer {
 }
 
 @media (min-width: 768px) {
-    footer a {
+    footer a,
+    footer .footer-disabled-link {
         gap: 0.4rem;
     }
 
@@ -89,7 +97,8 @@ footer {
         font-size: 0.9rem;
     }
 
-    footer a > .icon {
+    footer a > .icon,
+    footer .footer-disabled-link > .icon {
         width: 30px;
         height: 30px;
         background-size: 30px;

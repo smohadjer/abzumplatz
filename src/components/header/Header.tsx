@@ -4,12 +4,13 @@ import { useSelector } from 'react-redux'
 import { RootState } from '../../store';
 import { Link, useLocation } from 'react-router';
 import AccountMenu from './AccountMenu';
+import PublicMenu from './PublicMenu';
 import NotificationDrawer from './NotificationDrawer';
 import { Loader } from '../loader/Loader';
 import './header.css';
 
 export default function Header() {
-    const [activeDrawer, setActiveDrawer] = useState<'account' | 'notifications' | null>(null);
+    const [activeDrawer, setActiveDrawer] = useState<'account' | 'notifications' | 'public' | null>(null);
     const auth = useSelector((state: RootState) => state.auth);
     const notifications = useSelector((state: RootState) => state.notifications);
     const refreshing = useSelector((state: RootState) => state.appRefresh.refreshing);
@@ -42,11 +43,18 @@ export default function Header() {
                     )}
                 </Link>
                 {!isLoggedin && isAuthChecked ? (
-                    <div className="header-login-link">
-                        <Link to="/login">
-                            <span>Einloggen</span>
-                            <span className="icon icon--login" aria-hidden="true"></span>
-                        </Link>
+                    <div className="header-public-actions">
+                        <div className="header-login-link">
+                            <Link to="/login">
+                                <span>Einloggen</span>
+                                <span className="icon icon--login" aria-hidden="true"></span>
+                            </Link>
+                        </div>
+                        <PublicMenu
+                            isOpen={activeDrawer === 'public'}
+                            onClose={() => setActiveDrawer(null)}
+                            onOpen={() => setActiveDrawer('public')}
+                        />
                     </div>
                 ) : !isLoggedin ? (
                     <div className="header-login-link header-login-link--placeholder" aria-hidden="true"></div>

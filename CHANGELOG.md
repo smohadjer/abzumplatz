@@ -2,6 +2,27 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.2.2
+
+### Added
+
+- Added an accessible public fly-in menu for FAQ, support, and legal information.
+- Added a responsive Swiper carousel that presents member, reservation, tournament, and administration views with mouse, touch, keyboard, and pagination controls.
+
+### Changed
+
+- Aligned header and footer content with the main desktop content area while keeping page scrolling at the viewport edge.
+- Refined the homepage tagline and club feature descriptions to communicate tennis-specific reservations, live membership management, tournament registration, and browser-based access more clearly.
+- Redesigned the homepage feature list with compact check markers and separators, and improved the spacing and alignment of the accompanying screenshots.
+- Simplified the public homepage by moving FAQ, support, and legal links from the page content into the header menu.
+- Tightened the public login control and balanced its spacing with the new menu button.
+- Redirected inactive members directly to their profile after login, blocked access to club reservations, and disabled unavailable notification, court-booking, and tournament controls.
+- Moved the inactive-account notice into a full-width status banner with guidance for changing clubs and contacting the club administration for activation.
+
+### Fixed
+
+- Updated Nodemailer to resolve reported security vulnerabilities.
+
 ## 0.2.1
 
 ### Changed

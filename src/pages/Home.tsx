@@ -1,14 +1,22 @@
 import { Link } from 'react-router';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import { A11y, Keyboard, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/pagination';
 import './home.css';
 
-export default function Home() {
-    const isLoggedIn = useSelector((state: RootState) => state.auth.value);
+const screenshots = [
+    { src: '/assets/home/localhost-reservations(iPhone SE).png', alt: 'Übersicht der Tennisplatzreservierungen' },
+    { src: '/assets/home/localhost-bookings(iPhone SE).png', alt: 'Buchungsübersicht eines Mitglieds' },
+    { src: '/assets/home/localhost-bookings-news.png', alt: 'Vereinsmeldungen in abzumplatz' },
+    { src: '/assets/home/localhost-tournaments(iPhone SE).png', alt: 'Übersicht der Vereinsturniere' },
+    { src: '/assets/home/localhost-admin(iPhone SE).png', alt: 'Vereinsverwaltung für Administratoren' },
+];
 
+export default function Home() {
     return (
         <>
-            <h1 className="home-tagline">Die intuitive Plattform für Platzreservierung und Vereinsverwaltung</h1>
+            <h1 className="home-tagline">Die intuitive Plattform für Tennisplatzreservierung und Vereinsverwaltung</h1>
             <div className="home-intro">
                 <div className="home-intro-card">
                     <h2 className="home-intro-label">Für Spieler</h2>
@@ -24,30 +32,45 @@ export default function Home() {
                 </div>
             </div>
             <div className="home-feature-layout">
-                <img className="hero-image" src="/assets/screen4.png" alt="screenshot" />
+                <figure
+                    className="home-screenshot-slider"
+                    aria-label="Einblicke in abzumplatz"
+                >
+                    <Swiper
+                        className="home-screenshot-frame"
+                        modules={[A11y, Keyboard, Pagination]}
+                        pagination={{ clickable: true }}
+                        keyboard={{ enabled: true }}
+                        grabCursor
+                    >
+                        {screenshots.map((screenshot) => (
+                            <SwiperSlide key={screenshot.src}>
+                                <img
+                                    className="home-screenshot"
+                                    src={screenshot.src}
+                                    alt={screenshot.alt}
+                                    draggable="false"
+                                />
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                </figure>
                 <div className="content">
                     <h2>Was abzumplatz Vereinen bietet:</h2>
-                    <ul>
+                    <ul className="home-feature-list">
                     <li>Online-Platzreservierung für Mitglieder</li>
-                    <li>Sperrung von Tennisplätzen für Mannschaftsspiele, Turniere und andere Veranstaltungen</li>
-                    <li>Einstellungen für Öffnungszeiten, Buchungsdauer, Reservierungslimits und vieles mehr</li>
-                    <li>Wiederkehrende Reservierungen für Mannschaftstrainings</li>
-                    <li>Interne Vereinsturniere wie Clubmeisterschaften planen, veröffentlichen und verwalten</li>
-                    <li>In-App-Benachrichtigungen für wichtige Vereinsmeldungen und neu veröffentlichte Turniere</li>
-                    <li>Mitglieder aktivieren, deaktivieren und verwalten</li>
+                    <li>Tennisplätze für Mannschaftsspiele, Turniere und andere Veranstaltungen sperren</li>
+                    <li>Buchungsregeln flexibel festlegen – von Öffnungszeiten und Buchungsdauer bis zu Reservierungslimits</li>
+                    <li>Wiederkehrende Reservierungen für Mannschaftstrainings einrichten</li>
+                    <li>Vereinsturniere wie Clubmeisterschaften organisieren – mit einfacher Anmeldung für Mitglieder direkt in der App</li>
+                    <li>Mitglieder mit In-App-Benachrichtigungen über wichtige Vereinsmeldungen informieren</li>
+                    <li>Den Mitgliederbestand jederzeit aktuell im Blick behalten und Mitglieder einfach aktivieren, deaktivieren oder entfernen</li>
+                    <li>Direkt im Browser auf Smartphone, Tablet und Computer nutzen – ohne Installation</li>
                     <li>Kostenlos starten und nur bei Bedarf auf den Pro-Plan wechseln</li>
-                    <li><a href="mailto:support@abzumplatz.de?subject=abzumplatz%3A%20Feedback%20und%20Support">Persönliche Unterstützung</a> bei Fragen und Problemen</li>
-                    <li>Einfache Nutzung im Browser – ohne Installation auf Smartphone, Tablet und Computer</li>
+                    <li>Persönliche Unterstützung bei Fragen und Problemen</li>
                     </ul>
                 </div>
             </div>
-            {!isLoggedIn ? (
-                <p className="home-info-links">
-                    <Link to="/impressum">Impressum</Link>{' · '}
-                    <Link to="/support">Support</Link>{' · '}
-                    <Link to="/faq">FAQ</Link>
-                </p>
-            ) : null}
         </>
     )
 }

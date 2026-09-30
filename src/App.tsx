@@ -94,7 +94,7 @@ export default function App({initiallyInitialized = false}: AppProps) {
         <Routes>
             <Route element={<Layout />}>
                 <Route path="/reservations" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireActiveMembership>
                         <Reservations />
                     </ProtectedRoute>
                 }/>
@@ -114,7 +114,7 @@ export default function App({initiallyInitialized = false}: AppProps) {
                     </ProtectedRoute>
                 }/>
                 <Route path="/rules" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireActiveMembership>
                         <Rules />
                     </ProtectedRoute>
                 }/>
@@ -125,17 +125,17 @@ export default function App({initiallyInitialized = false}: AppProps) {
                     <Faq />
                 }/>
                 <Route path="/bookings" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireActiveMembership>
                         <Bookings />
                     </ProtectedRoute>
                 }/>
                 <Route path="/tournaments" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireActiveMembership>
                         <Tournaments />
                     </ProtectedRoute>
                 }/>
                 <Route path="/tournaments/:id" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireActiveMembership>
                         <Tournaments />
                     </ProtectedRoute>
                 }/>

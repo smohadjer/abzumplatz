@@ -28,6 +28,7 @@ export default function NotificationDrawer({isOpen, onClose, onOpen, unreadCount
     const [error, setError] = useState('');
     const [updating, setUpdating] = useState(false);
     const [restoring, setRestoring] = useState(false);
+    const isDisabled = auth.status === 'inactive';
     const hasCurrentUserNotifications = notifications.loaded
         && notifications.clubId === auth.club_id
         && notifications.userId === auth._id;
@@ -154,10 +155,14 @@ export default function NotificationDrawer({isOpen, onClose, onOpen, unreadCount
         <button
             aria-controls="notification-drawer"
             aria-expanded={isOpen}
-            aria-label={unreadCount ? `Benachrichtigungen – ${unreadCount} ungelesen` : 'Benachrichtigungen'}
+            aria-label={isDisabled
+                ? 'Benachrichtigungen sind nach der Aktivierung verfügbar'
+                : unreadCount ? `Benachrichtigungen – ${unreadCount} ungelesen` : 'Benachrichtigungen'}
             className="header-notification-link"
+            disabled={isDisabled}
             onClick={onOpen}
             ref={triggerRef}
+            title={isDisabled ? 'Nach der Aktivierung verfügbar' : undefined}
             type="button"
         >
             <span aria-hidden="true" className="icon icon--notifications"></span>

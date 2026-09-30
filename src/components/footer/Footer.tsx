@@ -11,6 +11,7 @@ export default function Footer() {
     //const club = getClub();
     const location = useLocation();
     const page_id = location.pathname.substring(1);
+    const memberFeaturesDisabled = auth.role !== 'admin' && auth.status === 'inactive';
 
     if (auth.value && auth.role === 'admin' && auth.club_deleted) {
         return null;
@@ -20,12 +21,36 @@ export default function Footer() {
         (auth.value) ?
         <footer className="footer--authenticated">
             <div className="footer-content">
-                <Link aria-label="Reservierungen" to="/reservations"><span aria-hidden="true" className={`icon icon--calendar${page_id === 'reservations' ? ' selected' : ''}`}></span><span className="footer-link-label">Platz buchen</span></Link>
+                {memberFeaturesDisabled ? (
+                    <span
+                        aria-disabled="true"
+                        aria-label="Platz buchen – nach der Aktivierung verfügbar"
+                        className="footer-disabled-link"
+                        title="Nach der Aktivierung verfügbar"
+                    >
+                        <span aria-hidden="true" className="icon icon--calendar"></span>
+                        <span className="footer-link-label">Platz buchen</span>
+                    </span>
+                ) : (
+                    <Link aria-label="Reservierungen" to="/reservations"><span aria-hidden="true" className={`icon icon--calendar${page_id === 'reservations' ? ' selected' : ''}`}></span><span className="footer-link-label">Platz buchen</span></Link>
+                )}
                 <Link aria-label="Meine Buchungen" to="/bookings"><span aria-hidden="true" className={`icon icon--list${page_id === 'bookings' ? ' selected' : ''}`}></span><span className="footer-link-label">Meine Buchungen</span></Link>
-                <Link aria-label="Turniere" to="/tournaments">
-                    <span aria-hidden="true" className={`icon icon--trophy${page_id.startsWith('tournaments') ? ' selected' : ''}`}></span>
-                    <span className="footer-link-label">Turniere</span>
-                </Link>
+                {memberFeaturesDisabled ? (
+                    <span
+                        aria-disabled="true"
+                        aria-label="Turniere – nach der Aktivierung verfügbar"
+                        className="footer-disabled-link"
+                        title="Nach der Aktivierung verfügbar"
+                    >
+                        <span aria-hidden="true" className="icon icon--trophy"></span>
+                        <span className="footer-link-label">Turniere</span>
+                    </span>
+                ) : (
+                    <Link aria-label="Turniere" to="/tournaments">
+                        <span aria-hidden="true" className={`icon icon--trophy${page_id.startsWith('tournaments') ? ' selected' : ''}`}></span>
+                        <span className="footer-link-label">Turniere</span>
+                    </Link>
+                )}
                 {auth.role === 'admin' &&
                     <Link aria-label="Administration" to="/admin"><span aria-hidden="true" className={`icon icon--admin${location.pathname === '/admin' || location.pathname.startsWith('/admin/') ? ' selected' : ''}`}></span><span className="footer-link-label">Admin</span></Link>
                 }

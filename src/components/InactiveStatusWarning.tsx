@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router';
 import { RootState } from '../store';
-import { getInactiveUserMessage } from '../messages';
 import { fetchUsers, getClub } from '../utils/utils';
 
 export default function InactiveStatusWarning() {
@@ -25,9 +25,6 @@ export default function InactiveStatusWarning() {
     ? users.value.find(user => user.role === 'admin')
     : undefined;
   const adminEmail = adminUser?.email ?? '';
-  const adminName = adminUser
-    ? `${adminUser.first_name} ${adminUser.last_name}`.trim()
-    : '';
   const fullName = `${auth.first_name} ${auth.last_name}`.trim();
   const subjectClubName = club?.name ? ` ${club.name}` : '';
   const subjectName = fullName ? ` - ${fullName}` : '';
@@ -42,16 +39,18 @@ export default function InactiveStatusWarning() {
   const adminMailto = `mailto:${adminEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
   return (
-    <div className="inactive-status-warning" role="alert">
-      {adminName ? (
-        <>
-          Ihr Konto wurde noch nicht aktiviert. Wenn Sie sich gerade registriert haben, warten Sie bitte, bis Ihr
-          Vereinsadministrator Ihr Konto freischaltet. Sollte Ihr Konto nach einiger Zeit noch nicht aktiviert sein,
-          kontaktieren Sie bitte Ihren Vereinsadministrator {adminName} (<a href={adminMailto}>{adminEmail}</a>).
-        </>
-      ) : (
-        getInactiveUserMessage()
-      )}
+    <div className="inactive-status-banner" role="alert">
+      <div className="inactive-status-banner-content">
+        Ihr Konto muss zunächst von der Vereinsverwaltung aktiviert werden, bevor Sie auf alle Bereiche der Website
+        zugreifen können. Falls Sie den falschen Verein ausgewählt haben, können Sie ihn unter{' '}
+        <Link to="/profile/edit">„Profil bearbeiten“</Link> wechseln.{' '}
+        {adminEmail ? (
+          <>
+            Wenn Sie Mitglied dieses Vereins sind und Ihr Konto auch nach einiger Zeit noch nicht aktiviert wurde,
+            können Sie Ihre Vereinsverwaltung per E-Mail unter <a href={adminMailto}>{adminEmail}</a> kontaktieren.
+          </>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -5,9 +5,10 @@ import { RootState } from './store';
 
 type ProtectedRouteProps = {
     children: React.ReactNode;
+    requireActiveMembership?: boolean;
 };
 
-export const ProtectedRoute = ({children}: ProtectedRouteProps) => {
+export const ProtectedRoute = ({children, requireActiveMembership = false}: ProtectedRouteProps) => {
     const location = useLocation();
     const auth = useSelector((state: RootState) => state.auth);
     const isLoggedin = auth.value;
@@ -31,6 +32,10 @@ export const ProtectedRoute = ({children}: ProtectedRouteProps) => {
 
         if (auth.role !== 'admin' && isReservationRoute && !auth.club_id) {
             return <Navigate to="/select-club" replace />;
+        }
+
+        if (auth.role !== 'admin' && requireActiveMembership && auth.status === 'inactive') {
+            return <Navigate to="/profile" replace />;
         }
 
         return children;

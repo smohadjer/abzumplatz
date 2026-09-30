@@ -20,7 +20,7 @@ export function Login() {
             }
         });
 
-        navigate('/reservations');
+        navigate(response.status === 'inactive' ? '/profile' : '/reservations');
     }
 
     return (

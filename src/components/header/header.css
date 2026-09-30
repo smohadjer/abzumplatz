@@ -91,7 +91,8 @@
 }
 
 .header-account-button,
-.header-notification-link {
+.header-notification-link,
+.header-public-menu-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -106,6 +107,41 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
+}
+
+.header-public-menu-button {
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.header-menu-icon,
+.header-menu-icon::before,
+.header-menu-icon::after {
+  display: block;
+  width: 1.25rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--blue);
+}
+
+.header-menu-icon {
+  position: relative;
+}
+
+.header-menu-icon::before,
+.header-menu-icon::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+.header-menu-icon::before {
+  top: -0.4rem;
+}
+
+.header-menu-icon::after {
+  top: 0.4rem;
 }
 
 .header-notification-link {
@@ -135,7 +171,9 @@
 }
 
 .header-account-button:hover,
-.header-account-button:focus-visible {
+.header-account-button:focus-visible,
+.header-public-menu-button:hover,
+.header-public-menu-button:focus-visible {
   background: #e6ebf2;
 }
 
@@ -152,6 +190,17 @@
 .header-notification-link:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 1px;
+}
+
+.header-notification-link:disabled,
+.header-notification-link:disabled:hover {
+  cursor: default;
+  background: transparent;
+  opacity: 0.45;
+}
+
+.header-notification-link:disabled:hover .icon {
+  background-color: var(--blue);
 }
 
 .header-notification-dot {
@@ -388,6 +437,14 @@
   justify-self: end;
 }
 
+.header-public-actions {
+  grid-column: 2;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .header-login-link--placeholder {
   min-width: 5.5rem;
   min-height: 20px;
@@ -398,14 +455,14 @@
   color: var(--blue);
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.15rem;
   min-height: 0;
   padding: 0;
   margin: 0;
   text-decoration: none;
 }
 
-.header-login-link .icon {
+.header .header-login-link span.icon {
   display: inline-block;
   width: 20px;
   height: 20px;

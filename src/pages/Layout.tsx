@@ -21,9 +21,9 @@ export default function Layout() {
     <>
       <AppRefreshManager />
       <Header />
+      <InactiveStatusWarning />
       <main>
         <div className="main-content">
-          <InactiveStatusWarning />
           <Outlet />
         </div>
       </main>
