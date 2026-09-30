@@ -23,11 +23,12 @@ function normalizeUserRole(user: WithId<FetchedUser>): WithId<NormalizedFetchedU
 }
 
 export async function fetchUsers(database: Db, userId: string, clubId?: undefined): Promise<WithId<NormalizedFetchedUser> | null>;
-export async function fetchUsers(database: Db, userId: undefined, clubId: string): Promise<WithId<NormalizedFetchedUser>[]>;
+export async function fetchUsers(database: Db, userId: undefined, clubId: string, includePrivateProfile?: boolean): Promise<WithId<NormalizedFetchedUser>[]>;
 export async function fetchUsers(
     database: Db,
     userId?: string,
-    clubId?: string
+    clubId?: string,
+    includePrivateProfile = false
 ): Promise<WithId<NormalizedFetchedUser> | null | WithId<NormalizedFetchedUser>[]> {
     const collection = database.collection<FetchedUser>('users');
 
@@ -50,11 +51,12 @@ export async function fetchUsers(
       const projection = {
           first_name: 1,
           last_name: 1,
-	          email: 1,
-	          status: 1,
-	          role: 1,
-	          _id: 1,
-	      };
+          email: 1,
+          status: 1,
+          role: 1,
+          _id: 1,
+          ...(includePrivateProfile ? {birth_year: 1, sex: 1} : {}),
+      };
       const query = { club_id: clubId };
       // why did we need this?
       // if (req.query?.first_name) {

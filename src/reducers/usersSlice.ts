@@ -8,6 +8,8 @@ type UsersState = {
     status: string;
     role: string;
     _id: string;
+    birth_year?: number;
+    sex?: 'male' | 'female';
   }>;
   loaded: boolean;
   clubId: string;

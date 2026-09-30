@@ -1,0 +1,238 @@
+.members-table-wrapper {
+    overflow-x: auto;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.members-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+        padding: 0.65rem 0.75rem;
+        text-align: left;
+        vertical-align: middle;
+        border-bottom: 1px solid #e3e8f2;
+    }
+
+    th {
+        white-space: nowrap;
+        color: #4b5b78;
+    }
+
+    .members-sort-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--blue);
+        cursor: pointer;
+        font: inherit;
+        font-weight: inherit;
+    }
+
+    .members-sort-button:hover,
+    .members-sort-button:focus-visible {
+        color: var(--blue);
+        text-decoration: underline;
+    }
+
+    .members-sort-indicator {
+        color: var(--blue);
+        font-size: 1.15em;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .members-table-selection {
+        width: 1%;
+        padding-left: 0.35rem;
+        padding-right: 0.35rem;
+    }
+
+    input {
+        margin: 0;
+    }
+
+    .members-admin-checkbox {
+        pointer-events: none;
+    }
+
+    .members-list-name--admin {
+        font-weight: 700;
+    }
+
+    .members-name-label {
+        cursor: pointer;
+    }
+
+    .members-name-label--admin {
+        cursor: not-allowed;
+    }
+
+    .members-list-email {
+        font-size: 0.95em;
+        white-space: nowrap;
+    }
+
+    .members-list-email a {
+        text-decoration: none;
+    }
+
+    .members-list-email a:hover,
+    .members-list-email a:focus-visible {
+        text-decoration: underline;
+    }
+
+    .user-list-item--selected {
+        background: #eef4ff;
+    }
+
+    .user-list-item--duplicate-name {
+        background: #fff4d6;
+        border-left: 3px solid #c58b00;
+    }
+
+    .members-duplicate-name-badge {
+        display: inline-block;
+        margin-left: 0.4rem;
+        background: #8a5d00;
+        border-radius: 999px;
+        color: white;
+        font-size: 0.75em;
+        font-weight: 700;
+        padding: 0.15em 0.5em;
+        white-space: nowrap;
+    }
+}
+
+.members-tabs {
+    display: flex;
+    margin: 1rem 0;
+    border-bottom: 1px solid #c7d3eb;
+}
+
+.members-filter-options {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.9em;
+    margin: 0.75rem 0 1rem;
+    padding: 0.75rem 1rem;
+    border: 0;
+    background: #f4f7fc;
+}
+
+.members-filter-options legend {
+    float: left;
+    margin-right: 0.25rem;
+    font-weight: 700;
+}
+
+.members-filter-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+}
+
+.members-filter-option input {
+    margin: 0;
+}
+
+.members-warning-box {
+    background: #fff4d6;
+    border-left: 4px solid #d08b00;
+    color: #5f4300;
+    padding: 0.75em 0.9em;
+    margin-top: 0.75em;
+    font-weight: 400;
+}
+
+.members-form {
+    margin-top: 1rem;
+}
+
+.members-tab {
+    margin: 0 0 -1px;
+    padding: 0.65rem 1rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: #4b5b78;
+    cursor: pointer;
+    font: inherit;
+}
+
+.members-tab--active {
+    border-bottom-color: var(--blue);
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.members-tab:hover,
+.members-tab:focus-visible {
+    color: var(--blue);
+    background: #f4f7fc;
+}
+
+.members-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+}
+
+.members-batch-actions {
+    margin: 0;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.members-submit-button {
+    margin-top: 0;
+    padding: 0.5em 1em;
+    font-size: inherit;
+    background: #3264c8;
+    color: white;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.members-submit-button:hover,
+.members-submit-button:focus-visible {
+    background: #194b96;
+}
+
+.members-submit-button--danger {
+    background: #b42318;
+}
+
+.members-submit-button--danger:hover,
+.members-submit-button--danger:focus-visible {
+    background: #8f1c13;
+}
+
+.members-submit-button:disabled {
+    background: #b8bec8;
+    cursor: default;
+}

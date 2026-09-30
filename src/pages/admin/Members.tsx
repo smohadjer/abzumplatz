@@ -6,6 +6,10 @@ import { fetchClub, fetchUsers } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
 import { Link, useSearchParams } from 'react-router';
 import { getMembersLimitForPlan, getPlanName, PLAN_CONFIG } from '../../planConfig';
+import './members.css';
+
+const sexLabels = {male: 'M', female: 'W'} as const;
+type MemberSortKey = 'first_name' | 'last_name' | 'sex' | 'age' | 'email';
 
 export default function AdminMembersPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -13,8 +17,12 @@ export default function AdminMembersPage() {
     const [loading, setLoading] = useState(false);
     const [pending, setPending] = useState(false);
     const [activeTab, setActiveTab] = useState<'active' | 'inactive'>(initialTab);
+    const [memberFilter, setMemberFilter] = useState<'all' | 'men' | 'women' | 'youth'>('all');
     const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-    const [inactiveAction, setInactiveAction] = useState<'activate' | 'remove'>('activate');
+    const [sort, setSort] = useState<{key: MemberSortKey; direction: 'asc' | 'desc'}>({
+        key: 'last_name',
+        direction: 'asc',
+    });
     const usersData = useSelector((state: RootState) => state.users);
     const user = useSelector((state: RootState) => state.auth);
     const clubs = useSelector((state: RootState) => state.clubs.value);
@@ -37,7 +45,44 @@ export default function AdminMembersPage() {
         isActiveUser(member) && (memberNameCounts.get(getNormalizedMemberName(member)) ?? 0) > 1;
     const activeUsersCount = users.filter(isActiveUser).length;
     const inactiveUsersCount = users.length - activeUsersCount;
-    const visibleUsers = users.filter(member => activeTab === 'active' ? isActiveUser(member) : !isActiveUser(member));
+    const currentYear = new Date().getFullYear();
+    const statusFilteredUsers = users.filter(member => activeTab === 'active' ? isActiveUser(member) : !isActiveUser(member));
+    const memberFilterCounts = statusFilteredUsers.reduce((counts, member) => {
+        if (member.sex === 'male') counts.men += 1;
+        if (member.sex === 'female') counts.women += 1;
+        if (member.birth_year && currentYear - member.birth_year < 18) {
+            counts.youth += 1;
+        }
+        return counts;
+    }, {men: 0, women: 0, youth: 0});
+    const filteredUsers = statusFilteredUsers.filter(member => {
+        if (activeTab === 'inactive' || memberFilter === 'all') return true;
+        if (memberFilter === 'youth') {
+            return Boolean(member.birth_year && currentYear - member.birth_year < 18);
+        }
+        return memberFilter === 'men' ? member.sex === 'male' : member.sex === 'female';
+    });
+    const visibleUsers = [...filteredUsers].sort((left, right) => {
+        const getSortValue = (member: typeof users[number]) => {
+            if (sort.key === 'age') {
+                return member.birth_year ? currentYear - member.birth_year : null;
+            }
+            if (sort.key === 'sex') {
+                return member.sex ? sexLabels[member.sex] : null;
+            }
+            return member[sort.key] || null;
+        };
+        const leftValue = getSortValue(left);
+        const rightValue = getSortValue(right);
+
+        if (leftValue === null) return rightValue === null ? 0 : 1;
+        if (rightValue === null) return -1;
+
+        const comparison = typeof leftValue === 'number' && typeof rightValue === 'number'
+            ? leftValue - rightValue
+            : String(leftValue).localeCompare(String(rightValue), 'de-DE', {sensitivity: 'base'});
+        return sort.direction === 'asc' ? comparison : -comparison;
+    });
     const currentClubFromList = clubs.find(club => club._id === user.club_id);
     const club = currentClubFromList ?? (clubData.value._id === user.club_id ? clubData.value : null);
     const currentPlanType = club?.access_plan_type;
@@ -59,6 +104,27 @@ export default function AdminMembersPage() {
         setSelectedUserIds([]);
         setSearchParams(tab === 'inactive' ? {tab} : {});
     };
+
+    const setFilter = (filter: typeof memberFilter) => {
+        setMemberFilter(filter);
+        setSelectedUserIds([]);
+    };
+
+    const changeSort = (key: MemberSortKey) => {
+        setSort(current => current.key === key
+            ? {...current, direction: current.direction === 'asc' ? 'desc' : 'asc'}
+            : {key, direction: 'asc'}
+        );
+    };
+
+    const sortableHeader = (key: MemberSortKey, label: string) => (
+        <th aria-sort={sort.key === key ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}>
+            <button className="members-sort-button" type="button" onClick={() => changeSort(key)}>
+                <span>{label}</span>
+                {sort.key === key ? <span className="members-sort-indicator" aria-hidden="true">{sort.direction === 'asc' ? '↑' : '↓'}</span> : null}
+            </button>
+        </th>
+    );
 
     useEffect(() => {
         if (!usersData.loaded) {
@@ -111,25 +177,13 @@ export default function AdminMembersPage() {
         alert('Administratoren können nicht deaktiviert werden.');
     };
 
-    const selectableUsers = visibleUsers.filter(member => member.role !== 'admin');
-    const allVisibleSelected = selectableUsers.length > 0 && selectableUsers.every(member => selectedUserIds.includes(member._id));
-    const submitAction = activeTab === 'active' ? 'deactivate' : inactiveAction;
-    const submitLabelBase = submitAction === 'deactivate'
-        ? 'Mitglieder deaktivieren'
-        : submitAction === 'activate'
-            ? 'Mitglieder aktivieren'
-            : 'Mitglieder entfernen';
-    const submitLabel = selectedUserIds.length > 0
-        ? `${submitLabelBase} (${selectedUserIds.length})`
-        : submitLabelBase;
+    const selectionCount = selectedUserIds.length ? ` (${selectedUserIds.length})` : '';
 
-    const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
+    const updateSelectedUsers = async (action: 'activate' | 'deactivate' | 'remove') => {
         if (!selectedUserIds.length) {
             return;
         }
-        if (submitAction === 'remove' && !confirm('Möchten Sie die ausgewählten Mitglieder wirklich aus dem Verein entfernen?')) {
+        if (action === 'remove' && !confirm('Möchten Sie die ausgewählten Mitglieder wirklich aus dem Verein entfernen?')) {
             return;
         }
 
@@ -142,7 +196,7 @@ export default function AdminMembersPage() {
                 },
                 body: JSON.stringify({
                     user_ids: selectedUserIds,
-                    action: submitAction
+                    action
                 })
             });
             const data = await response.json();
@@ -159,6 +213,11 @@ export default function AdminMembersPage() {
         }
     };
 
+    const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        void updateSelectedUsers('deactivate');
+    };
+
     return (
         loading ? (
             <div className="splash">
@@ -168,6 +227,24 @@ export default function AdminMembersPage() {
             <>
                 <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
                 <h1>Mitglieder verwalten</h1>
+                {hasMemberCap ? (
+                    <>
+                        {hasReachedMembersLimit ? (
+                            <p className="hint hint-box members-warning-box">
+                                Achtung: Das aktuelle Mitgliederlimit von {membersLimit} aktiven Mitgliedern ist erreicht.
+                            </p>
+                        ) : null}
+                        {hasMembersLimitOverride ? (
+                            <p className="hint hint-box members-warning-box">
+                                Achtung: Das Mitgliederlimit wird aktuell zentral auf {membersLimit} aktive Mitglieder erzwungen. Diese Grenze gilt unabhängig vom gewählten Plan.
+                            </p>
+                        ) : (
+                            <p>
+                                Im {currentPlanName} Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. {planUpgradeText}
+                            </p>
+                        )}
+                    </>
+                ) : null}
                 <div className="members-tabs" role="tablist" aria-label="Mitgliederstatus">
                     <button
                         type="button"
@@ -190,78 +267,76 @@ export default function AdminMembersPage() {
                         Inaktive Mitglieder ({inactiveUsersCount})
                     </button>
                 </div>
-                {hasMemberCap ? (
-                    <>
-                        {hasReachedMembersLimit ? (
-                            <p className="hint hint-box members-warning-box">
-                                Achtung: Das aktuelle Mitgliederlimit von {membersLimit} aktiven Mitgliedern ist erreicht.
-                            </p>
-                        ) : null}
-                        {hasMembersLimitOverride ? (
-                            <p className="hint hint-box members-warning-box">
-                                Achtung: Das Mitgliederlimit wird aktuell zentral auf {membersLimit} aktive Mitglieder erzwungen. Diese Grenze gilt unabhängig vom gewählten Plan.
-                            </p>
-                        ) : (
-                            <p>
-                                Im {currentPlanName} Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. {planUpgradeText}
-                            </p>
-                        )}
-                    </>
+                {activeTab === 'active' ? (
+                    <fieldset className="members-filter-options">
+                        <legend>Filter:</legend>
+                        {([
+                            ['all', 'Alle'],
+                            ['men', 'Männlich'],
+                            ['women', 'Weiblich'],
+                            ['youth', 'Jugend U18'],
+                        ] as const).map(([filter, label]) => (
+                            <label className="members-filter-option" key={filter}>
+                                <input
+                                    type="radio"
+                                    name="member-filter"
+                                    value={filter}
+                                    checked={memberFilter === filter}
+                                    disabled={pending}
+                                    onChange={() => setFilter(filter)}
+                                />
+                                <span>{label} ({filter === 'all' ? statusFilteredUsers.length : memberFilterCounts[filter]})</span>
+                            </label>
+                        ))}
+                </fieldset>
                 ) : null}
                 <form className="members-form" onSubmit={handleSubmit}>
-                    {selectableUsers.length > 0 ? (
-                        <>
+                    <div className="members-controls">
+                        <div className="members-batch-actions">
                             {activeTab === 'inactive' ? (
-                                <div className="members-selection-bar">
+                                <>
                                     <button
                                         type="button"
-                                        className="members-select-all-button"
-                                        disabled={pending}
-                                        onClick={() => setSelectedUserIds(allVisibleSelected ? [] : selectableUsers.map(member => member._id))}
+                                        className="members-submit-button"
+                                        disabled={pending || !selectedUserIds.length}
+                                        onClick={() => void updateSelectedUsers('activate')}
                                     >
-                                        {allVisibleSelected ? 'Auswahl aufheben' : 'Alle auswählen'}
+                                        Aktivieren{selectionCount}
                                     </button>
-                                    <div className="members-action-toggle" role="radiogroup" aria-label="Aktion für inaktive Mitglieder">
-                                        <label className="members-action-option" htmlFor="members-action-activate">
-                                            <input
-                                                id="members-action-activate"
-                                                type="radio"
-                                                name="members-inactive-action"
-                                                value="activate"
-                                                checked={inactiveAction === 'activate'}
-                                                disabled={pending}
-                                                onChange={() => setInactiveAction('activate')}
-                                            />
-                                            <span>Aktivieren</span>
-                                        </label>
-                                        <label className="members-action-option" htmlFor="members-action-remove">
-                                            <input
-                                                id="members-action-remove"
-                                                type="radio"
-                                                name="members-inactive-action"
-                                                value="remove"
-                                                checked={inactiveAction === 'remove'}
-                                                disabled={pending}
-                                                onChange={() => setInactiveAction('remove')}
-                                            />
-                                            <span>Entfernen</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            ) : null}
-                            <div className="members-batch-actions">
+                                    <button
+                                        type="button"
+                                        className="members-submit-button members-submit-button--danger"
+                                        disabled={pending || !selectedUserIds.length}
+                                        onClick={() => void updateSelectedUsers('remove')}
+                                    >
+                                        Entfernen{selectionCount}
+                                    </button>
+                                </>
+                            ) : (
                                 <button
                                     type="submit"
                                     className="members-submit-button"
                                     disabled={pending || !selectedUserIds.length}
                                 >
-                                    {submitLabel}
+                                    Deaktivieren{selectionCount}
                                 </button>
-                                {pending ? <Loader size="small" /> : null}
-                            </div>
-                        </>
-                    ) : null}
-                    <ul className="users-list">
+                            )}
+                            {pending ? <Loader size="small" /> : null}
+                        </div>
+                    </div>
+                    <div className="members-table-wrapper">
+                    <table className="members-table">
+                        <thead>
+                            <tr>
+                                <th className="members-table-selection"><span className="visually-hidden">Auswahl</span></th>
+                                {sortableHeader('first_name', 'Vorname')}
+                                {sortableHeader('last_name', 'Nachname')}
+                                {sortableHeader('sex', 'Geschl.')}
+                                {sortableHeader('age', 'Alter')}
+                                {sortableHeader('email', 'E-Mail')}
+                            </tr>
+                        </thead>
+                        <tbody>
                         {visibleUsers.map(user => {
                             const duplicateName = hasDuplicateName(user);
                             const classNames = [
@@ -270,49 +345,60 @@ export default function AdminMembersPage() {
                                 duplicateName ? 'user-list-item--duplicate-name' : '',
                             ].filter(Boolean).join(' ');
 
-                            return <li className={classNames || undefined} key={user._id}>
-                                {user.role !== 'admin' ? (
-                                    <label className="members-list-item" htmlFor={user._id}>
+                            const age = user.birth_year ? currentYear - user.birth_year : null;
+
+                            return <tr className={classNames || undefined} key={user._id}>
+                                <td
+                                    className="members-table-selection"
+                                    onClick={user.role === 'admin' ? showAdminDeactivationHint : undefined}
+                                >
+                                    {user.role !== 'admin' ? (
                                         <input
                                             id={user._id}
                                             type="checkbox"
+                                            aria-label={`${user.first_name} ${user.last_name} auswählen`}
                                             checked={selectedUserIds.includes(user._id)}
                                             disabled={pending}
                                             onChange={() => toggleSelection(user._id)}
                                         />
-                                        <span className="members-list-name">
-                                            {user.last_name}, {user.first_name}
-                                        </span>
-                                        {duplicateName ? <span className="members-duplicate-name-badge">Doppelter Name</span> : null}
-                                        <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
-                                    </label>
-                                ) : (
-                                    <label
-                                        className="members-list-item"
-                                        htmlFor={user._id}
-                                        onClick={event => {
-                                            if (!(event.target as HTMLElement).closest('a')) {
-                                                showAdminDeactivationHint();
-                                            }
-                                        }}
-                                    >
+                                    ) : (
                                         <input
                                             id={user._id}
                                             className="members-admin-checkbox"
                                             type="checkbox"
+                                            aria-label={`${user.first_name} ${user.last_name} kann nicht deaktiviert werden`}
                                             checked={false}
                                             disabled
                                         />
-                                        <span className="members-list-name members-list-name--admin">
-                                            {user.last_name}, {user.first_name} (Admin)
-                                        </span>
-                                        {duplicateName ? <span className="members-duplicate-name-badge">Doppelter Name</span> : null}
-                                        <span className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></span>
+                                    )}
+                                </td>
+                                <td className={user.role === 'admin' ? 'members-list-name--admin' : undefined}>
+                                    <label
+                                        className={user.role === 'admin' ? 'members-name-label members-name-label--admin' : 'members-name-label'}
+                                        htmlFor={user._id}
+                                        onClick={user.role === 'admin' ? showAdminDeactivationHint : undefined}
+                                    >
+                                        {user.first_name}
                                     </label>
-                                )}
-                            </li>;
+                                </td>
+                                <td className={user.role === 'admin' ? 'members-list-name--admin' : undefined}>
+                                    <label
+                                        className={user.role === 'admin' ? 'members-name-label members-name-label--admin' : 'members-name-label'}
+                                        htmlFor={user._id}
+                                        onClick={user.role === 'admin' ? showAdminDeactivationHint : undefined}
+                                    >
+                                        {user.last_name}{user.role === 'admin' ? ' (Admin)' : ''}
+                                        {duplicateName ? <span className="members-duplicate-name-badge">Doppelter Name</span> : null}
+                                    </label>
+                                </td>
+                                <td>{user.sex ? sexLabels[user.sex] : '-'}</td>
+                                <td>{age ?? '-'}</td>
+                                <td className="members-list-email"><a href={`mailto:${user.email}`}>{user.email}</a></td>
+                            </tr>;
                         })}
-                    </ul>
+                        </tbody>
+                    </table>
+                    </div>
                 </form>
             </>
         )

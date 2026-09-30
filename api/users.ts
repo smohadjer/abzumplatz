@@ -180,7 +180,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           return res.status(403).json({error: 'Reading these members is not allowed'});
         }
 
-        const docs = await fetchUsers(database, undefined, club_id);
+        const docs = await fetchUsers(database, undefined, club_id, requester.role === 'admin');
         return res.json(docs);
       }
     }

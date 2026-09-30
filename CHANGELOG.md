@@ -2,6 +2,16 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.2.1
+
+### Changed
+
+- Redesigned member administration as a responsive table with first name, last name, abbreviated gender, age, and email columns.
+- Added sortable member columns and active-member filters for all, male, female, and youth members.
+- Simplified member actions with direct activate, deactivate, and remove buttons, clickable member names for selection, and a distinct destructive remove action.
+- Limited birth year and gender details in club member lists to administrators.
+- Moved member-management styles into a page-specific stylesheet.
+
 ## 0.2.0
 
 ### Added
