@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import { RootState, AppDispatch } from './../store';
 import type { SyntheticEvent } from "react";
 import * as mongoDB from "mongodb";
-import { ReservationItem, StateUser } from './../types';
+import { Club, ReservationItem, StateUser } from './../types';
 import { isReservationActive } from './reservationTime.js';
 
 export async function fetchJson(path: string) {
@@ -199,16 +199,27 @@ export const fetchAppData = async (clubId: string, dispatch: AppDispatch) => {
 };
 
 export const fetchClub = async (clubId: string, dispatch: AppDispatch) => {
-    const path = `/api/clubs?id=${clubId}`;
-    const data = await fetch(path);
-    const json = await data.json();
-    dispatch({
-        type: 'club/fetch',
-        payload: {
-            value: json,
-            loaded: true
+    try {
+        const path = `/api/clubs?id=${encodeURIComponent(clubId)}`;
+        const response = await fetch(path);
+        if (!response.ok) {
+            console.error(`Club could not be loaded (${response.status})`);
+            return null;
         }
-    });
+
+        const club: Club = await response.json();
+        dispatch({
+            type: 'club/fetch',
+            payload: {
+                value: club,
+                loaded: true
+            }
+        });
+        return club;
+    } catch (error) {
+        console.error('Club could not be loaded', error);
+        return null;
+    }
 };
 
 

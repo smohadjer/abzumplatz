@@ -112,10 +112,11 @@ export default function AdminHomePage() {
         <>
             <h1>Admin</h1>
             <ul className="settings-links">
-                <li><Link to="/admin/members">Mitglieder</Link></li>
+                <li><Link to="/admin/members">Mitglieder verwalten</Link></li>
+                <li><Link to="/admin/invite">Mitglieder einladen</Link></li>
                 <li><Link to="/admin/club">Verein</Link></li>
-                <li><Link to="/admin/courts">Plätze</Link></li>
-                <li><Link to="/admin/rules">Regeln</Link></li>
+                <li><Link to="/admin/courts">Plätze sperren</Link></li>
+                <li><Link to="/admin/rules">Vereinsregeln</Link></li>
                 <li><Link to="/admin/tournaments">Turniere</Link></li>
                 <li><Link to="/admin/announcements">Benachrichtigungen</Link></li>
                 <li><Link to="/admin/billings">Abrechnungen</Link></li>

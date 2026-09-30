@@ -4,10 +4,13 @@ import { useNavigate } from "react-router";
 import { useSelector } from 'react-redux'
 import { RootState } from './../../store';
 import { Field } from '../../types';
+import { useSearchParams } from 'react-router';
 
 export function Signup() {
     const navigate = useNavigate();
     const clubs = useSelector((state: RootState) => state.clubs.value);
+    const [searchParams] = useSearchParams();
+    const invitedClubId = searchParams.get('club');
     const callback = async () => {
         // update users in state
         // dispatch({
@@ -21,11 +24,6 @@ export function Signup() {
 
     const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
     const clubField = normalizedFields.find(field => field.name === 'club_id');
-    const birthYearField = normalizedFields.find(field => field.name === 'birth_year');
-    if (birthYearField) {
-        birthYearField.min = 1900;
-        birthYearField.max = new Date().getFullYear();
-    }
     if (clubField) {
         clubField.hint = 'Falls Ihr Verein nicht in der Liste erscheint, können Sie sich trotzdem registrieren. Reservierungen sind erst möglich, sobald Ihr Verein ein Konto auf abzumplatz erstellt hat.';
         clubField.options = [
@@ -38,6 +36,10 @@ export function Signup() {
                 value: club._id
             }))
         ];
+        if (invitedClubId && clubs.some(club => club._id === invitedClubId && !club.deleted_at)) {
+            clubField.value = invitedClubId;
+            clubField.hint = 'Dieser Verein wurde durch Ihren Einladungslink vorausgewählt. Sie können die Auswahl bei Bedarf ändern.';
+        }
     }
 
     return (

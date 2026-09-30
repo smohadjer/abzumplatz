@@ -12,6 +12,7 @@ import SelectClubPage from './pages/SelectClubPage';
 import Reservations from './pages/Reservations';
 import AdminHomePage from './pages/admin/Home';
 import AdminMembersPage from './pages/admin/Members'
+import AdminInvitePage from './pages/admin/Invite';
 import AdminClubPage from './pages/admin/Club';
 import AdminDeleteClubPage from './pages/admin/DeleteClub';
 import AdminCourtsPage from './pages/admin/Courts';
@@ -44,7 +45,7 @@ import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 import RouteMetadata from './components/RouteMetadata';
 
-import { AuthenticatedUserResponse, Club } from './types';
+import { Club } from './types';
 import './app.css';
 
 type AppProps = {
@@ -59,9 +60,12 @@ export default function App({initiallyInitialized = false}: AppProps) {
 
     useEffect(() => {
         async function getData() {
-            // fetch clubs and save it to store
-            const clubs = await fetch('/api/clubs');
-            const clubsData: Club[] = await clubs.json();
+            const [clubsData, authenticated] = await Promise.all([
+                fetch('/api/clubs').then(response => response.json() as Promise<Club[]>),
+                isAuthenticated(),
+            ]);
+
+            // save clubs in store
             dispatch({
                 type: 'clubs/fetch',
                 payload: {
@@ -69,8 +73,7 @@ export default function App({initiallyInitialized = false}: AppProps) {
                 }
             });
 
-            // fetch logged-in user and save it to store
-            const authenticated: AuthenticatedUserResponse | null = await isAuthenticated();
+            // save logged-in user in store
             if (!authenticated || authenticated.error) {
                 dispatch({type: 'auth/setAuthChecked'});
             } else {
@@ -147,6 +150,11 @@ export default function App({initiallyInitialized = false}: AppProps) {
                 <Route path="/admin/members" element={
                     <ProtectedRoute>
                         <AdminMembersPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/invite" element={
+                    <ProtectedRoute>
+                        <AdminInvitePage />
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/club" element={

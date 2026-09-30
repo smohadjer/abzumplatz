@@ -65,6 +65,10 @@ export default function EditProfile() {
                         ) : null}
                     </div>
                 </div>
+                <p className="profile-optional-hint">
+                    Geburtsjahr und Geschlecht sind freiwillige Angaben. Sie helfen Ihrer Vereinsverwaltung,
+                    die Mitgliederstruktur besser zu überblicken.
+                </p>
                 <div className="row"><label htmlFor="birth-year">Geburtsjahr:</label><div><input id="birth-year" type="number" min="1900" max={currentYear} value={birthYear} onChange={event => setBirthYear(event.target.value)} /></div></div>
                 <div className="row"><label htmlFor="member-sex">Geschlecht:</label><div><select id="member-sex" value={sex} onChange={event => setSex(event.target.value as typeof sex)}><option value="">Keine Angabe</option><option value="male">Männlich</option><option value="female">Weiblich</option></select></div></div>
                 {error ? <p className="form-error-message">{error}</p> : null}

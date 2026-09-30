@@ -2,6 +2,24 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.3.0
+
+### Added
+
+- Added end-to-end coverage for Basic and Pro club registration, including their different address requirements and submitted data.
+- Added end-to-end coverage for player registration through a club invitation link.
+- Added a dedicated administrator invitation page with a club-specific player-registration link and sharing actions for native sharing, WhatsApp, email, and copying.
+- Added an invitation step after club registration and automatic club preselection when players open an invitation link.
+
+### Changed
+
+- Simplified player and club-administrator registration by moving optional birth year and gender details to profile editing.
+- Added guidance explaining how optional profile details help clubs understand their membership structure.
+- Removed address fields from Basic club registration while keeping a complete billing address mandatory for Pro registration and upgrades.
+- Limited member-directory data by access level: administrators retain complete member records, active members receive only the fields needed for club features and administrator contact, and inactive members receive only administrator contact details.
+- Loaded the public club list and authentication state concurrently during application startup.
+- Kept the initial notification refresh silent to avoid showing a second loading indicator after application startup.
+
 ## 0.2.2
 
 ### Added

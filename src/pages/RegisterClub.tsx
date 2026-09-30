@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from "react-router";
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router';
 import { Form } from '../components/form/Form';
@@ -9,6 +8,7 @@ import { Club, Field, PlanType } from '../types';
 import { applyPlanConfigToFields } from '../planConfig';
 import { PAID_PLAN_DURATION_LABEL, PLAN_CONFIG, getPlanName } from '../planConfig';
 import { AppDispatch } from '../store';
+import { ClubInvitationShare } from '../components/ClubInvitationShare';
 import './register-club.css';
 
 type SignupClubResponse = {
@@ -22,13 +22,19 @@ const CLUB_SETTINGS_CONFIGURED_AFTER_REGISTRATION = new Set([
     'timezone',
     'reservations_limit',
 ]);
+const CLUB_ADDRESS_FIELDS = new Set([
+    'address_line1',
+    'postal_code',
+    'city',
+    'country',
+]);
 
 export default function RegisterClub() {
-    const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
     const [selectedPlanType, setSelectedPlanType] = useState<PlanType | null>(null);
     const [isChoosingPlan, setIsChoosingPlan] = useState(true);
     const [formFields, setFormFields] = useState<Field[] | null>(null);
+    const [registeredClub, setRegisteredClub] = useState<Club | null>(null);
 
     const callback = (response: SignupClubResponse) => {
         dispatch({
@@ -37,7 +43,7 @@ export default function RegisterClub() {
                 value: response.club
             }
         });
-        navigate('/login');
+        setRegisteredClub(response.club);
     }
 
     const userFields = (signupFormJson.fields as Field[])
@@ -64,15 +70,30 @@ export default function RegisterClub() {
 
     const buildConfiguredFields = (planType: PlanType, sourceFields = fields) => {
         const configuredFields = applyPlanConfigToFields(
-            sourceFields.map(field => field.name === 'plan_type'
-                ? {
-                    ...field,
-                    hint: '',
-                    hintByValue: undefined,
-                    type: 'hidden',
-                    value: planType
+            sourceFields.map(field => {
+                if (field.name === 'plan_type') {
+                    return {
+                        ...field,
+                        hint: '',
+                        hintByValue: undefined,
+                        type: 'hidden',
+                        value: planType
+                    };
                 }
-                : field),
+
+                if (CLUB_ADDRESS_FIELDS.has(field.name)) {
+                    return {
+                        ...field,
+                        hidden: planType === 'basic',
+                        required: planType === 'pro',
+                        ...(field.name === 'address_line1' && planType === 'pro'
+                            ? {hint: 'Für die Rechnungsstellung erforderlich.'}
+                            : {}),
+                    };
+                }
+
+                return field;
+            }),
             planType
         ).map(field => field.name === 'plan_type'
             ? {
@@ -116,6 +137,14 @@ export default function RegisterClub() {
 
     return (
         <>
+            {registeredClub ? (
+                <>
+                    <p><Link className="icon icon--back register-club-login-link" to="/login">Weiter zur Anmeldung</Link></p>
+                    <h1>Verein erfolgreich registriert</h1>
+                    <ClubInvitationShare clubId={registeredClub._id} clubName={registeredClub.name} />
+                </>
+            ) : (
+            <>
             <p>
                 {!isChoosingPlan && selectedPlanType ? (
                     <button
@@ -182,6 +211,8 @@ export default function RegisterClub() {
                         callback={callback}
                     />
                 </div>
+            )}
+            </>
             )}
         </>
     )

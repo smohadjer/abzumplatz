@@ -4,7 +4,7 @@ type UsersState = {
   value: Array<{
     first_name: string;
     last_name: string;
-    email: string;
+    email?: string;
     status: string;
     role: string;
     _id: string;

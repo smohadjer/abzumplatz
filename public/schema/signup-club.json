@@ -18,6 +18,17 @@
         "timezone": { "$ref": "/schema/club.json#/properties/timezone" },
         "reservations_limit": { "$ref": "/schema/club.json#/properties/reservations_limit" }
     },
-    "required": ["first_name", "last_name", "email", "password", "privacy", "name", "address_line1", "postal_code", "city", "country", "plan_type", "courts_count", "start_hour", "end_hour", "timezone"],
+    "required": ["first_name", "last_name", "email", "password", "privacy", "name", "plan_type", "courts_count", "start_hour", "end_hour", "timezone"],
+    "allOf": [
+        {
+            "if": {
+                "properties": {"plan_type": {"const": "pro"}},
+                "required": ["plan_type"]
+            },
+            "then": {
+                "required": ["address_line1", "postal_code", "city", "country"]
+            }
+        }
+    ],
     "additionalProperties": false
 }

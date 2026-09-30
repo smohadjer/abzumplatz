@@ -26,6 +26,29 @@ function getRequestedUserIds(body: VercelRequest['body']): string[] {
 
   return requestedUserIds;
 }
+
+type MemberListDocument = {
+  _id: ObjectId;
+  first_name: string;
+  last_name: string;
+  email: string;
+  status: string;
+  role: string;
+  birth_year?: number;
+  sex?: 'male' | 'female';
+};
+
+function getMemberSummary(member: MemberListDocument) {
+  return {
+    _id: member._id,
+    first_name: member.first_name,
+    last_name: member.last_name,
+    status: member.status,
+    role: member.role,
+    ...(member.role === 'admin' ? {email: member.email} : {}),
+  };
+}
+
 async function deleteActiveReservationsForUser(
   database: ReturnType<MongoClient['db']>,
   userId: string,
@@ -159,8 +182,14 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           }
 
           if (doc._id.toString() !== payload._id) {
-            const {birth_year: _birthYear, sex: _sex, ...publicMember} = doc;
-            return res.json(publicMember);
+            if (requester.role === 'admin') {
+              return res.json(doc);
+            }
+            if (requester.status === 'inactive' && doc.role !== 'admin') {
+              return res.status(403).json({error: 'Reading this member is not allowed'});
+            }
+
+            return res.json(getMemberSummary(doc));
           }
 
           return res.json(doc);
@@ -181,7 +210,16 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         }
 
         const docs = await fetchUsers(database, undefined, club_id, requester.role === 'admin');
-        return res.json(docs);
+        if (requester.role === 'admin') {
+          return res.json(docs);
+        }
+        if (requester.status === 'inactive') {
+          return res.json(docs
+            .filter(member => member.role === 'admin')
+            .map(getMemberSummary));
+        }
+
+        return res.json(docs.map(getMemberSummary));
       }
     }
 

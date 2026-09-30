@@ -15,7 +15,7 @@ export default function AppRefreshManager() {
     const refreshPending = useRef(false);
     const lastRefreshAt = useRef(0);
 
-    const refresh = useCallback((force = false) => {
+    const refresh = useCallback((force = false, showIndicator = true) => {
         if (!auth.value || auth.status === 'inactive' || !auth.club_id || !auth._id) return;
         if (inFlight.current) {
             if (force) refreshPending.current = true;
@@ -26,7 +26,7 @@ export default function AppRefreshManager() {
         const startedAt = Date.now();
         const controller = new AbortController();
         abortController.current = controller;
-        dispatch({type: 'appRefresh/start'});
+        if (showIndicator) dispatch({type: 'appRefresh/start'});
         const request = refreshAppData(dispatch, {_id: auth._id, club_id: auth.club_id}, controller.signal)
             .catch(error => {
                 if (!(error instanceof DOMException && error.name === 'AbortError')) {
@@ -42,7 +42,7 @@ export default function AppRefreshManager() {
                 lastRefreshAt.current = Date.now();
                 inFlight.current = null;
                 abortController.current = null;
-                dispatch({type: 'appRefresh/finish'});
+                if (showIndicator) dispatch({type: 'appRefresh/finish'});
                 if (refreshPending.current) {
                     refreshPending.current = false;
                     refresh(true);
@@ -52,7 +52,7 @@ export default function AppRefreshManager() {
     }, [auth._id, auth.club_id, auth.status, auth.value, dispatch]);
 
     useEffect(() => {
-        refresh(true);
+        refresh(true, false);
         return () => {
             abortController.current?.abort();
             abortController.current = null;
