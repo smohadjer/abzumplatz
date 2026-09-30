@@ -41,14 +41,20 @@ header {
 
 main {
     flex-grow: 1;
-    padding: 0.5em 0.75em 1em;
     scroll-behavior: contain;
     overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.main-content {
     width: 100%;
     max-width: 1280px;
     margin-left: auto;
     margin-right: auto;
+    padding: 0.5em 0.75em 1em;
     box-sizing: border-box;
+    min-height: 100%;
 }
 
 h1 {
