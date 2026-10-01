@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router';
 import { ClubInvitationShare } from '../../components/ClubInvitationShare';
+import AdminBackButton from '../../components/AdminBackButton';
 import { RootState } from '../../store';
 import { fetchClub } from '../../utils/utils';
 
@@ -34,7 +35,7 @@ export default function AdminInvitePage() {
 
     return (
         <>
-            <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
+            <p><AdminBackButton /></p>
             <h1>Mitglieder einladen</h1>
             {club ? <ClubInvitationShare clubId={club._id} clubName={club.name} showHeading={false} /> : null}
             {loading ? <p role="status">Vereinsdaten werden geladen…</p> : null}

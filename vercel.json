@@ -11,6 +11,7 @@
         {"source": "/api/tournament-registrations", "destination": "/api/tournament?resource=registrations"},
         {"source": "/api/competition-groups", "destination": "/api/tournament?resource=competition-groups"},
         {"source": "/admin", "destination": "/"},
+        {"source": "/admin/checklist", "destination": "/"},
         {"source": "/admin/members", "destination": "/"},
         {"source": "/admin/club", "destination": "/"},
         {"source": "/admin/club/delete", "destination": "/"},

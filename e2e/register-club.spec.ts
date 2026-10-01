@@ -25,6 +25,7 @@ test('a club can register with the Basic plan without an address', async ({ page
   let submittedRegistration: Record<string, unknown> | undefined;
   await page.route('**/api/signup-club', async route => {
     submittedRegistration = route.request().postDataJSON();
+    await new Promise(resolve => setTimeout(resolve, 300));
     await route.fulfill({
       status: 201,
       json: {
@@ -47,8 +48,12 @@ test('a club can register with the Basic plan without an address', async ({ page
   await fillCommonRegistrationFields(page, 'basic');
   await page.getByRole('button', { name: 'Verein Registrieren' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Verein erfolgreich registriert' })).toBeVisible();
-  await expect(page.getByText(/register\/player\?club=basic-club-id$/)).toBeVisible();
+  await expect(page.getByRole('status', { name: 'Registrierung wird verarbeitet' })).toBeVisible();
+  await expect(page).toHaveURL('/login');
+  await expect(page.getByRole('heading', { name: 'Einloggen' })).toBeVisible();
+  await expect(page.getByText('Ihr Verein wurde erfolgreich registriert. Melden Sie sich jetzt an, um ihn einzurichten.')).toBeVisible();
+  await expect(page.locator('input[name="email"]')).toHaveValue('petra.basic@example.com');
+  await expect(page.locator('input[name="password"]')).toBeFocused();
   expect(submittedRegistration).toMatchObject({
     first_name: 'Petra',
     last_name: 'Playwright',
@@ -91,8 +96,11 @@ test('a club registering with the Pro plan submits a complete billing address', 
   await page.locator('input[name="city"]').fill('Freiburg');
   await page.getByRole('button', { name: 'Verein Registrieren' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Verein erfolgreich registriert' })).toBeVisible();
-  await expect(page.getByText(/register\/player\?club=pro-club-id$/)).toBeVisible();
+  await expect(page).toHaveURL('/login');
+  await expect(page.getByRole('heading', { name: 'Einloggen' })).toBeVisible();
+  await expect(page.getByText('Ihr Verein wurde erfolgreich registriert. Melden Sie sich jetzt an, um ihn einzurichten.')).toBeVisible();
+  await expect(page.locator('input[name="email"]')).toHaveValue('petra.pro@example.com');
+  await expect(page.locator('input[name="password"]')).toBeFocused();
   expect(submittedRegistration).toMatchObject({
     first_name: 'Petra',
     last_name: 'Playwright',

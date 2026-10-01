@@ -56,6 +56,10 @@ export function SignupClub(props: Props) {
 
             field.footnote = specificPlanNotice || 'Upgrades gelten sofort für den Zugriff, aber erst ab der nächsten Verlängerung für den nächsten Abrechnungszeitraum.';
         }
+
+        if (['address_line1', 'postal_code', 'city', 'country'].includes(field.name)) {
+            field.required = planType === 'pro';
+        }
     });
 
     const configuredFields = applyPlanConfigToFields(normalizedFields, planType);
@@ -65,7 +69,7 @@ export function SignupClub(props: Props) {
             classNames="signup"
             initialData={configuredFields}
             formAttributes={formJson.form}
-            label={label ?? 'Absenden'}
+            label={label ?? 'Speichern'}
             pathSchema="/schema/club.json"
             callback={callback}
         />

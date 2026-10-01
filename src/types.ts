@@ -22,6 +22,7 @@ export type Field = {
     value: string | number;
   }[];
   autocomplete?: string;
+  autoFocus?: boolean;
   hasStrengthIndicator?: boolean;
   hasDisplayToggle?: boolean;
 }

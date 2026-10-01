@@ -4,8 +4,9 @@ import { RootState } from './../../store';
 import { fetchClub } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
 import { EditCourts } from '../../components/editCourts/EditCourts';
+import AdminBackButton from '../../components/AdminBackButton';
 
-import { Link, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { Club } from '../../types';
 
 type Response = {
@@ -23,6 +24,8 @@ export default function AdminCourtsPage() {
     const club_id = user.club_id;
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
+    const openedFromAdminChecklist = Boolean((location.state as {fromAdminChecklist?: boolean} | null)?.fromAdminChecklist);
 
     const callback = async (response: Response) => {
         if (response.data) {
@@ -43,7 +46,7 @@ export default function AdminCourtsPage() {
                 }
             });
 
-            navigate('/admin');
+            navigate(openedFromAdminChecklist ? '/admin/checklist' : '/admin');
         }
     }
 
@@ -64,7 +67,7 @@ export default function AdminCourtsPage() {
             </div>
         ) : (
             <>
-                <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
+                <p><AdminBackButton /></p>
                 <h1>Plätze sperren</h1>
                 <EditCourts
                     callback={callback}

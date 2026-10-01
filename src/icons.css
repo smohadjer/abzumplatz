@@ -23,6 +23,22 @@ a.icon:hover {
     filter: invert(9%) sepia(97%) saturate(7423%) hue-rotate(85deg) brightness(89%) contrast(87%);
 }
 
+.admin-back-button {
+    margin: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    border: 0;
+    background-color: transparent;
+    cursor: pointer;
+    font: inherit;
+}
+
+.admin-back-button:hover,
+.admin-back-button:focus-visible {
+    color: var(--blue);
+}
+
 .icon--delete {
     background-image: url(./images/delete.svg);
     background-size: 20px;
@@ -35,6 +51,10 @@ a.icon:hover {
 
 .icon--reload {
     background-image: url(./images/refresh.svg);
+}
+
+.icon--undo {
+    background-image: url(./images/undo.svg);
 }
 
 .icon--logout {

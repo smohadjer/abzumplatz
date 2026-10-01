@@ -112,6 +112,7 @@ export default function AdminHomePage() {
         <>
             <h1>Admin</h1>
             <ul className="settings-links">
+                <li><Link to="/admin/checklist">Einrichtungscheckliste</Link></li>
                 <li><Link to="/admin/members">Mitglieder verwalten</Link></li>
                 <li><Link to="/admin/invite">Mitglieder einladen</Link></li>
                 <li><Link to="/admin/club">Verein</Link></li>

@@ -66,13 +66,13 @@ or deletion of the template do not affect existing or completed tournaments.
 
 Because common competition groups are largely the same across clubs, the
 repository contains the default definitions in
-`scripts/data/competition-groups.json`. A seed script reads this file and
+`scripts/data/competition-groups.js`. A seed script reads this file and
 inserts the definitions into the
 `competition_groups` collection for a club. This reduces initial setup work
 while still allowing administrators to create additional groups that are not
 included in the defaults.
 
-The JSON file is seed input only. It is not a separate runtime data source and
+The JavaScript file is seed input only. It is not a separate runtime data source and
 does not change the data model. Once inserted, a default group is a normal
 `CompetitionGroup` document with a MongoDB `ObjectId` and a `club_id`, just
 like a group created by an administrator.
@@ -81,8 +81,8 @@ When a new club is created, the standard definitions are inserted
 automatically for that club. This applies both to public club registration and
 to club creation by an existing account.
 
-The JSON file is the authoritative list of seed definitions and currently
-contains nine groups, including men's and women's singles, U18 and 50+
+The JavaScript file is the authoritative list of seed definitions and currently
+contains nineteen groups, including men's and women's singles, U18, U15, U12 and 30+ through 60+
 singles, and men's, women's, and mixed doubles.
 
 For clubs created before this behavior was introduced, run the idempotent seed
@@ -101,8 +101,13 @@ The seed script:
   club; and
 - is idempotent, so running it repeatedly does not create duplicates.
 
+Administrators can replace all competition-group templates for their club with
+the defaults using `Gruppen zurücksetzen` on the competition-groups tab. The
+reset deletes custom and edited templates, but it does not change groups copied
+into tournaments that have already been created.
+
 The inserted definitions are templates used while configuring a tournament.
-The application does not resolve tournament groups directly from the JSON file
+The application does not resolve tournament groups directly from the JavaScript file
 at runtime.
 
 ## Tournament groups

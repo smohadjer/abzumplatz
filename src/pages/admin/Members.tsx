@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './../../store';
 import { fetchClub, fetchUsers } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
+import AdminBackButton from '../../components/AdminBackButton';
 import { Link, useSearchParams } from 'react-router';
 import { getMembersLimitForPlan, getPlanName, PLAN_CONFIG } from '../../planConfig';
 import './members.css';
@@ -225,7 +226,7 @@ export default function AdminMembersPage() {
             </div>
         ) : (
             <>
-                <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
+                <p><AdminBackButton /></p>
                 <h1>Mitglieder verwalten</h1>
                 {hasMemberCap ? (
                     <>

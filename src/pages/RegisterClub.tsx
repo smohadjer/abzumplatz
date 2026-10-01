@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { Form } from '../components/form/Form';
 import signupFormJson from '../components/signup/signupForm.json';
 import signupClubFormJson from '../components/signupClub/signupClubForm.json';
@@ -8,7 +8,6 @@ import { Club, Field, PlanType } from '../types';
 import { applyPlanConfigToFields } from '../planConfig';
 import { PAID_PLAN_DURATION_LABEL, PLAN_CONFIG, getPlanName } from '../planConfig';
 import { AppDispatch } from '../store';
-import { ClubInvitationShare } from '../components/ClubInvitationShare';
 import './register-club.css';
 
 type SignupClubResponse = {
@@ -31,19 +30,27 @@ const CLUB_ADDRESS_FIELDS = new Set([
 
 export default function RegisterClub() {
     const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate();
     const [selectedPlanType, setSelectedPlanType] = useState<PlanType | null>(null);
     const [isChoosingPlan, setIsChoosingPlan] = useState(true);
     const [formFields, setFormFields] = useState<Field[] | null>(null);
-    const [registeredClub, setRegisteredClub] = useState<Club | null>(null);
 
     const callback = (response: SignupClubResponse) => {
+        const registeredEmail = formFields?.find(field => field.name === 'email')?.value;
         dispatch({
             type: 'clubs/upsert',
             payload: {
                 value: response.club
             }
         });
-        setRegisteredClub(response.club);
+        navigate('/login', {
+            replace: true,
+            state: {
+                clubRegistrationSuccess: true,
+                showAdminWelcome: true,
+                email: typeof registeredEmail === 'string' ? registeredEmail : undefined,
+            },
+        });
     }
 
     const userFields = (signupFormJson.fields as Field[])
@@ -137,13 +144,6 @@ export default function RegisterClub() {
 
     return (
         <>
-            {registeredClub ? (
-                <>
-                    <p><Link className="icon icon--back register-club-login-link" to="/login">Weiter zur Anmeldung</Link></p>
-                    <h1>Verein erfolgreich registriert</h1>
-                    <ClubInvitationShare clubId={registeredClub._id} clubName={registeredClub.name} />
-                </>
-            ) : (
             <>
             <p>
                 {!isChoosingPlan && selectedPlanType ? (
@@ -155,7 +155,7 @@ export default function RegisterClub() {
                         Zurück
                     </button>
                 ) : (
-                    <Link className="icon icon--back" to="/">Zurück</Link>
+                    <Link className="icon icon--back" to="/">Zur Startseite</Link>
                 )}
             </p>
             <h1>Verein Registrieren</h1>
@@ -209,11 +209,11 @@ export default function RegisterClub() {
                         label="Verein Registrieren"
                         pathSchema="/schema/signup-club.json"
                         callback={callback}
+                        showSubmitLoader
                     />
                 </div>
             )}
             </>
-            )}
         </>
     )
 }

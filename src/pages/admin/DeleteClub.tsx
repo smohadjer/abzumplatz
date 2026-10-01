@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router';
 import { RootState } from '../../store';
+import AdminBackButton from '../../components/AdminBackButton';
 import '../settings.css';
 
 export default function AdminDeleteClubPage() {
@@ -40,7 +41,7 @@ export default function AdminDeleteClubPage() {
 
     return (
         <>
-            <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
+            <p><AdminBackButton /></p>
             <h1>Verein löschen</h1>
             <div className="admin-deleted-club-warning">
                 <p><strong>Sie löschen {club?.name || 'Ihren Verein'}.</strong></p>

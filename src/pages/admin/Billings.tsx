@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
 import { Loader } from "../../components/loader/Loader";
+import AdminBackButton from '../../components/AdminBackButton';
 import { BillingPeriod } from "../../types";
 import { getCoveredUntilFromPeriodEnd, getPlanName } from "../../planConfig";
 
@@ -90,7 +90,7 @@ export default function AdminBillingsPage() {
             </div>
         ) : (
             <>
-                <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
+                <p><AdminBackButton /></p>
                 <h1>Abrechnungen</h1>
                 {loadError ? <p>{loadError}</p> : null}
                 {invoiceError ? <p>{invoiceError}</p> : null}

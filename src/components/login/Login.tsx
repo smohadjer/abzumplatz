@@ -4,12 +4,26 @@ import formJson from './loginForm.json';
 import './Login.css';
 import { useNavigate } from "react-router";
 import { useDispatch } from 'react-redux'
-import { AuthenticatedUserResponse } from '../../types.js';
+import { AuthenticatedUserResponse, Field } from '../../types.js';
 
 
-export function Login() {
+type Props = {
+    showAdminWelcome?: boolean;
+    initialEmail?: string;
+};
+
+export function Login({showAdminWelcome, initialEmail}: Props) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const fields: Field[] = structuredClone(formJson.fields);
+    const emailField = fields.find(field => field.name === 'email');
+    if (emailField && initialEmail) {
+        emailField.value = initialEmail;
+        const passwordField = fields.find(field => field.name === 'password');
+        if (passwordField) {
+            passwordField.autoFocus = true;
+        }
+    }
 
     const callback = async (response: AuthenticatedUserResponse) => {
         dispatch({
@@ -20,14 +34,22 @@ export function Login() {
             }
         });
 
-        navigate(response.status === 'inactive' ? '/profile' : '/reservations');
+        if (response.status === 'inactive') {
+            navigate('/profile');
+            return;
+        }
+
+        navigate('/reservations', showAdminWelcome
+            ? {state: {showAdminWelcome: true}}
+            : undefined
+        );
     }
 
     return (
         <>
             <Form
                 classNames="form-login"
-                initialData={formJson.fields}
+                initialData={fields}
                 formAttributes={formJson.form}
                 label="Einloggen"
                 pathSchema="/schema/login.json"

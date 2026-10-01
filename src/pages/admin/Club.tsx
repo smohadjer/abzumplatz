@@ -4,7 +4,8 @@ import { RootState } from './../../store';
 import { fetchClub } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
 import { SignupClub } from '../../components/signupClub/SignupClub';
-import { Link, useNavigate } from 'react-router';
+import AdminBackButton from '../../components/AdminBackButton';
+import { useLocation, useNavigate } from 'react-router';
 import { Club } from '../../types';
 
 type Response = {
@@ -22,6 +23,8 @@ export default function AdminClubPage() {
     const club_id = user.club_id;
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
+    const openedFromAdminChecklist = Boolean((location.state as {fromAdminChecklist?: boolean} | null)?.fromAdminChecklist);
 
     const callback = async (response: Response) => {
         if (response.data) {
@@ -42,7 +45,7 @@ export default function AdminClubPage() {
                 }
             });
 
-            navigate('/admin');
+            navigate(openedFromAdminChecklist ? '/admin/checklist' : '/admin');
         }
     }
 
@@ -63,7 +66,7 @@ export default function AdminClubPage() {
             </div>
         ) : (
             <>
-                <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
+                <p><AdminBackButton /></p>
                 <h1>Verein Editeiren</h1>
                 <SignupClub
                     callback={callback}

@@ -164,6 +164,39 @@
     margin: 1.25rem 0;
 }
 
+.admin-reset-default-groups-action {
+    margin: 0 0 0.75rem;
+}
+
+.admin-reset-default-groups-action .button-link {
+    min-width: 0;
+}
+
+.admin-reset-default-groups-action .icon--undo {
+    gap: 0.45em;
+    background-image: none;
+}
+
+.admin-reset-default-groups-action .icon--undo::before {
+    content: '';
+    flex: none;
+    width: 1.4em;
+    height: 1.4em;
+    background-color: currentColor;
+    -webkit-mask: url('../../images/undo.svg') center / contain no-repeat;
+    mask: url('../../images/undo.svg') center / contain no-repeat;
+}
+
+.admin-reset-default-groups-action .button-link:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.admin-reset-default-groups-message {
+    margin: 0 0 0.75rem;
+    color: #245c31;
+}
+
 .admin-management-filters {
     display: flex;
     flex-wrap: nowrap;

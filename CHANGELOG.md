@@ -2,6 +2,30 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.4.0
+
+### Added
+
+- Added an administrator setup checklist covering club details, court availability, reservation rules, test reservations, and member invitations.
+- Added a one-time welcome dialog after a newly registered club administrator signs in, with a direct link to the setup checklist.
+- Added loading indicators to player and club registration submissions.
+- Added U12 and U15 junior groups plus 30+, 40+, and 60+ senior groups to the default tournament competition groups.
+- Added an administrator action for transactionally resetting competition-group templates to the defaults.
+- Added end-to-end coverage for resetting competition groups.
+
+### Changed
+
+- Redirected newly registered club administrators directly to login, prefilled their email address, focused the password field, and carried onboarding context through sign-in.
+- Replaced hardcoded administrator return links with history-aware Back buttons and preserved checklist navigation after saving setup changes.
+- Made the welcome dialog fully modal with focus containment, inert background content, Escape dismissal, and focus restoration.
+- Made Basic-plan club addresses optional in club settings while retaining required billing addresses for Pro.
+- Renamed administrator setting actions to clearer labels and added guidance for disabling courts.
+- Updated competition-group filters so junior and senior groups no longer appear under unrestricted Herren or Damen categories.
+
+### Fixed
+
+- Corrected the new-club notification recipient address to `info@abzumplatz.de`.
+
 ## 0.3.1
 
 ### Fixed

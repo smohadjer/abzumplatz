@@ -9,6 +9,7 @@ import Error from '../Error.js';
 import Radio  from '../Radio.js';
 import Checkbox from '../Checkbox.js';
 import Password from '../password/Password.js';
+import { Loader } from '../loader/Loader.js';
 import { Field, ErrorType, FormAttributes } from '../../types';
 import './Form.css';
 
@@ -22,7 +23,9 @@ type Props = {
     formData?: Field[];
     onFormDataChange?: (fields: Field[]) => void;
     children?: ReactNode;
+    intro?: ReactNode;
     isSubmitDisabled?: (fields: Field[]) => boolean;
+    showSubmitLoader?: boolean;
 }
 
 type Option = {
@@ -30,6 +33,8 @@ type Option = {
     uncheckedLabel?: string;
     value: string | number;
 }
+
+const CLUB_ADDRESS_FIELDS = new Set(['address_line1', 'postal_code', 'city', 'country']);
 
 export function Form(props: Props) {
     const { label, pathSchema, initialData, formAttributes, formData: controlledFormData, onFormDataChange } = props;
@@ -39,12 +44,21 @@ export function Form(props: Props) {
         const planType = fields.find(field => field.name === 'plan_type')?.value;
 
         return fields.map(field => {
-            return field.hintByValue && typeof planType === 'string'
+            const updatedField = field.hintByValue && typeof planType === 'string'
                 ? {
                     ...field,
                     hint: field.hintByValue[planType] ?? field.hint
                 }
                 : field;
+
+            if (CLUB_ADDRESS_FIELDS.has(field.name) && typeof planType === 'string') {
+                return {
+                    ...updatedField,
+                    required: planType === 'pro',
+                };
+            }
+
+            return updatedField;
         })
     };
     const [internalFormData, setInternalFormData] = useState<Field[]>(() => applyConditionalVisibility(structuredClone(initialData)));
@@ -353,9 +367,15 @@ export function Form(props: Props) {
             action={formAttributes.action}
             onSubmit={submitHandler}
             noValidate={formAttributes.disableBrowserValidation}>
+            {props.intro}
             {getFields()}
-            <div className="row">
+            <div className="row form-submit-row">
                 <button disabled={disabled || props.isSubmitDisabled?.(formData)} type="submit">{label}</button>
+                {disabled && props.showSubmitLoader ? (
+                    <span className="form-submit-loader" role="status" aria-label="Registrierung wird verarbeitet">
+                        <Loader size="small" />
+                    </span>
+                ) : null}
             </div>
             {props.children}
         </form>

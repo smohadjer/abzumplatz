@@ -13,6 +13,17 @@
         margin-top: 1em;
     }
 
+    .form-submit-row {
+        display: flex;
+        align-items: center;
+        gap: 0.65em;
+    }
+
+    .form-submit-loader {
+        display: inline-flex;
+        align-items: center;
+    }
+
     fieldset {
         border: 0;
         padding: 0;

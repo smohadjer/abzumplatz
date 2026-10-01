@@ -45,6 +45,37 @@
     text-decoration: none;
 }
 
+.admin-checklist {
+    margin: 1.25rem 0 0;
+    padding-left: 2rem;
+}
+
+.admin-checklist li {
+    padding-left: 0.35rem;
+}
+
+.admin-checklist li + li {
+    margin-top: 0.75rem;
+}
+
+.admin-checklist a {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: 0.25rem;
+    text-decoration: none;
+}
+
+.admin-checklist a:hover,
+.admin-checklist a:focus-visible {
+    background: #f2f5fa;
+}
+
+.admin-checklist span {
+    color: #333;
+}
+
 .settings-logout-link {
     color: #b42318;
 }

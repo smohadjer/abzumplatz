@@ -11,6 +11,7 @@ import Home from './pages/Home';
 import SelectClubPage from './pages/SelectClubPage';
 import Reservations from './pages/Reservations';
 import AdminHomePage from './pages/admin/Home';
+import AdminChecklistPage from './pages/admin/Checklist';
 import AdminMembersPage from './pages/admin/Members'
 import AdminInvitePage from './pages/admin/Invite';
 import AdminClubPage from './pages/admin/Club';
@@ -145,6 +146,11 @@ export default function App({initiallyInitialized = false}: AppProps) {
                 <Route path="/admin" element={
                     <ProtectedRoute>
                         <AdminHomePage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/checklist" element={
+                    <ProtectedRoute>
+                        <AdminChecklistPage />
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/members" element={

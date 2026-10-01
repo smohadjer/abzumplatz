@@ -1,9 +1,10 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { CompetitionGroup, CompetitionType } from '../../types';
 import { Loader } from '../../components/loader/Loader';
 import { RootState } from '../../store';
+import AdminBackButton from '../../components/AdminBackButton';
 import './tournaments.css';
 
 type GroupForm = {
@@ -96,7 +97,7 @@ export default function AdminCompetitionGroupFormPage() {
     if (loading) return <div className="splash"><Loader size="big" text="Konkurrenz wird geladen..." /></div>;
 
     return <>
-        <p><Link className="icon icon--back" to="/admin/tournaments?tab=groups">Zurück</Link></p>
+        <p><AdminBackButton fallback="/admin/tournaments?tab=groups" /></p>
         <h1>{editing ? 'Konkurrenz bearbeiten' : 'Konkurrenz hinzufügen'}</h1>
         <form className="admin-tournament-form" onSubmit={saveGroup}>
             <label htmlFor="group-name">Name</label>

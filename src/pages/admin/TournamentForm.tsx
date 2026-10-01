@@ -1,8 +1,9 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { CompetitionGroup, Tournament, TournamentPaymentMethod, TournamentStatus } from '../../types';
 import { Loader } from '../../components/loader/Loader';
+import AdminBackButton from '../../components/AdminBackButton';
 import { RootState } from '../../store';
 import './tournaments.css';
 
@@ -140,7 +141,7 @@ export default function AdminTournamentFormPage() {
     if (loading) return <div className="splash"><Loader size="big" text="Turnier wird geladen..." /></div>;
 
     return <>
-        <p><Link className="icon icon--back" to="/admin/tournaments">Zurück</Link></p>
+        <p><AdminBackButton fallback="/admin/tournaments" /></p>
         <h1>{editing ? 'Turnier bearbeiten' : 'Turnier hinzufügen'}</h1>
         <form className="admin-tournament-form" onSubmit={saveTournament}>
             <label htmlFor="tournament-name">Name</label>

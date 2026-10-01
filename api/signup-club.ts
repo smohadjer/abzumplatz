@@ -27,7 +27,7 @@ const signupSchema = JSON.parse(fs.readFileSync(process.cwd() + '/public/schema/
 
 const sendNewClubNotification = async (body: SignupClubBody) => {
     await sendEmail({
-        email: 'info@abzumplatz@de',
+        email: 'info@abzumplatz.de',
         subject: `New club registration: ${body.name}`,
         text: `A new club has been registered on Abzumplatz.\n\nClub: ${body.name}\nPlan: ${body.plan_type}\nAdmin: ${body.first_name} ${body.last_name}\nAdmin email: ${body.email}\nCourts: ${body.courts_count}`,
     });

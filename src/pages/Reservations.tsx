@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from 'react-redux'
-import { useSearchParams } from 'react-router';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { RootState } from '../store';
 import {
     getClub,
@@ -16,6 +16,7 @@ import { Header } from '../components/courts/Header';
 import { Popup } from '../components/courts/Popup';
 import { Calendar } from '../components/courts/Calendar';
 import { Loader } from '../components/loader/Loader';
+import AdminBackButton from '../components/AdminBackButton';
 
 import './reservations.css';
 import { getIsoDateString, getZonedDateTime, isReservationTimeInPast, reservationIsOnSameDay } from '../utils/reservationTime';
@@ -40,7 +41,17 @@ type Slot = {
 
 export default function Reservations() {
     const dispatch = useDispatch();
+    const location = useLocation();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const [showAdminWelcome, setShowAdminWelcome] = useState(() => (
+        Boolean((location.state as {showAdminWelcome?: boolean} | null)?.showAdminWelcome)
+        || searchParams.get('welcome') === '1'
+    ));
+    const welcomeDialogRef = useRef<HTMLElement>(null);
+    const openedFromAdminChecklist = Boolean(
+        (location.state as {fromAdminChecklist?: boolean} | null)?.fromAdminChecklist
+    );
     const [loading, setLoading] = useState(false);
     const usersData = useSelector((state: RootState) => state.users);
     const reservationsData = useSelector((state: RootState) => state.reservations);
@@ -208,14 +219,88 @@ export default function Reservations() {
         }
     }, []);
 
+    useEffect(() => {
+        if ((location.state as {showAdminWelcome?: boolean} | null)?.showAdminWelcome) {
+            navigate(`${location.pathname}${location.search}`, {replace: true, state: null});
+        }
+    }, [location.pathname, location.search, location.state, navigate]);
+
+    useEffect(() => {
+        if (!showAdminWelcome) return;
+
+        const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        const dialog = welcomeDialogRef.current;
+        const backgroundElements = Array.from(document.querySelectorAll<HTMLElement>('#root > header, #root > footer'));
+        const previousInertValues = backgroundElements.map(element => element.inert);
+        backgroundElements.forEach(element => { element.inert = true; });
+        const focusableSelector = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+        requestAnimationFrame(() => dialog?.querySelector<HTMLElement>(focusableSelector)?.focus());
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                setShowAdminWelcome(false);
+                return;
+            }
+
+            if (event.key !== 'Tab' || !dialog) return;
+            const focusableElements = Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector));
+            if (!focusableElements.length) {
+                event.preventDefault();
+                return;
+            }
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+            if (event.shiftKey && document.activeElement === firstElement) {
+                event.preventDefault();
+                lastElement.focus();
+            } else if (!event.shiftKey && document.activeElement === lastElement) {
+                event.preventDefault();
+                firstElement.focus();
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+            backgroundElements.forEach((element, index) => { element.inert = previousInertValues[index]; });
+            if (previouslyFocused?.isConnected) previouslyFocused.focus();
+        };
+    }, [showAdminWelcome]);
+
     return (
         loading ? (
             <div className="splash">
                 <Loader size="big" text="Reservierungen werden geladen" />
             </div>
         ) : (
-            <div className="grid">
+            <>
+                {showAdminWelcome && user.role === 'admin' ? (
+                    <div className="admin-welcome-backdrop">
+                        <section
+                            ref={welcomeDialogRef}
+                            className="admin-welcome-dialog"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="admin-welcome-title"
+                        >
+                            <button
+                                className="admin-welcome-close"
+                                type="button"
+                                aria-label="Schließen"
+                                autoFocus
+                                onClick={() => setShowAdminWelcome(false)}
+                            >×</button>
+                            <h2 id="admin-welcome-title">Willkommen bei abzumplatz!</h2>
+                            <p>Ihr Verein wurde erfolgreich eingerichtet. Wir haben eine kurze Checkliste vorbereitet, mit der Sie Vereinsdaten, Plätze und Reservierungsregeln überprüfen können.</p>
+                            <Link className="button-link" to="/admin/checklist">Checkliste öffnen</Link>
+                        </section>
+                    </div>
+                ) : null}
+                <div className="grid" inert={showAdminWelcome && user.role === 'admin'}>
                 <div className="reservations">
+                    {user.role === 'admin' && openedFromAdminChecklist ? (
+                        <p className="reservations-checklist-back"><AdminBackButton fallback="/admin/checklist" /></p>
+                    ) : null}
                     <Calendar
                         reservationDate={reservationDate}
                         setReservationDate={setReservationDate}
@@ -276,7 +361,8 @@ export default function Reservations() {
                         closePopup={closePopup}>
                     </Popup>}
                 </div>
-            </div>
+                </div>
+            </>
         )
     )
 }

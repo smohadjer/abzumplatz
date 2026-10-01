@@ -1,8 +1,9 @@
 import { FormEvent, MouseEvent, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation, useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { Notification } from '../../types';
 import { RootState } from '../../store';
+import AdminBackButton from '../../components/AdminBackButton';
 import AnnouncementTabs from './AnnouncementTabs';
 import '../../components/header/notifications.css';
 import './announcement.css';
@@ -126,7 +127,7 @@ export default function AdminAnnouncementFormPage() {
     if (loading) return <div className="splash">Benachrichtigung wird geladen…</div>;
 
     return <>
-        <p><Link className="icon icon--back" to={editing ? '/admin/announcements' : '/admin'}>Zurück</Link></p>
+        <p><AdminBackButton fallback={editing ? '/admin/announcements' : '/admin'} /></p>
         <h1>{editing ? 'Benachrichtigung bearbeiten' : 'Benachrichtigung veröffentlichen'}</h1>
         <AnnouncementTabs active={editing ? 'history' : 'new'} />
         <p>{editing ? 'Die Änderungen erscheinen bei allen Vereinsmitgliedern.' : 'Die Benachrichtigung erscheint bei allen Vereinsmitgliedern.'}</p>

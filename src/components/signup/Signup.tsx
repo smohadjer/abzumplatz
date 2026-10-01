@@ -50,6 +50,7 @@ export function Signup() {
             label="Registrieren"
             pathSchema="/schema/signup.json"
             callback={callback}
+            showSubmitLoader
         />
     )
 }

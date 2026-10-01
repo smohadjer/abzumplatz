@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router';
 import { Loader } from '../../components/loader/Loader';
+import AdminBackButton from '../../components/AdminBackButton';
 import { RootState } from '../../store';
 import { Notification } from '../../types';
 import AnnouncementTabs from './AnnouncementTabs';
@@ -41,7 +42,7 @@ export default function AdminAnnouncementsPage() {
     }, [auth.club_id, dispatch, hasCurrentClubHistory, history.loading]);
 
     return <>
-        <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
+        <p><AdminBackButton /></p>
         <h1>Benachrichtigungen verwalten</h1>
         <AnnouncementTabs active="history" />
         <p>Hier sehen Sie die bisher veröffentlichten Benachrichtigungen Ihres Vereins.</p>

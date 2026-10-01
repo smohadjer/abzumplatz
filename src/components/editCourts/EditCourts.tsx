@@ -59,9 +59,14 @@ export function EditCourts(props: Props) {
             classNames="editCourtsForm"
             initialData={normalizedFields}
             formAttributes={formJson.form}
-            label={label ?? 'Absenden'}
+            label={label ?? 'Speichern'}
             pathSchema="/schema/courts.json"
             callback={callback}
+            intro={
+                <p className="edit-courts-guidance">
+                    Entfernen Sie das Häkchen bei einem Platz, wenn dieser nicht für Buchungen in der App verfügbar sein soll.
+                </p>
+            }
         />
     )
 }

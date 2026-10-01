@@ -1,11 +1,12 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { defaultClubRules } from '../../clubRules';
 import { Loader } from '../../components/loader/Loader';
 import { RootState } from '../../store';
 import { Club } from '../../types';
 import { fetchClub } from '../../utils/utils';
+import AdminBackButton from '../../components/AdminBackButton';
 import './rules.css';
 
 type RulesResponse = {
@@ -25,6 +26,8 @@ export default function AdminRulesPage() {
     const clubData = useSelector((state: RootState) => state.club);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
+    const openedFromAdminChecklist = Boolean((location.state as {fromAdminChecklist?: boolean} | null)?.fromAdminChecklist);
     const clubId = user.club_id;
 
     useEffect(() => {
@@ -78,7 +81,7 @@ export default function AdminRulesPage() {
             dispatch({type: 'clubs/fetch', payload: {value: result.data.clubs}});
             const updatedClub = result.data.clubs.find(club => club._id === clubId);
             dispatch({type: 'club/fetch', payload: {value: updatedClub, loaded: true}});
-            navigate('/admin');
+            navigate(openedFromAdminChecklist ? '/admin/checklist' : '/admin');
         } catch {
             setError('Die Regeln konnten nicht gespeichert werden.');
         } finally {
@@ -92,7 +95,7 @@ export default function AdminRulesPage() {
 
     return (
         <>
-            <p><Link className="icon icon--back" to="/admin">Zurück</Link></p>
+            <p><AdminBackButton /></p>
             <h1>Regeln verwalten</h1>
             <form className="admin-rules-form" onSubmit={saveRules}>
                 <ol>

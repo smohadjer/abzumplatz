@@ -1,9 +1,10 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Tournament, TournamentRegistration } from '../../types';
 import { RootState } from '../../store';
 import { Loader } from '../../components/loader/Loader';
+import AdminBackButton from '../../components/AdminBackButton';
 import './tournaments.css';
 
 const memberName = (member?: {first_name: string; last_name: string}) =>
@@ -142,7 +143,7 @@ export default function AdminTournamentParticipantsPage() {
     if (loading) return <div className="splash"><Loader size="big" text="Teilnehmende werden geladen..." /></div>;
 
     return <>
-        <p><Link className="icon icon--back" to="/admin/tournaments">Zurück</Link></p>
+        <p><AdminBackButton fallback="/admin/tournaments" /></p>
         <h1>Teilnehmende: {tournament?.name ?? 'Turnier'}</h1>
         {error ? <p className="form-error-message">{error}</p> : null}
 

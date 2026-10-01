@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { CompetitionGroup, Tournament, TournamentStatus } from '../../types';
 import { Loader } from '../../components/loader/Loader';
+import AdminBackButton from '../../components/AdminBackButton';
 import { RootState } from '../../store';
 import { getZonedDateTime } from '../../utils/reservationTime';
 import '../settings.css';
@@ -57,7 +58,8 @@ const groupMatchesFilter = (group: CompetitionGroup, filter: GroupFilter) => {
     if (filter === 'youth') return group.max_age !== undefined;
     if (filter === 'senior') return group.min_age !== undefined;
     if (filter === 'mixed') return group.sex === 'mixed';
-    return filter === 'men' ? group.sex === 'male' : group.sex === 'female';
+    const isUnrestrictedAdultGroup = group.min_age === undefined && group.max_age === undefined;
+    return isUnrestrictedAdultGroup && (filter === 'men' ? group.sex === 'male' : group.sex === 'female');
 };
 
 export default function AdminTournamentsPage() {
@@ -74,6 +76,8 @@ export default function AdminTournamentsPage() {
     const groups = groupsData.value;
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [resettingGroups, setResettingGroups] = useState(false);
+    const [resetGroupsMessage, setResetGroupsMessage] = useState('');
     const [tournamentFilter, setTournamentFilter] = useState<TournamentFilter>('all');
     const [groupFilter, setGroupFilter] = useState<GroupFilter>('all');
     const filteredGroups = groups.filter(group => groupMatchesFilter(group, groupFilter));
@@ -167,11 +171,37 @@ export default function AdminTournamentsPage() {
         }
     };
 
+    const resetDefaultGroups = async () => {
+        if (!confirm('Möchten Sie wirklich alle Gruppen zurücksetzen? Alle eigenen und geänderten Gruppen werden gelöscht und durch die Standardgruppen ersetzt. Bereits erstellte Turniere bleiben unverändert.')) return;
+
+        setError('');
+        setResetGroupsMessage('');
+        setResettingGroups(true);
+        try {
+            const response = await fetch('/api/competition-groups', {
+                method: 'POST',
+                headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
+                body: JSON.stringify({action: 'reset_defaults'}),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error ?? 'Die Gruppen konnten nicht zurückgesetzt werden.');
+            dispatch({
+                type: 'competitionGroups/fetch',
+                payload: {value: result.groups, loaded: true, clubId: user.club_id},
+            });
+            setResetGroupsMessage(`${result.reset_count} Standardgruppen wurden wiederhergestellt.`);
+        } catch (resetError) {
+            setError(resetError instanceof Error ? resetError.message : 'Die Gruppen konnten nicht zurückgesetzt werden.');
+        } finally {
+            setResettingGroups(false);
+        }
+    };
+
     if (loading) return <div className="splash"><Loader size="big" text="Turniere werden geladen..." /></div>;
 
     return (
         <>
-            <p><Link className="icon icon--back" to={tournamentId ? '/admin/tournaments' : '/admin'}>Zurück</Link></p>
+            <p><AdminBackButton fallback={tournamentId ? '/admin/tournaments' : '/admin'} /></p>
             {!tournamentId ? <h1>Turniere/Konkurrenzen verwalten</h1> : null}
             {tournamentId && !detailTournament ? <h1>Turnier</h1> : null}
             {error ? <p className="form-error-message">{error}</p> : null}
@@ -284,6 +314,15 @@ export default function AdminTournamentsPage() {
                     <li><Link to="/admin/tournaments/groups/new">Konkurrenz hinzufügen</Link></li>
                 </ul>
                 <p className="admin-competition-groups-description">Hier verwalten Sie die Konkurrenzen, die beim Erstellen eines Turniers zur Auswahl stehen. Änderungen wirken sich nicht auf bereits erstellte Turniere aus.</p>
+                <p className="admin-reset-default-groups-action">
+                    <button
+                        className="button-link button-link--secondary icon icon--undo"
+                        disabled={resettingGroups}
+                        onClick={() => void resetDefaultGroups()}
+                        type="button"
+                    >{resettingGroups ? 'Wird zurückgesetzt...' : 'Gruppen zurücksetzen'}</button>
+                </p>
+                {resetGroupsMessage ? <p className="admin-reset-default-groups-message" role="status">{resetGroupsMessage}</p> : null}
                 <div aria-label="Konkurrenzen filtern" className="admin-management-filters" role="tablist">
                     {groupFilters.map(filter => <button
                         aria-selected={groupFilter === filter.id}

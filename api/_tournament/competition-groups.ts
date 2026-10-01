@@ -4,6 +4,7 @@ import { getAuthenticatedUserContext } from '../_utils/_authenticatedUser.js';
 import { getErrorMessage, isAppError } from '../_utils/_errors.js';
 import type { VercelRequest, VercelResponse } from '../_utils/_apiTypes.js';
 import type { CompetitionType, DBUser } from '../../src/types.js';
+import { resetDefaultCompetitionGroups } from '../_utils/_competitionGroupDefaults.js';
 
 type CompetitionGroupDocument = {
   _id?: ObjectId;
@@ -94,6 +95,23 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     if (user.role !== 'admin') return res.status(403).json({error: 'Nur Administratoren dürfen Konkurrenzen verwalten.'});
 
     if (req.method === 'POST') {
+      if (req.body?.action === 'reset_defaults') {
+        const session = client.startSession();
+        let resetCount = 0;
+        try {
+          await session.withTransaction(async () => {
+            resetCount = await resetDefaultCompetitionGroups(database, user.club_id!, session);
+          });
+        } finally {
+          await session.endSession();
+        }
+        const documents = await groups.find({club_id: user.club_id}).sort({name: 1}).toArray();
+        return res.json({
+          reset_count: resetCount,
+          groups: documents.map(serializeGroup),
+        });
+      }
+
       const data = parseGroupBody(req.body);
       const duplicate = await groups.findOne({club_id: user.club_id, name: data.name}, {collation: {locale: 'de', strength: 2}});
       if (duplicate) return res.status(409).json({error: 'Eine Konkurrenz mit diesem Namen existiert bereits.'});

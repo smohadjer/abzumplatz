@@ -15,6 +15,7 @@ test('a player can register for a club from an invitation link', async ({page}) 
   }));
   await page.route('**/api/signup', async route => {
     submittedRegistration = route.request().postDataJSON();
+    await new Promise(resolve => setTimeout(resolve, 300));
     await route.fulfill({
       status: 201,
       json: {message: 'User Petra Playwright is registered'},
@@ -31,6 +32,7 @@ test('a player can register for a club from an invitation link', async ({page}) 
   await page.getByRole('checkbox').check();
   await page.getByRole('button', {name: 'Registrieren'}).click();
 
+  await expect(page.getByRole('status', {name: 'Registrierung wird verarbeitet'})).toBeVisible();
   await expect(page).toHaveURL('/login');
   expect(submittedRegistration).toEqual({
     first_name: 'Petra',

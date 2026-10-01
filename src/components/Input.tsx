@@ -22,6 +22,7 @@ export default function Input(props: Props) {
       min={item.min}
       max={item.max}
       required={item.required}
+      autoFocus={item.autoFocus}
     />
   )
 }

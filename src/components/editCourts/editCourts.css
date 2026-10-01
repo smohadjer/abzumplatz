@@ -1,4 +1,8 @@
 .editCourtsForm {
+    .edit-courts-guidance {
+        margin-top: 0;
+    }
+
     span.nowrap {
         display: block;
         margin: 1em 0 0;
