@@ -143,7 +143,7 @@
 
 .home-screenshot-frame .swiper-slide {
     height: auto;
-    padding: 0.65rem;
+    padding: 0.65rem 1.25rem;
     box-sizing: border-box;
 }
 
