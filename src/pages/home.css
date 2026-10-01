@@ -134,23 +134,30 @@
 }
 
 .home-screenshot-frame {
-    aspect-ratio: 750 / 1334;
-    padding-bottom: 2rem;
+    overflow: hidden;
+}
+
+.home-screenshot-frame .swiper-wrapper {
+    height: auto;
 }
 
 .home-screenshot-frame .swiper-slide {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: auto;
     padding: 0.65rem;
     box-sizing: border-box;
+}
+
+.home-screenshot-frame .swiper-pagination {
+    position: static;
+    width: 100%;
+    margin-top: 0.25rem;
+    transform: none;
 }
 
 .home-screenshot {
     display: block;
     width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+    height: auto;
     border: 2px solid #aeb9c9;
     border-radius: 1.5rem;
     box-sizing: border-box;

@@ -2,6 +2,12 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.3.1
+
+### Fixed
+
+- Made the homepage slider pagination spacing consistent between Safari and Chromium browsers.
+
 ## 0.3.0
 
 ### Added
