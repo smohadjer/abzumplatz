@@ -207,7 +207,7 @@ export default function AdminTournamentFormPage() {
             </label>
             {error ? <p className="form-error-message">{error}</p> : null}
             <div className="row admin-tournament-form-actions">
-                <button disabled={saving || form.group_ids.length === 0} type="submit">{saving ? 'Wird gespeichert...' : 'Speichern'}</button>
+                <button className="primary-action-button" disabled={saving || form.group_ids.length === 0} type="submit">{saving ? 'Wird gespeichert...' : 'Speichern'}</button>
                 <button disabled={saving} onClick={() => navigate('/admin/tournaments')} type="button">Abbrechen</button>
             </div>
         </form>

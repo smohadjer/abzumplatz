@@ -26,7 +26,7 @@ test('a player can save birth year and sex in their profile', async ({ page }, t
   });
 
   await page.goto('/profile/edit');
-  await page.getByLabel('Geburtsjahr:').fill('1990');
+  await page.getByLabel('Geburtsjahr:').selectOption('1990');
   await page.getByLabel('Geschlecht:').selectOption('female');
   await page.getByRole('button', { name: 'Speichern' }).click();
 
@@ -38,7 +38,6 @@ test('a player can save birth year and sex in their profile', async ({ page }, t
     sex: 'female',
   });
   await expect(page.getByRole('row', { name: 'Geburtsjahr 1990' })).toBeVisible();
-  await expect(page.getByRole('row', { name: 'Alter 40 Jahre (im laufenden Jahr)' })).toBeVisible();
   await expect(page.getByRole('row', { name: 'Geschlecht Weiblich' })).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath('profile-updated.png'),

@@ -14,10 +14,9 @@ type MemberSortKey = 'first_name' | 'last_name' | 'sex' | 'age' | 'email';
 
 export default function AdminMembersPage() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const initialTab = searchParams.get('tab') === 'inactive' ? 'inactive' : 'active';
+    const activeTab = searchParams.get('tab') === 'inactive' ? 'inactive' : 'active';
     const [loading, setLoading] = useState(false);
     const [pending, setPending] = useState(false);
-    const [activeTab, setActiveTab] = useState<'active' | 'inactive'>(initialTab);
     const [memberFilter, setMemberFilter] = useState<'all' | 'men' | 'women' | 'youth'>('all');
     const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
     const [sort, setSort] = useState<{key: MemberSortKey; direction: 'asc' | 'desc'}>({
@@ -101,9 +100,8 @@ export default function AdminMembersPage() {
         : null;
 
     const setTab = (tab: 'active' | 'inactive') => {
-        setActiveTab(tab);
         setSelectedUserIds([]);
-        setSearchParams(tab === 'inactive' ? {tab} : {});
+        setSearchParams(tab === 'inactive' ? {tab} : {}, {replace: true});
     };
 
     const setFilter = (filter: typeof memberFilter) => {
@@ -298,7 +296,7 @@ export default function AdminMembersPage() {
                                 <>
                                     <button
                                         type="button"
-                                        className="members-submit-button"
+                                        className="primary-action-button"
                                         disabled={pending || !selectedUserIds.length}
                                         onClick={() => void updateSelectedUsers('activate')}
                                     >
@@ -306,7 +304,7 @@ export default function AdminMembersPage() {
                                     </button>
                                     <button
                                         type="button"
-                                        className="members-submit-button members-submit-button--danger"
+                                        className="delete-action-button delete-action-button--subtle"
                                         disabled={pending || !selectedUserIds.length}
                                         onClick={() => void updateSelectedUsers('remove')}
                                     >
@@ -316,7 +314,7 @@ export default function AdminMembersPage() {
                             ) : (
                                 <button
                                     type="submit"
-                                    className="members-submit-button"
+                                    className="primary-action-button"
                                     disabled={pending || !selectedUserIds.length}
                                 >
                                     Deaktivieren{selectionCount}

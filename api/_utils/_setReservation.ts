@@ -19,6 +19,7 @@ import { getAuthenticatedUserContext } from './_authenticatedUser.js';
 type ReservationClub = {
   start_hour: number;
   end_hour: number;
+  max_reservation_duration?: number;
   reservations_limit: number | null;
   timezone: string;
 }
@@ -79,7 +80,14 @@ export const setReservation = async (
 
     // validation for none-admin users
     if (!user.role || user.role !== 'admin') {
-      validateNonAdminReservationRules(courtNums, recurring, startTime, endTime, 'court_selection');
+      validateNonAdminReservationRules(
+        courtNums,
+        recurring,
+        startTime,
+        endTime,
+        userClub.max_reservation_duration ?? 1,
+        'court_selection'
+      );
 
       // throw error if user has already reached maximum allowed number of reservations
       const limit = userClub.reservations_limit;

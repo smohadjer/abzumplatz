@@ -284,12 +284,12 @@ export default function Reservations() {
                             aria-labelledby="admin-welcome-title"
                         >
                             <button
-                                className="admin-welcome-close"
+                                className="admin-welcome-close popup-close-icon"
                                 type="button"
                                 aria-label="Schließen"
                                 autoFocus
                                 onClick={() => setShowAdminWelcome(false)}
-                            >×</button>
+                            ></button>
                             <h2 id="admin-welcome-title">Willkommen bei abzumplatz!</h2>
                             <p>Ihr Verein wurde erfolgreich eingerichtet. Wir haben eine kurze Checkliste vorbereitet, mit der Sie Vereinsdaten, Plätze und Reservierungsregeln überprüfen können.</p>
                             <Link className="button-link" to="/admin/checklist">Checkliste öffnen</Link>

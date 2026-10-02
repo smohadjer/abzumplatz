@@ -113,7 +113,7 @@ export default function AdminRulesPage() {
                             <div className="admin-rule-actions">
                                 <button disabled={saving || index === 0} onClick={() => moveRule(index, -1)} type="button">Nach oben</button>
                                 <button disabled={saving || index === rules.length - 1} onClick={() => moveRule(index, 1)} type="button">Nach unten</button>
-                                <button className="delete-action-button" disabled={saving} onClick={() => setRules(current => current.filter((_, ruleIndex) => ruleIndex !== index))} type="button">Entfernen</button>
+                                <button className="delete-action-button delete-action-button--subtle" disabled={saving} onClick={() => setRules(current => current.filter((_, ruleIndex) => ruleIndex !== index))} type="button">Entfernen</button>
                             </div>
                         </li>
                     ))}
@@ -123,7 +123,7 @@ export default function AdminRulesPage() {
                     <button disabled={saving} onClick={() => setRules([...defaultClubRules])} type="button">Standardregeln wiederherstellen</button>
                 </div>
                 {error ? <p className="form-error-message">{error}</p> : null}
-                <button disabled={saving} type="submit">{saving ? 'Wird gespeichert...' : 'Speichern'}</button>
+                <button className="primary-action-button" disabled={saving} type="submit">{saving ? 'Wird gespeichert...' : 'Speichern'}</button>
             </form>
         </>
     );

@@ -12,16 +12,17 @@
 .popup {
     position: absolute;
     z-index: 100;
-    padding: 10px 30px 30px 20px;
+    padding: 20px;
     box-sizing: border-box;
     width: 90%;
+    max-width: 500px;
     background: white;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     box-shadow: 0 0 15px 0px #999;
 
-    button {
+    button:not(.delete-action-button):not(.primary-action-button):not(.secondary-action-button):not(.close) {
         font-size: 1em;
         line-height: 1;
         padding: 0.4em 0.8em;
@@ -29,25 +30,12 @@
         background: #3264c8;
         color: white;
         border: none;
-        border-radius: 0.25em;
-    }
-
-    .button-link {
-        display: inline-block;
-        font-size: 1em;
-        line-height: 1;
-        padding: 0.4em 0.8em;
-        vertical-align: middle;
-        background: #3264c8;
-        color: white;
-        border: none;
-        border-radius: 0.25em;
-        text-decoration: none;
+        border-radius: 0;
     }
 
     .close {
         position: absolute;
-        right: 5px;
+        right: 10px;
         top: 10px;
         background: none;
         color: #3264c8;
@@ -108,6 +96,17 @@
             margin-right: 1em;
         }
 
+        .form-actions {
+            align-items: center;
+            display: inline-flex;
+            gap: 0.5em;
+            margin-top: 1em;
+
+            button {
+                margin: 0;
+            }
+        }
+
         &.edit-reservation-form {
             .checkbox-label {
                 display: inline-flex;
@@ -117,20 +116,12 @@
             }
 
             .form-actions {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5em;
-                margin-top: 1em;
-
-                button {
-                    margin-top: 0;
-                }
-
-                button[type=button] {
+                button[type=button]:not(.delete-action-button):not(.secondary-action-button) {
                     background: white;
                     color: #666;
                     border: 1px solid #aaa;
                 }
+
             }
         }
 
@@ -152,12 +143,12 @@
             input[readonly] {
                 background: white;
                 border: 0;
-                color: #666;
+                color: inherit;
                 cursor: default;
             }
 
             .reservation-readonly-value {
-                color: #666;
+                color: inherit;
                 padding-left: 2px;
             }
 
@@ -214,17 +205,17 @@
             }
         }
 
-        .delete-reservation-panel {
-            margin-top: 0.35em;
-        }
+        .reservation-delete-options {
+            margin-top: 1rem;
 
-        .delete_fields {
-            input {
-                margin-left: 0;
+            > label {
+                display: block;
+                margin: 0 0 0.35rem;
             }
 
-            label {
-                display: block;
+            > select {
+                max-width: 100%;
+                width: auto;
             }
         }
     }
@@ -234,7 +225,6 @@
 
         h2 {
             margin: 0 0 0.75em;
-            font-size: 1.2rem;
         }
 
         p {

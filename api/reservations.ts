@@ -14,6 +14,7 @@ type ReservationClub = {
   deleted_at?: Date | string;
   start_hour: number;
   end_hour: number;
+  max_reservation_duration?: number;
   reservations_limit: number | null;
   timezone: string;
 }

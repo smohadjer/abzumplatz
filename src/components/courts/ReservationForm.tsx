@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import { RootState } from './../../store';
 import { getInactiveUserMessage } from './../../messages';
-import { SubmitEventHandler, useState } from "react";
+import { MouseEvent, SubmitEventHandler, useRef, useState } from "react";
 import { Loader } from './../loader/Loader';
 import { Court } from '../../types';
 import { Link } from 'react-router';
@@ -19,6 +19,7 @@ type Props = {
     clubStartHour: number;
     clubEndHour: number;
     clubTimeZone: string;
+    maxReservationDuration: number;
     reservationId?: string;
     selectedCourtNumbers?: string[];
     duration?: number;
@@ -27,14 +28,14 @@ type Props = {
     showAssignToMe?: boolean;
     includeDeleteControls?: boolean;
     submitLabel?: string;
-    cancelHandler?: Function;
 };
 
 export function ReservationForm(props: Props) {
     const user = useSelector((state: RootState) => state.auth);
     const users = useSelector((state: RootState) => state.users);
-    const [deleteReservationChecked, setDeleteReservationChecked] = useState(false);
     const [formError, setFormError] = useState('');
+    const [showDeleteScope, setShowDeleteScope] = useState(false);
+    const deleteInputRef = useRef<HTMLInputElement>(null);
     const adminName = users.loaded && users.clubId === user.club_id
         ? (() => {
             const adminUser = users.value.find(member => member.role === 'admin');
@@ -51,7 +52,11 @@ export function ReservationForm(props: Props) {
     const clubHours = Array.from({
         length: props.clubEndHour - props.clubStartHour
     }, (_, i) => i + props.clubStartHour);
-    const durationOptions = user.role === 'admin' ? [1,2,3,4,5,6,7,8,9,10] : [1,2];
+    const playerMaxDuration = Math.min(2, Math.max(1, Math.floor(props.maxReservationDuration)));
+    const durationOptions = user.role === 'admin'
+        ? [1,2,3,4,5,6,7,8,9,10]
+        : Array.from({length: playerMaxDuration}, (_, index) => index + 1);
+    const readonlyDuration = props.duration ?? 1;
     const generatedUserLabel = [
         capitalizeName(user.first_name),
         capitalizeName(user.last_name)
@@ -62,11 +67,29 @@ export function ReservationForm(props: Props) {
         number: (index + 1).toString(),
         status: court.status
     }));
+    const confirmDeletion = (event: MouseEvent<HTMLButtonElement>) => {
+        if (deleteInputRef.current) {
+            deleteInputRef.current.disabled = true;
+        }
+        if (!confirm('Möchten Sie diese Reservierung wirklich löschen?')) {
+            event.preventDefault();
+            return;
+        }
+        if (deleteInputRef.current) {
+            deleteInputRef.current.disabled = false;
+        }
+    };
     const submitHandler: SubmitEventHandler<HTMLFormElement> = (event) => {
         const form = event.currentTarget;
         const courtCheckbox = form.querySelector<HTMLInputElement>('input[name="court_nums"]');
         setFormError('');
         courtCheckbox?.setCustomValidity('');
+
+        if (deleteInputRef.current && !deleteInputRef.current.disabled) {
+            props.submitHandler(event);
+            deleteInputRef.current.disabled = true;
+            return;
+        }
 
         if (user.role !== 'admin' && user.status === 'inactive') {
             event.preventDefault();
@@ -101,6 +124,9 @@ export function ReservationForm(props: Props) {
         }
 
         props.submitHandler(event);
+        if (deleteInputRef.current) {
+            deleteInputRef.current.disabled = true;
+        }
     };
 
     return (
@@ -111,6 +137,9 @@ export function ReservationForm(props: Props) {
             onSubmit={submitHandler}>
             {props.reservationId && <input type="hidden" name="reservation_id" value={props.reservationId} />}
             {props.reservationId && props.occurrenceDate && <input type="hidden" name="occurrence_date" value={props.occurrenceDate} />}
+            {props.includeDeleteControls ? <input disabled name="delete" ref={deleteInputRef} type="hidden" value="true" /> : null}
+            {props.includeDeleteControls ? <input name="delete_date" type="hidden" value={props.deleteDate ?? props.date} /> : null}
+            {props.includeDeleteControls && !props.recurring ? <input name="delete_type" type="hidden" value="all" /> : null}
             {user.role !== 'admin' && <input type="hidden" name="label" value={labelDefaultValue} />}
             <div className="reservation-field">
                 <label htmlFor="reservation-date">Datum:</label>
@@ -161,12 +190,22 @@ export function ReservationForm(props: Props) {
                 </div>
             </div>
             <div className="reservation-field">
-                <label htmlFor="reservation-duration">Dauer:</label>
-                <select id="reservation-duration" className="duration-select" name="duration" defaultValue={props.duration ?? 1}>
-                    {durationOptions.map(duration => (
-                        <option value={duration} key={duration}>{duration} h</option>
-                    ))}
-                </select>
+                {user.role !== 'admin' && playerMaxDuration === 1 ? (
+                    <>
+                        <span>Dauer:</span>
+                        <input name="duration" type="hidden" value={readonlyDuration} />
+                        <span className="reservation-readonly-value">{readonlyDuration} {readonlyDuration === 1 ? 'Stunde' : 'Stunden'}</span>
+                    </>
+                ) : (
+                    <>
+                        <label htmlFor="reservation-duration">Dauer:</label>
+                        <select id="reservation-duration" className="duration-select" name="duration" defaultValue={props.duration ?? 1}>
+                            {durationOptions.map(duration => (
+                                <option value={duration} key={duration}>{duration} h</option>
+                            ))}
+                        </select>
+                    </>
+                )}
             </div>
             {(user.role === 'admin') && <>
                 <div className="reservation-field">
@@ -193,48 +232,42 @@ export function ReservationForm(props: Props) {
                     />
                     <span>Reservierung mir zuweisen</span>
                 </label>}
-            {props.includeDeleteControls &&
-                <div className="delete-reservation-panel">
-                    <label className="checkbox-label">
-                        <input
-                            checked={deleteReservationChecked}
-                            disabled={props.disabled}
-                            name="delete"
-                            onChange={(event) => setDeleteReservationChecked(event.target.checked)}
-                            type="checkbox"
-                            value="true"
-                        />
-                        <span>Reservierung löschen</span>
-                    </label>
-
-                    {deleteReservationChecked && <input type="hidden" name="delete_date" value={props.deleteDate ?? props.date} />}
-                    {deleteReservationChecked && !props.recurring && <input type="hidden" name="delete_type" value="all" />}
-
-                    {props.recurring && deleteReservationChecked &&
-                        <div className="delete_fields">
-                            <label><input type="radio" name="delete_type" value="once" /> Nur diesen Termin</label>
-                            <label><input type="radio" name="delete_type" value="once_and_future" /> Diesen Termin und alle folgenden</label>
-                            <label><input defaultChecked type="radio" name="delete_type" value="all" /> Alle Termine</label>
-                        </div>
-                    }
-                </div>}
             {formError && <p className="form-error-message">{formError}</p>}
             {!props.reservationId &&
                 <p className="rules-notice">
                     Mit der Reservierung bestätigen Sie, dass Sie die <Link rel="noreferrer" target="_blank" to="/rules">Regeln Ihres Clubs</Link> gelesen haben und diese einhalten.
                 </p>}
             {props.reservationId ?
-                <div className="form-actions">
-                    <button className={deleteReservationChecked ? 'delete-action-button' : undefined} type="submit" disabled={props.disabled}>
-                        {deleteReservationChecked ? 'Reservierung löschen' : props.submitLabel ?? 'Speichern'}
-                    </button>
-                    {props.cancelHandler && <button type="button" disabled={props.disabled} onClick={() => props.cancelHandler?.()}>Abbrechen</button>}
-                    {props.disabled ? <Loader /> : null}
-                </div> :
                 <>
-                    <button type="submit" disabled={props.disabled}>{props.submitLabel ?? 'Reservieren'}</button>
+                    <div className="form-actions">
+                        <button className="primary-action-button" type="submit" disabled={props.disabled}>{props.submitLabel ?? 'Speichern'}</button>
+                        {props.includeDeleteControls ? <button
+                            className="delete-action-button delete-action-button--subtle"
+                            type={props.recurring ? 'button' : 'submit'}
+                            disabled={props.disabled}
+                            onClick={event => props.recurring ? setShowDeleteScope(true) : confirmDeletion(event)}
+                        >Löschen</button> : null}
+                        {props.disabled ? <Loader /> : null}
+                    </div>
+                    {props.includeDeleteControls && props.recurring && showDeleteScope ? (
+                        <div className="reservation-delete-options">
+                            <label htmlFor="reservation-delete-scope">Welche Termine möchten Sie löschen?</label>
+                            <select id="reservation-delete-scope" name="delete_type" defaultValue="once">
+                                <option value="once">Nur diesen Termin</option>
+                                <option value="once_and_future">Diesen und alle folgenden Termine</option>
+                                <option value="all">Alle Termine</option>
+                            </select>
+                            <div className="form-actions">
+                                <button className="delete-action-button" disabled={props.disabled} onClick={confirmDeletion} type="submit">Löschen</button>
+                                <button className="secondary-action-button" disabled={props.disabled} onClick={() => setShowDeleteScope(false)} type="button">Abbrechen</button>
+                            </div>
+                        </div>
+                    ) : null}
+                </> :
+                <div className="form-actions">
+                    <button className="primary-action-button" type="submit" disabled={props.disabled}>{props.submitLabel ?? 'Reservieren'}</button>
                     {props.disabled ? <Loader /> : null}
-                </>}
+                </div>}
         </form>
     )
 }

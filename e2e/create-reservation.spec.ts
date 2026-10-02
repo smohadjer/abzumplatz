@@ -47,10 +47,38 @@ test('a player can create a reservation', async ({ page }, testInfo) => {
     recurring: false,
   });
 
-  await page.getByRole('button', { name: 'X' }).click();
+  await page.getByRole('button', { name: 'Schließen' }).click();
   await expect(page.getByLabel('Platz 1, 10:00 Uhr, reserviert von Paula Playwright')).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath('reservation-created.png'),
     fullPage: true,
   });
+});
+
+test('a one-hour club shows a fixed duration for players', async ({ page }) => {
+  await page.clock.install({ time: new Date('2030-06-15T07:00:00Z') });
+
+  let submittedReservation: Record<string, unknown> | undefined;
+  await page.route('**/api/clubs', route => route.fulfill({
+    json: [{...club, max_reservation_duration: 1}],
+  }));
+  await page.route('**/api/verifyAuth', route => route.fulfill({ json: player }));
+  await page.route('**/api/users?**', route => route.fulfill({ json: [player, admin] }));
+  await page.route('**/api/reservations', async route => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({ json: [] });
+      return;
+    }
+    submittedReservation = route.request().postDataJSON();
+    await route.fulfill({ json: {data: []} });
+  });
+
+  await page.goto('/reservations');
+  await page.getByLabel('Platz 1, 10:00 Uhr, frei').click();
+
+  await expect(page.getByLabel('Dauer:')).toHaveCount(0);
+  await expect(page.getByText('1 Stunde', {exact: true})).toBeVisible();
+  await page.getByRole('button', {name: 'Reservieren'}).click();
+
+  expect(submittedReservation).toMatchObject({start_time: 10, end_time: 11});
 });

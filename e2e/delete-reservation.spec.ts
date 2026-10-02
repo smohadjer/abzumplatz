@@ -34,8 +34,11 @@ test('a player can delete their reservation', async ({ page }, testInfo) => {
 
   await page.goto('/reservations');
   await page.getByLabel('Platz 1, 10:00 Uhr, reserviert von Paula Playwright').click();
-  await page.getByRole('checkbox', { name: 'Reservierung löschen' }).check();
-  await page.getByRole('button', { name: 'Reservierung löschen' }).click();
+  page.once('dialog', async dialog => {
+    expect(dialog.message()).toBe('Möchten Sie diese Reservierung wirklich löschen?');
+    await dialog.accept();
+  });
+  await page.getByRole('button', { name: 'Löschen', exact: true }).click();
 
   expect(submittedDeletion).toEqual({
     reservation_id: 'reservation-1',
@@ -88,9 +91,13 @@ test('a player can delete only the displayed occurrence of a recurring reservati
 
   await page.goto('/bookings');
   await page.getByRole('button', { name: 'Stornieren', exact: true }).click();
-  await expect(page.getByText('Reservierung am 15.6.2030 wirklich stornieren?')).toBeVisible();
-  await expect(page.getByRole('radio', { name: 'Nur diesen Termin am 15.6.2030' })).toBeChecked();
-  await page.getByRole('button', { name: 'Stornieren bestätigen' }).click();
+  const deleteOptions = page.locator('.booking-delete-options');
+  await expect(deleteOptions.getByLabel('Welche Termine möchten Sie stornieren?')).toHaveValue('once');
+  page.once('dialog', async dialog => {
+    expect(dialog.message()).toBe('Möchten Sie die Reservierung am 15.6.2030 wirklich stornieren?');
+    await dialog.accept();
+  });
+  await deleteOptions.getByRole('button', { name: 'Stornieren', exact: true }).click();
 
   expect(submittedDeletion).toEqual({
     reservation_id: 'recurring-reservation-1',

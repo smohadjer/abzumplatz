@@ -176,7 +176,7 @@ export default function AdminAnnouncementFormPage() {
                     onClick={() => setPreviewedAt(new Date())}
                     type="button"
                 >Vorschau</button>
-                <button className="button-link" disabled={saving} type="submit">{saving ? `Wird ${editing ? 'gespeichert' : 'veröffentlicht'}...` : editing ? 'Speichern' : 'Veröffentlichen'}</button>
+                <button className="primary-action-button" disabled={saving} type="submit">{saving ? `Wird ${editing ? 'gespeichert' : 'veröffentlicht'}...` : editing ? 'Speichern' : 'Veröffentlichen'}</button>
             </div>
         </form>
         <dialog
@@ -190,7 +190,7 @@ export default function AdminAnnouncementFormPage() {
             <div className="admin-announcement-preview-content notification-drawer">
                 <div className="account-menu-header">
                     <h2 id="announcement-preview-title">Benachrichtigungen</h2>
-                    <button className="account-menu-close" type="button" aria-label="Vorschau schließen" onClick={() => setPreviewedAt(null)}>&times;</button>
+                    <button className="account-menu-close popup-close-icon" type="button" aria-label="Vorschau schließen" onClick={() => setPreviewedAt(null)}></button>
                 </div>
                 <div className="notification-list">
                     <article className="notification-card--unread">

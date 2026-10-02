@@ -147,26 +147,9 @@
         margin-bottom: 0.25em;
     }
 
-    button[disabled] {
+    button[disabled]:not(.primary-action-button) {
         opacity: 0.25;
         cursor: default;
-    }
-
-    button[type=submit] {
-        padding: 0.5em 1em;
-        font-size: inherit;
-        background: #3264c8;
-        color: white;
-        border: 0;
-        cursor: pointer;
-
-        &:focus {
-            outline-color: black;
-        }
-
-        &:hover {
-            background: #194b96;
-        }
     }
 
     select {

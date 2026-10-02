@@ -21,7 +21,20 @@
 }
 
 .admin-home-links a {
-    padding-block: 0.7rem;
+    padding-block: 0.5rem;
+}
+
+.admin-home-section {
+    margin-top: 1.5rem;
+}
+
+.admin-home-section h2 {
+    font-weight: 500;
+    margin: 0 0 0.4rem;
+}
+
+.admin-home-section .settings-links {
+    margin: 0;
 }
 
 .settings-links a {
@@ -61,8 +74,8 @@
 }
 
 .settings-links .settings-club-link::before {
-    -webkit-mask: url('../images/manage_accounts.svg') center / contain no-repeat;
-    mask: url('../images/manage_accounts.svg') center / contain no-repeat;
+    -webkit-mask: url('../images/settings.svg') center / contain no-repeat;
+    mask: url('../images/settings.svg') center / contain no-repeat;
 }
 
 .settings-links .settings-courts-link::before {
@@ -78,6 +91,11 @@
 .settings-links .settings-tournaments-link::before {
     -webkit-mask: url('../images/trophy.svg') center / contain no-repeat;
     mask: url('../images/trophy.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-competition-groups-link::before {
+    -webkit-mask: url('../images/groups.svg') center / contain no-repeat;
+    mask: url('../images/groups.svg') center / contain no-repeat;
 }
 
 .settings-links .settings-notifications-link::before {
@@ -231,13 +249,4 @@
 
 .admin-delete-confirmation-actions button {
     margin: 0;
-    padding: 0.5rem 0.85rem;
-    border: 0;
-    cursor: pointer;
-    font: inherit;
-}
-
-.admin-delete-confirm-button {
-    background: #b42318;
-    color: white;
 }

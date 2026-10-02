@@ -20,6 +20,7 @@ import { getAuthenticatedUserContext } from './_authenticatedUser.js';
 type ReservationClub = {
   start_hour: number;
   end_hour: number;
+  max_reservation_duration?: number;
   reservations_limit: number;
   timezone: string;
 }
@@ -123,7 +124,7 @@ const validateEditRequest = (
   }
 
   if (userRole !== 'admin') {
-    validateNonAdminReservationRules(courtNums, recurring, startTime, endTime);
+    validateNonAdminReservationRules(courtNums, recurring, startTime, endTime, club.max_reservation_duration ?? 1);
   }
 
   validateReservationNotInPast(updates.date, startTime, club.timezone);

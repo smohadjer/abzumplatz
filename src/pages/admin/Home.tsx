@@ -102,18 +102,37 @@ export default function AdminHomePage() {
     return (
         <>
             <h1>Admin</h1>
-            <ul className="settings-links admin-home-links">
-                <li><Link className="settings-icon-link settings-checklist-link" to="/admin/checklist">Einrichtungscheckliste</Link></li>
-                <li><Link className="settings-icon-link settings-members-link" to="/admin/members">Mitglieder verwalten</Link></li>
-                <li><Link className="settings-icon-link settings-invite-link" to="/admin/invite">Mitglieder einladen</Link></li>
-                <li><Link className="settings-icon-link settings-club-link" to="/admin/club">Vereinseinstellungen</Link></li>
-                <li><Link className="settings-icon-link settings-courts-link" to="/admin/courts">Plätze sperren</Link></li>
-                <li><Link className="settings-icon-link settings-rules-link" to="/admin/rules">Vereinsregeln</Link></li>
-                <li><Link className="settings-icon-link settings-tournaments-link" to="/admin/tournaments">Turniere</Link></li>
-                <li><Link className="settings-icon-link settings-notifications-link" to="/admin/announcements">Benachrichtigungen</Link></li>
-                <li><Link className="settings-icon-link settings-billings-link" to="/admin/billings">Abrechnungen</Link></li>
-                <li><Link className="settings-icon-link settings-delete-club-link" to="/admin/club/delete">Verein löschen</Link></li>
-            </ul>
+            <section className="admin-home-section">
+                <h2>Verein einrichten</h2>
+                <ul className="settings-links admin-home-links">
+                    <li><Link className="settings-icon-link settings-checklist-link" to="/admin/checklist">Einrichtungscheckliste</Link></li>
+                    <li><Link className="settings-icon-link settings-club-link" to="/admin/club">Vereinseinstellungen</Link></li>
+                    <li><Link className="settings-icon-link settings-courts-link" to="/admin/courts">Plätze sperren</Link></li>
+                    <li><Link className="settings-icon-link settings-rules-link" to="/admin/rules">Vereinsregeln</Link></li>
+                </ul>
+            </section>
+            <section className="admin-home-section">
+                <h2>Mitglieder</h2>
+                <ul className="settings-links admin-home-links">
+                    <li><Link className="settings-icon-link settings-members-link" to="/admin/members">Mitglieder verwalten</Link></li>
+                    <li><Link className="settings-icon-link settings-invite-link" to="/admin/invite">Mitglieder einladen</Link></li>
+                </ul>
+            </section>
+            <section className="admin-home-section">
+                <h2>Spielbetrieb</h2>
+                <ul className="settings-links admin-home-links">
+                    <li><Link className="settings-icon-link settings-tournaments-link" to="/admin/tournaments">Turniere</Link></li>
+                    <li><Link className="settings-icon-link settings-competition-groups-link" to="/admin/competition-groups">Konkurrenzen</Link></li>
+                </ul>
+            </section>
+            <section className="admin-home-section">
+                <h2>Organisation</h2>
+                <ul className="settings-links admin-home-links">
+                    <li><Link className="settings-icon-link settings-notifications-link" to="/admin/announcements">Benachrichtigungen</Link></li>
+                    <li><Link className="settings-icon-link settings-billings-link" to="/admin/billings">Abrechnungen</Link></li>
+                    <li><Link className="settings-icon-link settings-delete-club-link" to="/admin/club/delete">Verein löschen</Link></li>
+                </ul>
+            </section>
         </>
     )
 }

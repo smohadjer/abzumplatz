@@ -13,6 +13,7 @@ async function refreshNotifications(dispatch: AppDispatch, auth: RefreshAuth, si
         value: result.items,
         unreadCount: result.unread_count,
         dismissedCount: result.dismissed_count,
+        fetchedAt: Date.now(),
         clubId: auth.club_id,
         userId: auth._id,
     }});

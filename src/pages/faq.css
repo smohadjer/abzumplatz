@@ -18,7 +18,6 @@
 .faq-tab--active {
     border-bottom-color: var(--blue);
     color: var(--blue);
-    font-weight: 700;
 }
 
 .faq-tab:hover,

@@ -20,6 +20,8 @@
         {"source": "/admin/billings", "destination": "/"},
         {"source": "/admin/tournaments", "destination": "/"},
         {"source": "/admin/tournaments/:path*", "destination": "/"},
+        {"source": "/admin/competition-groups", "destination": "/"},
+        {"source": "/admin/competition-groups/:path*", "destination": "/"},
         {"source": "/admin/announcements", "destination": "/"},
         {"source": "/admin/announcements/new", "destination": "/"},
         {"source": "/admin/announcements/:path*", "destination": "/"},

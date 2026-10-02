@@ -28,6 +28,7 @@ export type ClubFormBody = {
     start_hour: number | string;
     end_hour: number | string;
     timezone: string;
+    max_reservation_duration?: number | string;
     reservations_limit?: number | string;
 }
 
@@ -58,5 +59,6 @@ export type SignupClubBody = {
     start_hour: number | string;
     end_hour: number | string;
     timezone: string;
+    max_reservation_duration?: number | string;
     reservations_limit?: number | string;
 }

@@ -70,11 +70,8 @@ export default function AppRefreshManager() {
         const refreshWhenVisible = () => {
             if (document.visibilityState === 'visible') refresh();
         };
-        const refreshOnFocus = () => refresh();
-        window.addEventListener('focus', refreshOnFocus);
         document.addEventListener('visibilitychange', refreshWhenVisible);
         return () => {
-            window.removeEventListener('focus', refreshOnFocus);
             document.removeEventListener('visibilitychange', refreshWhenVisible);
         };
     }, [refresh]);

@@ -395,7 +395,7 @@ export default function TournamentsPage() {
                         <h2 id="tournament-dialog-title">{selectedGroup.name} ({selectedRegistrationCount})</h2>
                         <p>{selectedTournament.name}</p>
                     </div>
-                    <button aria-label="Schließen" autoFocus className="tournament-dialog-close" onClick={closeGroupDialog} type="button">×</button>
+                    <button aria-label="Schließen" autoFocus className="tournament-dialog-close popup-close-icon" onClick={closeGroupDialog} type="button"></button>
                 </header>
                 {!selectedRegistrationsLoaded ? <Loader size="small" text="Anmeldungen werden geladen..." /> : <>
                     {selectedTournament.status === 'published' ? <div className="tournament-group-row">

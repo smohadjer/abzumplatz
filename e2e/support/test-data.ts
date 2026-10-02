@@ -2,6 +2,7 @@ export const club = {
   _id: 'club-1',
   name: 'TC Playwright',
   courts: [{ status: 'active' }, { status: 'active' }],
+  max_reservation_duration: 2,
   reservations_limit: 3,
   start_hour: 8,
   end_hour: 20,

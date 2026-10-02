@@ -22,6 +22,7 @@ type ReservationErrorKey =
 
 type ReservationErrorOptions = {
   courtNum?: string;
+  duration?: number;
   limit?: number;
   localDate?: string | undefined;
   reservationId?: string;
@@ -70,7 +71,7 @@ export const getReservationError = (key: ReservationErrorKey, options: Reservati
     case 'in_past':
       return 'Eine Reservierung in der Vergangenheit ist nicht möglich.';
     case 'more_hours':
-      return 'Nur Administratoren können Reservierungen mit einer Dauer von mehr als zwei Stunden vornehmen.';
+      return `Spieler können Reservierungen von höchstens ${options.duration === 1 ? 'einer Stunde' : `${options.duration} Stunden`} vornehmen.`;
     case 'reached_limit':
       return `Sie haben die maximal zulässige Anzahl an Reservierungen (${options.limit}) erreicht.`;
     case 'already_booked':
@@ -144,6 +145,7 @@ export const validateNonAdminReservationRules = (
   recurring: boolean,
   startTime: number,
   endTime: number,
+  maxReservationDuration = 1,
   courtSelectionErrorKey: ReservationErrorKey = 'multiple_courts'
 ) => {
   if (courtNums.length !== 1) {
@@ -154,8 +156,8 @@ export const validateNonAdminReservationRules = (
     throw new Error(getReservationError('recurring'));
   }
 
-  if ((endTime - startTime) > 2) {
-    throw new Error(getReservationError('more_hours'));
+  if ((endTime - startTime) > maxReservationDuration) {
+    throw new Error(getReservationError('more_hours', {duration: maxReservationDuration}));
   }
 };
 

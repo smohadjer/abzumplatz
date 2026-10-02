@@ -182,7 +182,6 @@
 .members-tab--active {
     border-bottom-color: var(--blue);
     color: var(--blue);
-    font-weight: 700;
 }
 
 .members-tab:hover,
@@ -205,34 +204,4 @@
     gap: 1rem;
     align-items: center;
     flex-wrap: wrap;
-}
-
-.members-submit-button {
-    margin-top: 0;
-    padding: 0.5em 1em;
-    font-size: inherit;
-    background: #3264c8;
-    color: white;
-    border: 0;
-    border-radius: 999px;
-    cursor: pointer;
-}
-
-.members-submit-button:hover,
-.members-submit-button:focus-visible {
-    background: #194b96;
-}
-
-.members-submit-button--danger {
-    background: #b42318;
-}
-
-.members-submit-button--danger:hover,
-.members-submit-button--danger:focus-visible {
-    background: #8f1c13;
-}
-
-.members-submit-button:disabled {
-    background: #b8bec8;
-    cursor: default;
 }

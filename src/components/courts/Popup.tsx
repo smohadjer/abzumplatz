@@ -139,7 +139,7 @@ export function Popup(props: {
                 </p>
                 <div className="success-actions">
                     <a
-                        className="button-link"
+                        className="button-link button-link--secondary"
                         href={buildGoogleCalendarUrl(reservation)}
                         onClick={() => props.closePopup()}
                         rel="noreferrer"
@@ -147,7 +147,7 @@ export function Popup(props: {
                         Zu Google Kalender hinzufügen
                     </a>
                     <a
-                        className="button-link"
+                        className="button-link button-link--secondary"
                         download={`abzumplatz-${reservation.date}-platz-${reservation.courtNumbers.join('-')}.ics`}
                         href={buildAppleCalendarUrl(reservation)}
                         onClick={() => props.closePopup()}>
@@ -215,11 +215,11 @@ export function Popup(props: {
                         clubStartHour={club?.start_hour ?? slot.hour}
                         clubEndHour={club?.end_hour ?? slot.hour + 1}
                         clubTimeZone={club?.timezone ?? 'Europe/Berlin'}
+                        maxReservationDuration={club?.max_reservation_duration ?? 1}
                         reservationId={slot.reservation_id}
                         showAssignToMe={user.role === 'admin' && slot.user_id !== user._id}
                         includeDeleteControls={true}
                         submitLabel="Speichern"
-                        cancelHandler={props.closePopup}
                     />
                 </>
             );
@@ -256,6 +256,7 @@ export function Popup(props: {
                         clubStartHour={club?.start_hour ?? slot.hour}
                         clubEndHour={club?.end_hour ?? slot.hour + 1}
                         clubTimeZone={club?.timezone ?? 'Europe/Berlin'}
+                        maxReservationDuration={club?.max_reservation_duration ?? 1}
                     />
                 </>
             );
@@ -265,7 +266,7 @@ export function Popup(props: {
     return (
         <div className="lightbox">
             <div className="popup">
-                <button className="close" disabled={props.disabled} onClick={() => props.closePopup()}>X</button>
+                <button aria-label="Schließen" className="close popup-close-icon" disabled={props.disabled} onClick={() => props.closePopup()} type="button"></button>
                 {getPopupContent(props.slot, props.type)}
             </div>
         </div>

@@ -345,6 +345,7 @@ async function addClub(
   const start_hour = Number(body.start_hour);
   const end_hour = Number(body.end_hour);
   const timezone = body.timezone;
+  const max_reservation_duration = body.max_reservation_duration !== undefined ? Number(body.max_reservation_duration) : 1;
   const reservations_limit = body.reservations_limit !== undefined ? Number(body.reservations_limit) : null;
 
   try {
@@ -384,6 +385,7 @@ async function addClub(
     start_hour,
     end_hour,
     timezone,
+    max_reservation_duration,
     reservations_limit,
     courts,
     rules: defaultClubRules,
@@ -467,6 +469,9 @@ async function updateClub(
   if (!doc) {
     return res.status(404).json({error: 'Club not found'});
   }
+  const max_reservation_duration = body.max_reservation_duration !== undefined
+    ? Number(body.max_reservation_duration)
+    : doc.max_reservation_duration ?? 1;
   const { club: resolvedClub, currentBillingPeriod } = await processClubBillingRenewalAndSendInvoices(
     database,
     collection,
@@ -516,6 +521,7 @@ async function updateClub(
         start_hour,
         end_hour,
         timezone,
+        max_reservation_duration,
         reservations_limit,
         courts,
         ...planUpdateFields,

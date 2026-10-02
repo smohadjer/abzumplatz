@@ -67,7 +67,7 @@ test('an admin can reset all competition groups to the defaults', async ({page})
     });
   });
 
-  await page.goto('/admin/tournaments?tab=groups');
+  await page.goto('/admin/competition-groups');
   await expect(page.getByText(customGroup.name, {exact: true})).toBeVisible();
 
   page.once('dialog', async dialog => {

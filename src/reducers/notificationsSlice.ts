@@ -6,6 +6,7 @@ type NotificationsState = {
   unreadCount: number;
   dismissedCount: number;
   loaded: boolean;
+  fetchedAt: number;
   clubId: string;
   userId: string;
 };
@@ -15,6 +16,7 @@ const initialState: NotificationsState = {
   unreadCount: 0,
   dismissedCount: 0,
   loaded: false,
+  fetchedAt: 0,
   clubId: '',
   userId: '',
 };
@@ -23,11 +25,12 @@ export const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-    fetch: (state, action: PayloadAction<{value: Notification[]; unreadCount: number; dismissedCount: number; clubId: string; userId: string}>) => {
+    fetch: (state, action: PayloadAction<{value: Notification[]; unreadCount: number; dismissedCount: number; fetchedAt: number; clubId: string; userId: string}>) => {
       state.value = action.payload.value;
       state.unreadCount = action.payload.unreadCount;
       state.dismissedCount = action.payload.dismissedCount;
       state.loaded = true;
+      state.fetchedAt = action.payload.fetchedAt;
       state.clubId = action.payload.clubId;
       state.userId = action.payload.userId;
     },

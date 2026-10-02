@@ -67,7 +67,7 @@ export default function EditProfile() {
                 <div className="row"><label htmlFor="birth-year">Geburtsjahr:</label><div><select id="birth-year" value={birthYear} onChange={event => setBirthYear(event.target.value)}><option value="">Keine Angabe</option>{birthYears.map(year => <option key={year} value={year}>{year}</option>)}</select></div></div>
                 <div className="row"><label htmlFor="member-sex">Geschlecht:</label><div><select id="member-sex" value={sex} onChange={event => setSex(event.target.value as typeof sex)}><option value="">Keine Angabe</option><option value="male">Männlich</option><option value="female">Weiblich</option></select></div></div>
                 {error ? <p className="form-error-message">{error}</p> : null}
-                <div className="row"><button type="submit" disabled={saving}>{saving ? 'Speichern…' : 'Speichern'}</button></div>
+                <div className="row"><button className="primary-action-button" type="submit" disabled={saving}>{saving ? 'Speichern…' : 'Speichern'}</button></div>
             </form>
         </>
     );

@@ -16,6 +16,7 @@
         "start_hour": { "$ref": "/schema/club.json#/properties/start_hour" },
         "end_hour": { "$ref": "/schema/club.json#/properties/end_hour" },
         "timezone": { "$ref": "/schema/club.json#/properties/timezone" },
+        "max_reservation_duration": { "$ref": "/schema/club.json#/properties/max_reservation_duration" },
         "reservations_limit": { "$ref": "/schema/club.json#/properties/reservations_limit" }
     },
     "required": ["first_name", "last_name", "email", "password", "privacy", "name", "plan_type", "courts_count", "start_hour", "end_hour", "timezone"],

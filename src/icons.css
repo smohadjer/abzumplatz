@@ -5,6 +5,16 @@
     font-weight: bold;
 }
 
+.popup-close-icon {
+    background-color: currentColor !important;
+    font-size: 0 !important;
+    height: 1.5rem;
+    -webkit-mask: url('./images/cancel.svg') center / contain no-repeat;
+    mask: url('./images/cancel.svg') center / contain no-repeat;
+    padding: 0 !important;
+    width: 1.5rem;
+}
+
 .icon--inline {
     padding-left: 30px;
     background-position: left center;

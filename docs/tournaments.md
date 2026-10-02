@@ -309,8 +309,9 @@ The implemented administration routes are:
 /admin/tournaments/new
 /admin/tournaments/:id/edit
 /admin/tournaments/:id/participants
-/admin/tournaments/groups/new
-/admin/tournaments/groups/:id/edit
+/admin/competition-groups
+/admin/competition-groups/new
+/admin/competition-groups/:id/edit
 ```
 
 The protected member route is:

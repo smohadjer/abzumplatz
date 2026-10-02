@@ -60,7 +60,7 @@ export default function AdminDeleteClubPage() {
                     onChange={event => setPassword(event.target.value)}
                 />
                 <div className="admin-delete-confirmation-actions">
-                    <button type="submit" className="admin-delete-confirm-button delete-action-button" disabled={pending || !password}>
+                    <button type="submit" className="delete-action-button" disabled={pending || !password}>
                         {pending ? 'Verein wird gelöscht...' : 'Verein löschen'}
                     </button>
                     <Link to="/admin">Abbrechen</Link>

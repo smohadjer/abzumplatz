@@ -112,6 +112,12 @@
                 }
             ]
         },
+        "max_reservation_duration": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2,
+            "errorMessage": "Die maximale Buchungsdauer muss 1 oder 2 Stunden betragen."
+        },
         "reservations_limit": {
             "type": "integer"
         }

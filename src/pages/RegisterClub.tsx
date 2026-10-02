@@ -19,6 +19,7 @@ const CLUB_SETTINGS_CONFIGURED_AFTER_REGISTRATION = new Set([
     'start_hour',
     'end_hour',
     'timezone',
+    'max_reservation_duration',
     'reservations_limit',
 ]);
 const CLUB_ADDRESS_FIELDS = new Set([

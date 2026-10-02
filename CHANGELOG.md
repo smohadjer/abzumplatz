@@ -2,6 +2,31 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.6.0
+
+### Added
+
+- Added a club setting that lets administrators limit player reservations to one or two hours, with a one-hour default and server-side enforcement for new and edited reservations.
+
+### Changed
+
+- Simplified reservation dialogs with compact read-only values, consistent close controls, constrained desktop widths, uniform spacing, and shared primary, secondary, and destructive button styles.
+- Replaced reservation deletion checkboxes and inline confirmation panels with explicit delete actions, recurring-reservation scope selection, and native confirmation dialogs.
+- Updated end-to-end coverage for the revised one-time and recurring reservation deletion flows.
+- Hid the duration selector for players when the club permits only one-hour reservations and displayed the fixed duration directly.
+- Standardized save and delete button presentation across profile, club, member, rule, notification, tournament, competition, and reservation interfaces.
+- Redesigned application refresh feedback as a fixed progress bar that does not shift page content, and limited notification refreshes on drawer opening to data older than one minute.
+- Made administrator tab changes replace their current browser-history entry so Back returns to the preceding page instead of cycling through tab selections.
+- Moved reusable Konkurrenzen from the tournament tabs to a dedicated administrator page and grouped the administrator overview into related sections.
+- Truncated long club names to a single line in the header and updated the club-settings navigation icon.
+
+### Fixed
+
+- Kept member-management tabs synchronized with browser Back and Forward navigation.
+- Corrected radio controls whose numeric option values did not match string-valued form state.
+- Aligned reservation submission loaders with their action buttons.
+- Prevented native confirmation dialogs from causing a redundant visible application refresh.
+
 ## 0.5.0
 
 ### Added

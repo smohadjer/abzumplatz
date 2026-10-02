@@ -69,6 +69,7 @@ export type Club = {
     city?: string;
     country?: string;
     courts: Court[];
+    max_reservation_duration?: number;
     reservations_limit?: number | null;
     start_hour: number;
     end_hour: number;

@@ -510,6 +510,23 @@
             ]
         },
         {
+            "name": "max_reservation_duration",
+            "label": "Maximale Buchungsdauer",
+            "type": "radio",
+            "options": [
+                {
+                    "label": "1 Stunde",
+                    "value": 1
+                },
+                {
+                    "label": "2 Stunden",
+                    "value": 2
+                }
+            ],
+            "required": true,
+            "value": 1
+        },
+        {
             "name": "reservations_limit",
             "label": "Maximale Anzahl offener Reservierungen pro Spieler",
             "type": "select",

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate, Routes, Route } from 'react-router';
+import { Navigate, Routes, Route, useParams } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './store';
 import { isAuthenticated } from './utils/utils';
@@ -20,6 +20,7 @@ import AdminCourtsPage from './pages/admin/Courts';
 import AdminRulesPage from './pages/admin/Rules';
 import AdminBillingsPage from './pages/admin/Billings';
 import AdminTournamentsPage from './pages/admin/Tournaments';
+import AdminCompetitionGroupsPage from './pages/admin/CompetitionGroups';
 import AdminTournamentFormPage from './pages/admin/TournamentForm';
 import AdminCompetitionGroupFormPage from './pages/admin/CompetitionGroupForm';
 import AdminTournamentParticipantsPage from './pages/admin/TournamentParticipants';
@@ -52,6 +53,11 @@ import './app.css';
 type AppProps = {
     initiallyInitialized?: boolean;
 };
+
+function LegacyCompetitionGroupEditRedirect() {
+    const {id} = useParams();
+    return <Navigate to={id ? `/admin/competition-groups/${id}/edit` : '/admin/competition-groups'} replace />;
+}
 
 export default function App({initiallyInitialized = false}: AppProps) {
     const [initialized, setInitialized] = useState(initiallyInitialized);
@@ -213,16 +219,23 @@ export default function App({initiallyInitialized = false}: AppProps) {
                         <AdminTournamentParticipantsPage />
                     </ProtectedRoute>
                 }/>
-                <Route path="/admin/tournaments/groups/new" element={
+                <Route path="/admin/competition-groups" element={
+                    <ProtectedRoute>
+                        <AdminCompetitionGroupsPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/admin/competition-groups/new" element={
                     <ProtectedRoute>
                         <AdminCompetitionGroupFormPage />
                     </ProtectedRoute>
                 }/>
-                <Route path="/admin/tournaments/groups/:id/edit" element={
+                <Route path="/admin/competition-groups/:id/edit" element={
                     <ProtectedRoute>
                         <AdminCompetitionGroupFormPage />
                     </ProtectedRoute>
                 }/>
+                <Route path="/admin/tournaments/groups/new" element={<Navigate to="/admin/competition-groups/new" replace />}/>
+                <Route path="/admin/tournaments/groups/:id/edit" element={<LegacyCompetitionGroupEditRedirect />}/>
                 <Route path="/admin/announcements/new" element={
                     <ProtectedRoute>
                         <AdminAnnouncementFormPage />

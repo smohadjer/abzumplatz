@@ -7,6 +7,7 @@ import { Loader } from '../loader/Loader';
 import './notifications.css';
 
 const focusableSelector = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const notificationFreshnessMs = 60_000;
 const formatDate = (value: string) => new Intl.DateTimeFormat('de-DE', {
     dateStyle: 'medium',
 }).format(new Date(value));
@@ -32,6 +33,8 @@ export default function NotificationDrawer({isOpen, onClose, onOpen, unreadCount
     const hasCurrentUserNotifications = notifications.loaded
         && notifications.clubId === auth.club_id
         && notifications.userId === auth._id;
+    const notificationsAreFresh = hasCurrentUserNotifications
+        && Date.now() - notifications.fetchedAt < notificationFreshnessMs;
 
     const closeDrawer = (restoreFocus = true) => {
         onClose();
@@ -39,8 +42,8 @@ export default function NotificationDrawer({isOpen, onClose, onOpen, unreadCount
     };
 
     useEffect(() => {
-        if (isOpen && !hasCurrentUserNotifications) dispatch({type: 'appRefresh/request'});
-    }, [dispatch, hasCurrentUserNotifications, isOpen]);
+        if (isOpen && !notificationsAreFresh) dispatch({type: 'appRefresh/request'});
+    }, [dispatch, isOpen, notificationsAreFresh]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -130,6 +133,7 @@ export default function NotificationDrawer({isOpen, onClose, onOpen, unreadCount
                 value: result.items,
                 unreadCount: result.unread_count,
                 dismissedCount: result.dismissed_count,
+                fetchedAt: Date.now(),
                 clubId: auth.club_id,
                 userId: auth._id,
             }});

@@ -13,6 +13,7 @@ export const clubsSlice = createSlice({
         _id: '',
         name: '',
         courts: [],
+        max_reservation_duration: 1,
         reservations_limit: null,
         start_hour: 0,
         end_hour: 0,

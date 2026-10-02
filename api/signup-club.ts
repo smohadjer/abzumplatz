@@ -105,6 +105,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 start_hour: Number(body.start_hour),
                 end_hour: Number(body.end_hour),
                 timezone: body.timezone,
+                max_reservation_duration: body.max_reservation_duration !== undefined ? Number(body.max_reservation_duration) : 1,
                 reservations_limit: body.reservations_limit !== undefined ? Number(body.reservations_limit) : null,
                 courts,
                 timestamp: new Date()

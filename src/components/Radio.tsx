@@ -20,16 +20,16 @@ export default function Radio(props: Props) {
       <span key={index} className="nowrap">
         <input
           type="radio"
-          id={String(option.value)}
+          id={`${item.name}-${option.value}`}
           name={item.name}
           value={option.value}
-          checked={item.value === option.value}
+          checked={String(item.value) === String(option.value)}
           disabled={option.disabled}
           onChange={handleChange}
         />
         <label
           className="label--radio"
-          htmlFor={String(option.value)}>
+          htmlFor={`${item.name}-${option.value}`}>
             {option.label}
         </label>
       </span>

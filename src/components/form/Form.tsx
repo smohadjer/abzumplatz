@@ -370,7 +370,7 @@ export function Form(props: Props) {
             {props.intro}
             {getFields()}
             <div className="row form-submit-row">
-                <button disabled={disabled || props.isSubmitDisabled?.(formData)} type="submit">{label}</button>
+                <button className="primary-action-button" disabled={disabled || props.isSubmitDisabled?.(formData)} type="submit">{label}</button>
                 {disabled && props.showSubmitLoader ? (
                     <span className="form-submit-loader" role="status" aria-label="Registrierung wird verarbeitet">
                         <Loader size="small" />

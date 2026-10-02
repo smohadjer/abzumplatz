@@ -11,8 +11,9 @@ export const clubSlice = createSlice({
   initialState: {
     value: {
       _id: '',
-      name: '',
+        name: '',
         courts: [],
+        max_reservation_duration: 1,
         reservations_limit: null,
         start_hour: 0,
         end_hour: 0,

@@ -6,7 +6,6 @@ import { Link, useLocation } from 'react-router';
 import AccountMenu from './AccountMenu';
 import PublicMenu from './PublicMenu';
 import NotificationDrawer from './NotificationDrawer';
-import { Loader } from '../loader/Loader';
 import './header.css';
 
 export default function Header() {
@@ -74,9 +73,8 @@ export default function Header() {
                     </div>
                 )}
             </div>
-            {refreshing ? <div aria-live="polite" className="header-refresh-status" role="status">
-                <Loader />
-                <span>Wird aktualisiert…</span>
+            {refreshing ? <div aria-label="App wird aktualisiert" aria-live="polite" className="header-refresh-status" role="status">
+                <span aria-hidden="true"></span>
             </div> : null}
         </header>
     )

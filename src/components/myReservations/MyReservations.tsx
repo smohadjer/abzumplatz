@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
 import { ReservationItem } from '../../types';
 import { getClub } from './../../utils/utils';
 import { getNextActiveRecurringReservationDate } from '../../utils/reservationTime';
@@ -32,21 +32,11 @@ export function MyReservations(props: {
 
         return dateDifference || first.start_time - second.start_time;
     });
-    const openDeleteConfirmation = (reservationId: string) => {
-        setReservationBeingDeleted(reservationId);
-        setDeleteType('once');
-        setDeleteError('');
-    };
-    const closeDeleteConfirmation = () => {
-        setReservationBeingDeleted(null);
-        setDeleteError('');
-    };
     const deleteReservation = async (
-        event: FormEvent<HTMLFormElement>,
         reservation: ReservationItem,
-        occurrenceDate: string
+        occurrenceDate: string,
+        deleteType: DeleteType
     ) => {
-        event.preventDefault();
         setDeleting(true);
         setDeleteError('');
 
@@ -74,7 +64,7 @@ export function MyReservations(props: {
                 type: 'reservations/fetch',
                 payload: {value: result.data, loaded: true}
             });
-            closeDeleteConfirmation();
+            setReservationBeingDeleted(null);
         } catch (error) {
             setDeleteError(error instanceof Error ? error.message : 'Die Reservierung konnte nicht storniert werden.');
         } finally {
@@ -98,6 +88,7 @@ export function MyReservations(props: {
                     Sie können noch {remainingReservations} {remainingReservations === 1 ? 'Reservierung' : 'Reservierungen'} vornehmen.
                 </p>
             ) : null}
+            {deleteError ? <p className="form-error-message" role="alert">{deleteError}</p> : null}
             {reservations.length ?
                 <ul>
                 {sortedReservations.map(item => {
@@ -131,32 +122,52 @@ export function MyReservations(props: {
 	                                <button
 	                                    aria-label="Stornieren"
 	                                    className="booking-action booking-cancel-button delete-action-button delete-action-button--subtle icon icon--delete"
-	                                    onClick={() => openDeleteConfirmation(key)}
+	                                    disabled={deleting}
+	                                    onClick={() => {
+	                                        if (item.recurring) {
+	                                            setDeleteType('once');
+	                                            setDeleteError('');
+	                                            setReservationBeingDeleted(key);
+	                                            return;
+	                                        }
+	                                        if (!confirm(`Möchten Sie die Reservierung am ${isoDate} wirklich stornieren?`)) return;
+	                                        void deleteReservation(item, activeDate ?? item.date, 'all');
+	                                    }}
 	                                    title="Stornieren"
 	                                    type="button"
 	                                >Stornieren</button>
 	                            </span>
-                                {reservationBeingDeleted === key ? (
-                                    <form
-                                        className="booking-delete-confirmation"
-                                        onSubmit={(event) => deleteReservation(event, item, activeDate ?? item.date)}
-                                    >
-                                        <p><strong>Reservierung am {isoDate} wirklich stornieren?</strong></p>
-                                        {item.recurring ? (
-                                            <fieldset>
-                                                <legend>Welche Termine möchten Sie stornieren?</legend>
-                                                <label><input checked={deleteType === 'once'} name={`delete-type-${key}`} onChange={() => setDeleteType('once')} type="radio" /> Nur diesen Termin am {isoDate}</label>
-                                                <label><input checked={deleteType === 'once_and_future'} name={`delete-type-${key}`} onChange={() => setDeleteType('once_and_future')} type="radio" /> Diesen und alle folgenden Termine</label>
-                                                <label><input checked={deleteType === 'all'} name={`delete-type-${key}`} onChange={() => setDeleteType('all')} type="radio" /> Alle Termine der Serie</label>
-                                            </fieldset>
-                                        ) : null}
-                                        {deleteError ? <p className="form-error-message" role="alert">{deleteError}</p> : null}
-                                        <div className="booking-delete-actions">
-                                            <button className="delete-action-button delete-action-button--subtle" disabled={deleting} type="submit">{deleting ? 'Wird storniert…' : 'Stornieren bestätigen'}</button>
-                                            <button disabled={deleting} onClick={closeDeleteConfirmation} type="button">Abbrechen</button>
-                                        </div>
-                                    </form>
-                                ) : null}
+	                            {item.recurring && reservationBeingDeleted === key ? (
+	                                <div className="booking-delete-options">
+	                                    <label htmlFor={`booking-delete-scope-${key}`}>Welche Termine möchten Sie stornieren?</label>
+	                                    <select
+	                                        id={`booking-delete-scope-${key}`}
+	                                        onChange={event => setDeleteType(event.target.value as DeleteType)}
+	                                        value={deleteType}
+	                                    >
+	                                        <option value="once">Nur diesen Termin</option>
+	                                        <option value="once_and_future">Diesen und alle folgenden Termine</option>
+	                                        <option value="all">Alle Termine</option>
+	                                    </select>
+	                                    <div className="booking-delete-actions">
+	                                        <button
+	                                            className="delete-action-button"
+	                                            disabled={deleting}
+	                                            onClick={() => {
+	                                                if (!confirm(`Möchten Sie die Reservierung am ${isoDate} wirklich stornieren?`)) return;
+	                                                void deleteReservation(item, activeDate ?? item.date, deleteType);
+	                                            }}
+	                                            type="button"
+	                                        >{deleting ? 'Wird storniert…' : 'Stornieren'}</button>
+	                                        <button
+	                                            className="secondary-action-button"
+	                                            disabled={deleting}
+	                                            onClick={() => setReservationBeingDeleted(null)}
+	                                            type="button"
+	                                        >Abbrechen</button>
+	                                    </div>
+	                                </div>
+	                            ) : null}
                         </li>
                     )}
                 )}
