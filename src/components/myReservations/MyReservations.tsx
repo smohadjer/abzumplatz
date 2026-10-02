@@ -113,21 +113,24 @@ export function MyReservations(props: {
 	                        <li key={key}>
 	                            {item.label ? <span className="booking-label">{item.label}</span> : null}
 	                            <span className="booking-date-time">
-	                                {weekday} {isoDate}, {item.start_time}-{item.end_time} Uhr
-                                    {item.recurring ? ' (wiederkehrend)' : ''}
-	                                {' · '}
-	                                <span className="booking-court">{courtNums.length > 1 ? 'Plätze' : 'Platz'} {courtNumsLabel}</span>
+	                                <span className="booking-date">
+	                                    {weekday} {isoDate}{item.recurring ? ' (wiederkehrend)' : ''}
+	                                </span>
+	                                <span className="booking-court-time">
+	                                    <span className="booking-court">{courtNums.length > 1 ? 'Plätze' : 'Platz'} {courtNumsLabel}</span>
+	                                    <span className="booking-time">{item.start_time}-{item.end_time} Uhr</span>
+	                                </span>
 	                            </span>
 	                            <span className="booking-meta">
 	                                <Link
 	                                    aria-label="Im Kalender anzeigen"
-	                                    className="booking-action icon icon--calendar"
+	                                    className="button-link button-link--secondary booking-calendar-button"
 	                                    title="Im Kalender anzeigen"
 	                                    to={`/reservations?date=${activeDate ?? item.date}`}
 	                                >Im Kalender anzeigen</Link>
 	                                <button
 	                                    aria-label="Stornieren"
-	                                    className="booking-action booking-cancel-button delete-action-button icon icon--delete"
+	                                    className="booking-action booking-cancel-button delete-action-button delete-action-button--subtle icon icon--delete"
 	                                    onClick={() => openDeleteConfirmation(key)}
 	                                    title="Stornieren"
 	                                    type="button"
@@ -149,7 +152,7 @@ export function MyReservations(props: {
                                         ) : null}
                                         {deleteError ? <p className="form-error-message" role="alert">{deleteError}</p> : null}
                                         <div className="booking-delete-actions">
-                                            <button className="delete-action-button" disabled={deleting} type="submit">{deleting ? 'Wird storniert…' : 'Stornieren bestätigen'}</button>
+                                            <button className="delete-action-button delete-action-button--subtle" disabled={deleting} type="submit">{deleting ? 'Wird storniert…' : 'Stornieren bestätigen'}</button>
                                             <button disabled={deleting} onClick={closeDeleteConfirmation} type="button">Abbrechen</button>
                                         </div>
                                     </form>

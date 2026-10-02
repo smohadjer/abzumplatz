@@ -379,5 +379,5 @@ export function Form(props: Props) {
             </div>
             {props.children}
         </form>
-    ) : <p>Loading...</p>
+    ) : <p>Wird geladen...</p>
 }

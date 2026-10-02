@@ -426,7 +426,7 @@ async function addClub(
 
   const docs = await getAllClubs(collection, billingPeriodsCollection);
   res.status(201).json({
-    message: `Verein ${club.name} ist registeriert mit id ${club_id}`,
+    message: `Verein ${club.name} ist registriert mit id ${club_id}`,
     data: {
       club_id,
       clubs: docs,

@@ -25,6 +25,9 @@ export default function AdminClubPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const openedFromAdminChecklist = Boolean((location.state as {fromAdminChecklist?: boolean} | null)?.fromAdminChecklist);
+    const registeredAtLabel = clubData.value.timestamp
+        ? new Date(clubData.value.timestamp).toLocaleDateString('de-DE')
+        : '-';
 
     const callback = async (response: Response) => {
         if (response.data) {
@@ -62,12 +65,13 @@ export default function AdminClubPage() {
     return (
         loading || !clubData.loaded ? (
             <div className="splash">
-                <Loader size="big" text="Loading data..." />
+                <Loader size="big" text="Daten werden geladen..." />
             </div>
         ) : (
             <>
                 <p><AdminBackButton /></p>
-                <h1>Verein Editeiren</h1>
+                <h1>Vereinseinstellungen</h1>
+                <p>Verein registriert am: {registeredAtLabel}</p>
                 <SignupClub
                     callback={callback}
                     data={clubData.value} />

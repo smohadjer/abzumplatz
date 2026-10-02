@@ -3,6 +3,7 @@ import { MongoClient } from 'mongodb';
 import crypto from 'crypto';
 import { database_uri, database_name } from '../_utils/_config.js';
 import type { VercelRequest, VercelResponse } from '../_utils/_apiTypes.js';
+import { getAppOrigin } from '../_utils/_appOrigin.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -15,7 +16,7 @@ const hashResetToken = (token: string) => {
 };
 
 const myCallback = (res: VercelResponse) => {
-    // console.log('Email was sent scuccessfully!');
+    // console.log('Email was sent successfully!');
     res.status(200).send({ message: 'Wenn die E-Mail-Adresse bei uns registriert ist, erhalten Sie in Kürze eine Nachricht mit weiteren Schritten.' });
 };
 
@@ -48,7 +49,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 //     `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
                 // );
 
-                const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+                const appOrigin = getAppOrigin(req);
+                const resetLink = `${appOrigin}/reset-password?token=${token}`;
                 await sendEmail({
                     email,
                     subject: 'Passwort zurücksetzen',

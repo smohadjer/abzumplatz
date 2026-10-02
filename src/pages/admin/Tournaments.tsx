@@ -172,7 +172,7 @@ export default function AdminTournamentsPage() {
     };
 
     const resetDefaultGroups = async () => {
-        if (!confirm('Möchten Sie wirklich alle Gruppen zurücksetzen? Alle eigenen und geänderten Gruppen werden gelöscht und durch die Standardgruppen ersetzt. Bereits erstellte Turniere bleiben unverändert.')) return;
+        if (!confirm('Möchten Sie wirklich alle Konkurrenzen zurücksetzen? Alle eigenen und geänderten Konkurrenzen werden gelöscht und durch die Standardkonkurrenzen ersetzt. Bereits erstellte Turniere bleiben unverändert.')) return;
 
         setError('');
         setResetGroupsMessage('');
@@ -184,14 +184,14 @@ export default function AdminTournamentsPage() {
                 body: JSON.stringify({action: 'reset_defaults'}),
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.error ?? 'Die Gruppen konnten nicht zurückgesetzt werden.');
+            if (!response.ok) throw new Error(result.error ?? 'Die Konkurrenzen konnten nicht zurückgesetzt werden.');
             dispatch({
                 type: 'competitionGroups/fetch',
                 payload: {value: result.groups, loaded: true, clubId: user.club_id},
             });
-            setResetGroupsMessage(`${result.reset_count} Standardgruppen wurden wiederhergestellt.`);
+            setResetGroupsMessage(`${result.reset_count} Standardkonkurrenzen wurden wiederhergestellt.`);
         } catch (resetError) {
-            setError(resetError instanceof Error ? resetError.message : 'Die Gruppen konnten nicht zurückgesetzt werden.');
+            setError(resetError instanceof Error ? resetError.message : 'Die Konkurrenzen konnten nicht zurückgesetzt werden.');
         } finally {
             setResettingGroups(false);
         }
@@ -220,23 +220,26 @@ export default function AdminTournamentsPage() {
             </nav> : null}
 
             {activeTab === 'tournaments' ? <section className="admin-management-section">
-                {!tournamentId ? <><ul className="settings-links admin-management-create-link">
-                    <li><Link to="/admin/tournaments/new">Turnier hinzufügen</Link></li>
-                </ul>
-                <p className="admin-competition-groups-description">Hier verwalten Sie die bevorstehenden und vergangenen Turniere Ihres Vereins.</p>
-                <div aria-label="Turniere filtern" className="admin-management-filters" role="tablist">
-                    {tournamentFilters.map(filter => <button
-                        aria-selected={tournamentFilter === filter.id}
-                        className={tournamentFilter === filter.id ? 'active' : ''}
-                        key={filter.id}
-                        onClick={() => setTournamentFilter(filter.id)}
-                        role="tab"
-                        type="button"
-                    >{filter.label} ({tournamentCount(filter.id)})</button>)}
-                </div></> : null}
+                {!tournamentId ? <><p className="admin-competition-groups-description">Hier verwalten Sie die bevorstehenden und vergangenen Turniere Ihres Vereins.</p>
+                <div className="admin-management-primary-actions">
+                    <Link className="button-link icon icon--trophy" to="/admin/tournaments/new">Neues Turnier erstellen</Link>
+                </div>
+                <fieldset className="admin-filter-options">
+                    <legend>Filter:</legend>
+                    {tournamentFilters.map(filter => <label className="admin-filter-option" key={filter.id}>
+                        <input
+                            checked={tournamentFilter === filter.id}
+                            name="tournament-filter"
+                            onChange={() => setTournamentFilter(filter.id)}
+                            type="radio"
+                            value={filter.id}
+                        />
+                        <span>{filter.label} ({tournamentCount(filter.id)})</span>
+                    </label>)}
+                </fieldset></> : null}
                 {displayedTournaments.length ? <div className={`admin-management-list${tournamentId ? ' admin-tournament-detail' : ''}`}>
                     {displayedTournaments.map(tournament => (
-                        <article className={`admin-tournament-card${!tournamentId && tournament.end_date < today ? ' admin-tournament-card--past' : ''}`} key={tournament._id}>
+                        <article className={`admin-tournament-card${!tournamentId ? ' admin-management-compact-row admin-tournament-card--overview' : ''}`} key={tournament._id}>
                             {tournamentId ? <div className="admin-tournament-page-heading">
                                 <h1>{tournament.name}</h1>
                                 {tournament.start_date > today ? <div
@@ -247,22 +250,29 @@ export default function AdminTournamentsPage() {
                                     <span>{daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'}<small>bis zum Start</small></span>
                                 </div> : tournament.end_date < today ? <div className="admin-tournament-finished"><strong>Beendet</strong><small>Turnier vorbei</small></div> : null}
                             </div> : null}
-                            {!tournamentId ? <div className="admin-tournament-heading">
-                                <div>
+                            {!tournamentId ? <>
+                                <div className="admin-tournament-overview-summary">
                                     <h2><Link to={`/admin/tournaments/${tournament._id}`}>{tournament.name}</Link></h2>
                                     <p className="admin-tournament-summary-date icon icon--inline icon--calendar">{formatTournamentDate(tournament)}</p>
+                                    <p className={`admin-tournament-overview-status${tournament.end_date < today ? ' admin-tournament-overview-status--past' : ''}`}>
+                                        {tournament.start_date > today
+                                            ? `Bevorstehend · noch ${daysBetween(today, tournament.start_date)} ${daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'}`
+                                            : tournament.end_date < today ? 'Beendet' : 'Laufend'}
+                                    </p>
                                 </div>
-                                {!tournamentId && tournament.start_date > today ? <div
-                                    aria-label={`Noch ${daysBetween(today, tournament.start_date)} ${daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'} bis zum Start`}
-                                    className="admin-tournament-countdown"
-                                >
-                                    <strong>{daysBetween(today, tournament.start_date)}</strong>
-                                    <span>{daysBetween(today, tournament.start_date) === 1 ? 'Tag' : 'Tage'}<small>bis zum Start</small></span>
-                                </div> : tournament.end_date < today ? <div className="admin-tournament-finished">
-                                    <strong>Beendet</strong>
-                                    <small>Turnier vorbei</small>
-                                </div> : null}
-                            </div> : null}
+                                <div className="admin-management-actions">
+                                    <Link
+                                        className="button-link button-link--secondary"
+                                        onClick={event => {
+                                            if (tournament.end_date < today && !confirm('Dieses Turnier liegt in der Vergangenheit. Möchten Sie es trotzdem bearbeiten?')) {
+                                                event.preventDefault();
+                                            }
+                                        }}
+                                        to={`/admin/tournaments/${tournament._id}/edit`}
+                                    >Bearbeiten</Link>
+                                    <button className="admin-delete-button delete-action-button delete-action-button--subtle" onClick={() => deleteTournament(tournament)} type="button">Löschen</button>
+                                </div>
+                            </> : null}
                             {tournamentId && tournament.description ? <p>{tournament.description}</p> : null}
                             {tournamentId ? <>
                             <section className="admin-tournament-details admin-tournament-detail-section">
@@ -310,36 +320,37 @@ export default function AdminTournamentsPage() {
             </section> : null}
 
             {activeTab === 'groups' ? <section className="admin-management-section">
-                <ul className="settings-links admin-management-create-link">
-                    <li><Link to="/admin/tournaments/groups/new">Konkurrenz hinzufügen</Link></li>
-                </ul>
                 <p className="admin-competition-groups-description">Hier verwalten Sie die Konkurrenzen, die beim Erstellen eines Turniers zur Auswahl stehen. Änderungen wirken sich nicht auf bereits erstellte Turniere aus.</p>
-                <p className="admin-reset-default-groups-action">
+                <div className="admin-management-primary-actions">
+                    <Link className="button-link icon icon--group-add" to="/admin/tournaments/groups/new">Neue Konkurrenz erstellen</Link>
                     <button
-                        className="button-link button-link--secondary icon icon--undo"
+                        className="button-link button-link--danger icon icon--undo"
                         disabled={resettingGroups}
                         onClick={() => void resetDefaultGroups()}
                         type="button"
-                    >{resettingGroups ? 'Wird zurückgesetzt...' : 'Gruppen zurücksetzen'}</button>
-                </p>
-                {resetGroupsMessage ? <p className="admin-reset-default-groups-message" role="status">{resetGroupsMessage}</p> : null}
-                <div aria-label="Konkurrenzen filtern" className="admin-management-filters" role="tablist">
-                    {groupFilters.map(filter => <button
-                        aria-selected={groupFilter === filter.id}
-                        className={groupFilter === filter.id ? 'active' : ''}
-                        key={filter.id}
-                        onClick={() => setGroupFilter(filter.id)}
-                        role="tab"
-                        type="button"
-                    >{filter.label} ({groupCount(filter.id)})</button>)}
+                    >{resettingGroups ? 'Wird zurückgesetzt...' : 'Alle Konkurrenzen zurücksetzen'}</button>
                 </div>
+                {resetGroupsMessage ? <p className="admin-reset-default-groups-message" role="status">{resetGroupsMessage}</p> : null}
+                <fieldset className="admin-filter-options">
+                    <legend>Filter:</legend>
+                    {groupFilters.map(filter => <label className="admin-filter-option" key={filter.id}>
+                        <input
+                            checked={groupFilter === filter.id}
+                            name="group-filter"
+                            onChange={() => setGroupFilter(filter.id)}
+                            type="radio"
+                            value={filter.id}
+                        />
+                        <span>{filter.label} ({groupCount(filter.id)})</span>
+                    </label>)}
+                </fieldset>
                 {filteredGroups.length ? <div className="admin-management-list">
                     {filteredGroups.map(group => (
-                        <article className="admin-competition-group-row" key={group._id}>
+                        <article className="admin-management-compact-row admin-competition-group-row" key={group._id}>
                             <p><strong>{group.name}</strong> <span>{group.competition_type.name}</span></p>
                             <div className="admin-management-actions">
                                 <Link className="button-link button-link--secondary" to={`/admin/tournaments/groups/${group._id}/edit`}>Bearbeiten</Link>
-                                <button className="admin-delete-button delete-action-button" onClick={() => deleteGroup(group)} type="button">Löschen</button>
+                                <button className="admin-delete-button delete-action-button delete-action-button--subtle" onClick={() => deleteGroup(group)} type="button">Löschen</button>
                             </div>
                         </article>
                     ))}

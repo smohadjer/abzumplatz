@@ -222,7 +222,7 @@ export default function AdminMembersPage() {
     return (
         loading ? (
             <div className="splash">
-                <Loader size="big" text="Loading users..." />
+                <Loader size="big" text="Mitglieder werden geladen..." />
             </div>
         ) : (
             <>

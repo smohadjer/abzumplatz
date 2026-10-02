@@ -117,10 +117,6 @@
     font-weight: 400;
 }
 
-.tournament-description {
-    font-size: 0.9em;
-}
-
 .tournament-countdown {
     display: flex;
     flex: none;
@@ -188,7 +184,7 @@
     gap: 1rem;
     padding: 0.4rem 0;
     border-bottom: 1px solid #d6dce5;
-    font-size: 0.9em;
+    font-size: 0.9rem;
 }
 
 .tournament-list dt {
@@ -244,6 +240,7 @@
 .tournament-detail-section > p,
 .tournament-registration-section > p {
     margin: 0;
+    font-size: 0.9rem;
 }
 
 .tournament-registration-section > p {
@@ -252,6 +249,7 @@
 
 .tournament-registration-options {
     margin: 0.5rem 0 0;
+    font-size: 0.9rem;
     padding-left: 0;
     list-style: none;
 }

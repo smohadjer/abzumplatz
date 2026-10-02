@@ -152,14 +152,6 @@
   position: relative;
 }
 
-.header .header-account-button span.icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  background-position: center;
-  background-size: contain;
-  filter: invert(35%) sepia(91%) saturate(3615%) hue-rotate(213deg) brightness(86%) contrast(79%);
-}
-
 .header .header-notification-link span.icon {
   width: 1.5rem;
   height: 1.5rem;
@@ -364,6 +356,10 @@
   border-bottom: 1px solid #e2e2e2;
 }
 
+.account-menu-logout-group {
+  border-bottom: 0;
+}
+
 .account-menu nav a {
   display: flex;
   align-items: center;
@@ -393,12 +389,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.85rem;
-  margin-top: auto;
-  padding-top: 1.25rem;
+  gap: 0;
+  margin-top: 0;
+  padding: 0;
 }
 
-.account-menu-footer span {
+.account-menu-footer > span {
+  align-self: center;
+  margin-top: 1.25rem;
   color: #777;
   font-size: 0.8rem;
 }
@@ -406,9 +404,11 @@
 .account-menu-logout {
   display: inline-flex;
   align-items: center;
-  gap: 0.2rem;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 2.5rem;
   margin: 0;
-  padding: 0;
+  padding: 0 0.25rem;
   border: 0;
   background: transparent;
   color: #b42318;

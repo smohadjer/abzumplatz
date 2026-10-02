@@ -63,7 +63,7 @@ export default function AdminCourtsPage() {
     return (
         loading || !clubData.loaded ? (
             <div className="splash">
-                <Loader size="big" text="Loading data..." />
+                <Loader size="big" text="Daten werden geladen..." />
             </div>
         ) : (
             <>

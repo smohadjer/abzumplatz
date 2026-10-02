@@ -8,7 +8,7 @@ export default function Rules() {
 
     return (
         <>
-            <h1>Regeln</h1>
+            <h1>Vereinsregeln</h1>
             {rules.length ? (
                 <ol className="rules-list">
                     {rules.map((rule, index) => <li key={index}>{rule}</li>)}

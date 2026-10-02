@@ -329,7 +329,7 @@ export default function TournamentsPage() {
                     {tournamentId
                         ? <h1>{tournament.name}</h1>
                         : <h2><Link to={`/tournaments/${tournament._id}`}>{tournament.name}</Link></h2>}
-                    <p className="tournament-summary-date icon icon--inline icon--calendar">{formatTournamentDate(tournament)}</p>
+                    {!tournamentId ? <p className="tournament-summary-date icon icon--inline icon--calendar">{formatTournamentDate(tournament)}</p> : null}
                 </div>
                 <div className="tournament-heading-meta">
                     {tournament.start_date > today ? <div
@@ -349,6 +349,7 @@ export default function TournamentsPage() {
             <section className="tournament-detail-section">
             <h2>Turnierdaten</h2>
             <dl>
+                <div><dt>Datum</dt><dd>{formatTournamentDate(tournament)}</dd></div>
                 <div><dt>Meldeschluss</dt><dd>{formatDeadline(tournament.registration_deadline)}</dd></div>
                 <div><dt>Auslosung</dt><dd>{tournament.draw ? formatDeadline(tournament.draw) : 'Noch nicht festgelegt'}</dd></div>
                 <div><dt>Startgeld</dt><dd>{formatEntryFee(tournament.entry_fee)}</dd></div>

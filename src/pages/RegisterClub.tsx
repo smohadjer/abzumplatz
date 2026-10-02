@@ -158,7 +158,7 @@ export default function RegisterClub() {
                     <Link className="icon icon--back" to="/">Zur Startseite</Link>
                 )}
             </p>
-            <h1>Verein Registrieren</h1>
+            <h1>Verein anlegen</h1>
 
             {isChoosingPlan && (
                 <section className="register-club-plan-picker">

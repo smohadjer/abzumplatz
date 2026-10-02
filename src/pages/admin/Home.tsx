@@ -3,11 +3,9 @@ import { Link } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { fetchClub, onLogout } from "../../utils/utils";
-import { Loader } from "../../components/loader/Loader";
 import "../settings.css";
 
 export default function AdminHomePage() {
-    const [loadingClub, setLoadingClub] = useState(false);
     const [updatingClubStatus, setUpdatingClubStatus] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const user = useSelector((state: RootState) => state.auth);
@@ -15,20 +13,13 @@ export default function AdminHomePage() {
     const dispatch = useDispatch();
     const club = clubData.value;
     const isClubDeleted = user.club_deleted || Boolean(club.deleted_at);
-    const registeredAtLabel = club.timestamp
-        ? new Date(club.timestamp).toLocaleDateString('de-DE')
-        : '-';
     const deletedAtLabel = club.deleted_at
         ? new Date(club.deleted_at).toLocaleString('de-DE')
         : null;
 
     useEffect(() => {
         if (!clubData.loaded || clubData.value._id !== user.club_id) {
-            (async () => {
-                setLoadingClub(true);
-                await fetchClub(user.club_id, dispatch);
-                setLoadingClub(false);
-            })();
+            void fetchClub(user.club_id, dispatch);
         }
     }, [clubData.loaded, clubData.value._id, dispatch, user.club_id]);
 
@@ -111,24 +102,17 @@ export default function AdminHomePage() {
     return (
         <>
             <h1>Admin</h1>
-            <ul className="settings-links">
-                <li><Link to="/admin/checklist">Einrichtungscheckliste</Link></li>
-                <li><Link to="/admin/members">Mitglieder verwalten</Link></li>
-                <li><Link to="/admin/invite">Mitglieder einladen</Link></li>
-                <li><Link to="/admin/club">Verein</Link></li>
-                <li><Link to="/admin/courts">Plätze sperren</Link></li>
-                <li><Link to="/admin/rules">Vereinsregeln</Link></li>
-                <li><Link to="/admin/tournaments">Turniere</Link></li>
-                <li><Link to="/admin/announcements">Benachrichtigungen</Link></li>
-                <li><Link to="/admin/billings">Abrechnungen</Link></li>
-                <li><Link to="/admin/club/delete">Verein löschen</Link></li>
-                <li>
-                    <span>
-                        {loadingClub || !clubData.loaded
-                            ? <Loader size="small" text="Vereinsdaten werden geladen..." />
-                            : `Verein registriert am: ${registeredAtLabel}`}
-                    </span>
-                </li>
+            <ul className="settings-links admin-home-links">
+                <li><Link className="settings-icon-link settings-checklist-link" to="/admin/checklist">Einrichtungscheckliste</Link></li>
+                <li><Link className="settings-icon-link settings-members-link" to="/admin/members">Mitglieder verwalten</Link></li>
+                <li><Link className="settings-icon-link settings-invite-link" to="/admin/invite">Mitglieder einladen</Link></li>
+                <li><Link className="settings-icon-link settings-club-link" to="/admin/club">Vereinseinstellungen</Link></li>
+                <li><Link className="settings-icon-link settings-courts-link" to="/admin/courts">Plätze sperren</Link></li>
+                <li><Link className="settings-icon-link settings-rules-link" to="/admin/rules">Vereinsregeln</Link></li>
+                <li><Link className="settings-icon-link settings-tournaments-link" to="/admin/tournaments">Turniere</Link></li>
+                <li><Link className="settings-icon-link settings-notifications-link" to="/admin/announcements">Benachrichtigungen</Link></li>
+                <li><Link className="settings-icon-link settings-billings-link" to="/admin/billings">Abrechnungen</Link></li>
+                <li><Link className="settings-icon-link settings-delete-club-link" to="/admin/club/delete">Verein löschen</Link></li>
             </ul>
         </>
     )

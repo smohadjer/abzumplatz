@@ -91,7 +91,7 @@ export default function PublicMenu({isOpen, onClose, onOpen}: Props) {
                     </nav>
 
                     <div className="account-menu-footer">
-                        <span>App-Version: {packageJson.version}</span>
+                        <span>Version: {packageJson.version}</span>
                     </div>
                 </aside>
             </div>

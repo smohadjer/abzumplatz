@@ -4,12 +4,6 @@
     border-top: 1px solid #ddd;
 }
 
-.profile-optional-hint {
-    margin: 1rem 0 0.25rem;
-    color: #4b5b78;
-    font-size: 0.9rem;
-}
-
 .settings-links li {
     margin: 0;
 }
@@ -26,6 +20,10 @@
     padding: 0.85rem 0;
 }
 
+.admin-home-links a {
+    padding-block: 0.7rem;
+}
+
 .settings-links a {
     text-decoration: none;
 }
@@ -37,6 +35,64 @@
     background-color: currentColor;
     -webkit-mask: url('../images/forward.svg') center / contain no-repeat;
     mask: url('../images/forward.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-icon-link::before {
+    content: '';
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: currentColor;
+}
+
+.settings-links .settings-checklist-link::before {
+    -webkit-mask: url('../images/list_alt_check.svg') center / contain no-repeat;
+    mask: url('../images/list_alt_check.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-members-link::before {
+    -webkit-mask: url('../images/group.svg') center / contain no-repeat;
+    mask: url('../images/group.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-invite-link::before {
+    -webkit-mask: url('../images/group_add.svg') center / contain no-repeat;
+    mask: url('../images/group_add.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-club-link::before {
+    -webkit-mask: url('../images/manage_accounts.svg') center / contain no-repeat;
+    mask: url('../images/manage_accounts.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-courts-link::before {
+    -webkit-mask: url('../images/block.svg') center / contain no-repeat;
+    mask: url('../images/block.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-rules-link::before {
+    -webkit-mask: url('../images/gavel.svg') center / contain no-repeat;
+    mask: url('../images/gavel.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-tournaments-link::before {
+    -webkit-mask: url('../images/trophy.svg') center / contain no-repeat;
+    mask: url('../images/trophy.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-notifications-link::before {
+    -webkit-mask: url('../images/notifications.svg') center / contain no-repeat;
+    mask: url('../images/notifications.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-billings-link::before {
+    -webkit-mask: url('../images/euro_symbol.svg') center / contain no-repeat;
+    mask: url('../images/euro_symbol.svg') center / contain no-repeat;
+}
+
+.settings-links .settings-delete-club-link::before {
+    -webkit-mask: url('../images/delete.svg') center / contain no-repeat;
+    mask: url('../images/delete.svg') center / contain no-repeat;
 }
 
 .settings-links a:hover,

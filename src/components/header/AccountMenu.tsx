@@ -80,7 +80,7 @@ export default function AccountMenu({isOpen, onClose, onOpen}: Props) {
                 aria-controls="account-menu"
                 onClick={onOpen}
             >
-                <span className="icon icon--account" aria-hidden="true"></span>
+                <span className="header-menu-icon" aria-hidden="true"></span>
             </button>
 
             <div className={`account-menu-layer${isOpen ? ' account-menu-layer--open' : ''}`} aria-hidden={!isOpen}>
@@ -99,7 +99,7 @@ export default function AccountMenu({isOpen, onClose, onOpen}: Props) {
                             <Link to="/profile">Mein Profil</Link>
                         </div>
                         <div className="account-menu-group">
-                            <Link to="/rules">Regeln</Link>
+                            <Link to="/rules">Vereinsregeln</Link>
                         </div>
                         <div className="account-menu-group">
                             <Link to="/support">Support</Link>
@@ -108,14 +108,16 @@ export default function AccountMenu({isOpen, onClose, onOpen}: Props) {
                         <div className="account-menu-group">
                             <Link to="/impressum">Impressum</Link>
                         </div>
+                        <div className="account-menu-group account-menu-logout-group">
+                            <button type="button" className="account-menu-logout" onClick={handleLogout}>
+                                <span className="icon icon--logout" aria-hidden="true"></span>
+                                Ausloggen
+                            </button>
+                        </div>
                     </nav>
 
                     <div className="account-menu-footer">
-                        <button type="button" className="account-menu-logout" onClick={handleLogout}>
-                            <span className="icon icon--logout" aria-hidden="true"></span>
-                            Ausloggen
-                        </button>
-                        <span>App-Version: {packageJson.version}</span>
+                        <span>Version: {packageJson.version}</span>
                     </div>
                 </aside>
             </div>

@@ -198,6 +198,11 @@
 }
 
 @media (max-width: 767px) {
+    .home-screenshot-slider {
+        width: 64vw;
+        max-width: 300px;
+    }
+
     .home-intro {
         display: block;
         margin-top: 1rem;

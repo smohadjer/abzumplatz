@@ -5,6 +5,7 @@ import { CompetitionGroup, CompetitionType } from '../../types';
 import { Loader } from '../../components/loader/Loader';
 import { RootState } from '../../store';
 import AdminBackButton from '../../components/AdminBackButton';
+import '../../components/form/Form.css';
 import './tournaments.css';
 
 type GroupForm = {
@@ -69,8 +70,14 @@ export default function AdminCompetitionGroupFormPage() {
 
     const saveGroup = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setSaving(true);
         setError('');
+        const minAge = form.min_age === '' ? undefined : Number(form.min_age);
+        const maxAge = form.max_age === '' ? undefined : Number(form.max_age);
+        if (minAge !== undefined && maxAge !== undefined && maxAge < minAge) {
+            setError('Das Höchstalter darf nicht unter dem Mindestalter liegen.');
+            return;
+        }
+        setSaving(true);
         try {
             const response = await fetch(`/api/competition-groups${id ? `?id=${encodeURIComponent(id)}` : ''}`, {
                 method: editing ? 'PATCH' : 'POST',
@@ -98,28 +105,23 @@ export default function AdminCompetitionGroupFormPage() {
 
     return <>
         <p><AdminBackButton fallback="/admin/tournaments?tab=groups" /></p>
-        <h1>{editing ? 'Konkurrenz bearbeiten' : 'Konkurrenz hinzufügen'}</h1>
-        <form className="admin-tournament-form" onSubmit={saveGroup}>
-            <label htmlFor="group-name">Name</label>
-            <input id="group-name" maxLength={100} required value={form.name} onChange={event => setForm(current => ({...current, name: event.target.value}))} />
-            <label htmlFor="competition-type">Typ</label>
-            <select id="competition-type" value={form.competition_type_id} onChange={event => setForm(current => ({...current, competition_type_id: event.target.value as CompetitionType['id']}))}>
+        <h1>{editing ? 'Konkurrenz bearbeiten' : 'Neue Konkurrenz erstellen'}</h1>
+        <form className="form-react" onSubmit={saveGroup}>
+            <div className="row"><label htmlFor="group-name">Konkurrenzname: *</label><div><input id="group-name" maxLength={100} required value={form.name} onChange={event => setForm(current => ({...current, name: event.target.value}))} /></div></div>
+            <div className="row"><label htmlFor="competition-type">Konkurrenztyp:</label><div><select id="competition-type" value={form.competition_type_id} onChange={event => setForm(current => ({...current, competition_type_id: event.target.value as CompetitionType['id']}))}>
                 <option value="single">Einzel</option>
                 <option value="double">Doppel</option>
-            </select>
-            <label htmlFor="competition-sex">Geschlechtsbeschränkung</label>
-            <select id="competition-sex" value={form.sex} onChange={event => setForm(current => ({...current, sex: event.target.value as GroupForm['sex']}))}>
+            </select></div></div>
+            <div className="row"><label htmlFor="competition-sex">Geschlechtsbeschränkung:</label><div><select id="competition-sex" value={form.sex} onChange={event => setForm(current => ({...current, sex: event.target.value as GroupForm['sex']}))}>
                 <option value="">Keine</option>
                 <option value="male">Herren</option>
                 <option value="female">Damen</option>
                 <option value="mixed">Mixed</option>
-            </select>
-            <div className="admin-tournament-date-grid">
-                <label>Mindestalter<input min="0" max="120" type="number" value={form.min_age} onChange={event => setForm(current => ({...current, min_age: event.target.value}))} /></label>
-                <label>Höchstalter<input min="0" max="120" type="number" value={form.max_age} onChange={event => setForm(current => ({...current, max_age: event.target.value}))} /></label>
-            </div>
+            </select></div></div>
+            <div className="row"><label htmlFor="minimum-age">Mindestalter (optional):</label><div><input id="minimum-age" min="0" max="120" placeholder="z. B. 30" type="number" value={form.min_age} onChange={event => setForm(current => ({...current, min_age: event.target.value}))} /></div></div>
+            <div className="row"><label htmlFor="maximum-age">Höchstalter (optional):</label><div><input id="maximum-age" min="0" max="120" placeholder="z. B. 18" type="number" value={form.max_age} onChange={event => setForm(current => ({...current, max_age: event.target.value}))} /></div></div>
             {error ? <p className="form-error-message">{error}</p> : null}
-            <div className="admin-tournament-form-actions">
+            <div className="row admin-tournament-form-actions">
                 <button disabled={saving} type="submit">{saving ? 'Wird gespeichert...' : 'Speichern'}</button>
                 <button disabled={saving} onClick={() => navigate('/admin/tournaments?tab=groups')} type="button">Abbrechen</button>
             </div>

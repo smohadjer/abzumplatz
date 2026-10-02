@@ -9,6 +9,7 @@ import { database_uri, database_name } from './_utils/_config.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { createError, getErrorCause, getErrorMessage } from './_utils/_errors.js';
 import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';
+import { getAppOrigin } from './_utils/_appOrigin.js';
 
 type SignupBody = {
     first_name: string;
@@ -38,12 +39,6 @@ const statusLabels: Record<string, string> = {
 
 const getRoleLabel = (role?: string) => roleLabels[role ?? ''] ?? role ?? '-';
 const getStatusLabel = (status?: string) => statusLabels[status ?? 'inactive'] ?? status ?? 'Inaktiv';
-
-const getAppOrigin = (req: VercelRequest) => {
-    const protocol = req.headers['x-forwarded-proto'] ?? 'https';
-    const host = req.headers.host;
-    return host ? `${protocol}://${host}` : '';
-};
 
 function buildNewUserNotificationEmail(user: DBUser, club: ClubDocument, membersUrl: string) {
     const fullName = `${user.first_name} ${user.last_name}`;

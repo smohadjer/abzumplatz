@@ -5,6 +5,7 @@ import { CompetitionGroup, Tournament, TournamentPaymentMethod, TournamentStatus
 import { Loader } from '../../components/loader/Loader';
 import AdminBackButton from '../../components/AdminBackButton';
 import { RootState } from '../../store';
+import '../../components/form/Form.css';
 import './tournaments.css';
 
 type TournamentForm = {
@@ -30,6 +31,13 @@ const emptyForm: TournamentForm = {
 const statusLabels: Record<TournamentStatus, string> = {
     draft: 'Entwurf', published: 'Veröffentlicht',
 };
+
+const tournamentFormats = [
+    'K.-o.-System',
+    'K.-o.-System mit Nebenrunde',
+    'Jeder gegen jeden',
+    'Gruppenphase mit K.-o.-Runde',
+];
 
 const toDateTimeLocal = (value: string) => {
     const date = new Date(value);
@@ -143,26 +151,27 @@ export default function AdminTournamentFormPage() {
     return <>
         <p><AdminBackButton fallback="/admin/tournaments" /></p>
         <h1>{editing ? 'Turnier bearbeiten' : 'Turnier hinzufügen'}</h1>
-        <form className="admin-tournament-form" onSubmit={saveTournament}>
-            <label htmlFor="tournament-name">Name</label>
-            <input id="tournament-name" maxLength={150} required value={form.name} onChange={event => setForm(current => ({...current, name: event.target.value}))} />
-            <label htmlFor="tournament-description">Beschreibung</label>
-            <textarea id="tournament-description" maxLength={3000} rows={4} value={form.description} onChange={event => setForm(current => ({...current, description: event.target.value}))} />
-            <label htmlFor="tournament-format">Spielmodus</label>
-            <input id="tournament-format" maxLength={1000} value={form.format} onChange={event => setForm(current => ({...current, format: event.target.value}))} />
-            <div className="admin-tournament-date-grid">
-                <label>Startdatum<input type="date" required value={form.start_date} onChange={event => setForm(current => ({...current, start_date: event.target.value}))} /></label>
-                <label>Enddatum<input type="date" required min={form.start_date || undefined} value={form.end_date} onChange={event => setForm(current => ({...current, end_date: event.target.value}))} /></label>
-                <label>Meldeschluss<input type="datetime-local" required value={form.registration_deadline} onChange={event => setForm(current => ({...current, registration_deadline: event.target.value}))} /></label>
-                <label>Auslosung<input type="datetime-local" value={form.draw} onChange={event => setForm(current => ({...current, draw: event.target.value}))} /></label>
-                <label>Startgeld (€)<input min="0" step="1" type="number" value={form.entry_fee} onChange={event => setForm(current => ({...current, entry_fee: event.target.value}))} /></label>
-                <label>Zahlungsart<select value={form.payment_method} onChange={event => setForm(current => ({...current, payment_method: event.target.value as TournamentForm['payment_method']}))}>
+        <form className="form-react admin-tournament-edit-form" onSubmit={saveTournament}>
+            <div className="row"><label htmlFor="tournament-name">Turniername: *</label><div><input id="tournament-name" maxLength={150} required value={form.name} onChange={event => setForm(current => ({...current, name: event.target.value}))} /></div></div>
+            <div className="row"><label htmlFor="tournament-description">Beschreibung:</label><div><textarea id="tournament-description" maxLength={3000} rows={4} value={form.description} onChange={event => setForm(current => ({...current, description: event.target.value}))} /></div></div>
+            <div className="row"><label htmlFor="tournament-format">Spielmodus:</label><div><select id="tournament-format" value={form.format} onChange={event => setForm(current => ({...current, format: event.target.value}))}>
+                <option value="">Noch nicht festgelegt</option>
+                {form.format && !tournamentFormats.includes(form.format) ? <option value={form.format}>{form.format}</option> : null}
+                {tournamentFormats.map(format => <option key={format} value={format}>{format}</option>)}
+            </select></div></div>
+            <div className="row"><label htmlFor="tournament-start-date">Startdatum: *</label><div><input id="tournament-start-date" type="date" required value={form.start_date} onChange={event => setForm(current => ({...current, start_date: event.target.value}))} /></div></div>
+            <div className="row"><label htmlFor="tournament-end-date">Enddatum: *</label><div><input id="tournament-end-date" type="date" required min={form.start_date || undefined} value={form.end_date} onChange={event => setForm(current => ({...current, end_date: event.target.value}))} /></div></div>
+            <div className="row"><label htmlFor="tournament-registration-deadline">Meldeschluss: *</label><div><input id="tournament-registration-deadline" type="datetime-local" required value={form.registration_deadline} onChange={event => setForm(current => ({...current, registration_deadline: event.target.value}))} /></div></div>
+            <div className="row"><label htmlFor="tournament-draw">Auslosung:</label><div><input id="tournament-draw" type="datetime-local" value={form.draw} onChange={event => setForm(current => ({...current, draw: event.target.value}))} /></div></div>
+            <div className="row"><label htmlFor="tournament-entry-fee">Startgeld (€):</label><div><input id="tournament-entry-fee" min="0" step="1" type="number" value={form.entry_fee} onChange={event => setForm(current => ({...current, entry_fee: event.target.value}))} /></div></div>
+            <div className="row"><label htmlFor="tournament-payment-method">Zahlungsart:</label><div><select id="tournament-payment-method" value={form.payment_method} onChange={event => setForm(current => ({...current, payment_method: event.target.value as TournamentForm['payment_method']}))}>
                     <option value="">Noch nicht festgelegt</option>
                     <option value="cash">Barzahlung</option>
                     <option value="bank_transfer">Überweisung</option>
-                </select></label>
+                </select></div></div>
+            <div className="row">
                 <fieldset className="admin-tournament-status">
-                    <legend>Status</legend>
+                    <legend>Status:</legend>
                     <div>{Object.entries(statusLabels).map(([value, label]) => <label key={value}>
                         <input
                             checked={form.status === value}
@@ -175,8 +184,8 @@ export default function AdminTournamentFormPage() {
                     </label>)}</div>
                 </fieldset>
             </div>
-            <fieldset className="admin-tournament-groups">
-                <legend>Konkurrenzen</legend>
+            <fieldset className="admin-tournament-groups row">
+                <legend>Konkurrenzen:</legend>
                 {groups.length ? groups.map(group => <label key={group._id}>
                     <input checked={form.group_ids.includes(group._id)} onChange={() => toggleGroup(group._id)} type="checkbox" />
                     <span>{group.name} <small>({group.competition_type.name})</small></span>
@@ -187,7 +196,7 @@ export default function AdminTournamentFormPage() {
                 </label>)}
                 {!groups.length && !unavailableGroups.length ? <p>Für diesen Verein sind noch keine Konkurrenzen angelegt.</p> : null}
             </fieldset>
-            <label className="admin-tournament-notification" htmlFor="tournament-notify-members">
+            <label className="admin-tournament-notification row" htmlFor="tournament-notify-members">
                 <input
                     checked={form.notify_members_on_publish}
                     id="tournament-notify-members"
@@ -197,7 +206,7 @@ export default function AdminTournamentFormPage() {
                 Mitglieder benachrichtigen, wenn das Turnier veröffentlicht wird
             </label>
             {error ? <p className="form-error-message">{error}</p> : null}
-            <div className="admin-tournament-form-actions">
+            <div className="row admin-tournament-form-actions">
                 <button disabled={saving || form.group_ids.length === 0} type="submit">{saving ? 'Wird gespeichert...' : 'Speichern'}</button>
                 <button disabled={saving} onClick={() => navigate('/admin/tournaments')} type="button">Abbrechen</button>
             </div>

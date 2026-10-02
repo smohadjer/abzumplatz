@@ -7,6 +7,7 @@ import { DBUser, ReservationItem } from '../src/types.js';
 import sendEmail from './_utils/_sendEmail.js';
 import { AdminEmailDocument, ClubDocument } from './_utils/_types.js';
 import { isReservationActive } from '../src/utils/reservationTime.js';
+import { getAppOrigin } from './_utils/_appOrigin.js';
 
 type SelectClubBody = {
   club_id?: string;
@@ -49,12 +50,6 @@ async function deleteActiveReservationsForUser(
 
   return deleteResult.deletedCount;
 }
-
-const getAppOrigin = (req: VercelRequest) => {
-  const protocol = req.headers['x-forwarded-proto'] ?? 'https';
-  const host = req.headers.host;
-  return host ? `${protocol}://${host}` : '';
-};
 
 function buildClubChangeNotificationEmail(
   user: Pick<DBUser, 'first_name' | 'last_name' | 'email'>,

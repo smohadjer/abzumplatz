@@ -22,7 +22,7 @@
         },
         {
             "name": "email",
-            "label": "Email",
+            "label": "E-Mail",
             "type": "email",
             "autocomplete": "email",
             "required": true,

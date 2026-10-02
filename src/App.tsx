@@ -283,7 +283,7 @@ export default function App({initiallyInitialized = false}: AppProps) {
                 <Header />
                 <main>
                     <div className="splash">
-                        <Loader size="big" text="Loading..." />
+                        <Loader size="big" text="Wird geladen..." />
                     </div>
                 </main>
                 <Footer />

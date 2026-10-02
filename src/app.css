@@ -86,10 +86,13 @@ h2 + * {
 }
 
 .splash {
-    min-height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1000;
 }
 
 .active {
@@ -138,6 +141,17 @@ a {
 .button-link--secondary:hover,
 .button-link--secondary:focus-visible {
     background: #dfe8f7;
+}
+
+.button-link--danger {
+    background: #fff0f0;
+    color: #8f1c13;
+}
+
+.button-link--danger:hover,
+.button-link--danger:focus-visible {
+    background: #fbdedb;
+    color: #72170f;
 }
 
 button {
@@ -203,15 +217,20 @@ ul {
 
 .my-reservations ul {
     display: grid;
-    gap: 0.5rem;
+    gap: 0;
     list-style: none;
     padding: 0;
 }
 
 .my-reservations li {
-    padding: 0.75rem 0.85rem;
+    padding: 0.75rem 0;
     margin: 0;
-    background: #f6f6f6;
+    border-bottom: 1px solid #d6dce5;
+    background: transparent;
+}
+
+.my-reservations li:last-child {
+    border-bottom: 0;
 }
 
 .booking-date-time,
@@ -225,20 +244,53 @@ ul {
     font-size: 0.9em;
 }
 
-.booking-court {
-    display: inline;
+.booking-date {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.booking-date::before {
+    content: '';
+    flex: none;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    -webkit-mask: url('./images/calendar.svg') center / 16px no-repeat;
+    mask: url('./images/calendar.svg') center / 16px no-repeat;
+}
+
+.booking-court-time {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.15rem;
+}
+
+.booking-court,
+.booking-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.booking-court::before,
+.booking-time::before {
+    content: '';
+    flex: none;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
 }
 
 .booking-court::before {
-    content: '';
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    margin-right: 0.1rem;
-    background-color: currentColor;
     -webkit-mask: url('./images/location.svg') center / 16px no-repeat;
     mask: url('./images/location.svg') center / 16px no-repeat;
-    vertical-align: -0.2em;
+}
+
+.booking-time::before {
+    -webkit-mask: url('./images/schedule.svg') center / 16px no-repeat;
+    mask: url('./images/schedule.svg') center / 16px no-repeat;
 }
 
 .booking-meta {
@@ -246,6 +298,24 @@ ul {
     align-items: center;
     gap: 0.75rem;
     margin-top: 0.3rem;
+}
+
+.booking-calendar-button {
+    gap: 0.2rem;
+    min-width: 0;
+    min-height: 0;
+    padding: 0.25rem 0.45rem;
+    font-size: 0.9em;
+}
+
+.booking-calendar-button::before {
+    content: '';
+    flex: none;
+    width: 20px;
+    height: 20px;
+    background-color: currentColor;
+    -webkit-mask: url('./images/calendar.svg') center / 20px no-repeat;
+    mask: url('./images/calendar.svg') center / 20px no-repeat;
 }
 
 .booking-action {
@@ -331,6 +401,17 @@ a.booking-action:focus-visible,
 .delete-action-button:hover:not(:disabled),
 .delete-action-button:focus-visible {
     background-color: #8f1c13;
+}
+
+.delete-action-button--subtle {
+    background-color: #fff0f0;
+    color: #8f1c13;
+}
+
+.delete-action-button--subtle:hover:not(:disabled),
+.delete-action-button--subtle:focus-visible {
+    background-color: #fbdedb;
+    color: #72170f;
 }
 
 .booking-delete-confirmation {

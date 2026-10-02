@@ -31,7 +31,7 @@ export default function Support() {
         '',
         '',
         '--- Technische Informationen ---',
-        `App-Version: ${packageJson.version}`,
+        `Version: ${packageJson.version}`,
         `Zeitpunkt: ${new Date().toISOString()}`,
         `Zeitzone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
         `Seite: ${typeof window !== 'undefined' ? window.location.href : 'Unbekannt'}`,

@@ -11,7 +11,6 @@ export default function Profile() {
     const club = getClub();
     const role = auth.role === 'admin' ? ' (Admin)' : '';
     const status = auth.status === 'inactive' ? 'Inaktiv' : 'Aktiv';
-    const age = auth.birth_year ? new Date().getFullYear() - auth.birth_year : null;
 
     return (
         <>
@@ -36,11 +35,10 @@ export default function Profile() {
                         </td>
                     </tr>
                     <tr>
-                        <th>Email</th>
+                        <th>E-Mail</th>
                         <td>{auth.email}</td>
                     </tr>
                     <tr><th>Geburtsjahr</th><td>{auth.birth_year ?? '-'}</td></tr>
-                    <tr><th>Alter</th><td>{age === null ? '-' : `${age} Jahre (im laufenden Jahr)`}</td></tr>
                     <tr><th>Geschlecht</th><td>{auth.sex ? sexLabels[auth.sex] : '-'}</td></tr>
                 </tbody>
             </table>

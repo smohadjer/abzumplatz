@@ -71,13 +71,13 @@ test('an admin can reset all competition groups to the defaults', async ({page})
   await expect(page.getByText(customGroup.name, {exact: true})).toBeVisible();
 
   page.once('dialog', async dialog => {
-    expect(dialog.message()).toContain('Alle eigenen und geänderten Gruppen werden gelöscht');
+    expect(dialog.message()).toContain('Alle eigenen und geänderten Konkurrenzen werden gelöscht');
     await dialog.accept();
   });
-  await page.getByRole('button', {name: 'Gruppen zurücksetzen'}).click();
+  await page.getByRole('button', {name: 'Alle Konkurrenzen zurücksetzen'}).click();
 
   await expect(page.getByRole('button', {name: 'Wird zurückgesetzt...'})).toBeDisabled();
-  await expect(page.getByRole('status')).toHaveText('19 Standardgruppen wurden wiederhergestellt.');
+  await expect(page.getByRole('status')).toHaveText('19 Standardkonkurrenzen wurden wiederhergestellt.');
   expect(submittedReset).toEqual({action: 'reset_defaults'});
   await expect(page.getByText(customGroup.name, {exact: true})).toHaveCount(0);
   for (const name of defaultGroupNames) {

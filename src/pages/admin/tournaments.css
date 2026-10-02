@@ -1,52 +1,12 @@
-.admin-tournament-form {
-    max-width: 46rem;
-    margin-top: 1rem;
-    padding: 1rem;
-    border: 1px solid #ccd5e3;
-    border-radius: 0.35rem;
-    background: #f8faff;
-}
-
-.admin-tournament-form h2 {
-    margin-top: 0;
-}
-
-.admin-tournament-form > label,
-.admin-tournament-date-grid label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    margin-top: 0.8rem;
-    font-weight: 700;
-}
-
-.admin-tournament-form input,
-.admin-tournament-form select,
-.admin-tournament-form textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #9ba8ba;
-    border-radius: 0.25rem;
-    box-sizing: border-box;
-    font: inherit;
-    font-weight: 400;
-}
-
-.admin-tournament-date-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-    gap: 0 1rem;
-}
-
-.admin-tournament-status {
-    margin: 0.8rem 0 0;
+.form-react .admin-tournament-status {
+    display: block;
+    margin: 0;
     padding: 0;
     border: 0;
 }
 
 .admin-tournament-status legend {
     padding: 0;
-    font-weight: 700;
 }
 
 .admin-tournament-status > div {
@@ -55,12 +15,12 @@
     margin-top: 0.55rem;
 }
 
-.admin-tournament-date-grid .admin-tournament-status label {
-    flex-direction: row;
+.admin-tournament-status label {
+    display: inline-flex;
     align-items: center;
     gap: 0.35rem;
     margin: 0;
-    font-weight: 400;
+    padding: 0.25em 0;
 }
 
 .admin-tournament-status input {
@@ -68,21 +28,22 @@
     padding: 0;
 }
 
-.admin-tournament-form > .admin-tournament-notification {
-    align-items: flex-start;
-    flex-direction: row;
+.form-react .admin-tournament-notification {
+    display: flex;
+    align-items: center;
     gap: 0.45rem;
-    font-weight: 400;
 }
 
 .admin-tournament-notification input {
     width: auto;
-    margin: 0.15rem 0 0;
+    margin: 0;
     padding: 0;
 }
 
-.admin-tournament-groups {
+.form-react .admin-tournament-groups {
+    display: block;
     margin-top: 1rem;
+    padding-left: 0.75rem;
     border: 1px solid #9ba8ba;
     border-radius: 0.25rem;
 }
@@ -142,52 +103,67 @@
     font-weight: 700;
 }
 
-.admin-management-heading {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-}
-
-.admin-management-heading .button-link {
-    min-width: 0;
-}
-
-.admin-management-create-link {
-    max-width: 46rem;
-    border-top: 0;
-    border-bottom: 1px solid #ddd;
-}
-
 .admin-competition-groups-description {
     margin: 1.25rem 0;
 }
 
-.admin-reset-default-groups-action {
-    margin: 0 0 0.75rem;
+.admin-management-primary-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
 }
 
-.admin-reset-default-groups-action .button-link {
+.admin-management-primary-actions .button-link {
     min-width: 0;
 }
 
-.admin-reset-default-groups-action .icon--undo {
+.admin-management-primary-actions .icon--group-add,
+.admin-management-primary-actions .icon--trophy,
+.admin-management-primary-actions .icon--undo {
     gap: 0.45em;
     background-image: none;
 }
 
-.admin-reset-default-groups-action .icon--undo::before {
+.admin-management-primary-actions .icon--group-add,
+.admin-management-primary-actions .icon--trophy {
+    color: white;
+    font-weight: inherit;
+}
+
+.admin-management-primary-actions a.icon--group-add:hover,
+.admin-management-primary-actions a.icon--group-add:focus-visible,
+.admin-management-primary-actions a.icon--trophy:hover,
+.admin-management-primary-actions a.icon--trophy:focus-visible {
+    filter: none;
+}
+
+.admin-management-primary-actions .icon--group-add::before,
+.admin-management-primary-actions .icon--trophy::before,
+.admin-management-primary-actions .icon--undo::before {
     content: '';
     flex: none;
     width: 1.4em;
     height: 1.4em;
     background-color: currentColor;
+}
+
+.admin-management-primary-actions .icon--group-add::before {
+    -webkit-mask: url('../../images/group_add.svg') center / contain no-repeat;
+    mask: url('../../images/group_add.svg') center / contain no-repeat;
+}
+
+.admin-management-primary-actions .icon--trophy::before {
+    -webkit-mask: url('../../images/trophy.svg') center / contain no-repeat;
+    mask: url('../../images/trophy.svg') center / contain no-repeat;
+}
+
+.admin-management-primary-actions .icon--undo::before {
     -webkit-mask: url('../../images/undo.svg') center / contain no-repeat;
     mask: url('../../images/undo.svg') center / contain no-repeat;
 }
 
-.admin-reset-default-groups-action .button-link:disabled {
+.admin-management-primary-actions .button-link:disabled {
     opacity: 0.5;
     cursor: default;
 }
@@ -197,42 +173,35 @@
     color: #245c31;
 }
 
-.admin-management-filters {
+.admin-filter-options {
     display: flex;
-    flex-wrap: nowrap;
-    box-sizing: border-box;
-    width: 100%;
-    gap: 0.25rem;
-    margin-bottom: 0.75rem;
-    border-bottom: 1px solid #c7d3eb;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 0.75rem 0 1rem;
+    padding: 0.75rem 1rem;
+    border: 0;
+    background: #f4f7fc;
+    font-size: 0.9em;
 }
 
-.admin-management-filters button {
+.admin-filter-options legend {
+    float: left;
+    margin-right: 0.25rem;
+    font-weight: 700;
+}
+
+.admin-filter-option {
+    display: inline-flex;
     flex: none;
-    margin: 0;
-    padding: 0.4rem 0.65rem;
-    border: 0;
-    border-bottom: 3px solid transparent;
-    border-radius: 0;
-    background: transparent;
-    color: #4a5568;
+    align-items: center;
+    gap: 0.35rem;
     cursor: pointer;
-    font: inherit;
     white-space: nowrap;
 }
 
-.admin-management-filters button:hover,
-.admin-management-filters button:focus-visible {
-    background: #f2f5fa;
-    color: var(--blue);
-}
-
-.admin-management-filters button.active {
-    border-bottom-color: var(--blue);
-    color: var(--blue);
-    font-weight: 700;
+.admin-filter-option input {
+    margin: 0;
 }
 
 .admin-management-list article {
@@ -285,20 +254,9 @@
     background: #f5f6f8;
 }
 
-.admin-management-list .admin-tournament-card.admin-tournament-card--past {
-    background: #fff0f0;
-}
-
 .admin-tournament-detail .admin-tournament-card {
     padding: 0;
     background: transparent;
-}
-
-.admin-tournament-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
 }
 
 .admin-tournament-page-heading {
@@ -314,18 +272,28 @@
     overflow-wrap: anywhere;
 }
 
-.admin-tournament-heading h2 {
+.admin-tournament-overview-summary h2 {
     margin: 0;
-    font-size: 1.17em;
+    font-size: 1rem;
 }
 
-.admin-tournament-summary-date.icon--inline {
+.admin-tournament-overview-summary .admin-tournament-summary-date.icon--inline {
     margin: 0.35rem 0 0;
     padding-left: 25px;
     background-position-y: 0;
-    color: #000;
-    font-size: 1rem;
-    font-weight: 700;
+    color: #586577;
+    font-size: 0.85em;
+    font-weight: 400;
+}
+
+.admin-tournament-overview-status {
+    margin: 0.2rem 0 0;
+    color: #245c31;
+    font-size: 0.8em;
+}
+
+.admin-tournament-overview-status--past {
+    color: #8f1c13;
 }
 
 .admin-tournament-countdown {
@@ -419,17 +387,27 @@
     text-align: left;
 }
 
-.admin-management-list .admin-competition-group-row {
+.admin-management-list .admin-management-compact-row {
+    flex-direction: row;
     align-items: center;
     margin-top: 0;
     padding: 0.45rem 0;
     border: 0;
     border-bottom: 1px solid #d6dce5;
     border-radius: 0;
+    background: transparent;
 }
 
-.admin-management-list .admin-competition-group-row:last-child {
+.admin-management-list .admin-management-compact-row:last-child {
     border-bottom: 0;
+}
+
+.admin-tournament-overview-summary {
+    min-width: 0;
+}
+
+.admin-tournament-overview-summary h2 {
+    overflow-wrap: anywhere;
 }
 
 .admin-competition-group-row > p {
@@ -441,12 +419,12 @@
     font-size: 0.85em;
 }
 
-.admin-competition-group-row .admin-management-actions {
+.admin-management-compact-row .admin-management-actions {
     flex-wrap: nowrap;
 }
 
-.admin-competition-group-row .button-link,
-.admin-competition-group-row .admin-delete-button {
+.admin-management-compact-row .button-link,
+.admin-management-compact-row .admin-delete-button {
     min-height: 0;
     padding: 0.3rem 0.6rem;
 }
@@ -539,8 +517,7 @@
 }
 
 @media (max-width: 560px) {
-    .admin-management-heading,
-    .admin-management-list article:not(.admin-competition-group-row) {
+    .admin-management-list article:not(.admin-management-compact-row) {
         flex-direction: column;
         align-items: stretch;
     }
@@ -549,7 +526,37 @@
         grid-template-columns: minmax(6rem, auto) minmax(0, 1fr);
     }
 
-    .admin-competition-group-row {
-        flex-wrap: wrap;
+    .admin-management-compact-row {
+        flex-wrap: nowrap;
+    }
+
+    .admin-competition-group-row > p {
+        min-width: 0;
+    }
+
+    .admin-competition-group-row > p strong,
+    .admin-competition-group-row > p span {
+        display: block;
+    }
+
+    .admin-competition-group-row > p strong {
+        font-size: 0.9rem;
+        overflow-wrap: anywhere;
+    }
+
+    .admin-competition-group-row > p span {
+        font-size: 0.8em;
+    }
+
+    .admin-management-compact-row .admin-management-actions {
+        flex: none;
+    }
+
+    .admin-tournament-overview-summary h2 {
+        font-size: 0.9rem;
+    }
+
+    .admin-tournament-overview-summary .admin-tournament-summary-date.icon--inline {
+        font-size: 0.8em;
     }
 }
