@@ -16,7 +16,7 @@ export default function SelectClubPage(props: Props) {
 
     return (
         <>
-            <p><Link className="icon icon--back" to="/profile">Zurück</Link></p>
+            <p><Link className="icon icon--back" to="/profile">Zum Profil</Link></p>
             <h1>{isChangingClub ? 'Verein wechseln' : 'Verein auswählen'}</h1>
             {auth.club_deleted ? (
                 <p className="inactive-status-warning">

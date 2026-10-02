@@ -124,7 +124,10 @@ export default function AdminTournamentsPage() {
 
     return (
         <>
-            <p><AdminBackButton fallback={tournamentId ? '/admin/tournaments' : '/admin'} /></p>
+            <p><AdminBackButton
+                fallback={tournamentId ? '/admin/tournaments' : '/admin'}
+                fallbackLabel={tournamentId ? 'Zu den Turnieren' : 'Zur Administration'}
+            /></p>
             {!tournamentId ? <h1>Turniere verwalten</h1> : null}
             {tournamentId && !detailTournament ? <h1>Turnier</h1> : null}
             {error ? <p className="form-error-message">{error}</p> : null}

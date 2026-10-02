@@ -27,6 +27,16 @@ const publicMetadata: Record<string, Metadata> = {
         title: 'Impressum – abzumplatz',
         description: 'Impressum und Anbieterinformationen von abzumplatz.',
         indexable: true
+    },
+    '/privacy': {
+        title: 'Datenschutzerklärung – abzumplatz',
+        description: 'Informationen zum Datenschutz und zur Verarbeitung personenbezogener Daten bei abzumplatz.',
+        indexable: true
+    },
+    '/terms': {
+        title: 'Nutzungsbedingungen – abzumplatz',
+        description: 'Nutzungsbedingungen für Konten, Reservierungen, Turniere und Vereinsverwaltung bei abzumplatz.',
+        indexable: true
     }
 };
 

@@ -87,6 +87,8 @@ export default function PublicMenu({isOpen, onClose, onOpen}: Props) {
                         </div>
                         <div className="account-menu-group">
                             <Link to="/impressum">Impressum</Link>
+                            <Link to="/privacy">Datenschutz</Link>
+                            <Link to="/terms">Nutzungsbedingungen</Link>
                         </div>
                     </nav>
 

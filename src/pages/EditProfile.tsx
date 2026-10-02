@@ -50,7 +50,7 @@ export default function EditProfile() {
 
     return (
         <>
-            <p><Link className="icon icon--back" to="/profile">Zurück</Link></p>
+            <p><Link className="icon icon--back" to="/profile">Zum Profil</Link></p>
             <h1>Profil bearbeiten</h1>
             <form className="form-react" onSubmit={saveProfile}>
                 <div className="row"><label htmlFor="first-name">Vorname: *</label><div><input id="first-name" required maxLength={40} value={firstName} onChange={event => setFirstName(event.target.value)} /></div></div>

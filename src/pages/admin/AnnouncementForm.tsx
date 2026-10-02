@@ -127,7 +127,10 @@ export default function AdminAnnouncementFormPage() {
     if (loading) return <div className="splash">Benachrichtigung wird geladen…</div>;
 
     return <>
-        <p><AdminBackButton fallback={editing ? '/admin/announcements' : '/admin'} /></p>
+        <p><AdminBackButton
+            fallback={editing ? '/admin/announcements' : '/admin'}
+            fallbackLabel={editing ? 'Zu den Benachrichtigungen' : 'Zur Administration'}
+        /></p>
         <h1>{editing ? 'Benachrichtigung bearbeiten' : 'Benachrichtigung veröffentlichen'}</h1>
         <AnnouncementTabs active={editing ? 'history' : 'new'} />
         <p>{editing ? 'Die Änderungen erscheinen bei allen Vereinsmitgliedern.' : 'Die Benachrichtigung erscheint bei allen Vereinsmitgliedern.'}</p>

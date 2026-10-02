@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router';
 import packageJson from '../../../package.json';
@@ -18,6 +19,18 @@ export default function AccountMenu({isOpen, onClose, onOpen}: Props) {
     const auth = useSelector((state: RootState) => state.auth);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const drawerRef = useRef<HTMLElement>(null);
+    const deleteAccountButtonRef = useRef<HTMLButtonElement>(null);
+    const deleteAccountDialogRef = useRef<HTMLDialogElement>(null);
+    const deleteAccountPasswordRef = useRef<HTMLInputElement>(null);
+    const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+    const [deletePassword, setDeletePassword] = useState('');
+    const [deleteError, setDeleteError] = useState('');
+    const [deletingAccount, setDeletingAccount] = useState(false);
+    const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
+
+    useEffect(() => {
+        setPortalContainer(document.body);
+    }, []);
 
     const closeMenu = (restoreFocus = true) => {
         onClose();
@@ -35,7 +48,7 @@ export default function AccountMenu({isOpen, onClose, onOpen}: Props) {
         drawerRef.current?.querySelector<HTMLElement>(focusableSelector)?.focus();
 
         const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
+            if (event.key === 'Escape' && !showDeleteAccount) {
                 event.preventDefault();
                 closeMenu();
                 return;
@@ -61,12 +74,47 @@ export default function AccountMenu({isOpen, onClose, onOpen}: Props) {
             if (scrollContainer) scrollContainer.style.overflowY = previousOverflowY;
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isOpen]);
+    }, [isOpen, showDeleteAccount]);
+
+    useEffect(() => {
+        const dialog = deleteAccountDialogRef.current;
+        if (!dialog) return;
+        if (showDeleteAccount && !dialog.open) {
+            dialog.showModal();
+            deleteAccountPasswordRef.current?.focus();
+        }
+        if (!showDeleteAccount && dialog.open) dialog.close();
+    }, [showDeleteAccount, portalContainer]);
+
+    const closeDeleteAccountDialog = () => {
+        deleteAccountDialogRef.current?.close();
+    };
 
     const handleLogout = () => {
         if (!confirm('Möchten Sie sich wirklich ausloggen?')) return;
         closeMenu(false);
         onLogout(dispatch);
+    };
+
+    const handleDeleteAccount = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!confirm('Möchten Sie Ihr Konto wirklich dauerhaft löschen?')) return;
+
+        setDeletingAccount(true);
+        setDeleteError('');
+        try {
+            const response = await fetch('/api/auth?action=delete-account', {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({password: deletePassword}),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error ?? 'Das Konto konnte nicht gelöscht werden.');
+            window.location.assign('/');
+        } catch (error) {
+            setDeleteError(error instanceof Error ? error.message : 'Das Konto konnte nicht gelöscht werden.');
+            setDeletingAccount(false);
+        }
     };
 
     return (
@@ -107,12 +155,29 @@ export default function AccountMenu({isOpen, onClose, onOpen}: Props) {
                         </div>
                         <div className="account-menu-group">
                             <Link to="/impressum">Impressum</Link>
+                            <Link to="/privacy">Datenschutz</Link>
+                            <Link to="/terms">Nutzungsbedingungen</Link>
                         </div>
                         <div className="account-menu-group account-menu-logout-group">
                             <button type="button" className="account-menu-logout" onClick={handleLogout}>
                                 <span className="icon icon--logout" aria-hidden="true"></span>
                                 Ausloggen
                             </button>
+                            {auth.role !== 'admin' ? <>
+                                <button
+                                    aria-expanded={showDeleteAccount}
+                                    className="account-menu-delete-account"
+                                    ref={deleteAccountButtonRef}
+                                    onClick={() => {
+                                        setShowDeleteAccount(true);
+                                        setDeleteError('');
+                                    }}
+                                    type="button"
+                                >
+                                    <span className="icon icon--delete" aria-hidden="true"></span>
+                                    Konto löschen
+                                </button>
+                            </> : null}
                         </div>
                     </nav>
 
@@ -121,6 +186,43 @@ export default function AccountMenu({isOpen, onClose, onOpen}: Props) {
                     </div>
                 </aside>
             </div>
+            {portalContainer && auth.role !== 'admin' ? createPortal((
+                <dialog
+                    aria-labelledby="account-delete-title"
+                    className="account-delete-dialog"
+                    onCancel={() => setShowDeleteAccount(false)}
+                    onClose={() => {
+                        setShowDeleteAccount(false);
+                        setDeletePassword('');
+                        setDeleteError('');
+                        requestAnimationFrame(() => deleteAccountButtonRef.current?.focus());
+                    }}
+                    ref={deleteAccountDialogRef}
+                >
+                    <button aria-label="Schließen" className="account-delete-dialog-close popup-close-icon" onClick={closeDeleteAccountDialog} type="button"></button>
+                    <h2 id="account-delete-title">Konto löschen</h2>
+                    <p>Ihr Konto und die damit verknüpften App-Daten werden dauerhaft gelöscht. Gesetzlich aufzubewahrende Daten bleiben davon unberührt. Diese Aktion kann nicht rückgängig gemacht werden.</p>
+                    <form className="account-menu-delete-form" onSubmit={handleDeleteAccount}>
+                        <label htmlFor="account-delete-password">Aktuelles Passwort:</label>
+                        <input
+                            autoComplete="current-password"
+                            id="account-delete-password"
+                            onChange={event => setDeletePassword(event.target.value)}
+                            ref={deleteAccountPasswordRef}
+                            required
+                            type="password"
+                            value={deletePassword}
+                        />
+                        <div className="account-delete-dialog-actions">
+                            <button className="delete-action-button" disabled={deletingAccount || !deletePassword} type="submit">
+                                {deletingAccount ? 'Konto wird gelöscht…' : 'Löschen bestätigen'}
+                            </button>
+                            <button className="button-link button-link--secondary" disabled={deletingAccount} onClick={closeDeleteAccountDialog} type="button">Abbrechen</button>
+                        </div>
+                        {deleteError ? <p className="form-error-message" role="alert">{deleteError}</p> : null}
+                    </form>
+                </dialog>
+            ), portalContainer) : null}
         </>
     );
 }

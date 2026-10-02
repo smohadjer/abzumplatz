@@ -143,7 +143,7 @@ export default function AdminTournamentParticipantsPage() {
     if (loading) return <div className="splash"><Loader size="big" text="Teilnehmende werden geladen..." /></div>;
 
     return <>
-        <p><AdminBackButton fallback="/admin/tournaments" /></p>
+        <p><AdminBackButton fallback="/admin/tournaments" fallbackLabel="Zu den Turnieren" /></p>
         <h1>Teilnehmende: {tournament?.name ?? 'Turnier'}</h1>
         {error ? <p className="form-error-message">{error}</p> : null}
 

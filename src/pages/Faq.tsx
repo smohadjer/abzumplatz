@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { useSelector } from 'react-redux';
 import { PLAN_CONFIG } from '../planConfig';
 import { RootState } from '../store';
+import BackButton from '../components/BackButton';
 import './faq.css';
 
 type FaqSection = 'players' | 'admins';
@@ -13,7 +14,7 @@ export default function Faq() {
 
     return (
         <>
-            {!auth.value ? <p><Link className="icon icon--back" to="/">Zurück</Link></p> : null}
+            {!auth.value ? <p><BackButton /></p> : null}
             <h1>Häufig gestellte Fragen</h1>
 
             <div className="faq-tabs" aria-label="FAQ-Bereich">

@@ -109,6 +109,7 @@ export default function AdminHomePage() {
                     <li><Link className="settings-icon-link settings-club-link" to="/admin/club">Vereinseinstellungen</Link></li>
                     <li><Link className="settings-icon-link settings-courts-link" to="/admin/courts">Plätze sperren</Link></li>
                     <li><Link className="settings-icon-link settings-rules-link" to="/admin/rules">Vereinsregeln</Link></li>
+                    <li><Link className="settings-icon-link settings-delete-club-link" to="/admin/club/delete">Verein löschen</Link></li>
                 </ul>
             </section>
             <section className="admin-home-section">
@@ -130,7 +131,6 @@ export default function AdminHomePage() {
                 <ul className="settings-links admin-home-links">
                     <li><Link className="settings-icon-link settings-notifications-link" to="/admin/announcements">Benachrichtigungen</Link></li>
                     <li><Link className="settings-icon-link settings-billings-link" to="/admin/billings">Abrechnungen</Link></li>
-                    <li><Link className="settings-icon-link settings-delete-club-link" to="/admin/club/delete">Verein löschen</Link></li>
                 </ul>
             </section>
         </>

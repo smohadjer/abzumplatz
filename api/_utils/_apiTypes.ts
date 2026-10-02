@@ -6,6 +6,7 @@ type ApiHeaders = IncomingHttpHeaders & {
     authorization?: string;
     host?: string;
     'x-forwarded-proto'?: string | string[];
+    'x-forwarded-for'?: string | string[];
 };
 
 export interface VercelRequest extends IncomingMessage {

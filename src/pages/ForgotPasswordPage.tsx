@@ -7,7 +7,7 @@ export default function ForgotPasswordPage() {
 
     return (
         <>
-            <p><Link className="icon icon--back" to="/login">Zurück</Link></p>
+            <p><Link className="icon icon--back" to="/login">Zum Login</Link></p>
             <h1>Passwort vergessen?</h1>
             {linkSent ? (
                 <p>Ein Link zum Zurücksetzen des Passworts wurde an Ihre E-Mail-Adresse gesendet.</p>

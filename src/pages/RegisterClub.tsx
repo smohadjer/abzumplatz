@@ -149,11 +149,11 @@ export default function RegisterClub() {
             <p>
                 {!isChoosingPlan && selectedPlanType ? (
                     <button
-                        className="register-club-back-button icon icon--back"
+                        className="register-club-change-plan-button icon icon--back"
                         type="button"
                         onClick={() => setIsChoosingPlan(true)}
                     >
-                        Zurück
+                        Zurück zur Planauswahl
                     </button>
                 ) : (
                     <Link className="icon icon--back" to="/">Zur Startseite</Link>

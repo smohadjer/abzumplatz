@@ -299,7 +299,7 @@ export default function Reservations() {
                 <div className="grid" inert={showAdminWelcome && user.role === 'admin'}>
                 <div className="reservations">
                     {user.role === 'admin' && openedFromAdminChecklist ? (
-                        <p className="reservations-checklist-back"><AdminBackButton fallback="/admin/checklist" /></p>
+                        <p className="reservations-checklist-back"><AdminBackButton fallback="/admin/checklist" fallbackLabel="Zur Checkliste" /></p>
                     ) : null}
                     <Calendar
                         reservationDate={reservationDate}

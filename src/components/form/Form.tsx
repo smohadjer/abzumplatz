@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ChangeEvent, ReactNode, SyntheticEvent } from 'react'
+import { Link } from 'react-router';
 import { fetchJson } from '../../utils/utils.js';
 import { validateData } from '../../utils/validate.js';
 import Hint from '../Hint.js';
@@ -303,6 +304,11 @@ export function Form(props: Props) {
                             key={index}
                             name={item.name}
                             label={isChecked(item, option) ? option.label : option.uncheckedLabel ?? option.label}
+                            labelContent={item.name === 'privacy' ? (
+                                <>
+                                    Ich habe die <Link rel="noopener noreferrer" target="_blank" to="/privacy">Datenschutzerklärung</Link> gelesen und akzeptiere die <Link rel="noopener noreferrer" target="_blank" to="/terms">Nutzungsbedingungen</Link>.
+                                </>
+                            ) : undefined}
                             checked={isChecked(item, option)}
                             value={option.value}
                             handleChange={handleChange}

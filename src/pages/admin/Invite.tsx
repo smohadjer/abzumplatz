@@ -44,7 +44,7 @@ export default function AdminInvitePage() {
                     <p>{error}</p>
                     <p>
                         <button className="button-link" type="button" onClick={() => void loadClub()}>Erneut versuchen</button>{' '}
-                        <Link to="/admin">Zurück zur Administration</Link>
+                        <Link to="/admin">Zur Administration</Link>
                     </p>
                 </div>
             ) : null}

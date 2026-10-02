@@ -1,7 +1,8 @@
-import { ChangeEventHandler, useId, useState } from 'react';
+import { ChangeEventHandler, ReactNode, useId, useState } from 'react';
 
 type Props = {
   label: string;
+  labelContent?: ReactNode;
   value: string | number;
   checked: boolean;
   name: string;
@@ -9,10 +10,10 @@ type Props = {
 }
 
 export default function Checkbox(props: Props) {
-  const {name, value, label, checked, handleChange} = props;
+  const {name, value, label, labelContent, checked, handleChange} = props;
   const [expanded, setExpanded] = useState(false);
   const id = useId();
-  const shouldCollapse = label.length > 120;
+  const shouldCollapse = !labelContent && label.length > 120;
   const displayLabel = shouldCollapse && !expanded ? label.slice(0, 90).trim() : label;
 
   return (
@@ -25,9 +26,11 @@ export default function Checkbox(props: Props) {
           checked={checked}
           onChange={handleChange}
         />
-        <label className="label--checkbox" htmlFor={id}>
-          {displayLabel}
-        </label>
+        {labelContent ? (
+          <label className="label--checkbox" htmlFor={id}>{labelContent}</label>
+        ) : (
+          <label className="label--checkbox" htmlFor={id}>{displayLabel}</label>
+        )}
         {shouldCollapse && !expanded &&
           <button
             className="checkbox-details-button"
@@ -37,4 +40,3 @@ export default function Checkbox(props: Props) {
       </span>
   )
 }
-

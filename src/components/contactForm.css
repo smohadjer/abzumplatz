@@ -1,0 +1,49 @@
+.contact-form {
+    display: grid;
+    gap: 1em;
+    max-width: 500px;
+    margin-top: 1em;
+    padding: 1em;
+    background: #eee;
+    box-sizing: border-box;
+
+    label,
+    input,
+    textarea {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    label {
+        margin-bottom: 0.25em;
+    }
+
+    input,
+    textarea {
+        border: 1px solid #ccc;
+        padding: 0.25em;
+        font: inherit;
+    }
+
+    button {
+        justify-self: start;
+        margin-top: 0;
+    }
+}
+
+.contact-form-honeypot {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.contact-form-status {
+    margin-top: 0;
+}
+
+.contact-form-status--error {
+    color: #c70000;
+}

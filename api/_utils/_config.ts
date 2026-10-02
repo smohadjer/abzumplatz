@@ -8,6 +8,7 @@ const bank_iban = process.env.BANK_IBAN;
 const bank_name = process.env.BANK_NAME;
 const bank_account_holder = process.env.BANK_ACCOUNT_HOLDER;
 const invoice_email_from = process.env.INVOICE_EMAIL_FROM ?? 'rechnung@abzumplatz.de';
+const operator_phone = process.env.OPERATOR_PHONE;
 
 export {
     bank_account_holder,
@@ -18,6 +19,7 @@ export {
     environment,
     database_uri,
     invoice_email_from,
+    operator_phone,
     plan_limit,
     cron_secret
 };

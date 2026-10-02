@@ -1,0 +1,13 @@
+.legal-page {
+    max-width: 760px;
+
+    h2 {
+        margin-top: 1.5em;
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    li + li {
+        margin-top: 0.4em;
+    }
+}

@@ -104,7 +104,7 @@ export default function AdminCompetitionGroupFormPage() {
     if (loading) return <div className="splash"><Loader size="big" text="Konkurrenz wird geladen..." /></div>;
 
     return <>
-        <p><AdminBackButton fallback="/admin/competition-groups" /></p>
+        <p><AdminBackButton fallback="/admin/competition-groups" fallbackLabel="Zu den Konkurrenzen" /></p>
         <h1>{editing ? 'Konkurrenz bearbeiten' : 'Neue Konkurrenz erstellen'}</h1>
         <form className="form-react" onSubmit={saveGroup}>
             <div className="row"><label htmlFor="group-name">Konkurrenzname: *</label><div><input id="group-name" maxLength={100} required value={form.name} onChange={event => setForm(current => ({...current, name: event.target.value}))} /></div></div>

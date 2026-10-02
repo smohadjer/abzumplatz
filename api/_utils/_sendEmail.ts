@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 type SendEmailOptions = {
   email: string | string[];
   from?: string;
+  replyTo?: string;
   subject: string;
   html?: string;
   text?: string;
@@ -31,6 +32,7 @@ const fastmailTransporter = nodemailer.createTransport({
 export default async (options: SendEmailOptions) => {
   const mailData = {
       from: options.from ?? process.env.email_from,
+      replyTo: options.replyTo,
       to: options.email,
       subject: options.subject,
       html: options.html,

@@ -297,7 +297,7 @@ export default function TournamentsPage() {
     if (loading) return <div className="splash"><Loader size="big" text="Turniere werden geladen..." /></div>;
 
     return <>
-        {tournamentId ? <p><Link className="icon icon--back" to="/tournaments">Zurück zu den Turnieren</Link></p> : null}
+        {tournamentId ? <p><Link className="icon icon--back" to="/tournaments">Zu den Turnieren</Link></p> : null}
         {!tournamentId ? <h1>Turniere</h1> : null}
         {tournamentId && !detailTournament ? <h1>Turnier</h1> : null}
         {error ? <p className="form-error-message">{error}</p> : null}

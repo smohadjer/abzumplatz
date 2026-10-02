@@ -41,6 +41,8 @@ import LoginPage from './pages/Login';
 import Layout from './pages/Layout';
 import NotFound from './pages/NotFound';
 import Imprint from './pages/Imprint';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 
 import { Loader } from './components/loader/Loader';
 import Header from './components/header/Header';
@@ -288,6 +290,12 @@ export default function App({initiallyInitialized = false}: AppProps) {
                 } />
                 <Route path="/impressum" element={
                     <Imprint />
+                } />
+                <Route path="/privacy" element={
+                    <Privacy />
+                } />
+                <Route path="/terms" element={
+                    <Terms />
                 } />
                 <Route path="*" element={<NotFound />} />
             </Route>

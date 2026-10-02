@@ -2,6 +2,21 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.7.0
+
+### Added
+
+- Added public privacy and terms pages covering the application's principal data processing and usage conditions.
+- Added a validated, rate-limited public support contact form with bot protection and linked it from the Impressum.
+- Added password-confirmed self-service account deletion for players, including atomic cleanup of associated reservation, tournament-registration, and notification-recipient data, with rate limiting to protect against password guessing.
+- Added end-to-end coverage for public legal pages, registration consent, the contact form, and authenticated-only telephone access.
+
+### Changed
+
+- Replaced the long registration privacy text with concise links to the privacy policy and terms while keeping consent required and unselected by default.
+- Linked the Impressum, privacy policy, and terms from both public and authenticated sidebars.
+- Updated the Impressum for the DDG, added the VAT identification number, and made the operator telephone number available only to authenticated users through the existing consolidated API function.
+
 ## 0.6.0
 
 ### Added

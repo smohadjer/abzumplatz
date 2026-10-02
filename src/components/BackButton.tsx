@@ -6,7 +6,7 @@ type Props = {
     fallbackLabel?: string;
 };
 
-export default function AdminBackButton({fallback = '/admin', fallbackLabel = 'Zur Administration'}: Props) {
+export default function BackButton({fallback = '/', fallbackLabel = 'Zur Startseite'}: Props) {
     const navigate = useNavigate();
     const [hasHistory, setHasHistory] = useState(false);
 
@@ -24,7 +24,7 @@ export default function AdminBackButton({fallback = '/admin', fallbackLabel = 'Z
     };
 
     return (
-        <button className="admin-back-button icon icon--back" type="button" onClick={goBack}>
+        <button className="back-button icon icon--back" type="button" onClick={goBack}>
             {hasHistory ? 'Zurück' : fallbackLabel}
         </button>
     );

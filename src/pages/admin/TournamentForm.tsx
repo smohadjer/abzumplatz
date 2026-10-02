@@ -149,7 +149,7 @@ export default function AdminTournamentFormPage() {
     if (loading) return <div className="splash"><Loader size="big" text="Turnier wird geladen..." /></div>;
 
     return <>
-        <p><AdminBackButton fallback="/admin/tournaments" /></p>
+        <p><AdminBackButton fallback="/admin/tournaments" fallbackLabel="Zu den Turnieren" /></p>
         <h1>{editing ? 'Turnier bearbeiten' : 'Turnier hinzufügen'}</h1>
         <form className="form-react admin-tournament-edit-form" onSubmit={saveTournament}>
             <div className="row"><label htmlFor="tournament-name">Turniername: *</label><div><input id="tournament-name" maxLength={150} required value={form.name} onChange={event => setForm(current => ({...current, name: event.target.value}))} /></div></div>

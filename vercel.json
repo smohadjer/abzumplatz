@@ -40,6 +40,8 @@
         {"source": "/tournaments", "destination": "/"},
         {"source": "/tournaments/:path*", "destination": "/"},
         {"source": "/impressum", "destination": "/"},
+        {"source": "/privacy", "destination": "/"},
+        {"source": "/terms", "destination": "/"},
         {"source": "/forgot-password", "destination": "/"},
         {"source": "/reset-password", "destination": "/"}
     ]

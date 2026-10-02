@@ -33,7 +33,8 @@ a.icon:hover {
     filter: invert(9%) sepia(97%) saturate(7423%) hue-rotate(85deg) brightness(89%) contrast(87%);
 }
 
-.admin-back-button {
+.admin-back-button,
+.back-button {
     margin: 0;
     padding-top: 0;
     padding-right: 0;
@@ -45,7 +46,9 @@ a.icon:hover {
 }
 
 .admin-back-button:hover,
-.admin-back-button:focus-visible {
+.admin-back-button:focus-visible,
+.back-button:hover,
+.back-button:focus-visible {
     color: var(--blue);
 }
 
