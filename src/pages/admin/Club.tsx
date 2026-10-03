@@ -13,6 +13,12 @@ type Response = {
     data: {
         club_id: string;
         clubs: Club[];
+        invoice_email_error?: string;
+        cancellation?: {
+            effective: 'immediate' | 'period_end';
+            refund_eligible: boolean;
+            refund_amount: number;
+        };
     }
 }
 
@@ -47,6 +53,19 @@ export default function AdminClubPage() {
                     loaded: true,
                 }
             });
+
+            if (response.data.cancellation) {
+                const cancellation = response.data.cancellation;
+                if (cancellation.refund_eligible) {
+                    alert(`Der Pro-Plan wurde sofort beendet. Die Erstattung von ${cancellation.refund_amount} € wurde zur manuellen Bearbeitung vorgemerkt.`);
+                } else {
+                    alert('Der Pro-Plan endet mit dem laufenden Abrechnungsjahr. Für den verbleibenden Zeitraum erfolgt keine anteilige Erstattung.');
+                }
+            }
+
+            if (response.data.invoice_email_error) {
+                alert('Der Pro-Abrechnungszeitraum wurde angelegt, aber die Rechnungs-E-Mail konnte nicht gesendet werden. Sie können die Rechnung unter Abrechnungen erneut senden.');
+            }
 
             navigate(openedFromAdminChecklist ? '/admin/checklist' : '/admin');
         }

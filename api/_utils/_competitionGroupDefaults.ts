@@ -1,11 +1,12 @@
 import type { ClientSession, Db } from 'mongodb';
 import defaultCompetitionGroups from '../../scripts/data/competition-groups.js';
 
-export async function createDefaultCompetitionGroups(database: Db, clubId: string) {
+export async function createDefaultCompetitionGroups(database: Db, clubId: string, session?: ClientSession) {
   if (!defaultCompetitionGroups.length) return;
 
   await database.collection('competition_groups').insertMany(
-    defaultCompetitionGroups.map(group => ({...group, club_id: clubId}))
+    defaultCompetitionGroups.map(group => ({...group, club_id: clubId})),
+    session ? {session} : undefined
   );
 }
 

@@ -1,14 +1,14 @@
 import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
-import { addUser } from './_utils/_addUser.js';
+import { addUser, ensureUserEmailIndex } from './_utils/_addUser.js';
 import sendEmail from './_utils/_sendEmail.js';
 import { DBUser } from '../src/types.js';
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient, MongoServerError, ObjectId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, SignupClubBody } from './_utils/_types.js';
-import { BillingPeriodDocument, InvoiceCounterDocument } from './_utils/_billingPeriods.js';
-import { BillingPeriodInvoiceDeliveryError, createInitialBillingPeriodAndSendInvoice } from './_utils/_billingService.js';
+import { BillingPeriodDocument, createInitialBillingPeriod, InvoiceCounterDocument } from './_utils/_billingPeriods.js';
+import { sendBillingPeriodInvoiceEmail } from './_utils/_billingInvoices.js';
 import { createDefaultCompetitionGroups } from './_utils/_competitionGroupDefaults.js';
 
 if (!database_uri || !database_name) {
@@ -60,6 +60,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             const clubs = database.collection<ClubDocument>('clubs');
             const billingPeriods = database.collection<BillingPeriodDocument>('billing_periods');
             const invoiceCounters = database.collection<InvoiceCounterDocument>('invoice_counters');
+            await ensureUserEmailIndex(database);
             const existingClub = await clubs.findOne({ name: body.name },{
                 collation: { locale: "en", strength: 2 }
             });
@@ -77,8 +78,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 role: 'admin',
                 status: 'active',
             };
-            const userResponse = await addUser(database, user);
-
             const courts = [];
             for (let i=0; i < Number(body.courts_count); i++) {
                 courts.push({
@@ -94,6 +93,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 });
             }
 
+            const registrationStartedAt = new Date();
             const club = {
                 name: body.name,
                 address_line1: body.address_line1,
@@ -108,38 +108,55 @@ export default async (req: VercelRequest, res: VercelResponse) => {
                 max_reservation_duration: body.max_reservation_duration !== undefined ? Number(body.max_reservation_duration) : 1,
                 reservations_limit: body.reservations_limit !== undefined ? Number(body.reservations_limit) : null,
                 courts,
-                timestamp: new Date()
+                timestamp: registrationStartedAt,
+                ...(body.plan_type === 'pro' ? {pro_started_at: registrationStartedAt} : {})
             };
-            const clubResponse = await clubs.insertOne(club);
-            const club_id = clubResponse.insertedId.toString();
+            const clubObjectId = new ObjectId();
+            const club_id = clubObjectId.toString();
+            let createdProPeriod: BillingPeriodDocument | undefined;
+            const session = client.startSession();
+            try {
+                await session.withTransaction(async () => {
+                    const userResponse = await addUser(database, user, session);
+                    await clubs.insertOne({...club, _id: clubObjectId}, {session});
+                    await createDefaultCompetitionGroups(database, club_id, session);
 
-            await createDefaultCompetitionGroups(database, club_id);
+                    await database.collection<DBUser>('users').updateOne(
+                        {_id: userResponse.insertedId},
+                        {'$set' : {'club_id' : club_id}},
+                        {session}
+                    );
 
-            await database.collection<DBUser>('users').updateOne(
-                {_id: new ObjectId(userResponse.insertedId)},
-                {'$set' : {'club_id' : club_id}}
-            );
+                    if (body.plan_type === 'pro') {
+                        createdProPeriod = await createInitialBillingPeriod(
+                            billingPeriods,
+                            invoiceCounters,
+                            club_id,
+                            'pro',
+                            'signup',
+                            registrationStartedAt,
+                            registrationStartedAt.getDate(),
+                            session
+                        );
+                    }
+                });
+            } finally {
+                await session.endSession();
+            }
 
             let invoiceEmailError: string | undefined;
-            try {
-                await createInitialBillingPeriodAndSendInvoice(
-                    database,
-                    billingPeriods,
-                    invoiceCounters,
-                    {
-                        ...club,
-                        _id: clubResponse.insertedId,
-                    },
-                    club_id,
-                    body.plan_type,
-                    'signup'
-                );
-            } catch (error) {
-                if (!(error instanceof BillingPeriodInvoiceDeliveryError)) {
-                    throw error;
+            if (createdProPeriod) {
+                try {
+                    await sendBillingPeriodInvoiceEmail(
+                        database,
+                        {...club, _id: clubObjectId},
+                        createdProPeriod,
+                        'initial'
+                    );
+                } catch (error) {
+                    console.error('Failed to send invoice email for newly registered club', error);
+                    invoiceEmailError = error instanceof Error ? error.message : 'Invoice email delivery failed.';
                 }
-                console.error('Failed to send invoice email for newly registered club', error);
-                invoiceEmailError = error.message;
             }
 
             try {
@@ -158,8 +175,15 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             });
         } catch (e) {
             console.error(e);
-            const instancePath = (e.cause === 'invalid_email') ? '/email' : `/${e.cause ?? 'undefined'}`;
-            const message = e.cause === 'invalid_email'
+            const duplicateClubName = e instanceof MongoServerError
+                && e.code === 11000
+                && Boolean(e.keyPattern?.name);
+            const instancePath = duplicateClubName
+                ? '/name'
+                : (e.cause === 'invalid_email') ? '/email' : `/${e.cause ?? 'undefined'}`;
+            const message = duplicateClubName
+                ? 'Ein Verein mit diesem Namen existiert bereits.'
+                : e.cause === 'invalid_email'
                 ? 'Registrierung fehlgeschlagen.'
                 : e.message;
             res.status(500).json({error: [

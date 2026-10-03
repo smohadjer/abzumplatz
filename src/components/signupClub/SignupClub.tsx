@@ -1,7 +1,7 @@
 import { Form } from '../form/Form';
 import formJson from './signupClubForm.json';
 import { Field } from '../../types';
-import { applyPlanConfigToFields, getCoveredUntilFromPeriodEnd, getPlanLevel, getPlanName, normalizePlanType } from '../../planConfig';
+import { applyPlanConfigToFields, getCoveredUntilFromPeriodEnd, getPlanName, normalizePlanType } from '../../planConfig';
 
 type Props = {
     label?: string;
@@ -14,7 +14,6 @@ export function SignupClub(props: Props) {
     const selectedPlanType = data?.next_plan_type ?? data?.access_plan_type ?? 'basic';
     const accessPlanType = data?.access_plan_type ?? selectedPlanType;
     const planType = normalizePlanType(selectedPlanType);
-    const downgradeLocked = Boolean(data?.downgrade_locked);
 
     const normalizedFields: Field[] = JSON.parse(JSON.stringify(formJson.fields));
     const normalizedData = data ? structuredClone(data) : null;
@@ -29,12 +28,6 @@ export function SignupClub(props: Props) {
         }
 
         if (data?._id && field.name === 'plan_type') {
-            if (downgradeLocked) {
-                field.options = field.options?.map(option => ({
-                    ...option,
-                    disabled: typeof option.value === 'string' && getPlanLevel(option.value as 'basic' | 'pro') < getPlanLevel(accessPlanType)
-                }));
-            }
             const coveredUntilLabel = data?.current_billing_period_end
                 ? new Date(getCoveredUntilFromPeriodEnd(data.current_billing_period_end) ?? data.current_billing_period_end).toLocaleDateString('de-DE')
                 : null;
@@ -42,19 +35,20 @@ export function SignupClub(props: Props) {
             const scheduledPlanChangeNotice = coveredUntilLabel && data?.next_plan_type !== accessPlanType
                 ? `${getPlanName(accessPlanType)} ist noch bis ${coveredUntilLabel} aktiv und wechselt danach zu ${getPlanName(data.next_plan_type)}.`
                 : null;
-            const upgradeBillingNotice = coveredUntilLabel && accessPlanType !== data?.current_billing_plan_type
-                ? `${getPlanName(accessPlanType)} Zugriff ist bereits aktiv. Der bisherige Zeitraum endet am ${coveredUntilLabel}.`
+            const refundDeadlineLabel = data?.pro_refund_eligible_until
+                ? new Date(data.pro_refund_eligible_until).toLocaleDateString('de-DE')
                 : null;
-            const downgradeLockNotice = downgradeLocked
-                ? 'Nach einem Upgrade ist ein Downgrade erst ab der nächsten Verlängerung möglich.'
+            const cancellationNotice = accessPlanType === 'pro'
+                ? data?.pro_refund_eligible && refundDeadlineLabel
+                    ? `Bei einem Wechsel zu Basic bis zum ${refundDeadlineLabel} endet Pro sofort; die vollständige Erstattung wird anschließend manuell bearbeitet.`
+                    : `Eine Kündigung gilt zum Ende des bezahlten Abrechnungsjahres. Eine anteilige Erstattung ist nach Ablauf der 30-tägigen Widerrufsfrist ausgeschlossen.`
                 : null;
             const specificPlanNotice = [
                 scheduledPlanChangeNotice,
-                upgradeBillingNotice,
-                downgradeLockNotice,
+                cancellationNotice,
             ].filter(Boolean).join(' ');
 
-            field.footnote = specificPlanNotice || 'Upgrades gelten sofort für den Zugriff, aber erst ab der nächsten Verlängerung für den nächsten Abrechnungszeitraum.';
+            field.footnote = specificPlanNotice || 'Beim Wechsel zum Pro-Plan beginnt der jährliche Abrechnungszeitraum sofort.';
         }
 
         if (['address_line1', 'postal_code', 'city', 'country'].includes(field.name)) {

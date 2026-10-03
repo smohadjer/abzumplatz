@@ -59,7 +59,7 @@ export async function createInitialBillingPeriodAndSendInvoice(
   source?: string,
   startDate = new Date(),
   anchorDay = startDate.getDate(),
-  notificationType: Extract<BillingInvoiceNotificationType, 'initial' | 'repair'> = 'initial'
+  notificationType: Extract<BillingInvoiceNotificationType, 'initial' | 'upgrade' | 'repair'> = 'initial'
 ) {
   const period = await createInitialBillingPeriod(
     billingPeriodsCollection,

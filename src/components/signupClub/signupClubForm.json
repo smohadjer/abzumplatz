@@ -53,10 +53,10 @@
             "type": "radio",
             "required": true,
             "value": "basic",
-            "hint": "Bis zu 100 Mitglieder zulässig",
+            "hint": "Mitgliederverwaltung und Platzreservierung",
             "hintByValue": {
-                "basic": "Bis zu 100 Mitglieder zulässig",
-                "pro": "Keine Begrenzung der Mitgliederzahl"
+                "basic": "Mitgliederverwaltung und Platzreservierung",
+                "pro": "Turniere erstellen und Konkurrenzen verwalten"
             },
             "options": [
                 {

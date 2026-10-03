@@ -122,12 +122,9 @@ export default function RegisterClub() {
         {
             key: 'basic',
             title: PLAN_CONFIG.basic.label,
-            price: `${PLAN_CONFIG.basic.price} €`,
-            priceSuffix: PAID_PLAN_DURATION_LABEL,
-            features: [
-                `Bis zu ${PLAN_CONFIG.basic.membersLimit} aktive Mitglieder`,
-                'E-Mail-Support',
-            ],
+            price: 'Kostenlos',
+            priceSuffix: '',
+            features: PLAN_CONFIG.basic.features.map(feature => feature.label),
             footnote: 'Upgrade auf den Pro-Plan jederzeit möglich',
         },
         {
@@ -135,11 +132,8 @@ export default function RegisterClub() {
             title: PLAN_CONFIG.pro.label,
             price: `${PLAN_CONFIG.pro.price} €`,
             priceSuffix: PAID_PLAN_DURATION_LABEL,
-            features: [
-                'Keine Begrenzung der aktiven Mitglieder',
-                'E-Mail- und Telefonsupport',
-            ],
-            footnote: 'Monatliche Zahlung per Rechnung. Kündigung jederzeit möglich.',
+            features: PLAN_CONFIG.pro.features.map(feature => feature.label),
+            footnote: 'Jährliche Zahlung per Rechnung. 30 Tage Widerrufsfrist mit vollständiger Erstattung; danach Kündigung zum Ende des Abrechnungsjahres ohne anteilige Erstattung.',
         }
     ];
 
@@ -166,10 +160,8 @@ export default function RegisterClub() {
                     <div className="register-club-plan-grid">
                         {planCards.map(plan => (
                             <article key={plan.key} className={`register-club-plan-card register-club-plan-card--${plan.key}`}>
-                                <p className="register-club-plan-name">{plan.title}</p>
-                                <p className="register-club-plan-price">
-                                    {plan.price}
-                                    <span className="register-club-plan-price-suffix">{plan.priceSuffix}</span>
+                                <p className="register-club-plan-name">
+                                    {plan.title}-Plan <span className="register-club-plan-inline-price">- {plan.price}{plan.priceSuffix}</span>
                                 </p>
                                 <ul className="register-club-plan-features">
                                     {plan.features.map(feature => (
@@ -187,7 +179,7 @@ export default function RegisterClub() {
                                             setIsChoosingPlan(false);
                                         }}
                                     >
-                                        Plan auswählen
+                                        {plan.title}-Plan auswählen
                                     </button>
                                 </p>
                                 <p className="register-club-plan-footnote">{plan.footnote}</p>

@@ -110,7 +110,7 @@ test.describe('legal pages and registration consent', () => {
 
   test('club registration uses the same required legal consent', async ({page}) => {
     await page.goto('/register/club');
-    await page.locator('.register-club-plan-card--basic').getByRole('button', {name: 'Plan auswählen'}).click();
+    await page.locator('.register-club-plan-card--basic').getByRole('button', {name: 'Basic-Plan auswählen'}).click();
 
     await expect(page.getByRole('checkbox')).not.toBeChecked();
     const consent = page.locator('.label--checkbox');

@@ -167,7 +167,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       }
 
       const periods: BillingPeriodDocument[] = await billingPeriods.find({
-        club_id: requestedClubId
+        club_id: requestedClubId,
+        plan_type: 'pro',
       }).sort({
         period_start: -1,
         created_at: -1
@@ -182,6 +183,10 @@ export default async (req: VercelRequest, res: VercelResponse) => {
           return res.status(404).json({error: 'Club not found'});
         }
 
+        if (club.access_plan_type === 'basic') {
+          return res.json([]);
+        }
+
         try {
           const createdPeriod = await createInitialBillingPeriodAndSendInvoice(
             database,
@@ -189,7 +194,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
             invoiceCounters,
             club,
             requestedClubId,
-            club.next_plan_type ?? club.access_plan_type,
+            'pro',
             'lazy_repair',
             new Date(),
             new Date().getDate(),
@@ -328,6 +333,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       );
 
       const billingPlanType = plan_type ?? resolvedClub.next_plan_type;
+      if (billingPlanType === 'basic') {
+        return res.status(400).json(validationError('/plan_type', 'Für den kostenlosen Basic-Plan wird kein Abrechnungszeitraum erstellt.'));
+      }
 
       if (status === 'active') {
         const existingActivePeriod = await billingPeriods.findOne({

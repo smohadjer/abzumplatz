@@ -13,8 +13,9 @@ Shared plan configuration lives in [src/planConfig.ts](/Users/sm/Documents/abzum
 
 Plan behavior:
 
-- `basic` renews monthly and limits active members to the configured cap
-- `pro` renews monthly and has no member cap
+- `basic` is free, has no billing period, and includes member management and court reservations
+- `pro` costs 50 EUR per year and additionally unlocks tournament creation and competition management
+- neither plan limits the number of active members
 
 ### Legacy plan consolidation
 
@@ -23,33 +24,37 @@ The former `pro` and `elite` tiers are consolidated into the current `pro` plan:
 - clubs already on the former `pro` plan remain on `pro`
 - clubs on the former `elite` plan are migrated to `pro`
 - existing billing periods keep their original price snapshots
-- all subsequent renewals use the current `pro` price of 15 EUR per month
+- all subsequent renewals use the current `pro` price of 50 EUR per year
 
 ## Core Rules
 
-The app keeps plan periods stable when a club changes plan.
+Billing periods represent paid Pro subscriptions only.
 
-- the current period keeps its original `period_start`
-- the current period keeps its original `period_end`
-- plan changes do not create a new billing boundary in the middle of the current period
-- every club should have an active period, including `basic`
+- Basic clubs do not have an active billing period
+- a Pro period keeps its original `period_start` and `period_end`
+- upgrading from Basic starts a paid Pro period immediately
+- historical Basic periods created by older versions are deleted
+
+Run `npm run migrate:remove-basic-billing-periods` once when deploying this change to remove existing Basic records, including records belonging to deleted clubs. Renewal processing also removes any Basic records it encounters later.
 
 Upgrades and downgrades:
 
-- upgrades unlock better access immediately
-- the running period keeps its original billed plan until renewal
-- downgrades take effect at the next renewal
-- after an upgrade within a running period, downgrading to a cheaper plan is blocked until the next renewal
+- upgrades unlock Pro access and start annual billing immediately
+- downgrades after the refund window take effect at the end of the paid Pro period
+- Pro can be canceled during a running period; the 30-day refund policy determines whether cancellation is immediate or scheduled for renewal
 
-Member caps:
+Tournament features:
 
-- member caps apply only to active members
-- signups and club selection are still allowed even if a club is already above a cap
-- the hard cap is enforced only when an admin activates inactive users
+- members can continue to view and register for an existing published tournament
+- only a club with active `pro` access can create, edit, or delete tournaments
+- competition templates (Konkurrenzen) are available only to clubs with active `pro` access
+- publishing and managing club announcements is available only to clubs with active `pro` access
+- members can continue to read and manage notifications they have already received
+- the API enforces these restrictions independently of the admin navigation
 
 ## Plan Periods
 
-The `billing_periods` collection is the source of truth for plan-period history.
+The `billing_periods` collection is the source of truth for paid Pro subscription history. Basic periods are not stored.
 
 Each billing period stores:
 
@@ -65,27 +70,31 @@ Each billing period stores:
 
 Rules:
 
-- there is at most one active billing period per club
+- there is at most one active Pro billing period per club
+- Basic clubs do not require an active billing period
 - billing period dates stay fixed once the period has started
 - the running period plan stays attached to that billing period
+- the partial unique index `unique_active_billing_period_per_club` prevents concurrent requests from creating more than one active period for the same club
 
-## Monthly Renewal Boundary
+Run `npm run migrate:billing-indexes` when deploying this change. The migration refuses to create the index if duplicate active periods already exist, so those records can be reviewed rather than modified automatically.
 
-Plan periods are month-based and anchored to the same calendar day.
+## Renewal Boundaries
+
+Pro periods are annual and anchored to the same calendar day.
 
 - a billing period has an anchor day based on the original billing day
-- the next billing period starts on that same anchor day in the next month when possible
+- Pro periods run for twelve months
+- the next Pro billing period starts on the same anchor day twelve months later when possible
 - `period_end` is the renewal boundary
 
-If the same day does not exist in the next month, the last valid day of that month is used.
+If the same day does not exist in the target month, the last valid day of that month is used.
 
 The anchor day is preserved across later months.
 
 Examples:
 
-- `2026-06-19 -> 2026-07-19`
-- `2026-01-31 -> 2026-02-28`
-- `2026-02-28 -> 2026-03-31`
+- `2026-06-19 -> 2027-06-19`
+- `2028-02-29 -> 2029-02-28`
 
 ## Club Plan State
 
@@ -97,30 +106,32 @@ Each club stores two plan-related fields:
 Meaning:
 
 - `access_plan_type` is the plan whose features are active right now
-- `access_plan_type` can be higher than the running period plan after an upgrade
+- `access_plan_type` is `pro` while a paid Pro period is active
 - `next_plan_type` is the plan that should apply at the next renewal
 
 In practice:
 
 - `access_plan_type` = active access plan now
 - `next_plan_type` = plan used at the next renewal
-- current billed/running plan = `billing_periods.active.plan_type`
+- current billed/running plan = the active Pro billing period, if one exists
 - `current_billing_plan_type` in API responses exposes that current billed/running plan when the UI needs it
 
 ## Registration
 
 When a club is created:
 
-- an initial active billing period is created immediately for the selected plan
+- Basic registration creates no billing period
+- Pro registration immediately creates a twelve-month Pro billing period and sends its invoice
+- user creation or association, club creation, default competition groups, and the initial Pro period commit in one database transaction
+- invoice email and the internal new-club notification are sent only after the registration transaction commits
 
 ## Renewal
 
 At renewal time:
 
-- the current billing period ends
-- the next billing period starts on the same renewal boundary
-- the club switches to `next_plan_type`
-- a new billing period is created for `next_plan_type`
+- an expiring Pro period is marked completed
+- if `next_plan_type` is `pro`, a new annual Pro period starts on the same renewal boundary
+- if `next_plan_type` is `basic`, the club switches to Basic and no new billing period is created
 
 ## When Billing State Is Refreshed
 
@@ -149,7 +160,8 @@ When an administrator restores a club:
 - a still-current active billing period is kept unchanged
 - no new invoice is issued while that period remains current
 - an expired active period is marked as completed
-- if there is no current active period, exactly one new period begins on the restoration date using `next_plan_type`
+- if there is no current active period and `next_plan_type` is Pro, exactly one new Pro period begins on the restoration date
+- restoring a Basic club creates no billing period or invoice
 - the restoration date becomes the anchor for subsequent renewals
 - periods covering the deleted interval are not backfilled or invoiced
 
@@ -159,51 +171,52 @@ The billing reconciliation and club restoration are committed in one database tr
 
 If a club upgrades to a higher plan:
 
-- upgraded access starts immediately
-- the current period boundary does not move
-- the current period keeps its original billed plan
-- the next period starts on the higher plan
-- after that upgrade, a downgrade is blocked until the next renewal
+- Pro access starts immediately
+- a twelve-month Pro billing period starts immediately
+- the annual Pro invoice is sent immediately
+- the club update and Pro-period creation commit atomically; invoice email is attempted after the transaction commits
 
 Example:
 
-- current `Basic` period: `2026-06-19` to `2026-07-19`
-- on `2026-07-10` the club upgrades to `Pro`
+- the club is using Basic without a billing period
+- on `2026-07-10` the club upgrades to Pro
 
 Result:
 
 - the club gets `Pro` access immediately on `2026-07-10`
-- the current billing period still ends on `2026-07-19`
-- the running period remains billed as `Basic`
-- the next period starting `2026-07-19` is billed as `Pro`
+- a paid Pro period runs from `2026-07-10` to `2027-07-10`
+- the club is invoiced 50 EUR for that annual period
 
 ## Downgrades
 
 If a club downgrades to a cheaper plan:
 
-- the downgrade takes effect at period end
-- current access remains unchanged until the current period finishes
-- the next billing period uses the downgraded plan
+- during the first 30 days after the initial Pro contract starts, cancellation is immediate
+- an active paid Pro period canceled in that window is marked `canceled` with its full price in `refund_amount` and `refund_status: pending` for manual processing
+- after the 30-day window, no full or prorated refund is offered
+- after the 30-day window, the downgrade takes effect at period end
+- after that window, current access remains unchanged until the current period finishes
+- Basic begins without a replacement billing period
 
 Example:
 
-- current `Pro` period: `2026-06-19` to `2026-07-19`
-- on `2026-07-05` the club switches to `Basic`
+- current `Pro` period: `2026-06-19` to `2027-06-19`
+- after the refund window, the club schedules a switch to Basic
 
 Result:
 
-- the club keeps `Pro` access until `2026-07-19`
-- the next billing period starting `2026-07-19` is billed as `Basic`
+- the club keeps `Pro` access until `2027-06-19`
+- Basic access begins on `2027-06-19` without creating a new billing period
 
 ## Invoicing
 
 Invoices are based on whole billing periods.
 
 - one invoice covers one full billing period
-- invoices are not split because of a mid-period plan change
 - the invoice for the current period is based on that billing period document
 - each billing period stores the plan price snapshot that applied when that period was created
-- the next invoice uses the plan that becomes effective at renewal
+- Basic has no invoices
+- a renewed Pro subscription uses the current Pro price
 
 ### Invoice Email Delivery
 
@@ -211,12 +224,12 @@ Invoice emails are sent to every active administrator assigned to the club.
 
 An invoice email is sent:
 
-- immediately after the initial billing period is created during club registration
+- immediately after a Pro billing period is created during club registration or upgrade
 - automatically for every billing period created by the scheduled renewal process
 - automatically for every billing period created by fallback renewal in another write workflow
 - once when club restoration creates a new current billing period
 - immediately after an administrator manually creates a billing period
-- immediately after `GET /api/billing` repairs a club that has no billing periods by creating a missing initial period
+- immediately after `GET /api/billing` repairs a Pro club that has no billing periods by creating a missing initial period
 - when an administrator uses the resend action for an existing billing period
 
 If renewal processing catches up multiple missed periods, one invoice email is sent for each newly created period.
@@ -246,16 +259,7 @@ Delivery behavior:
 - renewal processing reports failed invoice deliveries after completing the billing-period renewals
 - resending an invoice does not create a new billing period or change the existing one
 
-## Member Limits
+## Members
 
-Member limits apply only to active members.
-
-- `basic`: up to 100 active members
-- `pro`: no limit
-
-Enforcement:
-
-- new signups and club selection are still allowed even if a club already has many members
-- the hard cap is enforced when an admin activates inactive users
-- if a club is above the active-member cap after a downgrade, existing active members remain unchanged
-- in that case, the admin cannot activate additional inactive users until the number of active members falls below the plan limit
+Both plans allow an unlimited number of active members. New signups, club selection,
+and activation by an administrator are not restricted by the club's plan.

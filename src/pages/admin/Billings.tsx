@@ -96,7 +96,7 @@ export default function AdminBillingsPage() {
                 {invoiceError ? <p>{invoiceError}</p> : null}
                 {invoiceMessage ? <p>{invoiceMessage}</p> : null}
                 {!loadError && !billings.length ? (
-                    <p>Keine Abrechnungszeiträume vorhanden.</p>
+                    <p>Keine kostenpflichtigen Abrechnungszeiträume vorhanden.</p>
                 ) : null}
                 {!loadError && billings.length ? (
                     <div className="billings-table-wrapper">

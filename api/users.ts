@@ -8,9 +8,6 @@ import { escapeHtml } from './_utils/_lib.js';
 import { ReservationItem } from '../src/types.js';
 import { ClubDocument } from './_utils/_types.js';
 import { isReservationActive } from '../src/utils/reservationTime.js';
-import { BillingPeriodDocument, InvoiceCounterDocument } from './_utils/_billingPeriods.js';
-import { processClubBillingRenewalAndSendInvoices } from './_utils/_billingService.js';
-import { getEffectiveMembersLimitForPlan } from './_utils/_planLimits.js';
 
 function isString(value: unknown): value is string {
   return typeof value === 'string';
@@ -142,8 +139,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const database = client.db(database_name);
     const collection = database.collection('users');
     const clubCollection = database.collection<ClubDocument>('clubs');
-    const billingPeriodsCollection = database.collection<BillingPeriodDocument>('billing_periods');
-    const invoiceCountersCollection = database.collection<InvoiceCounterDocument>('invoice_counters');
 
     if (req.method === 'GET') {
       const payload = await getJwtPayload(req);
@@ -323,16 +318,6 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       if (!club) {
         return res.status(410).json({error: 'Club has been deleted'});
       }
-      const billingState = requester.club_id && club
-        ? await processClubBillingRenewalAndSendInvoices(
-            database,
-            clubCollection,
-            billingPeriodsCollection,
-            invoiceCountersCollection,
-            club
-          )
-        : null;
-      const resolvedClub = billingState?.club ?? club;
       const normalizedUserIds: string[] = [...new Set<string>(requestedUserIds)];
       const targetUsers = [];
 
@@ -363,23 +348,8 @@ export default async (req: VercelRequest, res: VercelResponse) => {
         });
       }
 
-      const membersLimit = getEffectiveMembersLimitForPlan(resolvedClub?.access_plan_type);
       const updatedUsers: Array<{_id: string; status: string; club_id?: null}> = [];
       const removedUserIds: string[] = [];
-
-      if (action === 'activate' && membersLimit != null) {
-        const activeMembersCount = await collection.countDocuments({
-          club_id: requester.club_id,
-          status: {$ne: 'inactive'}
-        });
-        const activationCount = targetUsers.filter(({targetUser}) => targetUser.status === 'inactive').length;
-
-        if (activeMembersCount + activationCount > membersLimit) {
-          return res.status(400).json({
-            error: `In Ihrem Plan können höchstens ${membersLimit} aktive Mitglieder freigeschaltet werden.`
-          });
-        }
-      }
 
       for (const {userId, targetUser, query} of targetUsers) {
         if (action === 'remove') {

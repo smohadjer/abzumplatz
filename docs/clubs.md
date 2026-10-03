@@ -2,6 +2,10 @@
 
 This document describes club lifecycle behavior that affects multiple application features.
 
+## Club names
+
+Club names are unique regardless of capitalization, including names belonging to soft-deleted clubs. The database enforces this with the collation-aware `unique_club_name` index. Run `npm run migrate:club-indexes` when deploying the index. The migration aborts without changing data when duplicate names already exist.
+
 ## Club Soft Deletion
 
 An administrator can delete their club from the Admin page. This is a soft delete: the API sets the club's `deleted_at` field to the current date and time. It does not remove the club document or any associated users, reservations, billing records, rules, or court data.
@@ -18,8 +22,9 @@ While a club is soft-deleted:
 - The recovery page hides normal club-management navigation and offers only **Verein wiederherstellen** and **Ausloggen**.
 - Restoring the club removes `deleted_at` and makes the club available again.
 - If the club still has an active billing period whose end date is in the future, restoration keeps that period unchanged and does not issue another invoice.
-- If the previous active billing period has expired, restoration completes it and creates exactly one new billing period beginning on the restoration date. The deleted interval is not recreated or invoiced retroactively.
-- A restoration-created billing period uses the club's next selected plan, anchors future renewals to the restoration date, and sends one invoice for the new period.
+- If the previous active Pro billing period has expired and the club remains on Pro, restoration completes it and creates exactly one new Pro period beginning on the restoration date. The deleted interval is not recreated or invoiced retroactively.
+- Restoring a Basic club creates no billing period or invoice.
+- A restoration-created Pro period anchors future renewals to the restoration date and sends one invoice for the new period.
 - Billing reconciliation and removal of `deleted_at` are committed in one database transaction. Any invoice email is sent only after that transaction commits, so email failure cannot roll back or duplicate the restored billing state.
 - Players previously assigned to the club can still log in, but authentication exposes an empty `club_id` for them. The app therefore redirects them to the club-selection page.
 - A player's stored club association remains unchanged until they select another club or leave the deleted club. If the administrator restores the club first, the original association becomes effective again on the player's next login or session verification.

@@ -17,7 +17,6 @@
 }
 
 .register-club-plan-name,
-.register-club-plan-price,
 .register-club-plan-features {
     margin-top: 0;
 }
@@ -28,16 +27,8 @@
     color: #333;
 }
 
-.register-club-plan-price {
-    margin-top: 0.35rem;
-    color: #333;
-    font-size: 1.15rem;
-    font-weight: 700;
-}
-
-.register-club-plan-price-suffix {
-    font-size: 0.9rem;
-    font-weight: 400;
+.register-club-plan-inline-price {
+    font-weight: 600;
 }
 
 .register-club-plan-features {

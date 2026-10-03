@@ -4,6 +4,7 @@ import { Club, PlanType } from '../../src/types.js';
 export type ClubDocument = Omit<Club, '_id' | 'timestamp'> & {
     _id?: ObjectId;
     timestamp?: Date;
+    pro_started_at?: Date;
 }
 
 export type ClubNameDocument = {

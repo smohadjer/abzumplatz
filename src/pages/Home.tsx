@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { A11y, Keyboard, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { PLAN_CONFIG } from '../planConfig';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import './home.css';
@@ -16,10 +17,11 @@ const screenshots = [
 export default function Home() {
     return (
         <>
-            <h1 className="home-tagline">Die intuitive Plattform für Tennisplatzreservierung und Vereinsverwaltung</h1>
+            <h1 className="home-tagline">Kostenlose Platzreservierung für Tennisvereine</h1>
+            <p className="home-description">Mit abzumplatz verwalten Tennisvereine ihren gesamten Vereinsalltag – von der Online-Platzreservierung bis zur Organisation vereinsinterner Turniere wie Clubmeisterschaften einschließlich Anmeldung und Auslosung. Als Verein behalten Sie den Überblick über Ihre Mitglieder und informieren sie einfach über wichtige Termine und Neuigkeiten.</p>
             <div className="home-intro">
                 <div className="home-intro-card">
-                    <h2 className="home-intro-label">Für Spieler (kostenlos)</h2>
+                    <h2 className="home-intro-label">Für Spieler</h2>
                     <p className="home-intro-text">Sie möchten einem bestehenden Verein beitreten.</p>
                     <p><Link className="button-link" to="/register/player">Als Spieler registrieren</Link></p>
                 </div>
@@ -55,18 +57,24 @@ export default function Home() {
                 </figure>
                 <div className="content">
                     <h2>Was abzumplatz Vereinen bietet:</h2>
-                    <ul className="home-feature-list">
-                    <li>Online-Platzreservierung für Mitglieder</li>
-                    <li>Tennisplätze für Mannschaftsspiele, Turniere und andere Veranstaltungen sperren</li>
-                    <li>Buchungsregeln flexibel festlegen – von Öffnungszeiten und Buchungsdauer bis zu Reservierungslimits</li>
-                    <li>Wiederkehrende Reservierungen für Mannschaftstrainings einrichten</li>
-                    <li>Vereinsturniere wie Clubmeisterschaften organisieren – mit einfacher Anmeldung für Mitglieder direkt in der App</li>
-                    <li>Mitglieder mit In-App-Benachrichtigungen über wichtige Vereinsmeldungen informieren</li>
-                    <li>Den Mitgliederbestand jederzeit aktuell im Blick behalten und Mitglieder einfach aktivieren, deaktivieren oder entfernen</li>
-                    <li>Direkt im Browser auf Smartphone, Tablet und Computer nutzen – ohne Installation</li>
-                    <li>Kostenlos starten und nur bei Bedarf auf den Pro-Plan wechseln</li>
-                    <li>Persönliche Unterstützung bei Fragen und Problemen</li>
-                    </ul>
+                    <div className="home-plan-features">
+                        <section className="home-plan-feature-group">
+                            <h3 className="home-feature-heading">Kostenlos im Basic-Plan</h3>
+                            <ul className="home-feature-list">
+                                {PLAN_CONFIG.basic.features.map(feature => (
+                                    <li className={`home-feature--${feature.icon}`} key={feature.icon}>{feature.label}</li>
+                                ))}
+                            </ul>
+                        </section>
+                        <section className="home-plan-feature-group">
+                            <h3 className="home-feature-heading home-feature-heading--pro">Im Pro-Plan enthalten</h3>
+                            <ul className="home-feature-list">
+                                {PLAN_CONFIG.pro.features.map(feature => (
+                                    <li className={`home-feature--${feature.icon}`} key={feature.icon}>{feature.label}</li>
+                                ))}
+                            </ul>
+                        </section>
+                    </div>
                 </div>
             </div>
         </>

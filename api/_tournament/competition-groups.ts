@@ -5,6 +5,7 @@ import { getErrorMessage, isAppError } from '../_utils/_errors.js';
 import type { VercelRequest, VercelResponse } from '../_utils/_apiTypes.js';
 import type { CompetitionType, DBUser } from '../../src/types.js';
 import { resetDefaultCompetitionGroups } from '../_utils/_competitionGroupDefaults.js';
+import { clubHasProFeatures, PRO_PLAN_FEATURE_ERROR } from '../_utils/_planFeatures.js';
 
 type CompetitionGroupDocument = {
   _id?: ObjectId;
@@ -79,6 +80,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const {user} = await getAuthenticatedUserContext(req, users, {requireActive: true});
 
     if (!user.club_id) return res.status(400).json({error: 'Der Benutzer gehört keinem Verein an.'});
+    if (!await clubHasProFeatures(database, user.club_id)) {
+      return res.status(403).json({error: PRO_PLAN_FEATURE_ERROR});
+    }
 
     if (req.method === 'GET') {
       const id = req.query?.id;

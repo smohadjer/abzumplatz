@@ -1,4 +1,4 @@
-import { Collection, Db, MongoClient, ObjectId, WithId } from 'mongodb';
+import { Collection, Db, MongoClient, MongoServerError, ObjectId, WithId } from 'mongodb';
 import { database_uri, database_name } from './_utils/_config.js';
 import { sanitize, ajv, getCustomErrorMessage } from './_utils/_lib.js';
 import * as fs from 'fs';
@@ -7,16 +7,16 @@ import { ClubWithBilling, DBUser, JwtPayload } from '../src/types.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import { ClubDocument, ClubFormBody, CourtsFormBody, RulesFormBody } from './_utils/_types.js';
 import { updateCourts } from './_utils/_updateCourts.js';
-import { BillingPeriodDocument, getClubBillingState, InvoiceCounterDocument, isDowngradeLocked, ProcessedClubBillingRenewal, resumeClubBilling } from './_utils/_billingPeriods.js';
-import { BillingPeriodInvoiceDeliveryError, createInitialBillingPeriodAndSendInvoice, processClubBillingRenewalAndSendInvoices } from './_utils/_billingService.js';
+import { BillingPeriodDocument, createInitialBillingPeriod, getClubBillingState, InvoiceCounterDocument, ProcessedClubBillingRenewal, resumeClubBilling } from './_utils/_billingPeriods.js';
+import { processClubBillingRenewalAndSendInvoices } from './_utils/_billingService.js';
 import { sendBillingPeriodInvoiceEmail } from './_utils/_billingInvoices.js';
 import { getClubPlanState, getPlanChangeUpdate } from './_utils/_planTransitions.js';
 import { fetchClub } from './_utils/_fetchClub.js';
-import { isLowerPlan } from '../src/planConfig.js';
-import { getEffectiveMembersLimitForPlan, hasMembersLimitOverride } from './_utils/_planLimits.js';
+import { isHigherPlan, isLowerPlan } from '../src/planConfig.js';
 import { defaultClubRules } from '../src/clubRules.js';
 import { createDefaultCompetitionGroups } from './_utils/_competitionGroupDefaults.js';
 import bcrypt from 'bcrypt';
+import { getProCancellationTerms } from './_utils/_planCancellation.js';
 
 if (!database_uri || !database_name) {
     throw new Error('Database configuration is missing');
@@ -38,14 +38,17 @@ const enrichClubWithBilling = async (
     doc
   );
 
+  const cancellationTerms = getProCancellationTerms(doc, currentBillingPeriod);
+
   return {
     ...doc,
     _id: doc._id.toString(),
     current_billing_plan_type: currentBillingPeriod?.plan_type,
     current_billing_period_end: currentBillingPeriod?.period_end,
-    downgrade_locked: isDowngradeLocked(doc, currentBillingPeriod),
-    effective_members_limit: getEffectiveMembersLimitForPlan(doc.access_plan_type),
-    members_limit_override_active: hasMembersLimitOverride(),
+    ...(cancellationTerms.refundEligibleUntil ? {
+      pro_refund_eligible_until: cancellationTerms.refundEligibleUntil.toISOString(),
+      pro_refund_eligible: cancellationTerms.refundEligible,
+    } : {}),
   };
 };
 
@@ -315,10 +318,13 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     return res.status(405).json({error: 'Method not allowed'});
   } catch (e) {
     console.error(e);
+    const duplicateClubName = e instanceof MongoServerError
+      && e.code === 11000
+      && Boolean(e.keyPattern?.name);
     const errors = [
       {
-        message: e.message,
-        instancePath: `#${e.cause}`
+        message: duplicateClubName ? 'Ein Verein mit diesem Namen existiert bereits.' : e.message,
+        instancePath: duplicateClubName ? '#name' : `#${e.cause}`
       }
     ];
     res.status(500).json({error: errors});
@@ -389,41 +395,60 @@ async function addClub(
     reservations_limit,
     courts,
     rules: defaultClubRules,
-    timestamp: new Date()
+    timestamp: new Date(),
+    ...(body.plan_type === 'pro' ? {pro_started_at: new Date()} : {})
   };
-  const insertResponse = await collection.insertOne(club);
-  const club_id = insertResponse.insertedId.toString();
+  const clubObjectId = new ObjectId();
+  const club_id = clubObjectId.toString();
+  let createdProPeriod: BillingPeriodDocument | undefined;
+  const session = client.startSession();
+  try {
+    await session.withTransaction(async () => {
+      await collection.insertOne({...club, _id: clubObjectId}, {session});
+      await createDefaultCompetitionGroups(database, club_id, session);
 
-  await createDefaultCompetitionGroups(database, club_id);
+      const userUpdate = await userCollection.updateOne(
+        {
+          _id: ObjectId.createFromHexString(payload._id),
+          $or: [{club_id: {$exists: false}}, {club_id: null}],
+        },
+        {'$set' : {'club_id' : club_id}},
+        {session}
+      );
+      if (!userUpdate.matchedCount) {
+        throw new Error('Der Benutzer wurde gleichzeitig einem anderen Verein zugeordnet.');
+      }
 
-  if (club_id) {
-    const query = {_id: ObjectId.createFromHexString(payload._id)};
-    await userCollection.updateOne(
-        query,
-        {'$set' : {'club_id' : club_id}}
-    );
+      if (body.plan_type === 'pro') {
+        createdProPeriod = await createInitialBillingPeriod(
+          billingPeriodsCollection,
+          invoiceCountersCollection,
+          club_id,
+          'pro',
+          'signup',
+          club.pro_started_at,
+          club.pro_started_at.getDate(),
+          session
+        );
+      }
+    });
+  } finally {
+    await session.endSession();
   }
 
   let invoiceEmailError: string | undefined;
-  try {
-    await createInitialBillingPeriodAndSendInvoice(
-      database,
-      billingPeriodsCollection,
-      invoiceCountersCollection,
-      {
-        ...club,
-        _id: insertResponse.insertedId,
-      },
-      club_id,
-      body.plan_type,
-      'signup'
-    );
-  } catch (error) {
-    if (!(error instanceof BillingPeriodInvoiceDeliveryError)) {
-      throw error;
+  if (createdProPeriod) {
+    try {
+      await sendBillingPeriodInvoiceEmail(
+        database,
+        {...club, _id: clubObjectId},
+        createdProPeriod,
+        'initial'
+      );
+    } catch (error) {
+      console.error('Failed to send invoice email for newly created club', error);
+      invoiceEmailError = error instanceof Error ? error.message : 'Invoice email delivery failed.';
     }
-    console.error('Failed to send invoice email for newly created club', error);
-    invoiceEmailError = error.message;
   }
 
   const docs = await getAllClubs(collection, billingPeriodsCollection);
@@ -482,13 +507,10 @@ async function updateClub(
   const currentAccessPlanType = resolvedClub.access_plan_type;
   const currentPlanState = getClubPlanState(resolvedClub);
   const selectedPlanType = body.plan_type;
-  const downgradeLocked = isDowngradeLocked(resolvedClub, currentBillingPeriod);
-
-  if (downgradeLocked && isLowerPlan(selectedPlanType, currentAccessPlanType)) {
-    return res.status(400).json({
-      error: 'Nach einem Upgrade ist ein Downgrade erst ab der nächsten Verlängerung möglich.'
-    });
-  }
+  const isProCancellation = currentAccessPlanType === 'pro' && isLowerPlan(selectedPlanType, currentAccessPlanType);
+  const cancellationTerms = isProCancellation
+    ? getProCancellationTerms(resolvedClub, currentBillingPeriod)
+    : null;
 
   const courts = doc.courts;
   if (courts_count < courts.length) {
@@ -502,35 +524,105 @@ async function updateClub(
     }
   }
 
-  const query = {_id: ObjectId.createFromHexString(body._id)};
-  const planUpdateFields: Partial<ClubDocument> = getPlanChangeUpdate(currentPlanState, selectedPlanType);
+  const query = {
+    _id: ObjectId.createFromHexString(body._id),
+    access_plan_type: currentPlanState.accessPlanType,
+    next_plan_type: currentPlanState.nextPlanType,
+  };
+  const immediateCancellation = Boolean(cancellationTerms?.eligibleForImmediateCancellation);
+  const planChangedAt = new Date();
+  const planUpdateFields: Partial<ClubDocument> = immediateCancellation
+    ? {access_plan_type: 'basic', next_plan_type: 'basic'}
+    : getPlanChangeUpdate(currentPlanState, selectedPlanType);
+  if (isHigherPlan(selectedPlanType, currentAccessPlanType)) {
+    planUpdateFields.pro_started_at = planChangedAt;
+  }
   const unsetFields: Record<string, ''> = {
     plan_type: '',
     members_limit: '',
     auto_renew: '',
   };
 
-  const updateResonse = await collection.updateOne(
-      query,
-      {'$set' : {
-        name : body.name,
-        address_line1: body.address_line1,
-        postal_code: body.postal_code,
-        city: body.city,
-        country: body.country,
-        start_hour,
-        end_hour,
-        timezone,
-        max_reservation_duration,
-        reservations_limit,
-        courts,
-        ...planUpdateFields,
-      },
-      '$unset': unsetFields}
-  );
+  let createdUpgradePeriod: BillingPeriodDocument | undefined;
+  const session = client.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const updateResponse = await collection.updateOne(
+        query,
+        {'$set' : {
+          name : body.name,
+          address_line1: body.address_line1,
+          postal_code: body.postal_code,
+          city: body.city,
+          country: body.country,
+          start_hour,
+          end_hour,
+          timezone,
+          max_reservation_duration,
+          reservations_limit,
+          courts,
+          ...planUpdateFields,
+        },
+        '$unset': unsetFields},
+        {session}
+      );
 
-  if (!updateResonse) {
-    throw new Error(`Club ${body.name} couldn't be updated`);
+      if (!updateResponse.matchedCount) {
+        throw new Error('Der Vereinsplan wurde gleichzeitig geändert. Bitte laden Sie die Seite neu und versuchen Sie es erneut.');
+      }
+
+      if (isHigherPlan(selectedPlanType, currentAccessPlanType)) {
+        await billingPeriodsCollection.deleteMany(
+          {club_id: body._id, plan_type: 'basic'},
+          {session}
+        );
+        createdUpgradePeriod = await createInitialBillingPeriod(
+          billingPeriodsCollection,
+          invoiceCountersCollection,
+          body._id,
+          'pro',
+          'upgrade',
+          planChangedAt,
+          planChangedAt.getDate(),
+          session
+        );
+      }
+
+      if (immediateCancellation && currentBillingPeriod?.plan_type === 'pro' && currentBillingPeriod._id) {
+        const cancellationResult = await billingPeriodsCollection.updateOne(
+          {_id: currentBillingPeriod._id, status: 'active'},
+          {$set: {
+            status: 'canceled',
+            canceled_at: planChangedAt,
+            ...(cancellationTerms?.refundEligible ? {
+              refund_amount: cancellationTerms.refundAmount,
+              refund_status: 'pending',
+            } : {}),
+          }},
+          {session}
+        );
+        if (!cancellationResult.matchedCount) {
+          throw new Error('Der Pro-Abrechnungszeitraum wurde gleichzeitig geändert. Bitte laden Sie die Seite neu und versuchen Sie es erneut.');
+        }
+      }
+    });
+  } finally {
+    await session.endSession();
+  }
+
+  let invoiceEmailError: string | undefined;
+  if (createdUpgradePeriod) {
+    try {
+      await sendBillingPeriodInvoiceEmail(
+        database,
+        {...resolvedClub, ...planUpdateFields},
+        createdUpgradePeriod,
+        'upgrade'
+      );
+    } catch (error) {
+      console.error('Failed to send invoice email for upgraded club', error);
+      invoiceEmailError = error instanceof Error ? error.message : 'Invoice email delivery failed.';
+    }
   }
 
   const docs = await getAllClubs(collection, billingPeriodsCollection);
@@ -538,7 +630,18 @@ async function updateClub(
     message: `Verein ${body.name} ist updated`,
     data: {
       club_id: body._id,
-      clubs: docs
+      clubs: docs,
+      ...(invoiceEmailError ? {invoice_email_error: invoiceEmailError} : {}),
+      ...(isProCancellation ? {
+        cancellation: {
+          effective: immediateCancellation ? 'immediate' : 'period_end',
+          refund_eligible: Boolean(cancellationTerms?.refundEligible),
+          refund_amount: cancellationTerms?.refundAmount ?? 0,
+          ...(cancellationTerms?.refundEligibleUntil ? {
+            refund_eligible_until: cancellationTerms.refundEligibleUntil.toISOString(),
+          } : {}),
+        },
+      } : {}),
     }
   });
 }

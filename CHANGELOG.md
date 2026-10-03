@@ -2,6 +2,34 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.8.0
+
+### Added
+
+- Added Pro-only access controls for creating and editing tournaments, managing Konkurrenzen, and publishing club-wide member notifications, enforced in both the interface and API.
+- Added annual Pro subscription cancellation with immediate cancellation and full manual refund processing during the 30-day withdrawal period, followed by cancellation at the end of the paid year without prorated refunds.
+- Added transactional club registration and plan changes so club access, administrator association, competition defaults, and paid billing periods remain consistent when an operation fails or is retried.
+- Added database migrations for removing legacy Basic billing periods, enforcing one active billing period per club, and enforcing case-insensitive unique club names.
+- Added billing lifecycle regression coverage for free Basic clubs, Pro-to-Basic transitions, and legacy Pro refund eligibility.
+
+### Changed
+
+- Made the Basic plan free without a membership limit or billing periods and removed all related activation restrictions, warnings, and configuration.
+- Changed the Pro plan to 50 EUR per year and made upgrades start a paid twelve-month period immediately.
+- Simplified billing so only paid Pro subscriptions create periods and invoices; downgrading to Basic no longer creates zero-value periods.
+- Consolidated Basic and Pro feature descriptions in the shared plan configuration used by both the homepage and club registration.
+- Reworked the homepage around free court reservations for tennis clubs, with separate responsive Basic and Pro feature lists, plan-specific icon styling, and clearer club-focused introductory copy.
+- Updated club registration with explicit plan names, inline pricing, annual billing and cancellation guidance, and consistent “Kostenlos” wording for Basic.
+- Updated plan documentation, FAQ content, terms, route metadata, and search metadata for the new pricing and feature model.
+- Normalized SVG source colors so interface colors are controlled consistently through CSS.
+
+### Fixed
+
+- Prevented Basic billing periods from being created by registration, repair, renewal, restoration, or manual billing workflows.
+- Prevented concurrent requests from creating duplicate active Pro subscriptions or duplicate club names.
+- Preserved refund eligibility for legacy Pro clubs by falling back to the active Pro period start when the original Pro start timestamp is unavailable.
+- Kept invoice email delivery outside database transactions so delivery failures cannot roll back or corrupt committed subscription state.
+
 ## 0.7.0
 
 ### Added

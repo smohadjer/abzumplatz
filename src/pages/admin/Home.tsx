@@ -12,6 +12,7 @@ export default function AdminHomePage() {
     const clubData = useSelector((state: RootState) => state.club);
     const dispatch = useDispatch();
     const club = clubData.value;
+    const hasProTournamentFeatures = club.access_plan_type === 'pro';
     const isClubDeleted = user.club_deleted || Boolean(club.deleted_at);
     const deletedAtLabel = club.deleted_at
         ? new Date(club.deleted_at).toLocaleString('de-DE')
@@ -121,17 +122,22 @@ export default function AdminHomePage() {
             </section>
             <section className="admin-home-section">
                 <h2>Spielbetrieb</h2>
-                <ul className="settings-links admin-home-links">
-                    <li><Link className="settings-icon-link settings-tournaments-link" to="/admin/tournaments">Turniere</Link></li>
-                    <li><Link className="settings-icon-link settings-competition-groups-link" to="/admin/competition-groups">Konkurrenzen</Link></li>
-                </ul>
+                {hasProTournamentFeatures ? (
+                    <ul className="settings-links admin-home-links">
+                        <li><Link className="settings-icon-link settings-tournaments-link" to="/admin/tournaments">Turniere</Link></li>
+                        <li><Link className="settings-icon-link settings-competition-groups-link" to="/admin/competition-groups">Konkurrenzen</Link></li>
+                    </ul>
+                ) : (
+                    <p>Turniere und Konkurrenzen sind im <Link to="/admin/club">Pro-Plan</Link> verfügbar.</p>
+                )}
             </section>
             <section className="admin-home-section">
                 <h2>Organisation</h2>
                 <ul className="settings-links admin-home-links">
-                    <li><Link className="settings-icon-link settings-notifications-link" to="/admin/announcements">Benachrichtigungen</Link></li>
+                    {hasProTournamentFeatures ? <li><Link className="settings-icon-link settings-notifications-link" to="/admin/announcements">Benachrichtigungen</Link></li> : null}
                     <li><Link className="settings-icon-link settings-billings-link" to="/admin/billings">Abrechnungen</Link></li>
                 </ul>
+                {!hasProTournamentFeatures ? <p>Benachrichtigungen an Mitglieder sind im <Link to="/admin/club">Pro-Plan</Link> verfügbar.</p> : null}
             </section>
         </>
     )

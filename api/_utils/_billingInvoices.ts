@@ -6,7 +6,7 @@ import sendEmail from './_sendEmail.js';
 import { BillingPeriodDocument } from './_billingPeriods.js';
 import { AdminEmailDocument, ClubDocument } from './_types.js';
 
-export type BillingInvoiceNotificationType = 'initial' | 'manual' | 'renewal' | 'resend' | 'repair';
+export type BillingInvoiceNotificationType = 'initial' | 'upgrade' | 'manual' | 'renewal' | 'resend' | 'repair';
 
 function parseLocalDate(dateString: string) {
   return new Date(`${dateString}T12:00:00`);
@@ -78,6 +78,8 @@ function buildBillingPeriodNotificationEmail(
   const hasBankDetails = Boolean(bank_iban && bank_name && bank_account_holder);
   const note = notificationType === 'renewal'
     ? 'Dieser Abrechnungszeitraum wurde automatisch bei der Verlängerung Ihres Plans angelegt.'
+    : notificationType === 'upgrade'
+      ? 'Dieser Abrechnungszeitraum wurde beim Wechsel in den Pro-Plan angelegt.'
     : notificationType === 'repair'
       ? 'Dieser Abrechnungszeitraum wurde als Reparatur für fehlende Abrechnungsdaten angelegt.'
     : notificationType === 'resend'

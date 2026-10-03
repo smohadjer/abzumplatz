@@ -5,6 +5,7 @@ import { getErrorMessage, isAppError } from '../_utils/_errors.js';
 import { createClubNotification } from '../_utils/_notifications.js';
 import type { VercelRequest, VercelResponse } from '../_utils/_apiTypes.js';
 import type { CompetitionType, DBUser, TournamentPaymentMethod, TournamentStatus } from '../../src/types.js';
+import { clubHasProFeatures, PRO_PLAN_FEATURE_ERROR } from '../_utils/_planFeatures.js';
 
 type StoredTournamentStatus = TournamentStatus | 'registration_open' | 'registration_closed' | 'in_progress' | 'completed' | 'cancelled';
 
@@ -320,6 +321,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
     if (user.role !== 'admin') {
       return res.status(403).json({error: 'Nur Administratoren dürfen Turniere verwalten.'});
+    }
+    if (!await clubHasProFeatures(database, user.club_id)) {
+      return res.status(403).json({error: PRO_PLAN_FEATURE_ERROR});
     }
 
     if (req.method === 'POST') {

@@ -5,6 +5,7 @@ import { getErrorMessage, isAppError } from './_utils/_errors.js';
 import { createClubNotification } from './_utils/_notifications.js';
 import type { VercelRequest, VercelResponse } from './_utils/_apiTypes.js';
 import type { DBUser } from '../src/types.js';
+import { clubHasProFeatures, PRO_PLAN_FEATURE_ERROR } from './_utils/_planFeatures.js';
 
 if (!database_uri || !database_name) throw new Error('Database configuration is missing');
 const client = new MongoClient(database_uri);
@@ -17,6 +18,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     const users = database.collection<DBUser>('users');
     const {payload, user} = await getAuthenticatedUserContext(req, users, {requireActive: true});
     if (!user.club_id) return res.status(403).json({error: 'Der Benutzer gehört keinem Verein an.'});
+    const isAdminManagementRequest = req.method === 'POST'
+      || (req.method === 'GET' && req.query?.view === 'published')
+      || (req.method === 'PATCH' && req.query?.action === 'edit');
+    if (isAdminManagementRequest && !await clubHasProFeatures(database, user.club_id)) {
+      return res.status(403).json({error: PRO_PLAN_FEATURE_ERROR});
+    }
 
     if (req.method === 'GET') {
       const limitValue = Number(req.query?.limit ?? 50);

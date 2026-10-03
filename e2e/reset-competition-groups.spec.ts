@@ -34,6 +34,7 @@ const defaultGroups = defaultGroupNames.map((name, index) => ({
 }));
 
 test('an admin can reset all competition groups to the defaults', async ({page}) => {
+  const proClub = {...club, access_plan_type: 'pro', next_plan_type: 'pro'};
   const adminUser = {
     ...admin,
     email: 'ada@example.test',
@@ -48,7 +49,7 @@ test('an admin can reset all competition groups to the defaults', async ({page})
   };
   let submittedReset: Record<string, unknown> | undefined;
 
-  await page.route('**/api/clubs', route => route.fulfill({json: [club]}));
+  await page.route('**/api/clubs', route => route.fulfill({json: [proClub]}));
   await page.route('**/api/verifyAuth', route => route.fulfill({json: adminUser}));
   await page.route('**/api/tournaments', route => route.fulfill({json: []}));
   await page.route('**/api/competition-groups', async route => {

@@ -6,8 +6,10 @@
 .home-tagline {
     margin: 0;
     text-align: center;
-    font-size: 1.1em;
-    font-weight: 400;
+}
+
+.home-description {
+    margin-inline: auto;
 }
 
 .home-intro {
@@ -90,35 +92,107 @@
     list-style: none;
 }
 
-.home-feature-list li {
-    display: grid;
-    grid-template-columns: 1.5rem minmax(0, 1fr);
-    gap: 0.65rem;
-    align-items: start;
-    margin: 0;
-    padding: 0.55rem 0;
-    border-bottom: 1px solid #e3e8f2;
+.home-feature-heading {
+    display: inline-flex;
+    align-items: center;
+    margin: 1.25rem 0 0;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid #d4d8de;
+    border-radius: 999px;
+    background: #e8ebef;
+    color: #4f5660;
+    font-size: 1rem;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
 }
 
-.home-feature-list li:last-child {
-    border-bottom: 0;
+.home-feature-heading--pro {
+    margin-top: 1.75rem;
+    border-color: #e4cf9c;
+    background: #fff7df;
+    color: #76530a;
+}
+
+.home-plan-features {
+    display: grid;
+}
+
+@media (min-width: 900px) {
+    .home-feature-layout .content > h2 {
+        padding-bottom: 0.65rem;
+        border-bottom: 1px solid #d9dde3;
+        text-align: center;
+    }
+
+    .home-plan-features {
+        grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .home-feature-heading--pro {
+        margin-top: 1.25rem;
+    }
+}
+
+.home-feature-heading--pro + .home-feature-list li::before {
+    background-color: #fff7df;
+}
+
+.home-feature-heading--pro + .home-feature-list li::after {
+    background-color: #76530a;
+}
+
+.home-feature-list li {
+    display: grid;
+    grid-template-columns: 2.15rem minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: center;
+    position: relative;
+    margin: 0;
+    padding: 0.2rem 0;
 }
 
 .home-feature-list li::before {
-    content: '✓';
+    content: '';
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.35rem;
-    height: 1.35rem;
-    margin-top: 0.05rem;
+    width: 2rem;
+    height: 2rem;
+    margin-top: 0;
     border-radius: 50%;
-    background: #dfe9fa;
-    color: var(--blue);
-    font-size: 0.85rem;
-    font-weight: 700;
-    line-height: 1;
+    background-color: #e8ebef;
 }
+
+.home-feature-list li::after {
+    content: '';
+    position: absolute;
+    left: 0.25rem;
+    top: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: #4f5660;
+    transform: translateY(-50%);
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+.home-feature--reservation::after { -webkit-mask-image: url('../images/calendar.svg'); mask-image: url('../images/calendar.svg'); }
+.home-feature--unlimited-members::after { -webkit-mask-image: url('../images/groups.svg'); mask-image: url('../images/groups.svg'); }
+.home-feature--block::after { -webkit-mask-image: url('../images/block.svg'); mask-image: url('../images/block.svg'); }
+.home-feature--rules::after { -webkit-mask-image: url('../images/gavel.svg'); mask-image: url('../images/gavel.svg'); }
+.home-feature--recurring::after { -webkit-mask-image: url('../images/schedule.svg'); mask-image: url('../images/schedule.svg'); }
+.home-feature--notifications::after { -webkit-mask-image: url('../images/notifications.svg'); mask-image: url('../images/notifications.svg'); }
+.home-feature--members::after { -webkit-mask-image: url('../images/manage_accounts.svg'); mask-image: url('../images/manage_accounts.svg'); }
+.home-feature--browser::after { -webkit-mask-image: url('../images/home.svg'); mask-image: url('../images/home.svg'); }
+.home-feature--email::after { -webkit-mask-image: url('../images/mail.svg'); mask-image: url('../images/mail.svg'); }
+.home-feature--tournaments::after { -webkit-mask-image: url('../images/trophy.svg'); mask-image: url('../images/trophy.svg'); }
+.home-feature--competitions::after { -webkit-mask-image: url('../images/groups.svg'); mask-image: url('../images/groups.svg'); }
+.home-feature--support::after { -webkit-mask-image: url('../images/account.svg'); mask-image: url('../images/account.svg'); }
+.home-feature--included::after { -webkit-mask-image: url('../images/list_alt_check.svg'); mask-image: url('../images/list_alt_check.svg'); }
 
 .home-screenshot-slider {
     width: 52vw;
@@ -187,6 +261,10 @@
 }
 
 @media (min-width: 768px) {
+    .home-description {
+        max-width: 52rem;
+    }
+
     .home-intro-card {
         min-height: 10rem;
         font-size: 1.05rem;

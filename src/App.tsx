@@ -48,6 +48,7 @@ import { Loader } from './components/loader/Loader';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 import RouteMetadata from './components/RouteMetadata';
+import ProPlanFeature from './components/ProPlanFeature';
 
 import { Club } from './types';
 import './app.css';
@@ -208,12 +209,12 @@ export default function App({initiallyInitialized = false}: AppProps) {
                 }/>
                 <Route path="/admin/tournaments/new" element={
                     <ProtectedRoute>
-                        <AdminTournamentFormPage />
+                        <ProPlanFeature><AdminTournamentFormPage /></ProPlanFeature>
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/tournaments/:id/edit" element={
                     <ProtectedRoute>
-                        <AdminTournamentFormPage />
+                        <ProPlanFeature><AdminTournamentFormPage /></ProPlanFeature>
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/tournaments/:id/participants" element={
@@ -223,34 +224,34 @@ export default function App({initiallyInitialized = false}: AppProps) {
                 }/>
                 <Route path="/admin/competition-groups" element={
                     <ProtectedRoute>
-                        <AdminCompetitionGroupsPage />
+                        <ProPlanFeature><AdminCompetitionGroupsPage /></ProPlanFeature>
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/competition-groups/new" element={
                     <ProtectedRoute>
-                        <AdminCompetitionGroupFormPage />
+                        <ProPlanFeature><AdminCompetitionGroupFormPage /></ProPlanFeature>
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/competition-groups/:id/edit" element={
                     <ProtectedRoute>
-                        <AdminCompetitionGroupFormPage />
+                        <ProPlanFeature><AdminCompetitionGroupFormPage /></ProPlanFeature>
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/tournaments/groups/new" element={<Navigate to="/admin/competition-groups/new" replace />}/>
                 <Route path="/admin/tournaments/groups/:id/edit" element={<LegacyCompetitionGroupEditRedirect />}/>
                 <Route path="/admin/announcements/new" element={
                     <ProtectedRoute>
-                        <AdminAnnouncementFormPage />
+                        <ProPlanFeature description="Benachrichtigungen an Mitglieder senden ist nur im Pro-Plan verfügbar."><AdminAnnouncementFormPage /></ProPlanFeature>
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/announcements/:id/edit" element={
                     <ProtectedRoute>
-                        <AdminAnnouncementFormPage />
+                        <ProPlanFeature description="Benachrichtigungen an Mitglieder senden ist nur im Pro-Plan verfügbar."><AdminAnnouncementFormPage /></ProPlanFeature>
                     </ProtectedRoute>
                 }/>
                 <Route path="/admin/announcements" element={
                     <ProtectedRoute>
-                        <AdminAnnouncementsPage />
+                        <ProPlanFeature description="Benachrichtigungen an Mitglieder senden ist nur im Pro-Plan verfügbar."><AdminAnnouncementsPage /></ProPlanFeature>
                     </ProtectedRoute>
                 }/>
                 <Route path="/register/club" element={

@@ -8,7 +8,11 @@ async function openClubRegistration(page: Page, plan: PlanType) {
 
   await page.goto('/register/club');
   const planCard = page.locator(`.register-club-plan-card--${plan}`);
-  await planCard.getByRole('button', { name: 'Plan auswählen' }).click();
+  if (plan === 'pro') {
+    await expect(planCard).toContainText('50 €');
+    await expect(planCard).toContainText('/ Jahr');
+  }
+  await planCard.getByRole('button', { name: `${plan === 'basic' ? 'Basic' : 'Pro'}-Plan auswählen` }).click();
   await expect(page.getByText(`Gewählter Plan: ${plan === 'basic' ? 'Basic' : 'Pro'}`)).toBeVisible();
 }
 

@@ -59,11 +59,14 @@ export default function Faq() {
                 <section>
                     <h2>Was kostet abzumplatz für Vereine?</h2>
                     <p>
-                        Vereine können den kostenlosen Basic-Plan mit bis zu {PLAN_CONFIG.basic.membersLimit} aktiven Mitgliedern nutzen. Der Pro-Plan ohne Begrenzung der Mitgliederzahl kostet {PLAN_CONFIG.pro.price} € pro Monat.
+                        Der Basic-Plan ist kostenlos und enthält die Mitgliederverwaltung und Platzreservierung ohne Mitgliederlimit. Mit dem Pro-Plan für {PLAN_CONFIG.pro.price} € pro Jahr können Vereine zusätzlich Turniere erstellen und Konkurrenzen verwalten.
                     </p>
 
-                    <h2>Wie funktioniert das Mitgliederlimit im Basic-Plan?</h2>
-                    <p>Das Mitgliederlimit begrenzt nur, wie viele Mitglieder gleichzeitig aktiv sein können. Wenn Ihr Verein bereits über dem Limit liegt, bleiben bestehende aktive Mitglieder erhalten, aber es können keine weiteren inaktiven oder neuen Mitglieder aktiviert werden, bis die Zahl der Vereinsmitglieder wieder unter das Limit des Plans fällt.</p>
+                    <h2>Gibt es ein Mitgliederlimit?</h2>
+                    <p>Nein. Vereine können in allen Plänen beliebig viele Mitglieder verwalten und aktivieren.</p>
+
+                    <h2>Welche Funktionen bietet der Pro-Plan?</h2>
+                    <p>Nur Vereine im Pro-Plan können Turniere erstellen, die dafür verwendeten Konkurrenzen verwalten und Benachrichtigungen an ihre Mitglieder senden.</p>
 
                     <h2>Was können Vereinsadministratoren verwalten?</h2>
                     <p>Administratoren können unter anderem Mitglieder, Tennisplätze, Reservierungen, Öffnungszeiten und Vereinsregeln verwalten.</p>

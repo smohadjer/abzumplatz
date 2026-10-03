@@ -9,8 +9,8 @@ type Metadata = {
 
 const publicMetadata: Record<string, Metadata> = {
     '/': {
-        title: 'abzumplatz – Tennisplatzreservierung und Vereinsverwaltung',
-        description: 'Die intuitive Plattform für Platzreservierung und Vereinsverwaltung in Tennisvereinen.',
+        title: 'Kostenlose Platzreservierung für Tennisvereine | abzumplatz',
+        description: 'Plätze, Mitglieder und Buchungen einfach online verwalten – kostenlos und ohne Mitgliederlimit.',
         indexable: true
     },
     '/faq': {

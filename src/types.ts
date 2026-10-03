@@ -77,14 +77,14 @@ export type Club = {
     rules?: string[];
     access_plan_type: PlanType;
     next_plan_type: PlanType;
+    pro_started_at?: Date | string;
 }
 
 export type ClubWithBilling = Club & {
     current_billing_plan_type?: PlanType;
     current_billing_period_end?: string;
-    downgrade_locked?: boolean;
-    effective_members_limit?: number | null;
-    members_limit_override_active?: boolean;
+    pro_refund_eligible_until?: string;
+    pro_refund_eligible?: boolean;
 }
 
 export type BillingPeriod = {
@@ -99,6 +99,9 @@ export type BillingPeriod = {
     status: 'active' | 'completed' | 'canceled';
     created_at: Date | string;
     source?: string;
+    canceled_at?: Date | string;
+    refund_amount?: number;
+    refund_status?: 'pending' | 'completed';
 }
 
 export type ReservationItem = {

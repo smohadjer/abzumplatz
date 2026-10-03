@@ -7,7 +7,7 @@ export default function Terms() {
         <article className="legal-page">
             <p><BackButton /></p>
             <h1>Nutzungsbedingungen</h1>
-            <p>Stand: 2. Oktober 2026</p>
+            <p>Stand: 3. Oktober 2026</p>
 
             <h2>1. Geltungsbereich und Anbieter</h2>
             <p>
@@ -41,6 +41,11 @@ export default function Terms() {
                 Für Vereine können kostenlose und kostenpflichtige Tarife angeboten werden. Preis, Leistungsumfang und Abrechnungszeitraum
                 werden vor Auswahl eines kostenpflichtigen Tarifs angezeigt. Gesetzliche Rechte, insbesondere zwingende Verbraucherrechte,
                 bleiben unberührt.
+            </p>
+            <p>
+                Der Pro-Plan wird jährlich abgerechnet. Innerhalb von 30 Tagen nach erstmaligem Abschluss kann der Pro-Plan mit sofortiger
+                Wirkung widerrufen werden; der vollständige Rechnungsbetrag wird erstattet. Nach Ablauf dieser Frist wirkt eine Kündigung zum
+                Ende des laufenden Abrechnungsjahres. Eine anteilige Erstattung für den verbleibenden Zeitraum wird nicht angeboten.
             </p>
 
             <h2>6. Verfügbarkeit und Haftung</h2>

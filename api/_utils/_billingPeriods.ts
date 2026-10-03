@@ -5,7 +5,6 @@ import { ClubDocument } from './_types.js';
 import {
     getPlanStateAtRenewal,
 } from './_planTransitions.js';
-import { getPlanLevel } from '../../src/planConfig.js';
 
 export type BillingPeriodStatus = 'active' | 'completed' | 'canceled';
 
@@ -21,6 +20,9 @@ export type BillingPeriodDocument = {
     status: BillingPeriodStatus;
     created_at: Date;
     source?: string;
+    canceled_at?: Date;
+    refund_amount?: number;
+    refund_status?: 'pending' | 'completed';
 }
 
 export type NewBillingPeriodDocument = Omit<BillingPeriodDocument, '_id' | 'invoice_number'>;
@@ -204,17 +206,6 @@ async function updateClubPlanState(
     };
 }
 
-export function isDowngradeLocked(
-    club: ClubDocument,
-    currentBillingPeriod: BillingPeriodDocument | null
-) {
-    if (!currentBillingPeriod) {
-        return false;
-    }
-
-    return getPlanLevel(club.access_plan_type) > getPlanLevel(currentBillingPeriod.plan_type);
-}
-
 export async function createInitialBillingPeriod(
     collection: Collection<BillingPeriodDocument>,
     invoiceCountersCollection: Collection<InvoiceCounterDocument>,
@@ -222,12 +213,14 @@ export async function createInitialBillingPeriod(
     planType: PlanType,
     source?: string,
     startDate = new Date(),
-    anchorDay = startDate.getDate()
+    anchorDay = startDate.getDate(),
+    session?: ClientSession
 ) {
     return insertBillingPeriod(
         collection,
         invoiceCountersCollection,
-        createBillingPeriodRecord(clubId, planType, startDate, 'active', source, anchorDay)
+        createBillingPeriodRecord(clubId, planType, startDate, 'active', source, anchorDay),
+        session
     );
 }
 
@@ -238,6 +231,13 @@ export async function getClubBillingState(
 ): Promise<ResolvedClubBillingState> {
     const clubId = club._id?.toString();
     if (!clubId || club.deleted_at) {
+        return {
+            club,
+            currentBillingPeriod: null,
+        };
+    }
+
+    if (club.access_plan_type === 'basic') {
         return {
             club,
             currentBillingPeriod: null,
@@ -296,6 +296,10 @@ export async function processClubBillingRenewal(
     }
     resolvedClub = currentClub;
 
+    // Basic is not a billed subscription. Remove records created by older
+    // versions instead of carrying meaningless zero-value periods forward.
+    await billingPeriodsCollection.deleteMany({club_id: clubId, plan_type: 'basic'});
+
     let activePeriod = await getActiveBillingPeriod(billingPeriodsCollection, clubId);
 
     if (activePeriod && !hasFutureBillingPeriodEnd(activePeriod.period_end, now)) {
@@ -317,6 +321,17 @@ export async function processClubBillingRenewal(
         return {
             club: resolvedClub,
             currentBillingPeriod: activePeriod,
+            renewalApplied,
+            completedPeriodsCount,
+            createdPeriodsCount,
+            createdPeriods,
+        };
+    }
+
+    if (resolvedClub.next_plan_type === 'basic') {
+        return {
+            club: resolvedClub,
+            currentBillingPeriod: null,
             renewalApplied,
             completedPeriodsCount,
             createdPeriodsCount,
@@ -439,6 +454,18 @@ export async function resumeClubBilling(
         getPlanStateAtRenewal(planType),
         session
     );
+
+    if (planType === 'basic') {
+        return {
+            club: resolvedClub,
+            currentBillingPeriod: null,
+            renewalApplied: Boolean(activePeriod),
+            completedPeriodsCount,
+            createdPeriodsCount: 0,
+            createdPeriods,
+        };
+    }
+
     const newPeriod = await insertBillingPeriod(
         billingPeriodsCollection,
         invoiceCountersCollection,

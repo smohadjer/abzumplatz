@@ -2,28 +2,46 @@ import { Field, NormalizedPlanType, PlanType } from './types';
 
 type PlanConfigItem = {
     durationMonths: number;
+    features: Array<{
+        icon: string;
+        label: string;
+    }>;
     label: string;
-    membersLimit: number | null;
     price: number;
 }
 
 export const PLAN_CONFIG: Record<PlanType, PlanConfigItem> = {
     basic: {
         durationMonths: 1,
+        features: [
+            {icon: 'reservation', label: 'Kostenlose Platzreservierung für alle Mitglieder'},
+            {icon: 'unlimited-members', label: 'Unbegrenzte Mitgliederzahl'},
+            {icon: 'block', label: 'Plätze für Spiele und Veranstaltungen sperren'},
+            {icon: 'rules', label: 'Flexible Buchungsregeln'},
+            {icon: 'recurring', label: 'Wiederkehrende Trainingszeiten'},
+            {icon: 'members', label: 'Mitglieder einfach verwalten'},
+            {icon: 'browser', label: 'Auf Smartphone, Tablet und Computer nutzbar'},
+            {icon: 'email', label: 'E-Mail-Support'},
+        ],
         label: 'Basic',
-        membersLimit: 100,
         price: 0,
     },
     pro: {
-        durationMonths: 1,
+        durationMonths: 12,
+        features: [
+            {icon: 'included', label: 'Alle Funktionen des Basic-Plans'},
+            {icon: 'tournaments', label: 'Vereinsturniere organisieren'},
+            {icon: 'competitions', label: 'Konkurrenzen verwalten'},
+            {icon: 'notifications', label: 'Mitglieder benachrichtigen'},
+            {icon: 'support', label: 'E-Mail- und Telefonsupport'},
+        ],
         label: 'Pro',
-        membersLimit: null,
-        price: 15,
+        price: 50,
     },
 };
 
-export const PAID_PLAN_DURATION_LABEL = ' / Monat';
-export const FORM_PLAN_DURATION_LABEL = ' / M';
+export const PAID_PLAN_DURATION_LABEL = ' / Jahr';
+export const FORM_PLAN_DURATION_LABEL = ' / J';
 
 function getLocalDateString(value: Date) {
     const year = value.getFullYear();
@@ -78,10 +96,6 @@ export function isLowerPlan(targetPlanType?: PlanType, currentPlanType?: PlanTyp
     return getPlanLevel(targetPlanType) < getPlanLevel(currentPlanType);
 }
 
-export function getMembersLimitForPlan(planType?: PlanType) {
-    return getPlanConfig(planType).membersLimit;
-}
-
 export function getPlanPrice(planType?: PlanType) {
     return getPlanConfig(planType).price;
 }
@@ -124,15 +138,15 @@ export function getProPlanLabel() {
 }
 
 export function getBasicPlanLabel() {
-    return `${PLAN_CONFIG.basic.label} (${PLAN_CONFIG.basic.price} ${'\u20ac'}${FORM_PLAN_DURATION_LABEL})`;
+    return `${PLAN_CONFIG.basic.label} (Kostenlos)`;
 }
 
-export function getBasicPlanHint(membersLimit = PLAN_CONFIG.basic.membersLimit ?? 0) {
-    return `Bis zu ${membersLimit} aktive Mitglieder im Basic Plan zulässig`;
+export function getBasicPlanHint() {
+    return `Mitgliederverwaltung und Platzreservierung`;
 }
 
 export function getProPlanHint() {
-    return `Keine Begrenzung der Mitgliederzahl im Pro Plan`;
+    return `Turniere erstellen und Konkurrenzen verwalten`;
 }
 
 export function getPlanName(planType?: PlanType) {

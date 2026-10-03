@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import type { SyntheticEvent } from "react";
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from './../../store';
-import { fetchClub, fetchUsers } from '../../utils/utils';
+import { fetchUsers } from '../../utils/utils';
 import { Loader } from '../../components/loader/Loader';
 import AdminBackButton from '../../components/AdminBackButton';
-import { Link, useSearchParams } from 'react-router';
-import { getMembersLimitForPlan, getPlanName, PLAN_CONFIG } from '../../planConfig';
+import { useSearchParams } from 'react-router';
 import './members.css';
 
 const sexLabels = {male: 'M', female: 'W'} as const;
@@ -25,8 +24,6 @@ export default function AdminMembersPage() {
     });
     const usersData = useSelector((state: RootState) => state.users);
     const user = useSelector((state: RootState) => state.auth);
-    const clubs = useSelector((state: RootState) => state.clubs.value);
-    const clubData = useSelector((state: RootState) => state.club);
     const dispatch = useDispatch();
     const users = usersData.value;
     const normalizeNamePart = (value: string) => value.trim().toLocaleLowerCase('de-DE');
@@ -83,21 +80,6 @@ export default function AdminMembersPage() {
             : String(leftValue).localeCompare(String(rightValue), 'de-DE', {sensitivity: 'base'});
         return sort.direction === 'asc' ? comparison : -comparison;
     });
-    const currentClubFromList = clubs.find(club => club._id === user.club_id);
-    const club = currentClubFromList ?? (clubData.value._id === user.club_id ? clubData.value : null);
-    const currentPlanType = club?.access_plan_type;
-    const membersLimit = club?.effective_members_limit ?? getMembersLimitForPlan(currentPlanType);
-    const hasMemberCap = membersLimit != null;
-    const hasReachedMembersLimit = membersLimit != null && activeUsersCount >= membersLimit;
-    const currentPlanName = getPlanName(currentPlanType);
-    const hasMembersLimitOverride = Boolean(club?.members_limit_override_active);
-    const planUpgradeText = currentPlanType === 'basic'
-        ? (
-            <>
-                Wechseln Sie zum <Link to="/admin/club">{PLAN_CONFIG.pro.label}</Link>, um diese Einschränkung aufzuheben.
-            </>
-        )
-        : null;
 
     const setTab = (tab: 'active' | 'inactive') => {
         setSelectedUserIds([]);
@@ -134,12 +116,6 @@ export default function AdminMembersPage() {
             })();
         }
     }, [dispatch, user.club_id, usersData.loaded]);
-
-    useEffect(() => {
-        if (!currentClubFromList && (!clubData.loaded || clubData.value._id !== user.club_id)) {
-            fetchClub(user.club_id, dispatch);
-        }
-    }, [clubData.loaded, clubData.value._id, currentClubFromList, dispatch, user.club_id]);
 
     const updateUsersInStore = (updatedUsers: Array<{ _id: string; status: string }>, removedUserIds: string[] = []) => {
         const updatedUserMap = new Map(updatedUsers.map(updatedUser => [updatedUser._id, updatedUser.status]));
@@ -226,24 +202,6 @@ export default function AdminMembersPage() {
             <>
                 <p><AdminBackButton /></p>
                 <h1>Mitglieder verwalten</h1>
-                {hasMemberCap ? (
-                    <>
-                        {hasReachedMembersLimit ? (
-                            <p className="hint hint-box members-warning-box">
-                                Achtung: Das aktuelle Mitgliederlimit von {membersLimit} aktiven Mitgliedern ist erreicht.
-                            </p>
-                        ) : null}
-                        {hasMembersLimitOverride ? (
-                            <p className="hint hint-box members-warning-box">
-                                Achtung: Das Mitgliederlimit wird aktuell zentral auf {membersLimit} aktive Mitglieder erzwungen. Diese Grenze gilt unabhängig vom gewählten Plan.
-                            </p>
-                        ) : (
-                            <p>
-                                Im {currentPlanName} Plan sind maximal {membersLimit} aktive Mitglieder erlaubt. {planUpgradeText}
-                            </p>
-                        )}
-                    </>
-                ) : null}
                 <div className="members-tabs" role="tablist" aria-label="Mitgliederstatus">
                     <button
                         type="button"

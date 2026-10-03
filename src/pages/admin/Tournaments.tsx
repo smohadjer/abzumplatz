@@ -50,6 +50,7 @@ export default function AdminTournamentsPage() {
     const user = useSelector((state: RootState) => state.auth);
     const tournamentsData = useSelector((state: RootState) => state.tournaments);
     const club = useSelector((state: RootState) => state.clubs.value.find(club => club._id === user.club_id));
+    const hasProTournamentFeatures = club?.access_plan_type === 'pro';
     const tournaments = tournamentsData.value;
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -134,9 +135,9 @@ export default function AdminTournamentsPage() {
 
             <section className="admin-management-section">
                 {!tournamentId ? <><p className="admin-competition-groups-description">Hier verwalten Sie die bevorstehenden und vergangenen Turniere Ihres Vereins.</p>
-                <div className="admin-management-primary-actions">
+                {hasProTournamentFeatures ? <div className="admin-management-primary-actions">
                     <Link className="button-link icon icon--trophy" to="/admin/tournaments/new">Neues Turnier erstellen</Link>
-                </div>
+                </div> : <p>Neue Turniere können nur im <Link to="/admin/club">Pro-Plan</Link> erstellt werden.</p>}
                 <fieldset className="admin-filter-options">
                     <legend>Filter:</legend>
                     {tournamentFilters.map(filter => <label className="admin-filter-option" key={filter.id}>
@@ -173,7 +174,7 @@ export default function AdminTournamentsPage() {
                                             : tournament.end_date < today ? 'Beendet' : 'Laufend'}
                                     </p>
                                 </div>
-                                <div className="admin-management-actions">
+                                {hasProTournamentFeatures ? <div className="admin-management-actions">
                                     <Link
                                         className="button-link button-link--secondary"
                                         onClick={event => {
@@ -184,7 +185,7 @@ export default function AdminTournamentsPage() {
                                         to={`/admin/tournaments/${tournament._id}/edit`}
                                     >Bearbeiten</Link>
                                     <button className="delete-action-button delete-action-button--subtle" onClick={() => deleteTournament(tournament)} type="button">Löschen</button>
-                                </div>
+                                </div> : null}
                             </> : null}
                             {tournamentId && tournament.description ? <p>{tournament.description}</p> : null}
                             {tournamentId ? <>
@@ -216,6 +217,7 @@ export default function AdminTournamentsPage() {
                             </> : null}
                             {tournamentId ? <div className="admin-management-actions">
                                 <Link className="button-link button-link--secondary" to={`/admin/tournaments/${tournament._id}/participants`}>Teilnehmende</Link>
+                                {hasProTournamentFeatures ? <>
                                 <Link
                                     className="button-link button-link--secondary"
                                     onClick={event => {
@@ -226,6 +228,7 @@ export default function AdminTournamentsPage() {
                                     to={`/admin/tournaments/${tournament._id}/edit`}
                                 >Bearbeiten</Link>
                                 <button className="delete-action-button delete-action-button--subtle" onClick={() => deleteTournament(tournament)} type="button">Löschen</button>
+                                </> : null}
                             </div> : null}
                         </article>
                     ))}
