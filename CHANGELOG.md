@@ -2,6 +2,19 @@
 
 All notable changes to this project should be documented in this file.
 
+## 0.8.1
+
+### Changed
+
+- Stacked the homepage screenshot slider above the feature section on desktop and refined the responsive spacing between the Basic and Pro feature lists.
+- Unified the homepage cards and feature section with the same subtle background treatment and simplified their borders and corners.
+- Added regular reports about court usage and membership development to the Pro feature list and clarified that telephone support is an additional Pro benefit.
+- Aligned homepage card spacing across mobile and desktop.
+
+### Fixed
+
+- Removed the inline-image baseline gap beneath the header logo.
+
 ## 0.8.0
 
 ### Added

@@ -586,6 +586,7 @@
 .header-logo {
   width: 160px;
   height: auto;
+  vertical-align: top;
 }
 
 .header-logo-link {
